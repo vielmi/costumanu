@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Menu, MessageCircle, Heart, ShoppingBag } from "lucide-react";
+import { Menu, MessageCircle, Heart, ShoppingBag, Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function SiteHeader() {
@@ -14,6 +14,12 @@ export function SiteHeader() {
         <span className="text-lg font-bold tracking-tight">kostüm+</span>
 
         <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="text-surface-dark-foreground" asChild>
+            <Link href="/fundus">
+              <Archive className="h-5 w-5" />
+              <span className="sr-only">Fundus</span>
+            </Link>
+          </Button>
           <Button variant="ghost" size="icon" className="text-surface-dark-foreground">
             <MessageCircle className="h-5 w-5" />
             <span className="sr-only">Chat</span>

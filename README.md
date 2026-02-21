@@ -201,18 +201,26 @@ Browse available components at [ui.shadcn.com](https://ui.shadcn.com).
 src/
 ├── app/
 │   ├── auth/callback/route.ts  # Supabase auth code exchange
+│   ├── fundus/
+│   │   ├── page.tsx            # Costume inventory listing (auth-guarded)
+│   │   └── neu/page.tsx        # Create new costume form
 │   ├── login/page.tsx          # Sign-in / sign-up page
 │   ├── merkliste/page.tsx      # Wishlist page (auth-guarded)
 │   ├── globals.css             # Tailwind + Shadcn theme
 │   ├── layout.tsx              # Root layout with providers
 │   └── page.tsx                # Home page
 ├── components/
+│   ├── fundus/                 # Costume listing + creation form
 │   ├── homepage/               # Home page sections
 │   ├── layout/                 # SiteHeader, SiteFooter
 │   ├── merkliste/              # Wishlist client component
 │   ├── providers.tsx           # Client-side providers (TanStack Query)
 │   └── ui/                     # Shadcn/UI components (added via CLI)
 ├── lib/
+│   ├── helpers/
+│   │   └── barcode.ts          # Barcode ID generator for costume items
+│   ├── types/
+│   │   └── costume.ts          # TypeScript interfaces for costumes & taxonomy
 │   ├── utils.ts                # cn() class merge helper
 │   └── supabase/
 │       ├── client.ts           # Browser client
