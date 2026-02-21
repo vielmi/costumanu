@@ -1,6 +1,13 @@
 # Costumanu
 
-Costume rental management platform.
+Costume rental management platform for theaters, film productions, and performing arts.
+
+## Live Environments
+
+| Environment | URL |
+|---|---|
+| Production | [costumanu.vercel.app](https://costumanu.vercel.app) |
+| Supabase Dashboard | [supabase.com/dashboard/project/dkzhnzwjthwjwtvlufyz](https://supabase.com/dashboard/project/dkzhnzwjthwjwtvlufyz) |
 
 ## Tech Stack
 
@@ -9,6 +16,7 @@ Costume rental management platform.
 | Frontend | Next.js (App Router) + Tailwind v4 | SSR/SSG React framework with utility-first CSS |
 | Mobile | Capacitor | Wraps the web app into native iOS/Android binaries |
 | Backend | Supabase (PostgreSQL) | Auth, Storage, Database with Row Level Security |
+| Hosting | Vercel | Production deployment with auto-builds |
 | State/Data | TanStack Query | Server state management with caching and optimistic updates |
 | UI | Shadcn/UI + Lucide Icons | Copy-paste component library with icon set |
 
@@ -17,6 +25,7 @@ Costume rental management platform.
 - Node.js >= 18
 - npm
 - A [Supabase](https://supabase.com) project (free tier works)
+- A [Vercel](https://vercel.com) account (free hobby tier works)
 
 ## Getting Started
 
@@ -39,9 +48,10 @@ Costume rental management platform.
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
    ```
 
-3. **Apply the database schema**
+3. **Link and apply the database schema**
 
    ```bash
+   npx supabase login
    npx supabase link --project-ref <your-project-ref>
    npx supabase db push
    ```
@@ -67,9 +77,38 @@ Costume rental management platform.
 | `npm run cap:android` | Open project in Android Studio |
 | `npm run cap:ios` | Open project in Xcode |
 
+## Deployment (Vercel)
+
+The app is deployed on [Vercel](https://vercel.com). To deploy manually:
+
+```bash
+npx vercel --prod
+```
+
+### Environment variables on Vercel
+
+The following env vars must be set in the Vercel project settings (or via CLI):
+
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous/public key |
+
+To set them via CLI:
+
+```bash
+echo "https://your-project.supabase.co" | npx vercel env add NEXT_PUBLIC_SUPABASE_URL production --force
+echo "your-anon-key" | npx vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production --force
+```
+
+### Auto-deploys from GitHub
+
+To enable auto-deploys on every push, connect the GitHub repo in the Vercel dashboard:
+**Project Settings > Git > Connected Git Repository** and authorize the Vercel GitHub app.
+
 ## Database & Migrations
 
-The database schema is managed via [Supabase CLI](https://supabase.com/docs/guides/cli) migrations, stored in `supabase/migrations/`. This works similarly to Flyway: timestamped SQL files are applied in order and tracked so each migration runs exactly once.
+The database schema is managed via [Supabase CLI](https://supabase.com/docs/guides/cli) migrations, stored in `supabase/migrations/`. Timestamped SQL files are applied in order and tracked so each migration runs exactly once.
 
 ### Applying migrations
 
@@ -160,11 +199,17 @@ Browse available components at [ui.shadcn.com](https://ui.shadcn.com).
 
 ```
 src/
-├── app/                        # Next.js App Router pages
+├── app/
+│   ├── auth/callback/route.ts  # Supabase auth code exchange
+│   ├── login/page.tsx          # Sign-in / sign-up page
+│   ├── merkliste/page.tsx      # Wishlist page (auth-guarded)
 │   ├── globals.css             # Tailwind + Shadcn theme
 │   ├── layout.tsx              # Root layout with providers
 │   └── page.tsx                # Home page
 ├── components/
+│   ├── homepage/               # Home page sections
+│   ├── layout/                 # SiteHeader, SiteFooter
+│   ├── merkliste/              # Wishlist client component
 │   ├── providers.tsx           # Client-side providers (TanStack Query)
 │   └── ui/                     # Shadcn/UI components (added via CLI)
 ├── lib/
@@ -178,5 +223,4 @@ src/
 supabase/
 ├── config.toml                 # Supabase local config
 └── migrations/                 # Timestamped SQL migration files
-    └── 20260221134118_initial_schema.sql
 ```

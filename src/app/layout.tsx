@@ -14,8 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Costumanu",
-  description: "Costume rental management",
+  title: "kostüm+ | Kostüm-Finder für Film & Theater",
+  description:
+    "Der Kostüm-Finder für die Film- & Theaterbranche. Kostüme suchen, leihen und verwalten.",
 };
 
 export default function RootLayout({
@@ -24,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="de">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

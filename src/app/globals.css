@@ -45,6 +45,12 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  --color-gold: oklch(0.795 0.16 75);
+  --color-gold-foreground: oklch(0.25 0.05 75);
+  --color-chip: oklch(0.55 0.15 155);
+  --color-chip-foreground: oklch(0.98 0 0);
+  --color-surface-dark: oklch(0.22 0.01 260);
+  --color-surface-dark-foreground: oklch(0.92 0 0);
 }
 
 :root {
