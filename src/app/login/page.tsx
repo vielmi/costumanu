@@ -16,6 +16,27 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+
+  async function handleResetPassword() {
+    if (!email) {
+      setError("Bitte gib deine E-Mail-Adresse ein.");
+      return;
+    }
+    setError(null);
+    setLoading(true);
+    const supabase = createClient();
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+      email,
+      { redirectTo: `${window.location.origin}/auth/callback` }
+    );
+    setLoading(false);
+    if (resetError) {
+      setError(resetError.message);
+      return;
+    }
+    setResetSent(true);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -84,6 +105,12 @@ export default function LoginPage() {
                 <p className="text-sm text-destructive">{error}</p>
               )}
 
+              {resetSent && (
+                <p className="text-sm text-green-600">
+                  Ein Link zum Zurücksetzen wurde an {email} gesendet.
+                </p>
+              )}
+
               <Button type="submit" disabled={loading}>
                 {loading
                   ? "Laden..."
@@ -92,11 +119,23 @@ export default function LoginPage() {
                     : "Anmelden"}
               </Button>
 
+              {!isSignUp && (
+                <button
+                  type="button"
+                  onClick={handleResetPassword}
+                  disabled={loading}
+                  className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+                >
+                  Passwort vergessen?
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => {
                   setIsSignUp(!isSignUp);
                   setError(null);
+                  setResetSent(false);
                 }}
                 className="text-sm text-muted-foreground underline-offset-4 hover:underline"
               >
