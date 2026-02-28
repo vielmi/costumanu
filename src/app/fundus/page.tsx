@@ -43,7 +43,9 @@ export default async function FundusPage() {
           <SiteHeader />
           <main className="mx-auto max-w-5xl px-4 py-8">
             <h1 className="text-xl font-bold text-destructive">Fehler beim Erstellen des Theaters</h1>
-            <pre className="mt-4 rounded bg-muted p-4 text-sm">{JSON.stringify(bootstrapError, null, 2)}</pre>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Bitte versuche es später erneut oder kontaktiere den Support.
+            </p>
           </main>
           <SiteFooter />
         </div>

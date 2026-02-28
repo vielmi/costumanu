@@ -4,9 +4,8 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus } from "lucide-react";
+import { Plus, Archive } from "lucide-react";
 import type { Costume } from "@/lib/types/costume";
 
 interface FundusClientProps {
@@ -52,11 +51,23 @@ export function FundusClient({ initialCostumes, theaterId }: FundusClientProps) 
       </div>
 
       {costumes.length === 0 ? (
-        <p className="text-muted-foreground">
-          Noch keine Kostüme vorhanden.
-        </p>
+        <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
+          <Archive className="h-12 w-12 text-muted-foreground" />
+          <div>
+            <p className="font-medium">Noch keine Kostüme vorhanden</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Erstelle dein erstes Kostüm, um deinen Fundus aufzubauen.
+            </p>
+          </div>
+          <Button asChild>
+            <Link href="/fundus/neu">
+              <Plus className="mr-2 h-4 w-4" />
+              Erstes Kostüm erstellen
+            </Link>
+          </Button>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {costumes.map((costume) => (
             <CostumeCard key={costume.id} costume={costume} />
           ))}
@@ -81,40 +92,43 @@ function CostumeCard({ costume }: { costume: Costume }) {
       return data.signedUrl;
     },
     enabled: !!firstMedia,
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
   });
 
   return (
-    <Card className="overflow-hidden py-0">
-      <div className="flex">
-        <div className="relative h-40 w-32 shrink-0 bg-muted">
-          {imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={imageUrl}
-              alt={costume.name}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-              Kein Foto
-            </div>
-          )}
-        </div>
-        <CardContent className="flex flex-1 flex-col justify-center gap-2 p-4">
-          <h3 className="font-semibold leading-tight">{costume.name}</h3>
-          {firstProvenance && (
-            <p className="text-sm text-muted-foreground">
-              {firstProvenance.production_title}
-              {firstProvenance.year ? ` (${firstProvenance.year})` : ""}
-            </p>
-          )}
-          {costume.clothing_type && (
-            <Badge variant="secondary" className="w-fit">
-              {costume.clothing_type.label_de}
-            </Badge>
-          )}
-        </CardContent>
+    <Link
+      href={`/kostuem/${costume.id}`}
+      className="group overflow-hidden rounded-xl border bg-card text-card-foreground transition-colors hover:bg-accent"
+    >
+      <div className="relative aspect-[3/4] w-full bg-muted">
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imageUrl}
+            alt={costume.name}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+            Kein Foto
+          </div>
+        )}
       </div>
-    </Card>
+      <div className="flex flex-col gap-1 p-3">
+        <h3 className="text-sm font-semibold leading-tight">{costume.name}</h3>
+        {firstProvenance && (
+          <p className="text-xs text-muted-foreground">
+            {firstProvenance.production_title}
+            {firstProvenance.year ? ` (${firstProvenance.year})` : ""}
+          </p>
+        )}
+        {costume.clothing_type && (
+          <Badge variant="secondary" className="mt-1 w-fit text-xs">
+            {costume.clothing_type.label_de}
+          </Badge>
+        )}
+      </div>
+    </Link>
   );
 }

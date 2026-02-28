@@ -79,7 +79,7 @@ Costume rental management platform for theaters, film productions, and performin
 
 ## Deployment (Vercel)
 
-The app is deployed on [Vercel](https://vercel.com). To deploy manually:
+The app is deployed on [Vercel](https://costumanu.vercel.app/). To deploy manually:
 
 ```bash
 npx vercel --prod
