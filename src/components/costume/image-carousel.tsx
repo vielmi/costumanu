@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
+import { t } from "@/lib/i18n";
 import type { CostumeMedia } from "@/lib/types/costume";
 
 type ImageCarouselProps = {
@@ -37,7 +38,7 @@ export function ImageCarousel({ media, name }: ImageCarouselProps) {
   if (media.length === 0) {
     return (
       <div className="mx-4 flex aspect-[3/4] items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
-        Kein Foto vorhanden
+        {t("costume.noPhoto")}
       </div>
     );
   }
@@ -52,7 +53,7 @@ export function ImageCarousel({ media, name }: ImageCarouselProps) {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={currentUrl}
-            alt={`${name} – Bild ${currentIndex + 1}`}
+            alt={`${name} – ${t("costume.image")} ${currentIndex + 1}`}
             className="h-full w-full object-cover"
           />
         ) : (
@@ -73,7 +74,7 @@ export function ImageCarousel({ media, name }: ImageCarouselProps) {
                   ? "bg-foreground"
                   : "bg-muted-foreground/30"
               }`}
-              aria-label={`Bild ${i + 1} anzeigen`}
+              aria-label={t("costume.showImage", { n: i + 1 })}
             />
           ))}
         </div>
@@ -88,7 +89,7 @@ export function ImageCarousel({ media, name }: ImageCarouselProps) {
             onClick={() =>
               setCurrentIndex((i) => (i === 0 ? media.length - 1 : i - 1))
             }
-            aria-label="Vorheriges Bild"
+            aria-label={t("costume.previousImage")}
           />
           <button
             type="button"
@@ -96,7 +97,7 @@ export function ImageCarousel({ media, name }: ImageCarouselProps) {
             onClick={() =>
               setCurrentIndex((i) => (i === media.length - 1 ? 0 : i + 1))
             }
-            aria-label="Nächstes Bild"
+            aria-label={t("costume.nextImage")}
           />
         </>
       )}

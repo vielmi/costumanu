@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { t } from "@/lib/i18n";
 
 const footerNavLinks = [
-  { label: "Häufige Fragen", href: "/faq" },
-  { label: "Ausleihe & Abholung", href: "/ausleihe" },
-  { label: "Support & Kontakt", href: "/support" },
+  { labelKey: "footer.faq" as const, href: "/faq" },
+  { labelKey: "footer.rentalAndPickup" as const, href: "/rental" },
+  { labelKey: "footer.supportAndContact" as const, href: "/support" },
 ];
 
 export function SiteFooter() {
@@ -22,7 +23,7 @@ export function SiteFooter() {
               href={link.href}
               className="flex items-center gap-2 text-sm text-surface-dark-foreground/70 transition-colors hover:text-surface-dark-foreground"
             >
-              {link.label}
+              {t(link.labelKey)}
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           ))}
@@ -34,14 +35,14 @@ export function SiteFooter() {
             href="/impressum"
             className="hover:text-surface-dark-foreground/70"
           >
-            Impressum
+            {t("footer.imprint")}
           </Link>{" "}
           |{" "}
           <Link
             href="/datenschutz"
             className="hover:text-surface-dark-foreground/70"
           >
-            Datenschutz
+            {t("footer.privacy")}
           </Link>
         </p>
       </div>

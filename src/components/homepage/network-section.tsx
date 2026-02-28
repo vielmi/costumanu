@@ -24,7 +24,7 @@ export function NetworkSection({ theaters }: NetworkSectionProps) {
         {theaters.map((theater) => (
           <Link
             key={theater.id}
-            href={`/ergebnisse?theater=${theater.id}`}
+            href={`/results?theater=${theater.id}`}
             className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 text-card-foreground transition-colors hover:bg-accent"
           >
             {/* Initials avatar placeholder */}

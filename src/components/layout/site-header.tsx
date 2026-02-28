@@ -46,7 +46,7 @@ export function SiteHeader() {
               className="text-surface-dark-foreground"
               asChild
             >
-              <Link href="/nachrichten">
+              <Link href="/messages">
                 <MessageCircle className="h-5 w-5" />
                 <span className="sr-only">Nachrichten</span>
               </Link>
@@ -57,7 +57,7 @@ export function SiteHeader() {
               className="text-surface-dark-foreground"
               asChild
             >
-              <Link href="/merkliste">
+              <Link href="/wishlist">
                 <Heart className="h-5 w-5" />
                 <span className="sr-only">Merkliste</span>
               </Link>
@@ -68,7 +68,7 @@ export function SiteHeader() {
               className="relative text-surface-dark-foreground"
               asChild
             >
-              <Link href="/ausleihe">
+              <Link href="/rental">
                 <ShoppingBag className="h-5 w-5" />
                 <span className="sr-only">Ausleihe</span>
               </Link>

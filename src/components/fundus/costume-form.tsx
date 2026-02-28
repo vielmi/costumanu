@@ -23,6 +23,7 @@ import { ArrowLeft, Upload, X } from "lucide-react";
 import { generateBarcodeId } from "@/lib/helpers/barcode";
 import type { TaxonomyTerm, CostumeFormData } from "@/lib/types/costume";
 import Link from "next/link";
+import { t } from "@/lib/i18n";
 
 interface CostumeFormProps {
   theaterId: string;
@@ -199,32 +200,32 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
         <Button variant="ghost" size="icon" asChild>
           <Link href="/fundus">
             <ArrowLeft className="h-5 w-5" />
-            <span className="sr-only">Zurück</span>
+            <span className="sr-only">{t("common.back")}</span>
           </Link>
         </Button>
-        <h1 className="text-2xl font-bold">Neues Kostüm</h1>
+        <h1 className="text-2xl font-bold">{t("costumeForm.newCostume")}</h1>
       </div>
 
       {/* === Grunddaten === */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold">Grunddaten</h2>
+        <h2 className="text-lg font-semibold">{t("costumeForm.basicData")}</h2>
         <div className="flex flex-col gap-2">
           <Label htmlFor="name">Name *</Label>
           <Input
             id="name"
             value={form.name}
             onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-            placeholder="z.B. Rotes Samtkleid Barock"
+            placeholder={t("costumeForm.namePlaceholder")}
             required
           />
         </div>
         <div className="flex flex-col gap-2">
-          <Label htmlFor="description">Beschreibung</Label>
+          <Label htmlFor="description">{t("costumeForm.description")}</Label>
           <Textarea
             id="description"
             value={form.description}
             onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-            placeholder="Optionale Beschreibung des Kostüms..."
+            placeholder={t("costumeForm.descriptionPlaceholder")}
             rows={3}
           />
         </div>
@@ -234,16 +235,16 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
 
       {/* === Kategorisierung === */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold">Kategorisierung</h2>
+        <h2 className="text-lg font-semibold">{t("costumeForm.categorization")}</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
-            <Label>Geschlecht</Label>
+            <Label>{t("costumeForm.gender")}</Label>
             <Select
               value={form.gender_term_id}
               onValueChange={(val) => setForm((prev) => ({ ...prev, gender_term_id: val }))}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Geschlecht wählen" />
+                <SelectValue placeholder={t("costumeForm.genderPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 {initialTaxonomy.genders.map((g) => (
@@ -256,13 +257,13 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label>Bekleidungsart</Label>
+            <Label>{t("costumeForm.clothingType")}</Label>
             <Select
               value={form.clothing_type_id}
               onValueChange={(val) => setForm((prev) => ({ ...prev, clothing_type_id: val }))}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Bekleidungsart wählen" />
+                <SelectValue placeholder={t("costumeForm.clothingTypePlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 {topLevelClothingTypes.map((parent) => {
@@ -280,7 +281,7 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
                     <SelectGroup key={parent.id}>
                       <SelectLabel>{parent.label_de}</SelectLabel>
                       <SelectItem value={parent.id}>
-                        {parent.label_de} (Allgemein)
+                        {parent.label_de} ({t("costumeForm.general")})
                       </SelectItem>
                       {children.map((child) => (
                         <SelectItem key={child.id} value={child.id}>
@@ -300,10 +301,10 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
 
       {/* === Eigenschaften (multi-select via toggle badges) === */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold">Eigenschaften</h2>
+        <h2 className="text-lg font-semibold">{t("costumeForm.properties")}</h2>
 
         <div className="flex flex-col gap-2">
-          <Label>Material</Label>
+          <Label>{t("costumeForm.material")}</Label>
           <div className="flex flex-wrap gap-2">
             {initialTaxonomy.materials.map((m) => (
               <Badge
@@ -319,7 +320,7 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label>Farbe</Label>
+          <Label>{t("costumeForm.color")}</Label>
           <div className="flex flex-wrap gap-2">
             {initialTaxonomy.colors.map((c) => (
               <Badge
@@ -335,7 +336,7 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label>Epoche</Label>
+          <Label>{t("costumeForm.epoch")}</Label>
           <div className="flex flex-wrap gap-2">
             {initialTaxonomy.epochs.map((ep) => (
               <Badge
@@ -355,14 +356,14 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
 
       {/* === Physisches Stück === */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold">Physisches Stück</h2>
+        <h2 className="text-lg font-semibold">{t("costumeForm.physicalItem")}</h2>
         <div className="flex flex-col gap-2">
-          <Label htmlFor="size_label">Konfektionsgrösse</Label>
+          <Label htmlFor="size_label">{t("costumeForm.sizeLabel")}</Label>
           <Input
             id="size_label"
             value={form.size_label}
             onChange={(e) => setForm((prev) => ({ ...prev, size_label: e.target.value }))}
-            placeholder="z.B. M, 38, XL"
+            placeholder={t("costumeForm.sizePlaceholder")}
             className="max-w-xs"
           />
         </div>
@@ -372,35 +373,35 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
 
       {/* === Herkunft === */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold">Herkunft</h2>
+        <h2 className="text-lg font-semibold">{t("costumeForm.provenance")}</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="production_title">Stücktitel</Label>
+            <Label htmlFor="production_title">{t("costumeForm.productionTitle")}</Label>
             <Input
               id="production_title"
               value={form.production_title}
               onChange={(e) => setForm((prev) => ({ ...prev, production_title: e.target.value }))}
-              placeholder="z.B. Romeo & Julia"
+              placeholder={t("costumeForm.productionTitlePlaceholder")}
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="production_year">Jahr</Label>
+            <Label htmlFor="production_year">{t("costumeForm.year")}</Label>
             <Input
               id="production_year"
               type="number"
               value={form.production_year}
               onChange={(e) => setForm((prev) => ({ ...prev, production_year: e.target.value }))}
-              placeholder="z.B. 2024"
+              placeholder={t("costumeForm.yearPlaceholder")}
               className="max-w-xs"
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="role_name">Rolle</Label>
+            <Label htmlFor="role_name">{t("costumeForm.role")}</Label>
             <Input
               id="role_name"
               value={form.role_name}
               onChange={(e) => setForm((prev) => ({ ...prev, role_name: e.target.value }))}
-              placeholder="z.B. Julia"
+              placeholder={t("costumeForm.rolePlaceholder")}
             />
           </div>
         </div>
@@ -410,13 +411,13 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
 
       {/* === Foto === */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold">Foto</h2>
+        <h2 className="text-lg font-semibold">{t("costumeForm.photo")}</h2>
         {photoPreview ? (
           <div className="relative w-fit">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={photoPreview}
-              alt="Vorschau"
+              alt={t("costumeForm.photoPreview")}
               className="h-48 rounded-md object-cover"
             />
             <Button
@@ -436,7 +437,7 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
             className="flex h-32 w-full max-w-xs cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-muted-foreground/25 text-muted-foreground transition-colors hover:border-muted-foreground/50"
           >
             <Upload className="h-6 w-6" />
-            <span className="text-sm">Foto hochladen</span>
+            <span className="text-sm">{t("costumeForm.uploadPhoto")}</span>
           </button>
         )}
         <input
@@ -453,16 +454,16 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
       {/* === Submit === */}
       <div className="flex gap-3">
         <Button type="submit" disabled={createCostume.isPending || !form.name.trim()}>
-          {createCostume.isPending ? "Wird gespeichert..." : "Kostüm speichern"}
+          {createCostume.isPending ? t("costumeForm.saving") : t("costumeForm.saveCostume")}
         </Button>
         <Button type="button" variant="outline" asChild>
-          <Link href="/fundus">Abbrechen</Link>
+          <Link href="/fundus">{t("common.cancel")}</Link>
         </Button>
       </div>
 
       {createCostume.isError && (
         <p className="text-sm text-destructive">
-          Fehler: {(createCostume.error as Error).message}
+          {t("common.error")}: {(createCostume.error as Error).message}
         </p>
       )}
     </form>

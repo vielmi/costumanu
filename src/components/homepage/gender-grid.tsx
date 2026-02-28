@@ -32,7 +32,7 @@ export function GenderGrid({ genders }: GenderGridProps) {
           return (
             <Link
               key={gender.id}
-              href={`/ergebnisse?gender=${gender.id}`}
+              href={`/results?gender=${gender.id}`}
               className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 text-card-foreground transition-colors hover:bg-accent"
             >
               <Icon className="h-7 w-7" />

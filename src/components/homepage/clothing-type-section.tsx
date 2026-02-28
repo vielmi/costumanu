@@ -20,7 +20,7 @@ export function ClothingTypeSection({
           return (
             <Link
               key={item.id}
-              href={`/ergebnisse?clothing_type=${item.id}`}
+              href={`/results?clothing_type=${item.id}`}
               className="group relative overflow-hidden rounded-xl bg-muted"
             >
               {/* Placeholder image area */}

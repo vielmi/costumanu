@@ -7,6 +7,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { t } from "@/lib/i18n";
 import type { Costume, CostumeItem, CostumeProvenance, TaxonomyTerm } from "@/lib/types/costume";
 
 type CostumeSpecsProps = {
@@ -17,15 +18,15 @@ type CostumeSpecsProps = {
 };
 
 const sizeDataLabels: Record<string, string> = {
-  chest: "Brustumfang",
-  waist: "Taillenumfang",
-  back_length: "Rückenlänge",
-  shoulder_width: "Schulterbreite",
-  hip: "Hüftumfang",
-  inseam: "Schrittlänge",
-  thigh: "Oberschenkelweite",
-  waistband: "Bundweite",
-  skirt_length: "Rocklänge",
+  chest: t("costume.chest"),
+  waist: t("costume.waist"),
+  back_length: t("costume.backLength"),
+  shoulder_width: t("costume.shoulderWidth"),
+  hip: t("costume.hip"),
+  inseam: t("costume.inseam"),
+  thigh: t("costume.thigh"),
+  waistband: t("costume.waistband"),
+  skirt_length: t("costume.skirtLength"),
 };
 
 const colorMap: Record<string, string> = {
@@ -75,35 +76,35 @@ export function CostumeSpecs({
 
   return (
     <section className="px-4">
-      <h2 className="mb-3 text-lg font-bold">Kostümspezifikationen</h2>
+      <h2 className="mb-3 text-lg font-bold">{t("costume.specifications")}</h2>
       <Accordion type="multiple" defaultValue={["kategorisierung"]}>
         {/* Kategorisierung */}
         {hasKategorisierung && (
           <AccordionItem value="kategorisierung">
-            <AccordionTrigger>Kategorisierung</AccordionTrigger>
+            <AccordionTrigger>{t("costume.categorization")}</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col gap-2">
                 {costume.gender_term && (
                   <SpecRow
-                    label="Geschlecht"
+                    label={t("costume.gender")}
                     value={costume.gender_term.label_de}
                   />
                 )}
                 {costume.clothing_type && (
                   <SpecRow
-                    label="Bekleidungsart"
+                    label={t("costume.clothingType")}
                     value={costume.clothing_type.label_de}
                   />
                 )}
                 {epochs.length > 0 && (
                   <SpecRow
-                    label="Epoche"
+                    label={t("costume.epoch")}
                     value={epochs.map((e) => e.label_de).join(", ")}
                   />
                 )}
                 {sparten.length > 0 && (
                   <SpecRow
-                    label="Sparte"
+                    label={t("costume.division")}
                     value={sparten.map((s) => s.label_de).join(", ")}
                   />
                 )}
@@ -115,37 +116,37 @@ export function CostumeSpecs({
         {/* Aufführung */}
         {hasAuffuehrung && firstProvenance && (
           <AccordionItem value="auffuehrung">
-            <AccordionTrigger>Aufführung</AccordionTrigger>
+            <AccordionTrigger>{t("costume.performance")}</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col gap-2">
                 <SpecRow
-                  label="Stücktitel"
+                  label={t("costume.productionTitle")}
                   value={firstProvenance.production_title}
                 />
                 {firstProvenance.year && (
-                  <SpecRow label="Jahr" value={String(firstProvenance.year)} />
+                  <SpecRow label={t("costume.year")} value={String(firstProvenance.year)} />
                 )}
                 {firstProvenance.actor_name && (
                   <SpecRow
-                    label="Darsteller"
+                    label={t("costume.actor")}
                     value={firstProvenance.actor_name}
                   />
                 )}
                 {firstProvenance.role_name && (
-                  <SpecRow label="Rolle" value={firstProvenance.role_name} />
+                  <SpecRow label={t("costume.role")} value={firstProvenance.role_name} />
                 )}
                 {firstProvenance.director_name && (
-                  <SpecRow label="Regie" value={firstProvenance.director_name} />
+                  <SpecRow label={t("costume.director")} value={firstProvenance.director_name} />
                 )}
                 {firstProvenance.costume_designer && (
                   <SpecRow
-                    label="Kostümbildner"
+                    label={t("costume.costumeDesigner")}
                     value={firstProvenance.costume_designer}
                   />
                 )}
                 {firstProvenance.costume_assistant && (
                   <SpecRow
-                    label="Kostümassistenz"
+                    label={t("costume.costumeAssistant")}
                     value={firstProvenance.costume_assistant}
                   />
                 )}
@@ -157,13 +158,13 @@ export function CostumeSpecs({
         {/* Material & Farbe */}
         {hasMaterial && (
           <AccordionItem value="material">
-            <AccordionTrigger>Material & Farbe</AccordionTrigger>
+            <AccordionTrigger>{t("costume.materialAndColor")}</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col gap-3">
                 {materials.length > 0 && (
                   <div>
                     <span className="text-xs text-muted-foreground">
-                      Material
+                      {t("costume.material")}
                     </span>
                     <div className="mt-1 flex flex-wrap gap-1.5">
                       {materials.map((m) => (
@@ -176,20 +177,20 @@ export function CostumeSpecs({
                 )}
                 {materialoptik.length > 0 && (
                   <SpecRow
-                    label="Materialoptik"
+                    label={t("costume.materialAppearance")}
                     value={materialoptik.map((m) => m.label_de).join(", ")}
                   />
                 )}
                 {muster.length > 0 && (
                   <SpecRow
-                    label="Muster"
+                    label={t("costume.pattern")}
                     value={muster.map((m) => m.label_de).join(", ")}
                   />
                 )}
                 {colors.length > 0 && (
                   <div>
                     <span className="text-xs text-muted-foreground">
-                      Farbrichtung
+                      {t("costume.colorDirection")}
                     </span>
                     <div className="mt-1 flex flex-wrap gap-2">
                       {colors.map((c) => (
@@ -218,12 +219,12 @@ export function CostumeSpecs({
         {/* Masse */}
         {hasMasse && firstItem && (
           <AccordionItem value="masse">
-            <AccordionTrigger>Masse</AccordionTrigger>
+            <AccordionTrigger>{t("costume.measurements")}</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col gap-2">
                 {firstItem.size_label && (
                   <SpecRow
-                    label="Konfektionsgrösse"
+                    label={t("costume.sizeLabel")}
                     value={firstItem.size_label}
                   />
                 )}
@@ -243,7 +244,7 @@ export function CostumeSpecs({
         {/* Waschanleitung */}
         {washing.length > 0 && (
           <AccordionItem value="waschanleitung">
-            <AccordionTrigger>Waschanleitung</AccordionTrigger>
+            <AccordionTrigger>{t("costume.washingInstructions")}</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-wrap gap-1.5">
                 {washing.map((w) => (

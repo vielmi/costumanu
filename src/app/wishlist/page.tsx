@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { MerklisteClient } from "@/components/merkliste/merkliste-client";
+import { MerklisteClient } from "@/components/wishlist/merkliste-client";
+import { t } from "@/lib/i18n";
 
 export default async function MerklistePage() {
   const supabase = await createClient();
@@ -45,8 +46,8 @@ export default async function MerklistePage() {
         <div className="min-h-screen bg-background text-foreground">
           <SiteHeader />
           <main className="mx-auto max-w-5xl px-4 py-8">
-            <h1 className="text-xl font-bold text-destructive">Fehler beim Erstellen des Theaters</h1>
-            <pre className="mt-4 rounded bg-muted p-4 text-sm">{JSON.stringify(bootstrapError, null, 2)}</pre>
+            <h1 className="text-xl font-bold text-destructive">{t("inventory.errorTitle")}</h1>
+            <p className="mt-4 text-sm text-muted-foreground">{t("inventory.errorDescription")}</p>
           </main>
           <SiteFooter />
         </div>
@@ -70,7 +71,7 @@ export default async function MerklistePage() {
 
       <main className="mx-auto max-w-5xl px-4 py-8">
         <MerklisteClient
-          initialWishlists={wishlists ?? []}
+          initialWishlists={(wishlists ?? []).map(w => ({ ...w, item_count: 0 }))}
           theaterId={theaterId}
           userId={user.id}
         />

@@ -5,9 +5,10 @@ import { ArrowLeft, Share2, Heart, ShoppingBag, MapPin, Copy, Check } from "luci
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ImageCarousel } from "@/components/kostuem/image-carousel";
-import { CostumeSpecs } from "@/components/kostuem/costume-specs";
-import { SimilarCostumes } from "@/components/kostuem/similar-costumes";
+import { ImageCarousel } from "@/components/costume/image-carousel";
+import { CostumeSpecs } from "@/components/costume/costume-specs";
+import { SimilarCostumes } from "@/components/costume/similar-costumes";
+import { t } from "@/lib/i18n";
 import type { Costume, TaxonomyTerm } from "@/lib/types/costume";
 
 type CostumeDetailClientProps = {
@@ -31,17 +32,17 @@ export function CostumeDetailClient({
       {/* Breadcrumbs */}
       <div className="px-4 pt-4">
         <Link
-          href="/ergebnisse"
+          href="/results"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Zurück
+          {t("costume.back")}
         </Link>
         <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
           {costume.gender_term && (
             <>
               <Link
-                href={`/ergebnisse?gender=${costume.gender_term.id}`}
+                href={`/results?gender=${costume.gender_term.id}`}
                 className="hover:underline"
               >
                 {costume.gender_term.label_de}
@@ -52,7 +53,7 @@ export function CostumeDetailClient({
           {costume.clothing_type && (
             <>
               <Link
-                href={`/ergebnisse?clothing_type=${costume.clothing_type.id}`}
+                href={`/results?clothing_type=${costume.clothing_type.id}`}
                 className="hover:underline"
               >
                 {costume.clothing_type.label_de}
@@ -77,7 +78,7 @@ export function CostumeDetailClient({
         <h1 className="text-2xl font-bold">{costume.name}</h1>
         {firstItem?.size_label && (
           <p className="mt-1 text-sm text-muted-foreground">
-            Konfektionsgrösse {firstItem.size_label}
+            {t("costume.size", { size: firstItem.size_label })}
           </p>
         )}
       </div>
@@ -96,8 +97,8 @@ export function CostumeDetailClient({
         {costume.gender_term && (
           <Badge variant="outline">{costume.gender_term.label_de}</Badge>
         )}
-        {costume.is_ensemble && <Badge variant="outline">Mehrteilig</Badge>}
-        {costume.is_ensemble && <Badge variant="outline">Serie</Badge>}
+        {costume.is_ensemble && <Badge variant="outline">{t("costume.multiPart")}</Badge>}
+        {costume.is_ensemble && <Badge variant="outline">{t("costume.series")}</Badge>}
         {(taxonomyByVocabulary["epoche"] ?? []).map((t) => (
           <Badge key={t.id} variant="outline">
             {t.label_de}
@@ -119,15 +120,15 @@ export function CostumeDetailClient({
       <div className="flex gap-3 px-4">
         <Button className="flex-1 bg-gold text-gold-foreground hover:bg-gold/90">
           <ShoppingBag className="mr-2 h-4 w-4" />
-          Ausleihen
+          {t("costume.rent")}
         </Button>
         <Button variant="outline" size="icon">
           <Share2 className="h-4 w-4" />
-          <span className="sr-only">Teilen</span>
+          <span className="sr-only">{t("costume.share")}</span>
         </Button>
         <Button variant="outline" size="icon">
           <Heart className="h-4 w-4" />
-          <span className="sr-only">Merken</span>
+          <span className="sr-only">{t("costume.bookmark")}</span>
         </Button>
       </div>
 
@@ -142,13 +143,13 @@ export function CostumeDetailClient({
       {/* Standort */}
       {(costume.theater || firstItem?.storage_location_path) && (
         <section className="px-4">
-          <h2 className="mb-3 text-lg font-bold">Standort</h2>
+          <h2 className="mb-3 text-lg font-bold">{t("costume.location")}</h2>
           {costume.theater && (
             <p className="text-sm font-medium">{costume.theater.name}</p>
           )}
           {firstItem?.storage_location_path && (
             <p className="mt-1 text-sm text-muted-foreground">
-              Platzierung: {firstItem.storage_location_path.replace(/\./g, " › ")}
+              {t("costume.placement")}: {firstItem.storage_location_path.replace(/\./g, " › ")}
             </p>
           )}
         </section>
@@ -157,7 +158,7 @@ export function CostumeDetailClient({
       {/* Status */}
       {firstItem && (
         <section className="px-4">
-          <h2 className="mb-3 text-lg font-bold">Status</h2>
+          <h2 className="mb-3 text-lg font-bold">{t("costume.status")}</h2>
           <StatusBadge status={firstItem.current_status} />
         </section>
       )}
@@ -165,7 +166,7 @@ export function CostumeDetailClient({
       {/* ID & Infos */}
       {firstItem && (
         <section className="px-4">
-          <h2 className="mb-3 text-lg font-bold">ID & Infos</h2>
+          <h2 className="mb-3 text-lg font-bold">{t("costume.idAndInfo")}</h2>
           <div className="flex flex-col gap-2">
             <IdRow label="Barcode ID" value={firstItem.barcode_id} />
             {firstItem.rfid_id && (
@@ -178,12 +179,12 @@ export function CostumeDetailClient({
       {/* Kostümteile (Ensemble children) */}
       {children.length > 0 && (
         <section className="px-4">
-          <h2 className="mb-3 text-lg font-bold">Kostümteile</h2>
+          <h2 className="mb-3 text-lg font-bold">{t("costume.costumeParts")}</h2>
           <div className="flex flex-col gap-2">
             {children.map((child) => (
               <Link
                 key={child.id}
-                href={`/kostuem/${child.id}`}
+                href={`/costume/${child.id}`}
                 className="rounded-lg border p-3 transition-colors hover:bg-accent"
               >
                 <span className="text-sm font-medium">{child.name}</span>
@@ -201,7 +202,7 @@ export function CostumeDetailClient({
       {/* Historie */}
       {(costume.costume_provenance?.length ?? 0) > 0 && (
         <section className="px-4">
-          <h2 className="mb-3 text-lg font-bold">Historie</h2>
+          <h2 className="mb-3 text-lg font-bold">{t("costume.history")}</h2>
           <div className="relative border-l-2 border-muted pl-4">
             {costume.costume_provenance!.map((prov) => (
               <div key={prov.id} className="relative mb-4 last:mb-0">
@@ -212,12 +213,12 @@ export function CostumeDetailClient({
                 </p>
                 {prov.role_name && (
                   <p className="text-xs text-muted-foreground">
-                    Rolle: {prov.role_name}
+                    {t("costume.role")}: {prov.role_name}
                   </p>
                 )}
                 {prov.actor_name && (
                   <p className="text-xs text-muted-foreground">
-                    Darsteller: {prov.actor_name}
+                    {t("costume.actor")}: {prov.actor_name}
                   </p>
                 )}
               </div>
@@ -233,11 +234,11 @@ export function CostumeDetailClient({
 
 function StatusBadge({ status }: { status: string }) {
   const labels: Record<string, string> = {
-    available: "Verfügbar",
-    rented: "Ausgeliehen",
-    cleaning: "In Reinigung",
-    repair: "In Reparatur",
-    lost: "Verloren",
+    available: t("costume.statusAvailable"),
+    rented: t("costume.statusRented"),
+    cleaning: t("costume.statusCleaning"),
+    repair: t("costume.statusRepair"),
+    lost: t("costume.statusLost"),
   };
   const colors: Record<string, string> = {
     available: "bg-green-100 text-green-800",

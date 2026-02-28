@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { t } from "@/lib/i18n";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ export default function LoginPage() {
 
   async function handleResetPassword() {
     if (!email) {
-      setError("Bitte gib deine E-Mail-Adresse ein.");
+      setError(t("auth.enterEmail"));
       return;
     }
     setError(null);
@@ -55,7 +56,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/merkliste");
+    router.push("/wishlist");
     router.refresh();
   }
 
@@ -67,35 +68,35 @@ export default function LoginPage() {
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-center text-xl">
-              {isSignUp ? "Registrieren" : "Anmelden"}
+              {isSignUp ? t("auth.signUp") : t("auth.signIn")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="email" className="text-sm font-medium">
-                  E-Mail
+                  {t("auth.email")}
                 </label>
                 <Input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@beispiel.de"
+                  placeholder={t("auth.emailPlaceholder")}
                   required
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="password" className="text-sm font-medium">
-                  Passwort
+                  {t("auth.password")}
                 </label>
                 <Input
                   id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Mindestens 6 Zeichen"
+                  placeholder={t("auth.passwordPlaceholder")}
                   required
                   minLength={6}
                 />
@@ -107,16 +108,16 @@ export default function LoginPage() {
 
               {resetSent && (
                 <p className="text-sm text-green-600">
-                  Ein Link zum Zurücksetzen wurde an {email} gesendet.
+                  {t("auth.resetSent", { email })}
                 </p>
               )}
 
               <Button type="submit" disabled={loading}>
                 {loading
-                  ? "Laden..."
+                  ? t("common.loading")
                   : isSignUp
-                    ? "Registrieren"
-                    : "Anmelden"}
+                    ? t("auth.signUp")
+                    : t("auth.signIn")}
               </Button>
 
               {!isSignUp && (
@@ -126,7 +127,7 @@ export default function LoginPage() {
                   disabled={loading}
                   className="text-sm text-muted-foreground underline-offset-4 hover:underline"
                 >
-                  Passwort vergessen?
+                  {t("auth.forgotPassword")}
                 </button>
               )}
 
@@ -140,8 +141,8 @@ export default function LoginPage() {
                 className="text-sm text-muted-foreground underline-offset-4 hover:underline"
               >
                 {isSignUp
-                  ? "Bereits registriert? Anmelden"
-                  : "Noch kein Konto? Registrieren"}
+                  ? t("auth.alreadyRegistered")
+                  : t("auth.noAccount")}
               </button>
             </form>
           </CardContent>

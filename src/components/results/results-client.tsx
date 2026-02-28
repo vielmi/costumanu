@@ -6,7 +6,9 @@ import { createClient } from "@/lib/supabase/client";
 import { SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CostumeCard } from "@/components/ergebnisse/costume-card";
+import { CostumeCard } from "@/components/results/costume-card";
+import { FilterPanel } from "@/components/results/filter-panel";
+import { t } from "@/lib/i18n";
 
 export type CostumeResult = {
   id: string;
@@ -48,6 +50,7 @@ export function ResultsClient({
   const currentParams = useSearchParams();
   const [costumes, setCostumes] = useState(initialCostumes);
   const [loading, setLoading] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
   const hasMore = costumes.length < totalCount;
 
   async function loadMore() {
@@ -97,7 +100,7 @@ export function ResultsClient({
   function removeFilter(paramKey: string) {
     const params = new URLSearchParams(currentParams.toString());
     params.delete(paramKey);
-    router.push(`/ergebnisse?${params.toString()}`);
+    router.push(`/results?${params.toString()}`);
   }
 
   return (
@@ -107,12 +110,12 @@ export function ResultsClient({
         <div>
           <h1 className="text-xl font-bold">{pageTitle}</h1>
           <p className="text-sm text-muted-foreground">
-            {totalCount.toLocaleString("de-CH")} Kostüm{totalCount !== 1 ? "e" : ""}
+            {totalCount === 1 ? t("results.costumeCount", { count: totalCount.toLocaleString("de-CH") }) : t("results.costumesCount", { count: totalCount.toLocaleString("de-CH") })}
           </p>
         </div>
-        <Button variant="outline" size="sm" className="shrink-0">
+        <Button variant="outline" size="sm" className="shrink-0" onClick={() => setFilterOpen(true)}>
           <SlidersHorizontal className="mr-2 h-4 w-4" />
-          KostümFilter
+          {t("results.costumeFilter")}
         </Button>
       </div>
 
@@ -136,9 +139,9 @@ export function ResultsClient({
       {/* Results grid */}
       {costumes.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-16 text-center">
-          <p className="text-lg font-medium">Keine Kostüme gefunden</p>
+          <p className="text-lg font-medium">{t("results.noCostumesFound")}</p>
           <p className="text-sm text-muted-foreground">
-            Versuche andere Filter oder eine andere Suche.
+            {t("results.tryDifferentFilters")}
           </p>
         </div>
       ) : (
@@ -157,12 +160,27 @@ export function ResultsClient({
                 onClick={loadMore}
                 disabled={loading}
               >
-                {loading ? "Laden..." : "Mehr anzeigen"}
+                {loading ? t("common.loading") : t("common.loadMore")}
               </Button>
             </div>
           )}
         </>
       )}
+
+      {/* Filter panel */}
+      <FilterPanel
+        open={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        currentFilters={searchParams as Record<string, string | undefined>}
+        onApply={(filters) => {
+          const params = new URLSearchParams();
+          for (const [key, value] of Object.entries(filters)) {
+            if (value) params.set(key, value);
+          }
+          router.push(`/results?${params.toString()}`);
+          setFilterOpen(false);
+        }}
+      />
     </div>
   );
 }

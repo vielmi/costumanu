@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { ResultsClient, type CostumeResult } from "@/components/ergebnisse/results-client";
+import { ResultsClient, type CostumeResult } from "@/components/results/results-client";
 import type { TaxonomyTerm } from "@/lib/types/costume";
 
 const PAGE_SIZE = 20;

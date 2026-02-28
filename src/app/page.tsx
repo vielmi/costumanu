@@ -124,7 +124,7 @@ export default async function Home() {
           items={epochs.map((e) => ({
             id: e.id,
             label: e.label_de,
-            href: `/ergebnisse?epoche=${e.id}`,
+            href: `/results?epoche=${e.id}`,
           }))}
         />
 
@@ -133,7 +133,7 @@ export default async function Home() {
           items={sparten.map((s) => ({
             id: s.id,
             label: s.label_de,
-            href: `/ergebnisse?sparte=${s.id}`,
+            href: `/results?sparte=${s.id}`,
           }))}
         />
 
@@ -143,7 +143,7 @@ export default async function Home() {
             items={uniformSubTypes.map((u) => ({
               id: u.id,
               label: u.label_de,
-              href: `/ergebnisse?clothing_type=${u.id}`,
+              href: `/results?clothing_type=${u.id}`,
             }))}
           />
         )}

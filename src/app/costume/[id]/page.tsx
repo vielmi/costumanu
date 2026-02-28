@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { CostumeDetailClient } from "@/components/kostuem/costume-detail-client";
+import { CostumeDetailClient } from "@/components/costume/costume-detail-client";
 import type { Costume, TaxonomyTerm } from "@/lib/types/costume";
 
 type Params = Promise<{ id: string }>;

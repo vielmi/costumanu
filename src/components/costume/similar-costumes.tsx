@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { t } from "@/lib/i18n";
 import type { Costume } from "@/lib/types/costume";
 
 type SimilarCostumesProps = {
@@ -13,7 +14,7 @@ type SimilarCostumesProps = {
 export function SimilarCostumes({ costumes }: SimilarCostumesProps) {
   return (
     <section className="py-2">
-      <h2 className="mb-3 px-4 text-lg font-bold">Ähnliche Kostüme</h2>
+      <h2 className="mb-3 px-4 text-lg font-bold">{t("costume.similarCostumes")}</h2>
       <ScrollArea className="w-full">
         <div className="flex gap-3 px-4 pb-4">
           {costumes.map((costume) => (
@@ -46,7 +47,7 @@ function SimilarCostumeCard({ costume }: { costume: Costume }) {
   });
 
   return (
-    <Link href={`/kostuem/${costume.id}`} className="flex-shrink-0">
+    <Link href={`/costume/${costume.id}`} className="flex-shrink-0">
       <div className="h-40 w-28 overflow-hidden rounded-xl bg-muted md:h-48 md:w-36">
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element

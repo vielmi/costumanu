@@ -22,6 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import type { TaxonomyTerm } from "@/lib/types/costume";
 import type { LucideIcon } from "lucide-react";
+import { t } from "@/lib/i18n";
 
 const genderIcons: Record<string, LucideIcon> = {
   Damen: User,
@@ -140,7 +141,7 @@ export function NavigationMenu({ open, onClose }: NavigationMenuProps) {
             onClick={handleBack}
           >
             <ArrowLeft className="h-4 w-4" />
-            {level === "clothing_types" ? "Übersicht" : "Bekleidungsart"}
+            {level === "clothing_types" ? t("nav.overview") : t("nav.clothingType")}
           </Button>
         ) : (
           <span className="text-lg font-bold tracking-tight">kostüm+</span>
@@ -152,7 +153,7 @@ export function NavigationMenu({ open, onClose }: NavigationMenuProps) {
           onClick={handleClose}
         >
           <X className="h-5 w-5" />
-          <span className="sr-only">Menü schliessen</span>
+          <span className="sr-only">{t("header.closeMenu")}</span>
         </Button>
       </div>
 
@@ -188,14 +189,14 @@ export function NavigationMenu({ open, onClose }: NavigationMenuProps) {
       {/* Mein Profil bar at bottom */}
       <div className="border-t border-surface-dark-foreground/10 px-4 py-3">
         <Link
-          href="/profil"
+          href="/profile"
           className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-surface-dark-foreground/10"
           onClick={handleClose}
         >
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-dark-foreground/20">
             <User className="h-5 w-5" />
           </div>
-          <span className="text-sm font-medium">Mein Profil</span>
+          <span className="text-sm font-medium">{t("nav.myProfile")}</span>
         </Link>
       </div>
     </div>
@@ -218,7 +219,7 @@ function RootMenu({
       {/* Kostüme section */}
       <div>
         <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-dark-foreground/50">
-          Kostüme
+          {t("nav.costumes")}
         </h2>
         <div className="flex flex-col gap-1">
           {genders.map((gender) => {
@@ -246,31 +247,31 @@ function RootMenu({
       {/* Netzwerk & Support section */}
       <div>
         <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-dark-foreground/50">
-          Netzwerk & Support
+          {t("nav.networkAndSupport")}
         </h2>
         <div className="flex flex-col gap-1">
           <MenuLink
-            href="/nachrichten"
+            href="/messages"
             icon={MessageCircle}
-            label="Nachrichten"
+            label={t("nav.messages")}
             onClose={onClose}
           />
           <MenuLink
             href="/anfragen"
             icon={HelpCircle}
-            label="Kostümanfragen"
+            label={t("nav.costumeInquiries")}
             onClose={onClose}
           />
           <MenuLink
             href="/netzwerk"
             icon={Globe}
-            label="Netzwerk"
+            label={t("nav.network")}
             onClose={onClose}
           />
           <MenuLink
             href="/support"
             icon={Headphones}
-            label="Support"
+            label={t("nav.support")}
             onClose={onClose}
           />
         </div>
@@ -296,17 +297,17 @@ function ClothingTypeMenu({
     <div>
       <h2 className="mb-1 text-lg font-bold">{gender.label_de}</h2>
       <p className="mb-4 text-xs text-surface-dark-foreground/50">
-        Bekleidungsart
+        {t("nav.clothingType")}
       </p>
 
       {/* "Alle anzeigen" link for this gender */}
       <Link
-        href={`/ergebnisse?gender=${gender.id}`}
+        href={`/results?gender=${gender.id}`}
         className="mb-2 flex items-center justify-between rounded-lg bg-surface-dark-foreground/5 p-3 transition-colors hover:bg-surface-dark-foreground/10"
         onClick={onClose}
       >
         <span className="text-sm font-medium">
-          Alle {gender.label_de} anzeigen
+          {t("nav.showAll", { label: gender.label_de })}
         </span>
         <ChevronRight className="h-4 w-4 text-surface-dark-foreground/40" />
       </Link>
@@ -350,12 +351,12 @@ function SubTypeMenu({
 
       {/* "Alle anzeigen" link for this clothing type + gender */}
       <Link
-        href={`/ergebnisse?gender=${gender.id}&clothing_type=${clothingType.id}`}
+        href={`/results?gender=${gender.id}&clothing_type=${clothingType.id}`}
         className="mb-2 flex items-center justify-between rounded-lg bg-surface-dark-foreground/5 p-3 transition-colors hover:bg-surface-dark-foreground/10"
         onClick={onClose}
       >
         <span className="text-sm font-medium">
-          Alle {clothingType.label_de} anzeigen
+          {t("nav.showAll", { label: clothingType.label_de })}
         </span>
         <ChevronRight className="h-4 w-4 text-surface-dark-foreground/40" />
       </Link>
@@ -365,7 +366,7 @@ function SubTypeMenu({
           {subTypes.map((sub) => (
             <Link
               key={sub.id}
-              href={`/ergebnisse?gender=${gender.id}&clothing_type=${sub.id}`}
+              href={`/results?gender=${gender.id}&clothing_type=${sub.id}`}
               className="flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-surface-dark-foreground/10"
               onClick={onClose}
             >
@@ -375,7 +376,7 @@ function SubTypeMenu({
         </div>
       ) : (
         <p className="p-3 text-sm text-surface-dark-foreground/50">
-          Keine Untertypen vorhanden.
+          {t("common.noResults")}
         </p>
       )}
     </div>

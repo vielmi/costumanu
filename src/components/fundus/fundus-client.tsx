@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Archive } from "lucide-react";
 import type { Costume } from "@/lib/types/costume";
+import { t } from "@/lib/i18n";
 
 interface FundusClientProps {
   initialCostumes: Costume[];
@@ -41,11 +42,11 @@ export function FundusClient({ initialCostumes, theaterId }: FundusClientProps) 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Mein Fundus</h1>
+        <h1 className="text-2xl font-bold">{t("inventory.title")}</h1>
         <Button asChild>
           <Link href="/fundus/neu">
             <Plus className="mr-2 h-4 w-4" />
-            Kostüm hinzufügen
+            {t("inventory.addCostume")}
           </Link>
         </Button>
       </div>
@@ -54,15 +55,15 @@ export function FundusClient({ initialCostumes, theaterId }: FundusClientProps) 
         <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
           <Archive className="h-12 w-12 text-muted-foreground" />
           <div>
-            <p className="font-medium">Noch keine Kostüme vorhanden</p>
+            <p className="font-medium">{t("inventory.noCostumes")}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Erstelle dein erstes Kostüm, um deinen Fundus aufzubauen.
+              {t("inventory.noCostumesDescription")}
             </p>
           </div>
           <Button asChild>
             <Link href="/fundus/neu">
               <Plus className="mr-2 h-4 w-4" />
-              Erstes Kostüm erstellen
+              {t("inventory.createFirst")}
             </Link>
           </Button>
         </div>
@@ -98,7 +99,7 @@ function CostumeCard({ costume }: { costume: Costume }) {
 
   return (
     <Link
-      href={`/kostuem/${costume.id}`}
+      href={`/costume/${costume.id}`}
       className="group overflow-hidden rounded-xl border bg-card text-card-foreground transition-colors hover:bg-accent"
     >
       <div className="relative aspect-[3/4] w-full bg-muted">
@@ -111,7 +112,7 @@ function CostumeCard({ costume }: { costume: Costume }) {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-            Kein Foto
+            {t("inventory.noPhoto")}
           </div>
         )}
       </div>

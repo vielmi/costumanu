@@ -40,7 +40,7 @@ export function CostumeCard({ costume }: CostumeCardProps) {
   return (
     <div className="group relative">
       <Link
-        href={`/kostuem/${costume.id}`}
+        href={`/costume/${costume.id}`}
         className="block overflow-hidden rounded-xl border bg-card text-card-foreground transition-colors hover:bg-accent"
       >
         {/* Image */}
