@@ -13,12 +13,13 @@ Costume rental management platform for theaters, film productions, and performin
 
 | Layer | Technology | Purpose |
 |---|---|---|
-| Frontend | Next.js (App Router) + Tailwind v4 | SSR/SSG React framework with utility-first CSS |
+| Frontend | Next.js 16 (App Router, Turbopack) + Tailwind v4 | SSR/SSG React framework with utility-first CSS |
 | Mobile | Capacitor | Wraps the web app into native iOS/Android binaries |
 | Backend | Supabase (PostgreSQL) | Auth, Storage, Database with Row Level Security |
 | Hosting | Vercel | Production deployment with auto-builds |
-| State/Data | TanStack Query | Server state management with caching and optimistic updates |
+| State/Data | TanStack Query v5 | Server state management with caching and optimistic updates |
 | UI | Shadcn/UI + Lucide Icons | Copy-paste component library with icon set |
+| i18n | Custom i18n module (`src/lib/i18n`) | German locale with JSON translation files |
 
 ## Prerequisites
 
@@ -106,6 +107,25 @@ echo "your-anon-key" | npx vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY producti
 To enable auto-deploys on every push, connect the GitHub repo in the Vercel dashboard:
 **Project Settings > Git > Connected Git Repository** and authorize the Vercel GitHub app.
 
+## Pages
+
+| Route | Auth | Description |
+|---|---|---|
+| `/` | No | Homepage — search bar, gender grid, clothing types, epochs, events, theater network |
+| `/login` | No | Sign-in / sign-up with email & password, password reset |
+| `/search` | No | Costume search overlay |
+| `/results` | No | Filtered search results with pagination |
+| `/costume/[id]` | No | Costume detail page |
+| `/fundus` | Yes | Theater costume inventory management |
+| `/wishlist` | Yes | Saved costumes (Merkliste) |
+| `/rental` | Yes | Rental orders overview |
+| `/rental/new` | Yes | Create a new rental request |
+| `/messages` | Yes | Chat threads between users |
+| `/profile` | Yes | User profile and theater info |
+| `/auth/callback` | — | OAuth code exchange (redirects to `/wishlist`) |
+
+Auth-guarded pages call `supabase.auth.getUser()` server-side and redirect to `/login` if unauthenticated.
+
 ## Database & Migrations
 
 The database schema is managed via [Supabase CLI](https://supabase.com/docs/guides/cli) migrations, stored in `supabase/migrations/`. Timestamped SQL files are applied in order and tracked so each migration runs exactly once.
@@ -133,9 +153,20 @@ This creates a new file at `supabase/migrations/<timestamp>_<name>.sql`. Write y
 | `npx supabase migration list` | Show which migrations have been applied |
 | `npx supabase migration new <name>` | Create a new timestamped migration file |
 
+### Migrations
+
+| File | Purpose |
+|---|---|
+| `20260221134118_initial_schema.sql` | Full schema (tables, RLS, functions) |
+| `20260221_add_bootstrap_theater_rpc.sql` | `bootstrap_personal_theater()` RPC |
+| `20260221_add_theater_insert_policies.sql` | Theater insert RLS policies |
+| `20260221_fix_wishlist_rls_recursion.sql` | Fix circular RLS on wishlists |
+| `20260222_create_costume_images_bucket.sql` | Supabase Storage bucket for costume images |
+| `20260222_seed_taxonomy_terms.sql` | Seed taxonomy vocabulary |
+
 ### Schema overview
 
-The initial migration (`supabase/migrations/20260221134118_initial_schema.sql`) creates:
+The initial migration creates:
 
 | Table | Purpose |
 |---|---|
@@ -200,25 +231,39 @@ Browse available components at [ui.shadcn.com](https://ui.shadcn.com).
 ```
 src/
 ├── app/
-│   ├── auth/callback/route.ts  # Supabase auth code exchange
-│   ├── fundus/
-│   │   ├── page.tsx            # Costume inventory listing (auth-guarded)
-│   │   └── neu/page.tsx        # Create new costume form
+│   ├── auth/callback/          # Supabase auth code exchange
+│   ├── costume/[id]/page.tsx   # Costume detail page
+│   ├── fundus/page.tsx         # Costume inventory listing (auth-guarded)
 │   ├── login/page.tsx          # Sign-in / sign-up page
-│   ├── merkliste/page.tsx      # Wishlist page (auth-guarded)
+│   ├── messages/page.tsx       # In-app messaging
+│   ├── profile/page.tsx        # User profile page
+│   ├── rental/
+│   │   ├── page.tsx            # Rental orders overview
+│   │   └── new/page.tsx        # Create new rental
+│   ├── results/page.tsx        # Results grid / marketplace
+│   ├── search/page.tsx         # Costume search
+│   ├── wishlist/page.tsx       # Wishlist page (auth-guarded)
 │   ├── globals.css             # Tailwind + Shadcn theme
 │   ├── layout.tsx              # Root layout with providers
 │   └── page.tsx                # Home page
 ├── components/
+│   ├── costume/                # Costume detail components
 │   ├── fundus/                 # Costume listing + creation form
 │   ├── homepage/               # Home page sections
 │   ├── layout/                 # SiteHeader, SiteFooter
-│   ├── merkliste/              # Wishlist client component
+│   ├── messages/               # Messaging components
+│   ├── rental/                 # Rental order components
+│   ├── results/                # Results grid / marketplace components
+│   ├── search/                 # Search components
+│   ├── wishlist/               # Wishlist client component
 │   ├── providers.tsx           # Client-side providers (TanStack Query)
 │   └── ui/                     # Shadcn/UI components (added via CLI)
 ├── lib/
 │   ├── helpers/
 │   │   └── barcode.ts          # Barcode ID generator for costume items
+│   ├── i18n/
+│   │   ├── index.ts            # i18n utilities
+│   │   └── locales/de.json     # German translations
 │   ├── types/
 │   │   └── costume.ts          # TypeScript interfaces for costumes & taxonomy
 │   ├── utils.ts                # cn() class merge helper

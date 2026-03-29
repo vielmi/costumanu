@@ -5,6 +5,9 @@ const isMobile = process.env.BUILD_TARGET === "mobile";
 const nextConfig: NextConfig = {
   // Static export for Capacitor mobile builds
   ...(isMobile && { output: "export" }),
+  turbopack: {
+    root: ".",
+  },
   images: {
     remotePatterns: [
       {

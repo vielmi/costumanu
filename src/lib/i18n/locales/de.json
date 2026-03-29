@@ -76,7 +76,12 @@
     "alreadyRegistered": "Bereits registriert? Anmelden",
     "noAccount": "Noch kein Konto? Registrieren",
     "resetSent": "Ein Link zum Zurücksetzen wurde an {email} gesendet.",
-    "enterEmail": "Bitte gib deine E-Mail-Adresse ein."
+    "enterEmail": "Bitte gib deine E-Mail-Adresse ein.",
+    "newPassword": "Neues Passwort festlegen",
+    "newPasswordLabel": "Neues Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "savePassword": "Passwort speichern",
+    "passwordsMismatch": "Die Passwörter stimmen nicht überein."
   },
   "results": {
     "allCostumes": "Alle Kostüme",
