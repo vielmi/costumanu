@@ -7,13 +7,43 @@
 ## 1. Typography
 
 ### Font Family
-```css
-/* Google Fonts Import — in globals.css oder layout.tsx */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900&display=swap');
 
---font-family-base: 'DM Sans', sans-serif;
+**DM Sans** — geometrischer Sans-Serif (Google Fonts, Open Source), engste frei verfügbare Alternative zu Modern Era. Schrift kann jederzeit durch Anpassen der CSS-Variable `--font-family-base` gewechselt werden.
+
+**Implementation via `next/font/google`** (empfohlen für Next.js):
+
+```typescript
+// src/app/layout.tsx
+import { DM_Sans } from 'next/font/google'
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '700', '900'],
+  variable: '--font-family-base',
+  display: 'swap',
+})
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="de" className={dmSans.variable}>
+      <body>{children}</body>
+    </html>
+  )
+}
 ```
-DM Sans ist ein geometrischer Sans-Serif (Google Fonts, Open Source) und die engste frei verfügbare Alternative zu Modern Era. Schrift kann jederzeit durch Anpassen dieser einen Variable gewechselt werden.
+
+```css
+/* src/app/globals.css — kein @import url() nötig */
+@theme inline {
+  --font-sans: var(--font-family-base); /* wird von layout.tsx gesetzt */
+}
+```
+
+> **Warum `next/font` statt `@import url()`:**
+> - ✅ Self-hosted — kein Request an Google-Server (DSGVO/DSG-konform)
+> - ✅ Automatisches Preloading und `font-display: swap`
+> - ✅ Kein Render-Blocking
+> - ❌ `@import url()` sendet IP-Adressen der Nutzer an Google — für Schweizer Projekte problematisch
 
 ### Font Weights in use
 ```css
