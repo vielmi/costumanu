@@ -8,15 +8,15 @@
 
 ### Font Family
 
-**DM Sans** — geometrischer Sans-Serif (Google Fonts, Open Source), engste frei verfügbare Alternative zu Modern Era. Schrift kann jederzeit durch Anpassen der CSS-Variable `--font-family-base` gewechselt werden.
+**Inter** — geometrischer Sans-Serif (Google Fonts, Open Source). Schrift kann jederzeit durch Anpassen der CSS-Variable `--font-family-base` gewechselt werden.
 
 **Implementation via `next/font/google`** (empfohlen für Next.js):
 
 ```typescript
 // src/app/layout.tsx
-import { DM_Sans } from 'next/font/google'
+import { Inter } from 'next/font/google'
 
-const dmSans = DM_Sans({
+const inter = Inter({
   subsets: ['latin'],
   weight: ['300', '400', '500', '700', '900'],
   variable: '--font-family-base',
@@ -25,7 +25,7 @@ const dmSans = DM_Sans({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" className={dmSans.variable}>
+    <html lang="de" className={inter.variable}>
       <body>{children}</body>
     </html>
   )
@@ -98,7 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 ```css
 :root {
   /* ─── Font Family ─── */
-  --font-family-base: 'Modern Era', sans-serif;
+  --font-family-base: 'Inter', sans-serif;
 
   /* ─── Font Weights ─── */
   --font-weight-400: 400;
@@ -164,7 +164,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 .text-label-1   { font-size: var(--font-size-100); line-height: var(--line-height-150); }
 
 /* Responsive override — mobile */
-@media (max-width: 768px) {
+@media (max-width: 743px) {
   .text-h1 { font-size: var(--font-size-1000-s); }
   .text-h2 { font-size: var(--font-size-900-s); }
   .text-h3 { font-size: var(--font-size-800-s); }
@@ -953,7 +953,7 @@ Farb-Mapping: `#75958D` = `secondary-700`, `#76FEAC` = `accent-01`, `#ECF1EE` = 
 | Height | 60px |
 | Border-radius | 8px |
 | Border | `1px solid neutral-grey-600` (#242727) |
-| Font | Modern Era Medium, 16px, line-height 150% |
+| Font | Inter Medium, 16px, line-height 150% |
 | Token | `font-size-300` weight 500 |
 
 Sondervariante Masse (Brustumfang, Hüftumfang etc.):
@@ -987,7 +987,7 @@ Sondervariante Masse (Brustumfang, Hüftumfang etc.):
 | Height | 80px (min-height) |
 | Border-radius | 8px |
 | Border | `1px solid neutral-grey-600` (#242727) |
-| Font | Modern Era Medium, 16px, line-height 150% |
+| Font | Inter Medium, 16px, line-height 150% |
 | Token | `font-size-300` weight 500 |
 
 ```css
@@ -1013,7 +1013,7 @@ Sondervariante Masse (Brustumfang, Hüftumfang etc.):
 | Height | 60px |
 | Border-radius | 8px |
 | Border | `1px solid neutral-grey-600` (#242727) |
-| Font | Modern Era Medium, 18px, line-height 150% |
+| Font | Inter Medium, 18px, line-height 150% |
 | Token | `font-size-350` weight 500 |
 | Icon | `icon-arrow-down` (rechts) |
 
@@ -1038,8 +1038,8 @@ Sondervariante Masse (Brustumfang, Hüftumfang etc.):
 | Searchbox height | 60px |
 | Border-radius | 47px (Pill-Form) |
 | Border | `1px solid #000000` |
-| Label-Font | Modern Era Medium, 18px — Token `font-size-350` |
-| Content-Font | Modern Era Medium, 16px — Token `font-size-300` |
+| Label-Font | Inter Medium, 18px — Token `font-size-350` |
+| Content-Font | Inter Medium, 16px — Token `font-size-300` |
 | Icon | `icon-search` (links) |
 
 Dropdown-Liste:
@@ -1115,7 +1115,7 @@ Kacheln mit Icon oben, Label unten. Zwei Grössen je nach Kategorie.
 | Border selected | `1px solid #75958D` | `1.58px solid #75958D` |
 | Bg default | `#FFFFFF` | `#FFFFFF` |
 | Bg selected | `#75958D` | `#75958D` |
-| Label font | Modern Era 500, 18px, 150% | Modern Era 500, 24px, 140% |
+| Label font | Inter 500, 18px, 150% | Inter 500, 24px, 140% |
 | Label color default | `#556E68` (secondary-800) | `#556E68` |
 | Label color selected | `#FFFFFF` | `#FFFFFF` |
 | Icon color default | `#75958D` (secondary-700) | — |
@@ -1173,9 +1173,9 @@ Kacheln mit Icon oben, Label unten. Zwei Grössen je nach Kategorie.
 | Border-radius | 8px | 8px |
 | Border | `1px solid #556E68` | `2px solid #75958D` |
 | Background | `#FFFFFF` | `#75958D` |
-| Title font | Modern Era Bold 16px | Modern Era Bold 16px |
+| Title font | Inter Bold 16px | Inter Bold 16px |
 | Title color | `#556E68` | `#FFFFFF` |
-| Address font | Modern Era Regular 16px | Modern Era Regular 16px |
+| Address font | Inter Regular 16px | Inter Regular 16px |
 | Address color | `#556E68` | `#FFFFFF` |
 | Icon | `icon-placeholder`, `#556E68` | `icon-placeholder`, `#FFFFFF` |
 
@@ -1208,7 +1208,7 @@ Zeile mit Farbname links und Farbkreis rechts.
 | Border-radius | 12px | 12px |
 | Border | `1px solid #75958D` | `1px solid #75958D` |
 | Background | `#FFFFFF` | `#ECF1EE` (secondary-500) |
-| Font | Modern Era 500, 18px | Modern Era 500, 18px |
+| Font | Inter 500, 18px | Inter 500, 18px |
 | Text color | `#556E68` | `#556E68` |
 | Color circle | 35px border-radius, hardcoded colour | identisch |
 
@@ -1275,7 +1275,7 @@ Kompakte Pill-Tags, horizontal gruppiert, für Kategorien und Eigenschaften.
 | Border-radius | 44px (Pill) |
 | Border | `1px solid #556E68` (secondary-800) |
 | Background | `#FBFBFB` (neutral-grey-50) |
-| Font | Modern Era 500, 16px, 150% |
+| Font | Inter 500, 16px, 150% |
 | Text color | `#75958D` (secondary-700) |
 | Gap zwischen Tags | 10px |
 
@@ -1393,7 +1393,7 @@ Vertikale Sidebar-Navigation, pro Sektion eigener Container.
 
 | Eigenschaft | Cockpit | Inventarisierung |
 |---|---|---|
-| Font | Modern Era **500**, 14px | Modern Era **400**, 16px |
+| Font | Inter **500**, 14px | Inter **400**, 16px |
 | Text color | `neutral-grey-600` (#242727) | `secondary-900` (#0D2F27) |
 | Icon color | `neutral-grey-600` | `secondary-900` |
 | Token | `font-size-200` weight 500 | `font-size-300` weight 400 |
@@ -1452,7 +1452,7 @@ Horizontale Tabs mit Underline-Indikator.
 
 | Eigenschaft | Aktiv | Inaktiv |
 |---|---|---|
-| Font | Modern Era Bold 16px | Modern Era Bold 16px |
+| Font | Inter Bold 16px | Inter Bold 16px |
 | Text color | `secondary-700` (#75958D) | `neutral-grey-600` (#242727) |
 | Underline | `6px solid secondary-700` | — |
 | Badge | `22×22px`, `neutral-grey-600` bg, white text 10px bold | — |
@@ -1672,12 +1672,12 @@ Zwei Schriftskalen ("Tablet" / "Mobile") implizieren zwei Breakpoints. Empfohlen
 @media (max-width: 767px) {
   /* Mobile → font-size-{n}-s Skala */
 }
-@media (min-width: 768px) {
+@media (min-width: 744px) {
   /* Tablet/Desktop → font-size-{n} Skala */
 }
 ```
 
-> ⚠️ Bitte bestätigen: Bei welcher Bildschirmbreite soll die App von Mobile auf Tablet wechseln? 768px ist die Empfehlung.
+> ⚠️ Bitte bestätigen: Bei welcher Bildschirmbreite soll die App von Mobile auf Tablet wechseln? 744px (iPad Mini 8.3 Portrait) — final entschieden.
 
 ---
 
@@ -1693,6 +1693,510 @@ Zwei Schriftskalen ("Tablet" / "Mobile") implizieren zwei Breakpoints. Empfohlen
 | Radius | `--radius-{size}` | `--radius-md` |
 | Logo | `logo-{type}-{partner}` | `logo-kostuem+_srf` |
 | Icon | `icon-{name}` | `icon-check`, `icon-edit` |
+
+---
+
+*Generiert aus Figma Design System HCID-Fundus-Layout-01 — kostüm+ / costumanu*
+
+---
+
+## 11. Mobile Navigation
+
+### 11.1 App Header Bar (Mobile)
+
+| Eigenschaft | Wert |
+|---|---|
+| Höhe | 70px |
+| Hintergrund | `#FFFFFF`, `box-shadow: 0px 1px 10px rgba(0,0,0,0.2)` |
+| Logo | `brand-lu.svg` (oder partnerspezifisch), links |
+| Rechte Icons | `icon-chat`, `icon-heart`, `icon-shopping-bag` — je 45×45px Hitbox |
+| Hamburger | Zwei horizontale Linien, links |
+
+```css
+.app-header-mobile {
+  height: 70px;
+  background: #FFFFFF;
+  box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  justify-content: space-between;
+}
+.app-header-mobile__icon-btn {
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+```
+
+---
+
+### 11.2 Navigation Drawer — Level 1
+
+Vollbild-Overlay, gleitet von links/oben ein.
+
+| Eigenschaft | Wert |
+|---|---|
+| Hintergrund | `neutral-grey-600` (#242727) |
+| Breite | 375px (full-width Mobile) |
+| Padding | `24px 32px` |
+| Abschnittstitel | Body-2-bold, 18px, `neutral-grey-400` (#A4A4A4) |
+| Nav-Item-Höhe | 50px |
+| Nav-Item-Font | Body-1-regular, 20px, `#FFFFFF` |
+| Trennlinien | `1px solid rgba(255,255,255,0.2)` |
+| Pfeil rechts | `icon-arrow-s`, 20×20px, weiss |
+| Schliessen | `icon-close-small`, 20×20px, weiss, oben rechts |
+
+```css
+.nav-drawer {
+  position: fixed;
+  inset: 0;
+  background: var(--neutral-grey-600);
+  z-index: 50;
+  padding: 24px 32px;
+  overflow-y: auto;
+}
+.nav-drawer__section-title {
+  font-size: 18px;
+  font-weight: var(--font-weight-700);
+  color: var(--neutral-grey-400);
+  margin-bottom: 16px;
+}
+.nav-drawer__item {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 20px;
+  font-weight: var(--font-weight-400);
+  color: #FFFFFF;
+}
+.nav-drawer__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+```
+
+**Level 1 Sektionen:**
+
+| Sektion | Items |
+|---|---|
+| Kostüme | Damen, Herren, Unisex, Kinder, Tiere, Fantasy |
+| Netzwerk & Support | Nachrichten, Kostümanfragen, Netzwerk, Support |
+| (Profil) | Mein Profil |
+
+---
+
+### 11.3 Navigation Drawer — Level 2 (Sub-Kategorie)
+
+Identische Optik wie Level 1 — mit zusätzlichem "Zurück"-Link oben.
+
+```css
+.nav-drawer__back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: var(--font-weight-400);
+  color: var(--neutral-grey-300);
+  text-decoration: underline;
+  margin-bottom: 16px;
+}
+/* icon-arrow-left davor: 14×14px, neutral-grey-300 */
+```
+
+**Beispiel Level 2 — "Herren Bekleidungsart":**
+Alles entdecken, Anzüge, Hosen, Hemden, Mäntel & Jacken, Pullover, Shorts, T-Shirts
+
+---
+
+### 11.4 Bottom Nav Bar (Mobile — Profil-Leiste)
+
+Erscheint am unteren Bildschirmrand, zeigt eingeloggten Nutzer.
+
+| Eigenschaft | Wert |
+|---|---|
+| Höhe | 95px |
+| Hintergrund | `neutral-grey-600` (#242727) |
+| Border-radius | `8px 8px 0 0` |
+| Box-shadow | `0px -3px 10px rgba(0,0,0,0.25)` |
+| Avatar | 60×60px Kreis |
+| Name | Body-2-medium, 18px, `#FFFFFF` |
+| Pfeil | `icon-arrow-s`, 20×20px, weiss |
+
+```css
+.bottom-nav-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 95px;
+  background: var(--neutral-grey-600);
+  box-shadow: 0px -3px 10px rgba(0, 0, 0, 0.25);
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  align-items: center;
+  padding: 0 21px;
+  gap: 24px;
+}
+.bottom-nav-bar__avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.bottom-nav-bar__name {
+  font-size: 18px;
+  font-weight: var(--font-weight-500);
+  color: #FFFFFF;
+}
+```
+
+---
+
+## 12. Footer
+
+| Eigenschaft | Wert |
+|---|---|
+| Hintergrund | `#000000` |
+| Border-radius | `30px 30px 0 0` |
+| Padding | `24px 33px` |
+| Logo | `kostüm+` Wordmark (`Union.svg`), `primary-900` (#B59B3A), zentriert |
+| Links | H4-regular, 26px, `#FFFFFF`, mit `icon-arrow-right` (27×27px) rechts |
+| Copyright-Zeile | Subtitle-1-regular, 16px, `rgba(255,255,255,0.5)`, zentriert |
+| Copyright-BG | `rgba(255,255,255,0.05)`, `padding: 16px 0` |
+
+```css
+.footer {
+  background: #000000;
+  border-radius: 30px 30px 0 0;
+  padding: 24px 33px;
+}
+.footer__logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+  color: var(--primary-900);
+}
+.footer__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  font-size: 26px; /* H4-regular */
+  font-weight: var(--font-weight-400);
+  color: #FFFFFF;
+  border-bottom: none;
+}
+.footer__copyright {
+  font-size: 16px;
+  font-weight: var(--font-weight-400);
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  padding: 16px 0;
+  background: rgba(255, 255, 255, 0.05);
+}
+```
+
+**Footer-Links:** Häufige Fragen, Ausleihe & Abholung, Support & Kontakt
+
+---
+
+## 13. Search-Filter
+
+### 13.1 Filter-Trigger Button
+
+Pill-Button, öffnet Filter-Overlay.
+
+```css
+.filter-trigger {
+  background: var(--primary-900);
+  border-radius: 61px;
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: var(--font-weight-500);
+  color: #FFFFFF;
+}
+/* Icon: icon-filter, 24×24px, weiss */
+```
+
+---
+
+### 13.2 Filter-Overlay
+
+Slide-Up Panel von unten.
+
+| Eigenschaft | Wert |
+|---|---|
+| Hintergrund | `#FFFFFF` |
+| Border-radius | `20px 20px 0 0` |
+| Box-shadow | `0px -2px 20px rgba(0,0,0,0.2)` |
+| Kopfzeile | `icon-filter` + Label "Filter", `icon-close-small` rechts (46×46px) |
+
+**Sektionstitel-Pill** (schwarzer Pill-Label pro Kategorie):
+
+```css
+.filter-section-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 15px;
+  background: #000000;
+  border-radius: 49px;
+  font-size: 16px;
+  font-weight: var(--font-weight-400);
+  color: #FFFFFF;
+  margin-bottom: 12px;
+}
+```
+
+**Filter-Sektionen (Mobile):**
+
+| Sektion | Inhalt-Typ |
+|---|---|
+| Gender oder Typ | 2×3 Select Cards (93px Höhe) |
+| Bekleidungsart | Select Cards (60px) + Suchfeld |
+| Aufführung | 4× Suchfeld-Rows (Epoche, Stücktitel, Darsteller, Rolle) |
+| Regie & Assistenz | Suchfeld-Rows |
+| Sparte | Select Cards |
+| Konfektionsgrösse | Size-Grid (106×70px) + Tag-Pills |
+| Masse | Range-Slider in `secondary-500` Container |
+| Materialart | Suchfeld + Select Cards (93px) |
+| Muster | Select Cards (93px) |
+| Farben | Color Swatches (60px) |
+
+**"Filter anwenden" Button:**
+
+```css
+.btn-filter-apply {
+  width: 343px;
+  height: 62px;
+  background: var(--primary-900);
+  border-radius: var(--radius-md); /* 16px */
+  font-size: 18px;
+  font-weight: var(--font-weight-500);
+  color: #FFFFFF;
+}
+```
+
+---
+
+### 13.3 Search Input (globales Suchfeld)
+
+**Default / Typing State:**
+
+```css
+.search-input-global {
+  width: 343px;
+  height: 60px;
+  border: 1px solid #000000;
+  border-radius: 47px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  background: #FFFFFF;
+}
+/* icon-search 25×25px links, vertikale Trennlinie 37px, Placeholder/Text, X-Button (20px rund) */
+```
+
+**Dropdown (Suchvorschläge):**
+
+```css
+.search-dropdown {
+  background: #FFFFFF;
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-xs); /* 4px */
+  padding: 8px 0;
+}
+.search-dropdown__item {
+  padding: 12px 40px;
+  font-size: 18px;
+  font-weight: var(--font-weight-700); /* Match-Anteil fett */
+  color: #000000;
+}
+.search-dropdown__item span {
+  font-weight: var(--font-weight-400); /* Nicht-Match normal */
+}
+```
+
+**Selected State** (Wert gewählt — 2-zeilig):
+
+```css
+.search-input-global--selected {
+  height: 60px;
+  border: 1px solid #000000;
+  border-radius: 47px;
+  padding: 8px 24px 8px 40px; /* Platz für icon-search links */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.search-input-global--selected .label {
+  font-size: 12px; /* Label-1-medium */
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-grey-600);
+}
+.search-input-global--selected .value {
+  font-size: 18px; /* Body-2-medium */
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-grey-600);
+}
+```
+
+---
+
+### 13.4 Suchfeld-Row (im Filter)
+
+60px hohe Pill-Zeile mit Icon und Placeholder/Wert.
+
+```css
+.filter-search-row {
+  width: 343px;
+  height: 60px;
+  border: 1px solid #000000;
+  border-radius: 47px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+}
+.filter-search-row__label {
+  font-size: 18px;
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-grey-600);
+}
+```
+
+**Selected State** — 2-zeilig mit Kategorie-Label oben:
+
+```css
+/* Gleiche Optik wie search-input-global--selected */
+```
+
+---
+
+### 13.5 Range-Slider (Masse-Filter)
+
+Beidseitiger Slider in `secondary-500` Container.
+
+```css
+.range-slider-container {
+  background: var(--secondary-500);
+  border-radius: 25px;
+  padding: 32px;
+}
+.range-slider__title {
+  font-size: 20px;
+  font-weight: var(--font-weight-700);
+  color: #000000;
+  margin-bottom: 16px;
+}
+.range-slider__label {
+  font-size: 16px;
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-grey-600);
+}
+.range-slider__track {
+  height: 6px;
+  background: var(--secondary-700);
+  border-radius: 47px;
+  position: relative;
+}
+.range-slider__thumb {
+  width: 30px;
+  height: 30px;
+  background: var(--secondary-800);
+  border-radius: 50%;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+```
+
+---
+
+## 14. Controls-Select Ergänzungen
+
+### 14.1 Konfektionsgrösse-Kachel (Size Tile)
+
+Grid aus Kacheln zur Auswahl einer Konfektionsgrösse.
+
+| Eigenschaft | Wert |
+|---|---|
+| Grösse | 106×70px |
+| Border | `1px solid secondary-800` |
+| Border-radius | `--radius-sm` (8px) |
+| Font | H5-medium, 24px, `secondary-800` |
+| Selected BG | `secondary-500` |
+
+```css
+.size-tile {
+  width: 106px;
+  height: 70px;
+  border: 1px solid var(--secondary-800);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: var(--font-weight-500);
+  color: var(--secondary-800);
+  cursor: pointer;
+}
+.size-tile--selected {
+  background: var(--secondary-500);
+}
+```
+
+---
+
+### 14.2 Tag-Pill (Konfektionsgrösse als Pill)
+
+Horizontal scrollbare Zeile mit Grössen als Pill-Tags.
+
+| Eigenschaft | Wert |
+|---|---|
+| Höhe | 44px |
+| Padding | `10px 25px` |
+| Border | `1px solid secondary-800` |
+| Border-radius | `44px` |
+| BG | `neutral-grey-50` (#FBFBFB) |
+| Font | Subtitle-1-medium, 16px, `secondary-700` |
+
+```css
+.size-tag-pill {
+  height: 44px;
+  padding: 10px 25px;
+  border: 1px solid var(--secondary-800);
+  border-radius: 44px;
+  background: #FBFBFB;
+  font-size: 16px;
+  font-weight: var(--font-weight-500);
+  color: var(--secondary-700);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.size-tag-pill--selected {
+  background: var(--secondary-500);
+  border-color: var(--secondary-700);
+  color: var(--secondary-900);
+}
+```
 
 ---
 

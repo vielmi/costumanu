@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { t } from "@/lib/i18n";
 import type { CostumeMedia } from "@/lib/types/costume";
@@ -15,25 +14,9 @@ export function ImageCarousel({ media, name }: ImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const supabase = createClient();
 
-  const { data: signedUrls } = useQuery({
-    queryKey: [
-      "costume-carousel",
-      media.map((m) => m.storage_path).join(","),
-    ],
-    queryFn: async () => {
-      const urls: (string | null)[] = [];
-      for (const m of media) {
-        const { data, error } = await supabase.storage
-          .from("costume-images")
-          .createSignedUrl(m.storage_path, 3600);
-        urls.push(error ? null : data.signedUrl);
-      }
-      return urls;
-    },
-    enabled: media.length > 0,
-    staleTime: 30 * 60 * 1000,
-    gcTime: 60 * 60 * 1000,
-  });
+  const publicUrls = media.map(
+    (m) => supabase.storage.from("costume-images").getPublicUrl(m.storage_path).data.publicUrl
+  );
 
   if (media.length === 0) {
     return (
@@ -43,7 +26,7 @@ export function ImageCarousel({ media, name }: ImageCarouselProps) {
     );
   }
 
-  const currentUrl = signedUrls?.[currentIndex];
+  const currentUrl = publicUrls[currentIndex];
 
   return (
     <div className="relative mx-4">

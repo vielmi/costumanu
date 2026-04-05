@@ -83,19 +83,9 @@ function CostumeCard({ costume }: { costume: Costume }) {
   const firstMedia = costume.costume_media?.[0];
   const firstProvenance = costume.costume_provenance?.[0];
 
-  const { data: imageUrl } = useQuery({
-    queryKey: ["costume-image", firstMedia?.storage_path],
-    queryFn: async () => {
-      const { data, error } = await supabase.storage
-        .from("costume-images")
-        .createSignedUrl(firstMedia!.storage_path, 3600);
-      if (error) throw error;
-      return data.signedUrl;
-    },
-    enabled: !!firstMedia,
-    staleTime: 30 * 60 * 1000,
-    gcTime: 60 * 60 * 1000,
-  });
+  const imageUrl = firstMedia
+    ? supabase.storage.from("costume-images").getPublicUrl(firstMedia.storage_path).data.publicUrl
+    : null;
 
   return (
     <Link

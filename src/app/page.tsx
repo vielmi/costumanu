@@ -1,157 +1,91 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { SiteHeader } from "@/components/layout/site-header";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { SearchBar } from "@/components/homepage/search-bar";
-import { HeroText } from "@/components/homepage/hero-text";
-import { GenderGrid } from "@/components/homepage/gender-grid";
-import { ClothingTypeSection } from "@/components/homepage/clothing-type-section";
-import { EventBanner } from "@/components/homepage/event-banner";
-import { HorizontalCardRow } from "@/components/homepage/horizontal-card-row";
-import { NetworkSection } from "@/components/homepage/network-section";
-import type { TaxonomyTerm } from "@/lib/types/costume";
-
-// Fixed UUID from seed file (20260222_seed_taxonomy_terms.sql)
-const UNIFORMEN_PARENT_ID = "a0000000-0000-0000-0000-000000000008";
+import { CockpitShell } from "@/components/cockpit/cockpit-shell";
 
 export default async function Home() {
   const supabase = await createClient();
 
-  const [
-    gendersResult,
-    clothingTypesResult,
-    clothingSubTypesResult,
-    epochsResult,
-    spartenResult,
-    uniformSubTypesResult,
-    eventsResult,
-    theatersResult,
-  ] = await Promise.all([
-    supabase
-      .from("taxonomy_terms")
-      .select("*")
-      .eq("vocabulary", "gender")
-      .order("sort_order"),
-    // Show 4 top-level types to fill the 2×2 grid in ClothingTypeSection
-    supabase
-      .from("taxonomy_terms")
-      .select("*")
-      .eq("vocabulary", "clothing_type")
-      .is("parent_id", null)
-      .order("sort_order")
-      .limit(4),
-    supabase
-      .from("taxonomy_terms")
-      .select("*")
-      .eq("vocabulary", "clothing_type")
-      .not("parent_id", "is", null)
-      .order("sort_order"),
-    supabase
-      .from("taxonomy_terms")
-      .select("*")
-      .eq("vocabulary", "epoche")
-      .order("sort_order"),
-    supabase
-      .from("taxonomy_terms")
-      .select("*")
-      .eq("vocabulary", "sparte")
-      .order("sort_order"),
-    supabase
-      .from("taxonomy_terms")
-      .select("*")
-      .eq("vocabulary", "clothing_type")
-      .eq("parent_id", UNIFORMEN_PARENT_ID)
-      .order("sort_order"),
-    supabase
-      .from("events")
-      .select("*")
-      .eq("is_published", true)
-      .order("event_date", { ascending: false })
-      .limit(1),
-    supabase
-      .from("theaters")
-      .select("id, name, slug")
-      .limit(12),
-  ]);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // Log query errors server-side for observability
-  for (const [label, result] of Object.entries({
-    genders: gendersResult,
-    clothingTypes: clothingTypesResult,
-    clothingSubTypes: clothingSubTypesResult,
-    epochs: epochsResult,
-    sparten: spartenResult,
-    uniformSubTypes: uniformSubTypesResult,
-    events: eventsResult,
-    theaters: theatersResult,
-  })) {
-    if (result.error) {
-      console.error(`[Homepage] ${label} query failed:`, result.error);
-    }
+  if (!user) {
+    redirect("/login");
   }
 
-  const genders = gendersResult.data ?? [];
-  const clothingTypes = clothingTypesResult.data ?? [];
-  const epochs = epochsResult.data ?? [];
-  const sparten = spartenResult.data ?? [];
-  const uniformSubTypes = uniformSubTypesResult.data ?? [];
-  const theaters = theatersResult.data ?? [];
-  const featuredEvent = eventsResult.data?.[0] ?? null;
+  const { data: membership } = await supabase
+    .from("theater_members")
+    .select("theater_id")
+    .eq("user_id", user.id)
+    .limit(1)
+    .single();
 
-  // Group sub-types by parent for clothing type section
-  const subTypesByParent: Record<string, TaxonomyTerm[]> = {};
-  for (const sub of clothingSubTypesResult.data ?? []) {
-    if (!sub.parent_id) continue;
-    subTypesByParent[sub.parent_id] ??= [];
-    subTypesByParent[sub.parent_id].push(sub);
+  const theaterId: string | null = membership?.theater_id ?? null;
+
+  // Fetch recent costumes + provenance for production column
+  const { data: rawCostumes } = theaterId
+    ? await supabase
+        .from("costumes")
+        .select(`
+          id, name, created_at,
+          gender_term:taxonomy_terms!gender_term_id(id, label_de),
+          clothing_type:taxonomy_terms!clothing_type_id(id, label_de),
+          costume_media(storage_path, sort_order),
+          costume_items(current_status),
+          costume_provenance(production_title, year)
+        `)
+        .eq("theater_id", theaterId)
+        .order("created_at", { ascending: false })
+        .limit(5)
+    : { data: [] };
+
+  const recentCostumes = (rawCostumes ?? []).map((c: any) => ({
+    id: c.id,
+    name: c.name,
+    created_at: c.created_at,
+    gender_term: Array.isArray(c.gender_term) ? (c.gender_term[0] ?? null) : c.gender_term,
+    clothing_type: Array.isArray(c.clothing_type) ? (c.clothing_type[0] ?? null) : c.clothing_type,
+    costume_media: c.costume_media ?? [],
+    costume_items: c.costume_items ?? [],
+    costume_provenance: c.costume_provenance ?? [],
+  }));
+
+  // Badge: pending rental requests (user's theater is lender)
+  const { count: pendingRentals } = theaterId
+    ? await supabase
+        .from("rental_orders")
+        .select("id", { count: "exact", head: true })
+        .eq("lender_theater_id", theaterId)
+        .eq("status", "requested")
+    : { count: 0 };
+
+  // Badge: unread messages
+  const { data: participations } = await supabase
+    .from("chat_thread_participants")
+    .select("thread_id, last_read_at")
+    .eq("user_id", user.id);
+
+  let unreadMessages = 0;
+  if (participations?.length) {
+    const results = await Promise.all(
+      participations.map((p) =>
+        supabase
+          .from("chat_messages")
+          .select("id", { count: "exact", head: true })
+          .eq("thread_id", p.thread_id)
+          .neq("sender_id", user.id)
+          .gt("created_at", p.last_read_at ?? "1970-01-01T00:00:00Z")
+      )
+    );
+    unreadMessages = results.reduce((sum, r) => sum + (r.count ?? 0), 0);
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <SiteHeader />
-
-      <main id="main-content">
-        <SearchBar />
-        <HeroText />
-        <GenderGrid genders={genders} />
-        <ClothingTypeSection
-          clothingTypes={clothingTypes}
-          subTypesByParent={subTypesByParent}
-        />
-        {featuredEvent && <EventBanner event={featuredEvent} />}
-
-        <HorizontalCardRow
-          title="Epochen"
-          items={epochs.map((e) => ({
-            id: e.id,
-            label: e.label_de,
-            href: `/results?epoche=${e.id}`,
-          }))}
-        />
-
-        <HorizontalCardRow
-          title="Sparte"
-          items={sparten.map((s) => ({
-            id: s.id,
-            label: s.label_de,
-            href: `/results?sparte=${s.id}`,
-          }))}
-        />
-
-        {uniformSubTypes.length > 0 && (
-          <HorizontalCardRow
-            title="Arbeitsuniformen"
-            items={uniformSubTypes.map((u) => ({
-              id: u.id,
-              label: u.label_de,
-              href: `/results?clothing_type=${u.id}`,
-            }))}
-          />
-        )}
-
-        <NetworkSection theaters={theaters} />
-      </main>
-
-      <SiteFooter />
-    </div>
+    <CockpitShell
+      recentCostumes={recentCostumes}
+      theaterId={theaterId}
+      unreadMessages={unreadMessages}
+      pendingRentals={pendingRentals ?? 0}
+    />
   );
 }
