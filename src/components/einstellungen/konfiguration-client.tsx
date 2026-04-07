@@ -416,7 +416,7 @@ function TheaterTab({ initialTheaters }: { initialTheaters: Theater[] }) {
             {theaters.map((t) => (
               <div key={t.id} style={{ display: "grid", gridTemplateColumns: "1fr 200px 140px", gap: 12, alignItems: "center", height: 60, padding: "0 16px", borderRadius: 12, background: "var(--secondary-500)", border: "1px solid var(--neutral-grey-200)" }}>
                 <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: "var(--font-weight-500)", color: "var(--neutral-grey-700)" }}>{t.name}</span>
-                <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-500)", fontFamily: "monospace" as React.CSSProperties["fontFamily"] }}>{t.slug}</span>
+                <span style={{ fontFamily: "monospace", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-500)" }}>{t.slug}</span>
                 <div style={{ display: "flex", justifyContent: "flex-end" }}>
                   <button type="button" onClick={() => openEdit(t)} style={{ ...btnSecondary, height: 34 }}>Bearbeiten</button>
                 </div>
