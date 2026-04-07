@@ -139,6 +139,7 @@ Vollständige Icon-Liste in `design-system.md §5`.
 
 ## Komponenten-Konventionen
 
+- **Brand Logo:** Immer `<AppLogo />` aus `src/components/layout/app-logo.tsx` — Specs in `design-system.md §6.5`
 - **Buttons:** Immer `btn-primary` / `btn-secondary` / `btn-tertiary` aus `design-system.md §6.1`
 - **Höhe Buttons:** 62px standardisiert
 - **Controls:** Specs in `design-system.md §6.2` (Radio, Checkbox, Toggle, Input, Textarea, Dropdown)

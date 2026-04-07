@@ -1498,6 +1498,35 @@ Horizontale Tabs mit Underline-Indikator.
 
 ---
 
+#### `AppLogo` — Brand Logo Komponente
+
+Wiederverwendbare Logo-Komponente: schwarzes K-Icon-Box + „kostüm+" Schriftzug, verlinkt auf `/`.
+
+**Pfad:** `src/components/layout/app-logo.tsx`
+
+```tsx
+import { AppLogo } from "@/components/layout/app-logo";
+
+<AppLogo />                  // Logo + Text (Standard)
+<AppLogo showText={false} /> // Nur K-Icon (collapsed Sidebar)
+```
+
+| Property | Typ | Default | Beschreibung |
+|---|---|---|---|
+| `showText` | `boolean` | `true` | Blendet den „kostüm+" Schriftzug ein/aus |
+
+**Specs:**
+| Element | Wert |
+|---|---|
+| Icon-Box | 38×38px, `background: #0D0D0D`, `border-radius: 8px` |
+| Icon-Buchstabe „K" | 18px, `font-weight: 700`, `color: #F5C842` |
+| Schriftzug „kostüm+" | `font-size-350` (18px), `font-weight: 700`, `color: neutral-grey-700` |
+| Gap Icon–Text | 8px |
+
+**Verwendet in:** `cockpit-shell.tsx`, `kostueme-neu-client.tsx`
+
+---
+
 #### App Header Bar
 
 Wird für alle Hauptansichten verwendet. Zwei Ebenen: obere Tabs + untere Content-Bar.
