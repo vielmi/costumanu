@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CockpitShell } from "@/components/cockpit/cockpit-shell";
+import { ViewerCockpitShell } from "@/components/cockpit/viewer-cockpit-shell";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -79,6 +80,10 @@ export default async function Home() {
       )
     );
     unreadMessages = results.reduce((sum, r) => sum + (r.count ?? 0), 0);
+  }
+
+  if (userRole === "viewer") {
+    return <ViewerCockpitShell />;
   }
 
   return (
