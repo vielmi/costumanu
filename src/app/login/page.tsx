@@ -56,7 +56,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/wishlist");
+    router.push("/");
     router.refresh();
   }
 
