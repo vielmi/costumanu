@@ -47,7 +47,7 @@ const NAV_ITEMS = [
   { label: "Ausleihen",     href: "/rental",         icon: "icon-shopping-bag", badgeKey: "rentals" },
 ];
 
-const ADMIN_NAV_ITEM = { label: "Konfiguration", href: "/einstellungen/konfiguration", icon: "icon-setting", adminOnly: true };
+const ADMIN_NAV_ITEM = { label: "Konfiguration", href: "/einstellungen/konfiguration", icon: "icon-setting", adminOnly: true, badgeKey: undefined };
 
 const SIDEBAR_W = 209;
 const SIDEBAR_COLLAPSED_W = 64;
