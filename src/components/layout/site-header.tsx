@@ -1,32 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { Menu, MessageCircle, Heart, ShoppingBag, Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu } from "@/components/layout/navigation-menu";
+import { AppLogo } from "@/components/layout/app-logo";
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-surface-dark text-surface-dark-foreground">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+      <header className="sticky top-0 z-50" style={{ background: "var(--secondary-500)", height: 72, display: "flex", alignItems: "center" }}>
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4">
+          <AppLogo />
+
           <Button
             variant="ghost"
             size="icon"
-            className="text-surface-dark-foreground"
             onClick={() => setMenuOpen(true)}
             aria-expanded={menuOpen}
             aria-label={menuOpen ? "Menü schliessen" : "Menü öffnen"}
           >
             <Menu className="h-5 w-5" />
           </Button>
-
-          <Link href="/" className="text-lg font-bold tracking-tight">
-            kostüm+
-          </Link>
 
           <div className="flex items-center gap-1">
             <Button

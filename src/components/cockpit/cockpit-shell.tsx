@@ -125,7 +125,7 @@ export function CockpitShell({
         height: "100vh",
         display: "flex",
         flexDirection: "column",
-        background: "var(--secondary-500)",
+        background: "var(--page-bg)",
         overflow: "hidden",
         paddingTop: 20,
       }}
@@ -138,7 +138,7 @@ export function CockpitShell({
           display: "flex",
           alignItems: "center",
           flexShrink: 0,
-          background: "var(--secondary-500)",
+          background: "var(--page-bg)",
           height: 72,
         }}
       >

@@ -85,7 +85,7 @@ export default async function CostumeDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div style={{ minHeight: "100vh", background: "var(--page-bg)" }}>
       <SiteHeader />
       <main className="mx-auto max-w-5xl">
         <CostumeDetailClient

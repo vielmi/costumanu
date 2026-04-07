@@ -43,7 +43,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div style={{ minHeight: "100vh", background: "var(--page-bg)" }}>
       <SiteHeader />
 
       <main className="mx-auto flex max-w-md items-center justify-center px-4 py-16">

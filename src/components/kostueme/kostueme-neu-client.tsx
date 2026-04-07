@@ -512,7 +512,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
   const ironingOptions = taxonomy.ironings.map((i) => ({ id: i.id, label: i.label_de }));
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--secondary-500)", overflow: "hidden", paddingTop: 20 }}>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--page-bg)", overflow: "hidden", paddingTop: 20 }}>
 
       {/* ═══ Header ═══ */}
       <div style={{
@@ -520,7 +520,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
         flexShrink: 0,
         display: "flex",
         alignItems: "center",
-        background: "var(--secondary-500)",
+        background: "var(--page-bg)",
       }}>
         {/* Logo section — same width as sidebar nav */}
         <div style={{

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { AppLogo } from "@/components/layout/app-logo";
 import {
   createTheaterAction,
   updateTheaterAction,
@@ -726,10 +727,11 @@ export function KonfigurationClient({
       ];
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--secondary-500)", overflow: "hidden" }}>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--page-bg)", overflow: "hidden" }}>
 
       {/* Header */}
-      <div style={{ height: 72, flexShrink: 0, display: "flex", alignItems: "center", padding: "0 40px", gap: 24, background: "var(--secondary-500)" }}>
+      <div style={{ height: 72, flexShrink: 0, display: "flex", alignItems: "center", padding: "0 40px", gap: 24, background: "var(--page-bg)" }}>
+        <AppLogo />
         <h1 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-500)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-grey-700)", margin: 0 }}>
           Konfiguration
         </h1>

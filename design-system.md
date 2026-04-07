@@ -1498,6 +1498,23 @@ Horizontale Tabs mit Underline-Indikator.
 
 ---
 
+#### Seiten-Hintergrund
+
+Alle App-Seiten verwenden den Token `--page-bg` als Root-Hintergrundfarbe.
+
+```css
+--page-bg: var(--secondary-500); /* #ECF1EE */
+```
+
+```tsx
+// Root-Element jeder Seite / Shell-Komponente:
+<div style={{ background: "var(--page-bg)", minHeight: "100vh" }}>
+```
+
+⚠️ Nie `--secondary-500` oder `#ECF1EE` direkt für den Seiten-Hintergrund verwenden — immer `--page-bg`.
+
+---
+
 #### `AppLogo` — Brand Logo Komponente
 
 Wiederverwendbare Logo-Komponente: schwarzes K-Icon-Box + „kostüm+" Schriftzug, verlinkt auf `/`.
