@@ -130,7 +130,7 @@
   --color-success: #85CAA0;
 
   /* ─── Page Background ─── */
-  --page-bg: var(--secondary-500); /* #ECF1EE — Standard-Hintergrund für alle App-Seiten */
+  --page-bg: #ECF1EE; /* secondary-500 — Standard-Hintergrund für alle App-Seiten */
 
   /* ─── Shadows ─── */
   --shadow-100: 0px 1px 6px 0px rgba(0,0,0,0.20);

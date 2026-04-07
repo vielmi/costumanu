@@ -1503,7 +1503,7 @@ Horizontale Tabs mit Underline-Indikator.
 Alle App-Seiten verwenden den Token `--page-bg` als Root-Hintergrundfarbe.
 
 ```css
---page-bg: var(--secondary-500); /* #ECF1EE */
+--page-bg: #ECF1EE; /* = secondary-500 */
 ```
 
 ```tsx
