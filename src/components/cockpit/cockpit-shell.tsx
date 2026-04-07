@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { CockpitContent } from "@/components/cockpit/cockpit-client";
+import { AppLogo } from "@/components/layout/app-logo";
 
 interface Provenance {
   production_title: string;
@@ -154,31 +155,7 @@ export function CockpitShell({
             overflow: "hidden",
           }}
         >
-          <div style={{
-            width: 38, height: 38,
-            background: "#0D0D0D",
-            borderRadius: 8,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            flexShrink: 0,
-          }}>
-            <span style={{
-              fontFamily: "var(--font-family-base)",
-              fontWeight: "var(--font-weight-700)",
-              fontSize: 18,
-              color: "#F5C842",
-              lineHeight: 1,
-            }}>K</span>
-          </div>
-          {!collapsed && (
-            <span style={{
-              fontFamily: "var(--font-family-base)",
-              fontSize: "var(--font-size-350)",
-              fontWeight: "var(--font-weight-700)",
-              color: "var(--neutral-grey-700)",
-              whiteSpace: "nowrap",
-              flex: 1,
-            }}>kostüm+</span>
-          )}
+          <AppLogo showText={!collapsed} />
           <button
             onClick={() => setCollapsed((c) => !c)}
             aria-label={collapsed ? "Sidebar öffnen" : "Sidebar schliessen"}
