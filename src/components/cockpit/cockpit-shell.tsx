@@ -36,7 +36,9 @@ interface CockpitShellProps {
   userRole: string;
 }
 
-const NAV_ITEMS = [
+type NavItem = { label: string; href: string; icon: string; badgeKey?: string; adminOnly?: boolean };
+
+const NAV_ITEMS: NavItem[] = [
   { label: "Home",          href: "/",              icon: "icon-home-menu"       },
   { label: "Kostüme",       href: "/fundus",         icon: "icon-shirt"           },
   { label: "Aufführungen",  href: "/auffuehrungen",  icon: "icon-production-menu" },
@@ -47,7 +49,7 @@ const NAV_ITEMS = [
   { label: "Ausleihen",     href: "/rental",         icon: "icon-shopping-bag", badgeKey: "rentals" },
 ];
 
-const ADMIN_NAV_ITEM = { label: "Konfiguration", href: "/einstellungen/konfiguration", icon: "icon-setting", adminOnly: true, badgeKey: undefined };
+const ADMIN_NAV_ITEM: NavItem = { label: "Konfiguration", href: "/einstellungen/konfiguration", icon: "icon-setting", adminOnly: true };
 
 const SIDEBAR_W = 209;
 const SIDEBAR_COLLAPSED_W = 64;
