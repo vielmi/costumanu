@@ -22,7 +22,7 @@
 **App:** kostüm+ (costumanu) — Kostümverwaltung für Theater
 **Partner:** Luzerner Theater, Bühnen Bern, SRF
 **Repo:** `C:\Users\vielm\Repos\costumanu`
-**Branch:** `feature/ui-rebuild`
+**Branch:** `main`
 
 ---
 
@@ -150,14 +150,14 @@ Vollständige Icon-Liste in `design-system.md §5`.
 
 ## Git-Strategie
 
-- **Branch:** `feature/ui-rebuild` (single long-running branch)
+- **Branch:** `main` (direkt, kein separater Feature-Branch)
 - **Commits:** 1 Commit pro Session
-- **PRs:** Batch-PRs wenn Kollege verfügbar — kein Force-Push
+- **Push:** immer direkt auf `main`
 
 ```bash
 git add -A
 git commit -m "feat: [Modul] [kurze Beschreibung]"
-git push origin feature/ui-rebuild
+git push origin main
 ```
 
 ---

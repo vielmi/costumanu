@@ -14,21 +14,21 @@ const IMAGE_CARDS = [
   {
     title: "Kostüm Übersicht",
     href: "/fundus",
-    overlayOpacity: 0.35,
+    overlayOpacity: 0.3,
     bg: "var(--secondary-800)",
     image: "/images/cockpit-kostueme.jpg",
   },
   {
     title: "Aktuelle- & vergangene Aufführungen",
     href: "/auffuehrungen",
-    overlayOpacity: 0.45,
+    overlayOpacity: 0.5,
     bg: "var(--secondary-900)",
     image: "/images/cockpit-auffuehrungen.jpg",
   },
   {
     title: "Darsteller & Masse",
     href: "/darsteller",
-    overlayOpacity: 0.35,
+    overlayOpacity: 0.3,
     bg: "var(--tertiary-900)",
     image: "/images/cockpit-darsteller.jpg",
   },
@@ -318,7 +318,7 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
         <h2
           style={{
             fontFamily: "var(--font-family-base)",
-            fontSize: "var(--font-size-400)",
+            fontSize: "var(--font-size-350)",
             fontWeight: "var(--font-weight-500)",
             color: "var(--neutral-grey-700)",
             marginBottom: 16,

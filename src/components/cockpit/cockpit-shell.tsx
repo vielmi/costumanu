@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { CockpitContent } from "@/components/cockpit/cockpit-client";
 
 interface Provenance {
@@ -32,6 +33,7 @@ interface CockpitShellProps {
   theaterId: string | null;
   unreadMessages: number;
   pendingRentals: number;
+  userRole: string;
 }
 
 const NAV_ITEMS = [
@@ -41,10 +43,11 @@ const NAV_ITEMS = [
   { label: "Darsteller",    href: "/darsteller",     icon: "icon-artist-menu"     },
   { label: "Termine",       href: "/termine",        icon: "icon-calendar-menu"   },
   { label: "Kontakte",      href: "/kontakte",       icon: "icon-contact-book"    },
-  { label: "Einstellungen", href: "/einstellungen",  icon: "icon-setting"         },
   { label: "Nachrichten",   href: "/messages",       icon: "icon-chat",    badgeKey: "messages" },
   { label: "Ausleihen",     href: "/rental",         icon: "icon-shopping-bag", badgeKey: "rentals" },
 ];
+
+const ADMIN_NAV_ITEM = { label: "Konfiguration", href: "/einstellungen/konfiguration", icon: "icon-setting", adminOnly: true };
 
 const SIDEBAR_W = 209;
 const SIDEBAR_COLLAPSED_W = 64;
@@ -54,12 +57,48 @@ export function CockpitShell({
   theaterId,
   unreadMessages,
   pendingRentals,
+  userRole,
 }: CockpitShellProps) {
+  const isAdmin = userRole === "owner" || userRole === "admin";
+  const navItems = isAdmin ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
   const [collapsed, setCollapsed] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
   const sidebarW = collapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_W;
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<{ id: string; name: string }[]>([]);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const runSearch = useCallback(async (q: string) => {
+    if (!q.trim() || !theaterId) { setSearchResults([]); return; }
+    const { data } = await supabase
+      .from("costumes")
+      .select("id, name")
+      .eq("theater_id", theaterId)
+      .ilike("name", `%${q}%`)
+      .limit(8);
+    setSearchResults(data ?? []);
+  }, [supabase, theaterId]);
+
+  useEffect(() => {
+    const t = setTimeout(() => runSearch(searchQuery), 200);
+    return () => clearTimeout(t);
+  }, [searchQuery, runSearch]);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -85,6 +124,7 @@ export function CockpitShell({
         flexDirection: "column",
         background: "var(--secondary-500)",
         overflow: "hidden",
+        paddingTop: 20,
       }}
     >
       {/* ═══════════════════════════════════════════
@@ -106,7 +146,7 @@ export function CockpitShell({
             flexShrink: 0,
             display: "flex",
             alignItems: "center",
-            padding: "0 12px",
+            padding: "0 12px 0 20px",
             gap: 8,
             transition: "width 200ms ease",
             overflow: "hidden",
@@ -159,57 +199,92 @@ export function CockpitShell({
             display: "flex",
             alignItems: "center",
             gap: 12,
-            padding: "0 24px 0 0",
+            padding: "0 36px 0 24px",
+            justifyContent: "space-between",
           }}
         >
-          {/* Search pill */}
-          <div
-            style={{
-              flex: 1,
-              height: 52,
-              borderRadius: 47,
+          {/* Search pill — live */}
+          <div ref={searchRef} style={{ flex: 1, maxWidth: 640, position: "relative" }}>
+            <div style={{
+              height: 52, borderRadius: 47,
+              background: "var(--secondary-500)",
               border: "1px solid var(--neutral-black)",
-              background: "#FFFFFF",
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              padding: "0 16px",
-              cursor: "text",
-            }}
-          >
-            <Image
-              src="/icons/icon-search.svg"
-              alt=""
-              width={20}
-              height={20}
-              style={{ opacity: 0.5, flexShrink: 0 }}
-            />
-            <span
-              style={{
-                fontFamily: "var(--font-family-base)",
-                fontSize: "var(--font-size-300)",
-                fontWeight: "var(--font-weight-500)",
-                color: "var(--neutral-grey-400)",
-              }}
-            >
-              durchsuchen
-            </span>
+              display: "flex", alignItems: "center", gap: 10, padding: "0 16px",
+            }}>
+              <Image src="/icons/icon-search.svg" alt="" width={20} height={20} style={{ flexShrink: 0 }} />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
+                onFocus={() => setSearchOpen(true)}
+                placeholder="Kostüme suchen"
+                style={{
+                  flex: 1, border: "none", background: "transparent",
+                  fontFamily: "var(--font-family-base)",
+                  fontSize: "var(--font-size-200)",
+                  fontWeight: "var(--font-weight-400)",
+                  color: "var(--neutral-grey-700)",
+                  letterSpacing: "0.002em",
+                  outline: "none",
+                }}
+              />
+              {searchQuery && (
+                <button type="button" onClick={() => { setSearchQuery(""); setSearchResults([]); setSearchOpen(false); }}
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", opacity: 0.5 }}>
+                  <Image src="/icons/icon-close-medium.svg" alt="" width={16} height={16} />
+                </button>
+              )}
+            </div>
+
+            {/* Dropdown results */}
+            {searchOpen && searchQuery.trim() && (
+              <div style={{
+                position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0,
+                background: "#FFFFFF", border: "1px solid var(--neutral-grey-200)",
+                borderRadius: 16, boxShadow: "var(--shadow-300)", zIndex: 200, overflow: "hidden",
+              }}>
+                {searchResults.length === 0 ? (
+                  <div style={{ padding: "14px 20px", fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-400)" }}>
+                    Keine Kostüme gefunden
+                  </div>
+                ) : (
+                  searchResults.map((c) => (
+                    <button key={c.id} type="button"
+                      onClick={() => { router.push(`/costume/${c.id}`); setSearchOpen(false); setSearchQuery(""); }}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 12,
+                        width: "100%", height: 52, padding: "0 20px",
+                        background: "none", border: "none", borderBottom: "1px solid var(--neutral-grey-100)",
+                        cursor: "pointer", textAlign: "left",
+                      }}>
+                      <Image src="/icons/icon-shirt.svg" alt="" width={16} height={16} style={{ opacity: 0.4, flexShrink: 0 }} />
+                      <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: "var(--font-weight-500)", color: "var(--neutral-grey-700)" }}>
+                        {c.name}
+                      </span>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
           </div>
+
+          {/* Buttons group — right-aligned */}
+          <div style={{ display: "flex", gap: 12, alignItems: "center", flexShrink: 0 }}>
 
           {/* Ausleihe erfassen — secondary */}
           <Link
             href="/rental/new"
             style={{
-              height: 46,
-              padding: "0 18px",
-              borderRadius: "var(--radius-md)",
+              height: 57,
+              padding: "0 30px",
+              borderRadius: "16px",
               border: "1px solid var(--primary-900)",
               color: "var(--primary-900)",
               background: "transparent",
               display: "flex",
               alignItems: "center",
               fontFamily: "var(--font-family-base)",
-              fontSize: "var(--font-size-200)",
+              fontSize: "var(--font-size-350)",
               fontWeight: "var(--font-weight-500)",
               textDecoration: "none",
               whiteSpace: "nowrap",
@@ -224,16 +299,16 @@ export function CockpitShell({
             <button
               onClick={() => setDropdownOpen((o) => !o)}
               style={{
-                height: 46,
-                padding: "0 18px",
-                borderRadius: "var(--radius-md)",
+                height: 57,
+                padding: "0 30px",
+                borderRadius: "16px",
                 background: "var(--primary-900)",
                 color: "#FFFFFF",
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
                 fontFamily: "var(--font-family-base)",
-                fontSize: "var(--font-size-200)",
+                fontSize: "var(--font-size-350)",
                 fontWeight: "var(--font-weight-500)",
                 whiteSpace: "nowrap",
                 border: "none",
@@ -300,13 +375,15 @@ export function CockpitShell({
               </div>
             )}
           </div>
+
+          </div>{/* end buttons group */}
         </div>
       </div>
 
       {/* ═══════════════════════════════════════════
           Body: sidebar nav + main content
           ═══════════════════════════════════════════ */}
-      <div style={{ flex: 1, display: "flex", overflow: "hidden", padding: "0 12px 12px", gap: 12 }}>
+      <div style={{ flex: 1, display: "flex", overflow: "hidden", padding: "20px 12px 12px", gap: 12 }}>
 
         {/* Sidebar nav */}
         <nav
@@ -314,16 +391,14 @@ export function CockpitShell({
             width: sidebarW,
             flexShrink: 0,
             background: "transparent",
-            borderRadius: "var(--radius-xl)",
             display: "flex",
             flexDirection: "column",
-            overflow: "hidden",
             transition: "width 200ms ease",
           }}
         >
           {/* Nav items */}
           <div style={{ flex: 1, padding: "4px 8px", overflowY: "auto" }}>
-            {NAV_ITEMS.map((item, index) => {
+            {navItems.map((item, index) => {
               const isActive = pathname === item.href;
               const badge = getBadge(item.badgeKey);
               return (
@@ -334,14 +409,14 @@ export function CockpitShell({
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    width: collapsed ? undefined : 160,
+                    width: collapsed ? undefined : 166,
                     height: 50,
                     padding: "0 12px",
                     gap: 10,
                     borderRadius: 8,
                     background: isActive ? "#D6DFDD" : "transparent",
                     textDecoration: "none",
-                    borderBottom: index < NAV_ITEMS.length - 1 ? "1px solid var(--neutral-grey-200)" : "none",
+                    borderBottom: index < navItems.length - 1 ? "1px solid var(--secondary-500)" : "none",
                     justifyContent: collapsed ? "center" : "flex-start",
                   }}
                 >
@@ -398,9 +473,12 @@ export function CockpitShell({
           {/* Profile footer */}
           <div
             style={{
-              padding: "8px",
+              padding: "8px 8px 8px 12px",
               borderTop: "1px solid var(--neutral-grey-200)",
               flexShrink: 0,
+              minHeight: 99,
+              display: "flex",
+              alignItems: "center",
             }}
           >
             <Link
@@ -409,7 +487,7 @@ export function CockpitShell({
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
-                height: 50,
+                width: "100%",
                 padding: "0 8px",
                 borderRadius: "var(--radius-sm)",
                 textDecoration: "none",
@@ -418,8 +496,8 @@ export function CockpitShell({
             >
               <div
                 style={{
-                  width: 34,
-                  height: 34,
+                  width: 60,
+                  height: 60,
                   borderRadius: "50%",
                   background: "var(--secondary-700)",
                   display: "flex",
@@ -432,8 +510,8 @@ export function CockpitShell({
                 <Image
                   src="/icons/icon-avatar.svg"
                   alt=""
-                  width={20}
-                  height={20}
+                  width={28}
+                  height={28}
                   style={{ filter: "invert(1)" }}
                 />
               </div>
@@ -443,7 +521,7 @@ export function CockpitShell({
                     style={{
                       fontFamily: "var(--font-family-base)",
                       fontSize: "var(--font-size-200)",
-                      fontWeight: "var(--font-weight-500)",
+                      fontWeight: "var(--font-weight-700)",
                       color: "var(--neutral-grey-600)",
                       flex: 1,
                       whiteSpace: "nowrap",
@@ -470,7 +548,7 @@ export function CockpitShell({
             flex: 1,
             overflowY: "auto",
             background: "#FFFFFF",
-            borderRadius: "var(--radius-xl)",
+            borderRadius: "40px 40px 0 0",
           }}
         >
           <CockpitContent recentCostumes={recentCostumes} theaterId={theaterId} />

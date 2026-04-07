@@ -15,12 +15,13 @@ export default async function Home() {
 
   const { data: membership } = await supabase
     .from("theater_members")
-    .select("theater_id")
+    .select("theater_id, role")
     .eq("user_id", user.id)
     .limit(1)
     .single();
 
   const theaterId: string | null = membership?.theater_id ?? null;
+  const userRole: string = membership?.role ?? "member";
 
   // Fetch recent costumes + provenance for production column
   const { data: rawCostumes } = theaterId
@@ -86,6 +87,7 @@ export default async function Home() {
       theaterId={theaterId}
       unreadMessages={unreadMessages}
       pendingRentals={pendingRentals ?? 0}
+      userRole={userRole}
     />
   );
 }
