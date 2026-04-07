@@ -75,12 +75,6 @@ const GENDER_CARDS = [
 ];
 
 
-const EPOCHE_PILLS = [
-  "Antike", "Frühmittelalter", "Hochmittelalter", "Spätmittelalter",
-  "Renaissance", "Barock", "Rokoko", "Klassizismus", "Empire", "Biedermeier",
-  "Gründerzeit", "Jugendstil", "Zwanziger Jahre", "Dreissiger & Vierziger Jahre",
-  "Fünfziger & Sechziger Jahre", "Siebziger & Achtziger Jahre", "Zeitgenössisch",
-];
 
 const KONFEKTIONS_SIZES_INT = ["XS", "S", "M", "L", "XL", "XXL"];
 const KONFEKTIONS_SIZES_EU = ["≤ 32", "34", "36", "38", "40", "42", "44", "46", "48", "50", "52", "≥ 54"];
@@ -98,9 +92,9 @@ function Pill({ label, active, onClick }: { label: string; active: boolean; onCl
         height: 44,
         padding: "10px 25px",
         borderRadius: 44,
-        border: "1px solid #556E68",
-        background: active ? "#ECF1EE" : "#FBFBFB",
-        color: active ? "#556E68" : "#75958D",
+        border: "1px solid var(--secondary-800)",
+        background: active ? "var(--secondary-500)" : "var(--neutral-grey-50)",
+        color: active ? "var(--secondary-800)" : "var(--secondary-700)",
         fontFamily: "var(--font-family-base)",
         fontSize: "var(--font-size-300)",
         fontWeight: "var(--font-weight-500)",
@@ -115,8 +109,8 @@ function Pill({ label, active, onClick }: { label: string; active: boolean; onCl
       {label}
       {active && (
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-          <line x1="1" y1="1" x2="11" y2="11" stroke="#556E68" strokeWidth="1.5" strokeLinecap="round"/>
-          <line x1="11" y1="1" x2="1" y2="11" stroke="#556E68" strokeWidth="1.5" strokeLinecap="round"/>
+          <line x1="1" y1="1" x2="11" y2="11" stroke="var(--secondary-800)" strokeWidth="1.5" strokeLinecap="round"/>
+          <line x1="11" y1="1" x2="1" y2="11" stroke="var(--secondary-800)" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
       )}
     </button>
@@ -136,13 +130,13 @@ function SearchCard({ label, value, onChange }: { label: string; value: string; 
         fontFamily: "var(--font-family-base)",
         fontSize: "var(--font-size-350)",
         fontWeight: "var(--font-weight-500)",
-        color: "#000000",
+        color: "var(--neutral-black)",
         marginBottom: 10,
       }}>
         {label}
       </div>
       <div style={{
-        border: "1px solid #000000",
+        border: "1px solid var(--neutral-black)",
         borderRadius: 47,
         height: 60,
         display: "flex",
@@ -186,14 +180,14 @@ function FlatInput({ value, onChange, placeholder }: { value: string; onChange: 
         width: "100%",
         maxWidth: 599,
         height: 70,
-        background: "#F3F4F6",
+        background: "var(--neutral-grey-100)",
         border: "none",
-        borderBottom: "1px solid #000000",
+        borderBottom: "1px solid var(--neutral-black)",
         padding: "0 20px",
         fontFamily: "var(--font-family-base)",
         fontSize: "var(--font-size-400)",
         fontWeight: "var(--font-weight-500)",
-        color: "#000000",
+        color: "var(--neutral-black)",
         outline: "none",
         boxSizing: "border-box",
       }}
@@ -221,14 +215,14 @@ function MeasureInput({ label, value, onChange }: { label: string; value: string
           style={{
             width: 222,
             height: 60,
-            background: "#F3F4F6",
+            background: "var(--neutral-grey-100)",
             border: "none",
-            borderBottom: "1px solid #000000",
+            borderBottom: "1px solid var(--neutral-black)",
             padding: "0 16px",
             fontFamily: "var(--font-family-base)",
             fontSize: "var(--font-size-350)",
             fontWeight: "var(--font-weight-400)",
-            color: "#000000",
+            color: "var(--neutral-black)",
             outline: "none",
             boxSizing: "border-box",
           }}
@@ -237,7 +231,7 @@ function MeasureInput({ label, value, onChange }: { label: string; value: string
           fontFamily: "var(--font-family-base)",
           fontSize: "var(--font-size-350)",
           fontWeight: "var(--font-weight-400)",
-          color: "#000000",
+          color: "var(--neutral-black)",
         }}>cm</span>
       </div>
     </div>
@@ -255,7 +249,7 @@ function SectionHeading({ icon, children }: { icon: string; children: React.Reac
         fontWeight: "var(--font-weight-500)",
         letterSpacing: "0.003em",
         lineHeight: "var(--line-height-120)",
-        color: "#000000",
+        color: "var(--neutral-black)",
         margin: 0,
       }}>
         {children}
@@ -282,7 +276,7 @@ function TextArea({ value, onChange, placeholder, rows = 3 }: { value: string; o
         fontWeight: "var(--font-weight-400)",
         color: "var(--neutral-grey-700)",
         outline: "none",
-        background: "#FFFFFF",
+        background: "var(--neutral-white)",
         resize: "vertical",
         boxSizing: "border-box",
       }}
@@ -298,7 +292,7 @@ function SubHeading({ children }: { children: React.ReactNode }) {
       fontSize: "var(--font-size-500)",
       fontWeight: "var(--font-weight-500)",
       lineHeight: "var(--line-height-150)",
-      color: "#000000",
+      color: "var(--neutral-black)",
       marginBottom: 12,
     }}>
       {children}
@@ -306,21 +300,6 @@ function SubHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── Field label ──────────────────────────────────────────────────────────────
-function FieldLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <label style={{
-      display: "block",
-      fontFamily: "var(--font-family-base)",
-      fontSize: "var(--font-size-200)",
-      fontWeight: "var(--font-weight-700)",
-      color: "#000000",
-      marginBottom: 8,
-    }}>
-      {children}
-    </label>
-  );
-}
 
 // ─── Section card wrapper ─────────────────────────────────────────────────────
 function SectionCard({ id, sectionRef, children }: {
@@ -333,7 +312,7 @@ function SectionCard({ id, sectionRef, children }: {
       id={id}
       ref={sectionRef}
       style={{
-        background: "#FFFFFF",
+        background: "var(--neutral-white)",
         borderRadius: "40px",
         overflow: "hidden",
         padding: "48px 40px 60px 85px",
@@ -659,7 +638,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
             padding: "0 30px",
             borderRadius: 16,
             background: saving || !form.name.trim() ? "var(--neutral-grey-300)" : "var(--primary-900)",
-            color: "#FFFFFF",
+            color: "var(--neutral-white)",
             border: "none",
             fontFamily: "var(--font-family-base)",
             fontSize: "var(--font-size-350)",
@@ -795,7 +774,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                           height: 102,
                           borderRadius: 12,
                           border: `1px solid var(--secondary-700)`,
-                          background: active ? "var(--secondary-700)" : "#FFFFFF",
+                          background: active ? "var(--secondary-700)" : "var(--neutral-white)",
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
@@ -817,7 +796,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                           fontFamily: "var(--font-family-base)",
                           fontSize: "var(--font-size-350)",
                           fontWeight: "var(--font-weight-500)",
-                          color: active ? "#FFFFFF" : "var(--secondary-800)",
+                          color: active ? "var(--neutral-white)" : "var(--secondary-800)",
                           lineHeight: 1.5,
                         }}>
                           {g.label}
@@ -1030,12 +1009,12 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                           paddingTop: 14, paddingBottom: 0, gap: 8,
                           borderRadius: 12, cursor: "pointer",
                           border: "1px solid #75958D",
-                          background: isActive ? "#75958D" : "#FFFFFF",
+                          background: isActive ? "var(--secondary-700)" : "var(--neutral-white)",
                           boxSizing: "border-box",
                         }}>
                         <span style={{
                           display: "inline-block", width: 32, height: 32, flexShrink: 0,
-                          backgroundColor: isActive ? "#FFFFFF" : "#75958D",
+                          backgroundColor: isActive ? "var(--neutral-white)" : "var(--secondary-700)",
                           WebkitMaskImage: `url(/icons/${getMusterIcon(o.label)}.svg)`,
                           maskImage: `url(/icons/${getMusterIcon(o.label)}.svg)`,
                           WebkitMaskSize: "contain", maskSize: "contain",
@@ -1046,7 +1025,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                           fontFamily: "var(--font-family-base)",
                           fontSize: "var(--font-size-400)",
                           fontWeight: isActive ? "var(--font-weight-700)" : "var(--font-weight-400)",
-                          color: isActive ? "#FFFFFF" : "#75958D",
+                          color: isActive ? "var(--neutral-white)" : "var(--secondary-700)",
                         }}>{o.label}</span>
                       </button>
                     );
@@ -1072,7 +1051,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                           display: "flex", alignItems: "center", justifyContent: "space-between",
                           padding: "0 14px 0 16px", borderRadius: 12, cursor: "pointer",
                           border: `1px solid ${isActive ? "#556E68" : "#75958D"}`,
-                          background: isActive ? "#ECF1EE" : "#FFFFFF",
+                          background: isActive ? "var(--secondary-500)" : "var(--neutral-white)",
                           boxSizing: "border-box",
                         }}>
                         <span style={{
@@ -1111,7 +1090,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                     borderRadius: 10, border: "1px solid var(--neutral-grey-300)",
                     padding: "0 16px", fontFamily: "var(--font-family-base)",
                     fontSize: "var(--font-size-400)", color: "var(--neutral-grey-700)",
-                    background: "#FFFFFF", outline: "none", boxSizing: "border-box",
+                    background: "var(--neutral-white)", outline: "none", boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -1139,11 +1118,11 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                             style={{
                               display: "flex", alignItems: "center", justifyContent: "center",
                               borderRadius: 12, cursor: "pointer", border: "1px solid var(--secondary-700)",
-                              background: isActive ? "var(--secondary-700)" : "#FFFFFF",
+                              background: isActive ? "var(--secondary-700)" : "var(--neutral-white)",
                               fontFamily: "var(--font-family-base)",
                               fontSize: "var(--font-size-400)",
                               fontWeight: isActive ? "var(--font-weight-700)" : "var(--font-weight-400)",
-                              color: isActive ? "#FFFFFF" : "var(--neutral-grey-700)",
+                              color: isActive ? "var(--neutral-white)" : "var(--neutral-grey-700)",
                             }}>
                             {o.label}
                           </button>
@@ -1161,7 +1140,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                               display: "flex", alignItems: "center", gap: 12, height: 54,
                               padding: "0 16px", borderRadius: 12, cursor: "pointer",
                               border: "1px solid var(--secondary-700)",
-                              background: "#FFFFFF", textAlign: "left",
+                              background: "var(--neutral-white)", textAlign: "left",
                             }}>
                             {/* Checkbox */}
                             <div style={{
@@ -1200,7 +1179,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                       }}>
                       <div style={{
                         position: "absolute", top: 3, width: 28, height: 28, borderRadius: "50%",
-                        background: "#FFFFFF", boxShadow: "0px 0.83px 2.5px 0px rgba(0,0,0,0.20)",
+                        background: "var(--neutral-white)", boxShadow: "0px 0.83px 2.5px 0px rgba(0,0,0,0.20)",
                         left: form.keineReinigung ? 34 : 3, transition: "left 0ms",
                       }} />
                     </button>
@@ -1231,7 +1210,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                             display: "flex", alignItems: "center", gap: 12, height: 54,
                             padding: "0 16px", borderRadius: 12, cursor: "pointer",
                             border: "1px solid var(--secondary-700)",
-                            background: "#FFFFFF", textAlign: "left",
+                            background: "var(--neutral-white)", textAlign: "left",
                           }}>
                           <div style={{
                             width: 30, height: 30, borderRadius: 8, flexShrink: 0,
@@ -1268,7 +1247,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                             display: "flex", alignItems: "center", gap: 12, height: 54,
                             padding: "0 16px", borderRadius: 12, cursor: "pointer",
                             border: "1px solid var(--secondary-700)",
-                            background: "#FFFFFF", textAlign: "left",
+                            background: "var(--neutral-white)", textAlign: "left",
                           }}>
                           <div style={{
                             width: 30, height: 30, borderRadius: 8, flexShrink: 0,
@@ -1297,7 +1276,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                       }}>
                       <div style={{
                         position: "absolute", top: 3, width: 28, height: 28, borderRadius: "50%",
-                        background: "#FFFFFF", boxShadow: "0px 0.83px 2.5px 0px rgba(0,0,0,0.20)",
+                        background: "var(--neutral-white)", boxShadow: "0px 0.83px 2.5px 0px rgba(0,0,0,0.20)",
                         left: form.nichtBuegeln ? 34 : 3,
                       }} />
                     </button>
@@ -1342,7 +1321,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                   justifyContent: "center",
                   gap: 12,
                   padding: 24,
-                  background: "#FFFFFF",
+                  background: "var(--neutral-white)",
                 }}>
                   {images.length === 0 ? (
                     <>
@@ -1395,7 +1374,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                     padding: "0 30px",
                     borderRadius: 8,
                     border: "1px solid var(--primary-900)",
-                    background: "#FFFFFF",
+                    background: "var(--neutral-white)",
                     color: "var(--primary-900)",
                     display: "flex",
                     alignItems: "center",
@@ -1410,7 +1389,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                   Upload Bildmaterial
                   <span style={{
                     display: "inline-block", width: 22, height: 22, flexShrink: 0,
-                    backgroundColor: "#B59B3A",
+                    backgroundColor: "var(--primary-900)",
                     WebkitMaskImage: "url(/icons/icon-upload.svg)",
                     maskImage: "url(/icons/icon-upload.svg)",
                     WebkitMaskSize: "contain", maskSize: "contain",
@@ -1427,7 +1406,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                     borderRadius: 8,
                     border: "none",
                     background: "var(--primary-900)",
-                    color: "#FFFFFF",
+                    color: "var(--neutral-white)",
                     display: "flex",
                     alignItems: "center",
                     gap: 8,
@@ -1441,7 +1420,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                   Foto aufnehmen
                   <span style={{
                     display: "inline-block", width: 22, height: 22, flexShrink: 0,
-                    backgroundColor: "#FFFFFF",
+                    backgroundColor: "var(--neutral-white)",
                     WebkitMaskImage: "url(/icons/icon-camera.svg)",
                     maskImage: "url(/icons/icon-camera.svg)",
                     WebkitMaskSize: "contain", maskSize: "contain",
@@ -1478,7 +1457,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                           fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-500)",
                           fontFamily: "var(--font-family-base)",
                           color: "var(--secondary-800)",
-                          background: isActive ? "var(--secondary-500)" : "#FFFFFF",
+                          background: isActive ? "var(--secondary-500)" : "var(--neutral-white)",
                           cursor: "pointer",
                         }}>
                         {s}
@@ -1503,7 +1482,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                           fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-500)",
                           fontFamily: "var(--font-family-base)",
                           color: "var(--secondary-800)",
-                          background: isActive ? "var(--secondary-500)" : "#FFFFFF",
+                          background: isActive ? "var(--secondary-500)" : "var(--neutral-white)",
                           cursor: "pointer",
                         }}>
                         {s}
@@ -1560,8 +1539,8 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                       width: 44, height: 44,
                       borderRadius: "var(--radius-sm)",
                       border: `1.5px solid ${form.conditionGrade === g ? "var(--primary-900)" : "var(--neutral-grey-300)"}`,
-                      background: form.conditionGrade === g ? "var(--primary-900)" : "#FFFFFF",
-                      color: form.conditionGrade === g ? "#FFFFFF" : "var(--neutral-grey-600)",
+                      background: form.conditionGrade === g ? "var(--primary-900)" : "var(--neutral-white)",
+                      color: form.conditionGrade === g ? "var(--neutral-white)" : "var(--neutral-grey-600)",
                       fontFamily: "var(--font-family-base)",
                       fontWeight: "var(--font-weight-700)",
                       fontSize: "var(--font-size-300)",
