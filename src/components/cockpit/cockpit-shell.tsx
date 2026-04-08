@@ -53,7 +53,7 @@ const NAV_ITEMS: NavItem[] = [
 const ADMIN_NAV_ITEM: NavItem = { label: "Konfiguration", href: "/einstellungen/konfiguration", icon: "icon-setting", adminOnly: true };
 
 const SIDEBAR_W = 209;
-const SIDEBAR_COLLAPSED_W = 64;
+const SIDEBAR_COLLAPSED_W = 80;
 
 export function CockpitShell({
   recentCostumes,
@@ -156,7 +156,7 @@ export function CockpitShell({
             justifyContent: collapsed ? "center" : "flex-start",
           }}
         >
-          {!collapsed && <AppLogo />}
+          <AppLogo showText={!collapsed} />
           <button
             onClick={() => setCollapsed((c) => !c)}
             aria-label={collapsed ? "Sidebar öffnen" : "Sidebar schliessen"}

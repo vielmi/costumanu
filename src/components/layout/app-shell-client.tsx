@@ -24,7 +24,7 @@ const ADMIN_NAV_ITEM: NavItem = {
 };
 
 const SIDEBAR_W = 209;
-const SIDEBAR_COLLAPSED_W = 64;
+const SIDEBAR_COLLAPSED_W = 80;
 
 interface Props {
   children: React.ReactNode;
@@ -64,7 +64,7 @@ export function AppShellClient({ children, userRole, unreadMessages, pendingRent
           transition: "width 200ms ease", overflow: "hidden",
           justifyContent: collapsed ? "center" : "flex-start",
         }}>
-          {!collapsed && <AppLogo />}
+          <AppLogo showText={!collapsed} />
           <button
             onClick={() => setCollapsed((c) => !c)}
             aria-label={collapsed ? "Sidebar öffnen" : "Sidebar schliessen"}
