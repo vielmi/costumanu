@@ -1538,8 +1538,9 @@ export default async function MeinePage() {
 - Auth-Check (redirect auf `/login` falls nicht eingeloggt)
 - `userRole` aus `theater_members` (für Admin-Nav-Item)
 - Badge-Counts: `unreadMessages`, `pendingRentals`
-- Sidebar-Collapse per Button
+- Sidebar-Collapse per Button (expanded: 209px, collapsed: 80px mit K-Icon + »)
 - Aktiver Menüpunkt via `usePathname()`
+- Profil-Dropdown (unten in Sidebar): „Mein Profil" → `/profile`, „Abmelden" → signOut + `/login`
 
 **Wann AppShell NICHT verwenden:**
 - Seiten mit eigenem vollständigem Shell (z.B. `CockpitShell` für Home `/`, `KostuemeNeuClient`)
