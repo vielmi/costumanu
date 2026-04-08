@@ -44,7 +44,7 @@ export function FundusClient({ initialCostumes, theaterId }: FundusClientProps) 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t("inventory.title")}</h1>
         <Button asChild>
-          <Link href="/fundus/neu">
+          <Link href="/kostueme/neu">
             <Plus className="mr-2 h-4 w-4" />
             {t("inventory.addCostume")}
           </Link>
@@ -61,7 +61,7 @@ export function FundusClient({ initialCostumes, theaterId }: FundusClientProps) 
             </p>
           </div>
           <Button asChild>
-            <Link href="/fundus/neu">
+            <Link href="/kostueme/neu">
               <Plus className="mr-2 h-4 w-4" />
               {t("inventory.createFirst")}
             </Link>

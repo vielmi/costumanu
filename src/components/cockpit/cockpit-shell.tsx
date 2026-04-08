@@ -181,7 +181,7 @@ export function CockpitShell({
               background: "transparent", border: "none", cursor: "pointer",
               padding: 4, display: "flex", alignItems: "center", justifyContent: "center",
               color: "var(--neutral-grey-600)",
-              fontFamily: "var(--font-family-base)", fontSize: 16, fontWeight: 700,
+              fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-300)", fontWeight: 700,
               flexShrink: 0, opacity: 0.2,
             }}
           >
@@ -237,7 +237,7 @@ export function CockpitShell({
             {searchOpen && searchQuery.trim() && (
               <div style={{
                 position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0,
-                background: "#FFFFFF", border: "1px solid var(--neutral-grey-200)",
+                background: "var(--neutral-white)", border: "1px solid var(--neutral-grey-200)",
                 borderRadius: 16, boxShadow: "var(--shadow-300)", zIndex: 200, overflow: "hidden",
               }}>
                 {searchResults.length === 0 ? (
@@ -272,7 +272,7 @@ export function CockpitShell({
           <Link
             href="/rental/new"
             style={{
-              height: 57,
+              height: "var(--button-height-md)",
               padding: "0 30px",
               borderRadius: "16px",
               border: "1px solid var(--primary-900)",
@@ -296,11 +296,11 @@ export function CockpitShell({
             <button
               onClick={() => setDropdownOpen((o) => !o)}
               style={{
-                height: 57,
+                height: "var(--button-height-md)",
                 padding: "0 30px",
                 borderRadius: "16px",
                 background: "var(--primary-900)",
-                color: "#FFFFFF",
+                color: "var(--neutral-white)",
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
@@ -332,7 +332,7 @@ export function CockpitShell({
                   position: "absolute",
                   top: "calc(100% + 6px)",
                   right: 0,
-                  background: "#FFFFFF",
+                  background: "var(--neutral-white)",
                   border: "1px solid var(--neutral-grey-300)",
                   borderRadius: "var(--radius-sm)",
                   boxShadow: "var(--shadow-300)",
@@ -411,7 +411,7 @@ export function CockpitShell({
                     padding: "0 12px",
                     gap: 10,
                     borderRadius: 8,
-                    background: isActive ? "#D6DFDD" : "transparent",
+                    background: isActive ? "var(--secondary-550)" : "transparent",
                     textDecoration: "none",
                     borderBottom: index < navItems.length - 1 ? "1px solid var(--secondary-500)" : "none",
                     justifyContent: collapsed ? "center" : "flex-start",
@@ -446,9 +446,9 @@ export function CockpitShell({
                             height: 22,
                             background: "var(--neutral-grey-600)",
                             borderRadius: 103,
-                            fontSize: 10,
+                            fontSize: "var(--font-size-50)",
                             fontWeight: 700,
-                            color: "#FFFFFF",
+                            color: "var(--neutral-white)",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -506,7 +506,7 @@ export function CockpitShell({
             {profileOpen && (
               <div style={{
                 position: "absolute", bottom: "calc(100% + 4px)", left: 12, right: 8,
-                background: "#FFFFFF", border: "1px solid var(--neutral-grey-200)",
+                background: "var(--neutral-white)", border: "1px solid var(--neutral-grey-200)",
                 borderRadius: "var(--radius-sm)", boxShadow: "var(--shadow-300)",
                 overflow: "hidden", zIndex: 200,
               }}>
@@ -536,7 +536,7 @@ export function CockpitShell({
           style={{
             flex: 1,
             overflowY: "auto",
-            background: "#FFFFFF",
+            background: "var(--neutral-white)",
             borderRadius: "40px 40px 0 0",
           }}
         >

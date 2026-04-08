@@ -156,7 +156,7 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
       <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
         <span
           style={{
-            fontSize: 10,
+            fontSize: "var(--font-size-50)",
             color: "var(--neutral-grey-500)",
             fontFamily: "var(--font-family-base)",
           }}
@@ -344,7 +344,7 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
                 }}
               >
                 Noch keine Kostüme erfasst.{" "}
-                <Link href="/fundus/neu" style={{ color: "var(--primary-900)" }}>
+                <Link href="/kostueme/neu" style={{ color: "var(--primary-900)" }}>
                   Jetzt erstes Kostüm erfassen
                 </Link>
               </p>

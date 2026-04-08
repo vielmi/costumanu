@@ -254,9 +254,9 @@ function TaxonomyTab({
                 <div key={term.id} style={{ display: "flex", alignItems: "center", gap: 12, height: 56, padding: "0 16px", borderRadius: 12, background: "var(--secondary-500)", border: "1px solid var(--neutral-grey-200)" }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: 1, flexShrink: 0 }}>
                     <button type="button" onClick={() => move(term, "up")} disabled={idx === 0 || saving}
-                      style={{ background: "none", border: "none", cursor: idx === 0 ? "default" : "pointer", opacity: idx === 0 ? 0.2 : 0.6, padding: "1px 4px", fontSize: 10, lineHeight: 1 }}>▲</button>
+                      style={{ background: "none", border: "none", cursor: idx === 0 ? "default" : "pointer", opacity: idx === 0 ? 0.2 : 0.6, padding: "1px 4px", fontSize: "var(--font-size-50)", lineHeight: 1 }}>▲</button>
                     <button type="button" onClick={() => move(term, "down")} disabled={idx === vocabTerms.length - 1 || saving}
-                      style={{ background: "none", border: "none", cursor: idx === vocabTerms.length - 1 ? "default" : "pointer", opacity: idx === vocabTerms.length - 1 ? 0.2 : 0.6, padding: "1px 4px", fontSize: 10, lineHeight: 1 }}>▼</button>
+                      style={{ background: "none", border: "none", cursor: idx === vocabTerms.length - 1 ? "default" : "pointer", opacity: idx === vocabTerms.length - 1 ? 0.2 : 0.6, padding: "1px 4px", fontSize: "var(--font-size-50)", lineHeight: 1 }}>▼</button>
                   </div>
 
                   {isEditing ? (
@@ -662,7 +662,7 @@ function UsersTab({
               <div key={`${m.userId}-${m.theaterId}`} style={{ display: "grid", gridTemplateColumns: gridCols, gap: 12, alignItems: "center", height: 60, padding: "0 16px", borderRadius: 12, background: "var(--secondary-500)", border: "1px solid var(--neutral-grey-200)" }}>
                 <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: "var(--font-weight-500)", color: "var(--neutral-grey-700)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {m.firstName} {m.lastName}
-                  {m.isSelf && <span style={{ marginLeft: 8, fontSize: 10, color: "var(--neutral-grey-400)", background: "var(--neutral-grey-200)", borderRadius: 99, padding: "1px 6px" }}>ich</span>}
+                  {m.isSelf && <span style={{ marginLeft: 8, fontSize: "var(--font-size-50)", color: "var(--neutral-grey-400)", background: "var(--neutral-grey-200)", borderRadius: 99, padding: "1px 6px" }}>ich</span>}
                 </span>
                 <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-600)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.email}</span>
                 {showTheaterCol && (

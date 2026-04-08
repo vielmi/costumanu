@@ -3,9 +3,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { AppLogo } from "@/components/layout/app-logo";
+import { CameraCapture } from "@/components/camera/camera-capture";
 
 interface TaxTerm { id: string; label_de: string; }
 
@@ -52,6 +52,9 @@ const COLOR_HEX: Record<string, string> = {
 
 interface Props {
   theaterId: string;
+  theaterName: string;
+  currentUserId: string;
+  currentUserName: string;
   costumeType: "single" | "ensemble" | "serie";
   taxonomy: Taxonomy;
 }
@@ -326,18 +329,24 @@ function SectionCard({ id, sectionRef, children }: {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
+export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, currentUserName, costumeType, taxonomy }: Props) {
   const router = useRouter();
   const supabase = createClient();
   const mainRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const [activeSection, setActiveSection] = useState("kategorie");
   const [saving, setSaving] = useState(false);
+  const [showCloseSheet, setShowCloseSheet] = useState(false);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [pendingComments, setPendingComments] = useState<{ body: string; author_name: string; created_at: string }[]>([]);
+  const [commentDraft, setCommentDraft] = useState("");
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const cameraCaptureRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
 
   const [form, setForm] = useState({
@@ -361,9 +370,17 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
     colorNote: "",
     materialNotes: "",
     sizeLabel: "",
+    sizeNotes: "",
+    locationFloor: "",
+    locationRack: "",
+    locationSector: "",
+    currentStatus: "available",
+    isPublicForRent: false,
     chest: "", waist: "", hip: "", backLength: "", shoulderWidth: "", legLength: "",
     storageLocation: "",
     barcodeId: "",
+    rfidId: "",
+    qrCodeId: "",
     conditionGrade: "3",
     productionTitle: "", productionYear: "", actorName: "", roleName: "",
     notes: "",
@@ -382,11 +399,14 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
   const handleScroll = useCallback(() => {
     const el = mainRef.current;
     if (!el) return;
-    const scrollTop = el.scrollTop;
+    const containerTop = el.getBoundingClientRect().top;
     let current = NAV_SECTIONS[0].id;
     for (const sec of NAV_SECTIONS) {
       const ref = sectionRefs.current[sec.id];
-      if (ref && ref.offsetTop - 40 <= scrollTop) current = sec.id;
+      if (ref) {
+        const refTop = ref.getBoundingClientRect().top - containerTop;
+        if (refTop - 60 <= 0) current = sec.id;
+      }
     }
     setActiveSection(current);
   }, []);
@@ -401,7 +421,10 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
   function scrollToSection(id: string) {
     const ref = sectionRefs.current[id];
     if (ref && mainRef.current) {
-      mainRef.current.scrollTo({ top: ref.offsetTop - 16, behavior: "smooth" });
+      const containerTop = mainRef.current.getBoundingClientRect().top;
+      const refTop = ref.getBoundingClientRect().top;
+      const offset = mainRef.current.scrollTop + (refTop - containerTop) - 24;
+      mainRef.current.scrollTo({ top: offset, behavior: "smooth" });
     }
   }
 
@@ -473,9 +496,9 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
           leg_length: form.legLength || null,
         },
         condition_grade: form.conditionGrade ? Number(form.conditionGrade) : null,
-        current_status: "available",
-        storage_location_path: form.storageLocation || null,
-        is_public_for_rent: false,
+        current_status: form.currentStatus,
+        storage_location_path: [form.locationFloor, form.locationRack, form.locationSector].filter(Boolean).join(".") || form.storageLocation || null,
+        is_public_for_rent: form.isPublicForRent,
       });
 
       if (form.productionTitle) {
@@ -494,6 +517,17 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
         const path = `${theaterId}/${costume.id}/${i}.${ext}`;
         await supabase.storage.from("costume-images").upload(path, img.file);
         await supabase.from("costume_media").insert({ costume_id: costume.id, storage_path: path, sort_order: i });
+      }
+
+      if (pendingComments.length > 0) {
+        await supabase.from("costume_comments").insert(
+          pendingComments.map((c) => ({
+            costume_id: costume.id,
+            user_id: currentUserId,
+            body: c.body,
+            parent_id: null,
+          }))
+        );
       }
 
       router.push(`/costume/${costume.id}`);
@@ -567,7 +601,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
           <div style={{
             width: 60, height: 60,
             borderRadius: "50%",
-            border: "1px dashed #0B0B0B",
+            border: "1px dashed var(--neutral-grey-700)",
             display: "flex", alignItems: "center", justifyContent: "center",
             flexShrink: 0,
             marginLeft: -14,
@@ -580,7 +614,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
             bottom: 0, left: 38,
             width: 22, height: 22,
             borderRadius: "50%",
-            background: "#0B0B0B",
+            background: "var(--neutral-grey-700)",
             display: "flex", alignItems: "center", justifyContent: "center",
             zIndex: 3,
           }}>
@@ -608,7 +642,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
           style={{
             width: 50, height: 50,
             borderRadius: "50%",
-            background: "#242727",
+            background: "var(--neutral-grey-600)",
             border: "none",
             display: "flex", alignItems: "center", justifyContent: "center",
             cursor: "pointer",
@@ -624,7 +658,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
           onClick={handleSave}
           disabled={saving || !form.name.trim()}
           style={{
-            height: 63,
+            height: "var(--button-height-md)",
             padding: "0 30px",
             borderRadius: 16,
             background: saving || !form.name.trim() ? "var(--neutral-grey-300)" : "var(--primary-900)",
@@ -643,14 +677,18 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
         </button>
 
         {/* X — borderless */}
-        <Link href="/" style={{
-          display: "flex", alignItems: "center", justifyContent: "center",
-          width: 36, height: 36,
-          flexShrink: 0,
-          textDecoration: "none",
-        }}>
+        <button
+          type="button"
+          onClick={() => setShowCloseSheet(true)}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            width: 36, height: 36,
+            flexShrink: 0,
+            background: "none", border: "none", cursor: "pointer", padding: 0,
+          }}
+        >
           <Image src="/icons/icon-close-medium.svg" alt="Schliessen" width={22} height={22} />
-        </Link>
+        </button>
         </div>{/* end content row */}
       </div>
 
@@ -684,7 +722,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                   paddingRight: 12,
                   gap: 10,
                   borderRadius: 8,
-                  background: isActive ? "#D6DFDD" : "transparent",
+                  background: isActive ? "var(--secondary-550)" : "transparent",
                   border: "none",
                   borderBottom: index < NAV_SECTIONS.length - 1 ? "1px solid var(--secondary-500)" : "none",
                   cursor: "pointer",
@@ -712,11 +750,12 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
           })}
         </nav>
 
-        {/* Scrollable content — sections as individual cards */}
+        {/* Scrollable content — clip wrapper keeps top radius visible while scrolling */}
+        <div style={{ flex: 1, borderRadius: "24px 24px 0 0", overflow: "hidden" }}>
         <div
           ref={mainRef}
           style={{
-            flex: 1,
+            height: "100%",
             overflowY: "auto",
             display: "flex",
             flexDirection: "column",
@@ -732,12 +771,21 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
             style={{ display: "none" }}
             onChange={handleImageAdd}
           />
+          <input
+            id="camera-capture-input"
+            ref={cameraCaptureRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            style={{ display: "none" }}
+            onChange={handleImageAdd}
+          />
 
           {/* ─── Kategorie ─── */}
           <SectionCard id="kategorie" sectionRef={(el) => { sectionRefs.current["kategorie"] = el; }}>
             <SectionHeading icon="icon-category">Kategorie</SectionHeading>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 50 }}>
 
               {/* Name */}
               <div>
@@ -840,8 +888,8 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                             width: 174,
                             height: 60,
                             borderRadius: 12,
-                            border: "1px solid #556E68",
-                            background: isActive ? "#ECF1EE" : "#FBFBFB",
+                            border: "1px solid var(--secondary-800)",
+                            background: isActive ? "var(--secondary-500)" : "var(--neutral-grey-50)",
                             display: "flex",
                             alignItems: "center",
                             gap: 10,
@@ -853,20 +901,20 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                           <div style={{
                             width: 20, height: 20,
                             borderRadius: "50%",
-                            border: "1.5px solid #556E68",
-                            background: isActive ? "#556E68" : "transparent",
+                            border: "1.5px solid var(--secondary-800)",
+                            background: isActive ? "var(--secondary-800)" : "transparent",
                             flexShrink: 0,
                             display: "flex", alignItems: "center", justifyContent: "center",
                           }}>
                             {isActive && (
-                              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#FBFBFB" }} />
+                              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--neutral-grey-50)" }} />
                             )}
                           </div>
                           <span style={{
                             fontFamily: "var(--font-family-base)",
                             fontSize: "var(--font-size-300)",
                             fontWeight: "var(--font-weight-500)",
-                            color: isActive ? "#556E68" : "#75958D",
+                            color: isActive ? "var(--secondary-800)" : "var(--secondary-700)",
                             whiteSpace: "nowrap",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -879,16 +927,16 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                 </div>
 
                 {/* Search + suggestions */}
-                <SubHeading>Bekleidungstyp hinzufügen</SubHeading>
+                <div style={{ marginTop: 50 }}><SubHeading>Bekleidungstyp hinzufügen</SubHeading></div>
                 <div style={{
-                  border: "1px solid #000000",
+                  border: "1px solid var(--neutral-black)",
                   borderRadius: 47,
                   height: 60,
                   display: "flex",
                   alignItems: "center",
                   gap: 10,
                   padding: "0 16px",
-                  background: "#FBFBFB",
+                  background: "var(--neutral-grey-50)",
                   maxWidth: 400,
                   marginBottom: 20,
                 }}>
@@ -956,15 +1004,15 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
           {/* ─── Material ─── */}
           <SectionCard id="material" sectionRef={(el) => { sectionRefs.current["material"] = el; }}>
             <SectionHeading icon="icon-material">Material</SectionHeading>
-            <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 50 }}>
 
               {/* Materialart */}
               <div>
                 <SubHeading>Materialien hinzufügen</SubHeading>
                 <div style={{
-                  border: "1px solid #000000", borderRadius: 47, height: 60,
+                  border: "1px solid var(--neutral-black)", borderRadius: 47, height: 60,
                   display: "flex", alignItems: "center", gap: 10, padding: "0 16px",
-                  background: "#FBFBFB", maxWidth: 540, marginBottom: 16,
+                  background: "var(--neutral-grey-50)", maxWidth: 540, marginBottom: 16,
                 }}>
                   <Image src="/icons/icon-search.svg" alt="" width={25} height={25} />
                   <input type="text" value={form.materialSearch}
@@ -998,7 +1046,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                           display: "flex", flexDirection: "column", alignItems: "center",
                           paddingTop: 14, paddingBottom: 0, gap: 8,
                           borderRadius: 12, cursor: "pointer",
-                          border: "1px solid #75958D",
+                          border: "1px solid var(--secondary-700)",
                           background: isActive ? "var(--secondary-700)" : "var(--neutral-white)",
                           boxSizing: "border-box",
                         }}>
@@ -1040,7 +1088,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                           width: 174, height: 54,
                           display: "flex", alignItems: "center", justifyContent: "space-between",
                           padding: "0 14px 0 16px", borderRadius: 12, cursor: "pointer",
-                          border: `1px solid ${isActive ? "#556E68" : "#75958D"}`,
+                          border: `1px solid ${isActive ? "var(--secondary-800)" : "var(--secondary-700)"}`,
                           background: isActive ? "var(--secondary-500)" : "var(--neutral-white)",
                           boxSizing: "border-box",
                         }}>
@@ -1048,7 +1096,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                           fontFamily: "var(--font-family-base)",
                           fontSize: "var(--font-size-350)",
                           fontWeight: "var(--font-weight-400)",
-                          color: "#75958D",
+                          color: "var(--secondary-700)",
                         }}>{o.label}</span>
                         <div style={{
                           width: 30, height: 30, borderRadius: "50%", flexShrink: 0,
@@ -1093,7 +1141,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                   {/* Icon + Titel */}
                   <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
                     <Image src="/icons/icon-wasch.svg" alt="" width={28} height={28} />
-                    <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-500)", color: "var(--neutral-grey-700)" }}>
+                    <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-500)", color: "var(--secondary-800)" }}>
                       Temperatur &amp; Reinigungsart
                     </span>
                   </div>
@@ -1112,7 +1160,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                               fontFamily: "var(--font-family-base)",
                               fontSize: "var(--font-size-400)",
                               fontWeight: isActive ? "var(--font-weight-700)" : "var(--font-weight-400)",
-                              color: isActive ? "var(--neutral-white)" : "var(--neutral-grey-700)",
+                              color: isActive ? "var(--neutral-white)" : "var(--secondary-800)",
                             }}>
                             {o.label}
                           </button>
@@ -1130,17 +1178,19 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                               display: "flex", alignItems: "center", gap: 12, height: 54,
                               padding: "0 16px", borderRadius: 12, cursor: "pointer",
                               border: "1px solid var(--secondary-700)",
-                              background: "var(--neutral-white)", textAlign: "left",
+                              background: isActive ? "var(--secondary-500)" : "var(--neutral-white)",
+                              textAlign: "left",
                             }}>
                             {/* Checkbox */}
                             <div style={{
                               width: 30, height: 30, borderRadius: 8, flexShrink: 0,
-                              border: isActive ? "none" : "2px solid var(--secondary-700)",
-                              background: "transparent", position: "relative",
+                              border: "2px solid var(--secondary-700)",
+                              padding: 3,
+                              background: "transparent",
+                              boxSizing: "border-box",
                             }}>
                               {isActive && (
                                 <div style={{
-                                  position: "absolute", top: 5, left: 5,
                                   width: 20, height: 20, borderRadius: 6,
                                   background: "var(--secondary-700)",
                                 }} />
@@ -1150,7 +1200,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                               fontFamily: "var(--font-family-base)",
                               fontSize: "var(--font-size-400)",
                               fontWeight: "var(--font-weight-400)",
-                              color: "var(--neutral-grey-700)",
+                              color: "var(--secondary-800)",
                             }}>{o.label}</span>
                           </button>
                         );
@@ -1173,7 +1223,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                         left: form.keineReinigung ? 34 : 3, transition: "left 0ms",
                       }} />
                     </button>
-                    <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-400)", color: "var(--neutral-grey-700)" }}>
+                    <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-400)", color: "var(--secondary-800)" }}>
                       Keine Reinigung möglich
                     </span>
                   </div>
@@ -1187,7 +1237,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                 <div style={{ border: "1px solid var(--secondary-700)", borderRadius: 16, padding: 24 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
                     <Image src="/icons/icon-tumbler.svg" alt="" width={28} height={28} />
-                    <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-500)", color: "var(--neutral-grey-700)" }}>
+                    <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-500)", color: "var(--secondary-800)" }}>
                       Trocknen
                     </span>
                   </div>
@@ -1200,18 +1250,19 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                             display: "flex", alignItems: "center", gap: 12, height: 54,
                             padding: "0 16px", borderRadius: 12, cursor: "pointer",
                             border: "1px solid var(--secondary-700)",
-                            background: "var(--neutral-white)", textAlign: "left",
+                            background: isActive ? "var(--secondary-500)" : "var(--neutral-white)",
+                            textAlign: "left",
                           }}>
                           <div style={{
                             width: 30, height: 30, borderRadius: 8, flexShrink: 0,
-                            border: isActive ? "none" : "2px solid var(--secondary-700)",
+                            border: "2px solid var(--secondary-700)",
                             background: "transparent", position: "relative",
                           }}>
                             {isActive && (
                               <div style={{ position: "absolute", top: 5, left: 5, width: 20, height: 20, borderRadius: 6, background: "var(--secondary-700)" }} />
                             )}
                           </div>
-                          <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-400)", color: "var(--neutral-grey-700)" }}>
+                          <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-400)", color: "var(--secondary-800)" }}>
                             {o.label}
                           </span>
                         </button>
@@ -1224,7 +1275,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                 <div style={{ border: "1px solid var(--secondary-700)", borderRadius: 16, padding: 24 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
                     <Image src="/icons/icon-steam.svg" alt="" width={28} height={28} />
-                    <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-500)", color: "var(--neutral-grey-700)" }}>
+                    <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-500)", color: "var(--secondary-800)" }}>
                       Bügeln
                     </span>
                   </div>
@@ -1237,18 +1288,19 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                             display: "flex", alignItems: "center", gap: 12, height: 54,
                             padding: "0 16px", borderRadius: 12, cursor: "pointer",
                             border: "1px solid var(--secondary-700)",
-                            background: "var(--neutral-white)", textAlign: "left",
+                            background: isActive ? "var(--secondary-500)" : "var(--neutral-white)",
+                            textAlign: "left",
                           }}>
                           <div style={{
                             width: 30, height: 30, borderRadius: 8, flexShrink: 0,
-                            border: isActive ? "none" : "2px solid var(--secondary-700)",
+                            border: "2px solid var(--secondary-700)",
                             background: "transparent", position: "relative",
                           }}>
                             {isActive && (
                               <div style={{ position: "absolute", top: 5, left: 5, width: 20, height: 20, borderRadius: 6, background: "var(--secondary-700)" }} />
                             )}
                           </div>
-                          <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-400)", color: "var(--neutral-grey-700)" }}>
+                          <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-400)", color: "var(--secondary-800)" }}>
                             {o.label}
                           </span>
                         </button>
@@ -1270,7 +1322,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                         left: form.nichtBuegeln ? 34 : 3,
                       }} />
                     </button>
-                    <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-400)", color: "var(--neutral-grey-700)" }}>
+                    <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-400)", color: "var(--secondary-800)" }}>
                       Nicht bügeln
                     </span>
                   </div>
@@ -1354,7 +1406,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
               </div>
 
               {/* Buttons row */}
-              <div style={{ display: "flex", gap: 10, padding: "16px 48px 24px", justifyContent: "flex-end" }}>
+              <div style={{ display: "flex", gap: 10, padding: "16px 48px 24px", justifyContent: "center" }}>
                 {/* Upload Bildmaterial — secondary */}
                 <button
                   type="button"
@@ -1387,9 +1439,10 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                     WebkitMaskPosition: "center", maskPosition: "center",
                   }} />
                 </button>
-                {/* Foto aufnehmen — primary */}
+                {/* Foto aufnehmen — opens camera overlay */}
                 <button
                   type="button"
+                  onClick={() => setShowCamera(true)}
                   style={{
                     height: 46,
                     padding: "0 30px",
@@ -1425,7 +1478,7 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
           {/* ─── Masse ─── */}
           <SectionCard id="masse" sectionRef={(el) => { sectionRefs.current["masse"] = el; }}>
             <SectionHeading icon="icon-measuring">Masse</SectionHeading>
-            <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 50 }}>
 
               {/* Konfektionsgrösse — Size Tiles */}
               <div>
@@ -1494,77 +1547,449 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
                   <MeasureInput label="Beinlänge" value={form.legLength} onChange={(v) => setField("legLength", v)} />
                 </div>
               </div>
+
+              {/* Zusätzliche Massinfos */}
+              <div>
+                <SubHeading>Zusätzliche Massinfos</SubHeading>
+                <TextArea
+                  value={form.sizeNotes}
+                  onChange={(v) => setField("sizeNotes", v)}
+                  placeholder=""
+                  rows={3}
+                />
+              </div>
             </div>
           </SectionCard>
 
           {/* ─── Lagerort ─── */}
           <SectionCard id="lagerort" sectionRef={(el) => { sectionRefs.current["lagerort"] = el; }}>
             <SectionHeading icon="icon-location">Lagerort</SectionHeading>
-            <div>
-              <SubHeading>Lagerort-Pfad</SubHeading>
-              <FlatInput
-                value={form.storageLocation}
-                onChange={(v) => setField("storageLocation", v)}
-                placeholder="z.B. Bern.Stock1.Regal3.Box7"
-              />
-              <p style={{ marginTop: 8, fontFamily: "var(--font-family-base)", fontSize: 12, color: "var(--neutral-grey-400)" }}>
-                Format: Haus.Stockwerk.Regal.Box
-              </p>
+            <div style={{ display: "flex", gap: 32 }}>
+
+              {/* Left: Theater location card */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 220 }}>
+                <SubHeading>{theaterName}</SubHeading>
+                <div
+                  style={{
+                    border: "2px solid var(--secondary-700)", borderRadius: 8,
+                    background: "var(--secondary-700)", padding: "16px 20px",
+                    display: "flex", alignItems: "flex-start", gap: 12,
+                    cursor: "default",
+                  }}
+                >
+                  <Image src="/icons/icon-location.svg" alt="" width={20} height={20} style={{ filter: "invert(1)", marginTop: 2, flexShrink: 0 }} />
+                  <div>
+                    <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: 700, color: "var(--neutral-white)", margin: 0 }}>
+                      {theaterName}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Platzierung */}
+              <div style={{ flex: 1 }}>
+                <SubHeading>Platzierung</SubHeading>
+                <div style={{ border: "1px solid var(--secondary-700)", borderRadius: 16, padding: 24, display: "flex", flexDirection: "column", gap: 20 }}>
+
+                  {/* Stockwerk + Stange */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                    {[
+                      { label: "Stockwerk", field: "locationFloor" as const },
+                      { label: "Stange",    field: "locationRack"  as const },
+                    ].map(({ label, field }) => (
+                      <div key={field}>
+                        <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--secondary-800)", marginBottom: 6 }}>{label}</p>
+                        <div style={{ position: "relative" }}>
+                          <select
+                            value={form[field]}
+                            onChange={(e) => setField(field, e.target.value)}
+                            style={{
+                              width: "100%", height: 48, borderRadius: 10,
+                              border: "1px solid var(--secondary-700)",
+                              background: "var(--neutral-white)", appearance: "none",
+                              fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-250)",
+                              color: form[field] ? "var(--secondary-800)" : "var(--neutral-grey-400)",
+                              paddingLeft: 14, paddingRight: 36, cursor: "pointer",
+                            }}
+                          >
+                            <option value="">–</option>
+                            {["1", "2", "3", "4", "5"].map((v) => (
+                              <option key={v} value={v}>{v}</option>
+                            ))}
+                          </select>
+                          <Image src="/icons/icon-dropdown.svg" alt="" width={16} height={16}
+                            style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Sektor */}
+                  <div>
+                    <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--secondary-800)", marginBottom: 10 }}>Sektor</p>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 8 }}>
+                      {["A", "B", "C", "D", "E", "F"].map((s) => {
+                        const isActive = form.locationSector === s;
+                        return (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => setField("locationSector", isActive ? "" : s)}
+                            style={{
+                              height: 64, borderRadius: 12, cursor: "pointer",
+                              border: "1px solid var(--secondary-700)",
+                              background: isActive ? "var(--secondary-700)" : "var(--neutral-white)",
+                              fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-350)", fontWeight: 500,
+                              color: isActive ? "var(--neutral-white)" : "var(--secondary-800)",
+                            }}
+                          >
+                            {s}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ─── Sichtbarkeit ─── */}
+            <div style={{ marginTop: 32 }}>
+              <SubHeading>Sichtbarkeit</SubHeading>
+              <div style={{ display: "flex", gap: 40, marginTop: 4 }}>
+
+                {/* Status Dropdown — custom for colored dots */}
+                {(() => {
+                  const STATUS_OPTIONS = [
+                    { value: "available",  label: "Verfügbar",  color: "var(--accent-01)" },
+                    { value: "cleaning",   label: "Reinigung",  color: "var(--color-warning)" },
+                    { value: "in_progress",label: "In Arbeit",  color: "var(--color-error)" },
+                    { value: "rented",     label: "Ausgeliehen",color: "var(--color-error)" },
+                    { value: "reserved",   label: "Reserviert", color: "var(--color-error)" },
+                    { value: "stage",      label: "Bühne",      color: "var(--color-error)" },
+                    { value: "rehearsal",  label: "Probebühne", color: "var(--color-error)" },
+                    { value: "sorted_out", label: "Aussortiert",color: "var(--color-error)" },
+                    { value: "sold",       label: "Verkauft",   color: "var(--color-error)" },
+                  ];
+                  const selected = STATUS_OPTIONS.find(o => o.value === form.currentStatus) ?? STATUS_OPTIONS[0];
+                  return (
+                    <div style={{ position: "relative" }}>
+                      <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--secondary-800)", marginBottom: 8 }}>Status</p>
+                      {/* Trigger */}
+                      <button
+                        type="button"
+                        onClick={() => setShowStatusDropdown(v => !v)}
+                        style={{
+                          width: 220, height: 48, borderRadius: 10,
+                          border: "1px solid var(--secondary-700)",
+                          background: "var(--neutral-white)", cursor: "pointer",
+                          display: "flex", alignItems: "center", gap: 10,
+                          padding: "0 12px", fontFamily: "var(--font-family-base)",
+                          fontSize: "var(--font-size-250)", color: "var(--secondary-800)",
+                        }}
+                      >
+                        <div style={{ width: 10, height: 10, borderRadius: "50%", background: selected.color, flexShrink: 0 }} />
+                        <span style={{ flex: 1, textAlign: "left" }}>{selected.label}</span>
+                        <Image src="/icons/icon-dropdown.svg" alt="" width={16} height={16} />
+                      </button>
+                      {/* Options list */}
+                      {showStatusDropdown && (
+                        <>
+                          <div onClick={() => setShowStatusDropdown(false)} style={{ position: "fixed", inset: 0, zIndex: 900 }} />
+                          <div style={{
+                            position: "absolute", bottom: "calc(100% + 4px)", left: 0, width: 220, zIndex: 901,
+                            background: "var(--neutral-white)", borderRadius: 10,
+                            border: "1px solid var(--secondary-700)",
+                            boxShadow: "var(--shadow-300)",
+                            overflow: "hidden",
+                          }}>
+                            {STATUS_OPTIONS.map(o => (
+                              <button
+                                key={o.value}
+                                type="button"
+                                onClick={() => { setField("currentStatus", o.value); setShowStatusDropdown(false); }}
+                                style={{
+                                  width: "100%", height: 44, display: "flex", alignItems: "center", gap: 10,
+                                  padding: "0 14px", background: o.value === form.currentStatus ? "var(--secondary-500)" : "var(--neutral-white)",
+                                  border: "none", cursor: "pointer",
+                                  fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)",
+                                  color: "var(--secondary-800)", textAlign: "left",
+                                }}
+                              >
+                                <div style={{ width: 10, height: 10, borderRadius: "50%", background: o.color, flexShrink: 0 }} />
+                                {o.label}
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* Sichtbar im Kostüm-Netzwerk */}
+                <div>
+                  <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--secondary-800)", marginBottom: 8 }}>Sichtbar im Kostüm-Netzwerk</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {[{ label: "Nein", value: false }, { label: "Ja", value: true }].map(({ label, value }) => {
+                      const isActive = form.isPublicForRent === value;
+                      return (
+                        <button
+                          key={label}
+                          type="button"
+                          onClick={() => setField("isPublicForRent", value)}
+                          style={{
+                            display: "flex", alignItems: "center", gap: 12,
+                            background: "none", border: "none", cursor: "pointer", padding: 0,
+                          }}
+                        >
+                          <div style={{
+                            width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
+                            border: "2px solid var(--secondary-700)",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                          }}>
+                            {isActive && (
+                              <div style={{ width: 16, height: 16, borderRadius: "50%", background: "var(--secondary-700)" }} />
+                            )}
+                          </div>
+                          <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-250)", color: "var(--secondary-800)" }}>{label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
             </div>
           </SectionCard>
 
           {/* ─── ID & Infos ─── */}
           <SectionCard id="infos" sectionRef={(el) => { sectionRefs.current["infos"] = el; }}>
             <SectionHeading icon="icon-list">ID & Infos</SectionHeading>
-            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 50 }}>
+
+              {/* Identifikation */}
               <div>
-                <SubHeading>Barcode / ID</SubHeading>
-                <FlatInput value={form.barcodeId} onChange={(v) => setField("barcodeId", v)} placeholder="Leer lassen für Auto-Generierung" />
-              </div>
-              <div>
-                <SubHeading>Zustand (1 = schlecht, 5 = neuwertig)</SubHeading>
-                <div style={{ display: "flex", gap: 8 }}>
-                  {["1", "2", "3", "4", "5"].map((g) => (
-                    <button key={g} type="button" onClick={() => setField("conditionGrade", g)} style={{
-                      width: 44, height: 44,
-                      borderRadius: "var(--radius-sm)",
-                      border: `1.5px solid ${form.conditionGrade === g ? "var(--primary-900)" : "var(--neutral-grey-300)"}`,
-                      background: form.conditionGrade === g ? "var(--primary-900)" : "var(--neutral-white)",
-                      color: form.conditionGrade === g ? "var(--neutral-white)" : "var(--neutral-grey-600)",
-                      fontFamily: "var(--font-family-base)",
-                      fontWeight: "var(--font-weight-700)",
-                      fontSize: "var(--font-size-300)",
-                      cursor: "pointer",
-                    }}>{g}</button>
+                <SubHeading>Identifikation</SubHeading>
+                <div style={{
+                  border: "1px solid var(--neutral-grey-200)",
+                  borderRadius: 12, overflow: "hidden",
+                }}>
+                  {[
+                    { label: "ID",      icon: "icon-list",     field: "barcodeId" as const, placeholder: "Auto-Generierung" },
+                    { label: "RFID",    icon: "icon-rfid",     field: "rfidId"    as const, placeholder: "–" },
+                    { label: "QR-Code", icon: "icon-qr-code",  field: "qrCodeId"  as const, placeholder: "–" },
+                  ].map(({ label, icon, field, placeholder }, i, arr) => (
+                    <div key={field} style={{
+                      display: "flex", alignItems: "center",
+                      borderBottom: i < arr.length - 1 ? "1px solid var(--neutral-grey-200)" : "none",
+                      minHeight: 56,
+                    }}>
+                      {/* Icon + Label */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, width: 130, padding: "0 16px", flexShrink: 0 }}>
+                        <Image src={`/icons/${icon}.svg`} alt="" width={22} height={22} />
+                        <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: 500, color: "var(--secondary-800)" }}>{label}</span>
+                      </div>
+                      {/* Divider */}
+                      <div style={{ width: 1, height: 32, background: "var(--neutral-grey-200)", flexShrink: 0 }} />
+                      {/* Input */}
+                      <input
+                        type="text"
+                        value={form[field] ?? ""}
+                        onChange={(e) => setField(field, e.target.value)}
+                        placeholder={placeholder}
+                        style={{
+                          flex: 1, border: "none", outline: "none",
+                          padding: "0 16px",
+                          fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)",
+                          color: "var(--secondary-800)", background: "transparent",
+                        }}
+                      />
+                      {/* More icon */}
+                      <button type="button" style={{ background: "none", border: "none", cursor: "pointer", padding: "0 16px" }}>
+                        <Image src="/icons/icon-more.svg" alt="" width={20} height={20} />
+                      </button>
+                    </div>
                   ))}
                 </div>
               </div>
+
+              {/* Kostümteile */}
               <div>
-                <SubHeading>Aufführung / Produktion</SubHeading>
-                <FlatInput value={form.productionTitle} onChange={(v) => setField("productionTitle", v)} placeholder="z.B. Fidelio" />
-              </div>
-              <div style={{ display: "flex", gap: 16 }}>
-                <div>
-                  <SubHeading>Jahr</SubHeading>
-                  <FlatInput value={form.productionYear} onChange={(v) => setField("productionYear", v)} placeholder="z.B. 2024" />
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <Image src="/icons/icon-link.svg" alt="" width={20} height={20} />
+                  <SubHeading>Kostümteile</SubHeading>
+                </div>
+                <div style={{
+                  border: "1px solid var(--neutral-grey-200)", borderRadius: 12,
+                  display: "flex", alignItems: "center", padding: "0 16px", height: 56,
+                }}>
+                  <Image src="/icons/icon-link.svg" alt="" width={20} height={20} style={{ opacity: 0.4 }} />
+                  <span style={{ flex: 1, marginLeft: 12, fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-400)" }}>
+                    Kostümteile verknüpfen
+                  </span>
+                  <button type="button" style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
+                    <Image src="/icons/icon-plus-m.svg" alt="Hinzufügen" width={22} height={22} />
+                  </button>
                 </div>
               </div>
+
+              {/* Serie */}
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <Image src="/icons/icon-serie.svg" alt="" width={20} height={20} />
+                  <SubHeading>Serie</SubHeading>
+                </div>
+                <div style={{
+                  border: "1px solid var(--neutral-grey-200)", borderRadius: 12,
+                  display: "flex", alignItems: "center", padding: "0 16px", height: 56,
+                }}>
+                  <Image src="/icons/icon-link.svg" alt="" width={20} height={20} style={{ opacity: 0.4 }} />
+                  <span style={{ flex: 1, marginLeft: 12, fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-400)" }}>
+                    Serie verknüpfen oder erstellen
+                  </span>
+                  <button type="button" style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
+                    <Image src="/icons/icon-plus-m.svg" alt="Hinzufügen" width={22} height={22} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Notizen */}
+              <div>
+                <SubHeading>Notizen</SubHeading>
+                <TextArea
+                  value={form.notes}
+                  onChange={(v) => setField("notes", v)}
+                  placeholder="Interne Anmerkungen zum Kostüm..."
+                  rows={6}
+                />
+                <p style={{ marginTop: 8, fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-100)", color: "var(--neutral-grey-400)" }}>
+                  Die Notizen werden nicht im öffentlichen Netzwerk angezeigt.
+                </p>
+              </div>
+
+              {/* Historie */}
+              <div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                  <SubHeading>Historie</SubHeading>
+                </div>
+                <div style={{ borderTop: "1px solid var(--neutral-grey-200)" }}>
+                  <div style={{
+                    display: "flex", gap: 24, padding: "14px 0",
+                    borderBottom: "1px solid var(--neutral-grey-200)",
+                  }}>
+                    <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-400)", flexShrink: 0, minWidth: 80 }}>
+                      —
+                    </span>
+                    <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--secondary-800)" }}>
+                      Datei wird nach dem Speichern erstellt
+                    </span>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </SectionCard>
 
           {/* ─── Nachrichten ─── */}
           <SectionCard id="nachrichten" sectionRef={(el) => { sectionRefs.current["nachrichten"] = el; }}>
             <SectionHeading icon="icon-chat">Nachrichten</SectionHeading>
-            <div>
-              <SubHeading>Interne Notizen</SubHeading>
-              <TextArea
-                value={form.notes}
-                onChange={(v) => setField("notes", v)}
-                placeholder="Interne Anmerkungen zum Kostüm..."
-                rows={5}
-              />
-              <p style={{ marginTop: 8, fontFamily: "var(--font-family-base)", fontSize: 12, color: "var(--neutral-grey-400)" }}>
-                Chat-Nachrichten werden nach dem Speichern verfügbar.
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+              {/* Pending comments list */}
+              {pendingComments.map((c, i) => (
+                <div key={i} style={{
+                  border: "1px solid var(--neutral-grey-300)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "14px 18px",
+                  display: "flex", flexDirection: "column", gap: 8,
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                      background: "var(--secondary-500)",
+                      border: "3px solid var(--secondary-500)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", fontWeight: 700,
+                      color: "var(--secondary-800)",
+                    }}>
+                      {currentUserName.split(" ").map((p: string) => p[0]).join("").toUpperCase().slice(0, 2)}
+                    </div>
+                    <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: 700, color: "var(--neutral-grey-600)", flex: 1 }}>
+                      {currentUserName}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setPendingComments((prev) => prev.filter((_, idx) => idx !== i))}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--neutral-grey-400)", fontSize: "var(--font-size-300)", padding: 0, lineHeight: 1 }}
+                    >✕</button>
+                  </div>
+                  <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-250)", color: "var(--neutral-grey-600)", lineHeight: 1.55, margin: 0 }}>
+                    {c.body}
+                  </p>
+                </div>
+              ))}
+
+              {/* Input */}
+              <div style={{ border: "1px solid var(--secondary-700)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "14px 16px" }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                    background: "var(--secondary-500)",
+                    border: "3px solid var(--secondary-500)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", fontWeight: 700,
+                    color: "var(--secondary-800)",
+                  }}>
+                    {currentUserName.split(" ").map((p: string) => p[0]).join("").toUpperCase().slice(0, 2)}
+                  </div>
+                  <textarea
+                    value={commentDraft}
+                    onChange={(e) => setCommentDraft(e.target.value)}
+                    placeholder="Kommentar schreiben…"
+                    rows={3}
+                    style={{
+                      flex: 1, border: "none", outline: "none", resize: "none",
+                      fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-250)",
+                      color: "var(--neutral-grey-600)", lineHeight: 1.55,
+                      background: "transparent",
+                    }}
+                  />
+                </div>
+                <div style={{
+                  display: "flex", alignItems: "center", justifyContent: "flex-end",
+                  padding: "10px 16px",
+                  borderTop: "1px solid var(--neutral-grey-200)",
+                  background: "var(--neutral-grey-50)",
+                }}>
+                  <button
+                    type="button"
+                    disabled={!commentDraft.trim()}
+                    onClick={() => {
+                      if (!commentDraft.trim()) return;
+                      setPendingComments((prev) => [...prev, {
+                        body: commentDraft.trim(),
+                        author_name: currentUserName,
+                        created_at: new Date().toISOString(),
+                      }]);
+                      setCommentDraft("");
+                    }}
+                    style={{
+                      height: 38, padding: "0 20px", borderRadius: "var(--radius-sm)",
+                      background: commentDraft.trim() ? "var(--secondary-700)" : "var(--neutral-grey-200)",
+                      border: "none", cursor: commentDraft.trim() ? "pointer" : "default",
+                      fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: 600,
+                      color: commentDraft.trim() ? "var(--neutral-white)" : "var(--neutral-grey-400)",
+                      transition: "background 150ms",
+                    }}
+                  >
+                    Hinzufügen
+                  </button>
+                </div>
+              </div>
+
+              <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-100)", color: "var(--neutral-grey-400)" }}>
+                Kommentare werden beim Speichern des Kostüms übernommen.
               </p>
             </div>
           </SectionCard>
@@ -1572,7 +1997,98 @@ export function KostuemeNeuClient({ theaterId, costumeType, taxonomy }: Props) {
           {/* bottom spacer */}
           <div style={{ height: 40, flexShrink: 0 }} />
         </div>
+        </div>{/* end clip wrapper */}
       </div>
+
+      {/* ─── Close confirmation bottom sheet ─── */}
+      {showCamera && (
+        <CameraCapture
+          onCapture={(file) => {
+            const preview = URL.createObjectURL(file);
+            setImages((prev) => [...prev, { file, preview }]);
+            setShowCamera(false);
+          }}
+          onClose={() => setShowCamera(false)}
+        />
+      )}
+
+      {showCloseSheet && (
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={() => setShowCloseSheet(false)}
+            style={{
+              position: "fixed", inset: 0, zIndex: 2000,
+              background: "rgba(0,0,0,0.4)",
+            }}
+          />
+          {/* Sheet */}
+          <div style={{
+            position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 2001,
+            background: "var(--neutral-white)",
+            borderRadius: "24px 24px 0 0",
+            padding: "28px 20px 40px",
+            display: "flex", flexDirection: "column", gap: 12,
+          }}>
+            {/* Handle */}
+            <div style={{
+              width: 36, height: 4, borderRadius: 2,
+              background: "var(--neutral-grey-200)",
+              alignSelf: "center", marginBottom: 8,
+            }} />
+
+            <p style={{
+              fontFamily: "var(--font-family-base)",
+              fontSize: "var(--font-size-325)", fontWeight: 600,
+              color: "var(--neutral-grey-600)",
+              marginBottom: 4,
+            }}>
+              Kostüm schliessen?
+            </p>
+            <p style={{
+              fontFamily: "var(--font-family-base)",
+              fontSize: "var(--font-size-200)", color: "var(--neutral-grey-400)",
+              marginBottom: 8,
+            }}>
+              Deine Eingaben gehen verloren, wenn du jetzt schliesst.
+            </p>
+
+            {/* Verwerfen */}
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              style={{
+                height: "var(--button-height-md)", borderRadius: "var(--radius-md)",
+                background: "none",
+                border: "1.5px solid var(--primary-900)",
+                color: "var(--primary-900)",
+                fontFamily: "var(--font-family-base)",
+                fontSize: "var(--font-size-250)", fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Schliessen ohne Speichern
+            </button>
+
+            {/* Weiter bearbeiten */}
+            <button
+              type="button"
+              onClick={() => setShowCloseSheet(false)}
+              style={{
+                height: "var(--button-height-md)", borderRadius: "var(--radius-md)",
+                background: "var(--secondary-900)",
+                border: "none",
+                color: "var(--neutral-white)",
+                fontFamily: "var(--font-family-base)",
+                fontSize: "var(--font-size-250)", fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Weiter bearbeiten
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

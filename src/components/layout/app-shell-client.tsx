@@ -92,7 +92,7 @@ export function AppShellClient({ children, userRole, unreadMessages, pendingRent
               background: "transparent", border: "none", cursor: "pointer",
               padding: 4, display: "flex", alignItems: "center", justifyContent: "center",
               color: "var(--neutral-grey-600)",
-              fontFamily: "var(--font-family-base)", fontSize: 16, fontWeight: 700,
+              fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-300)", fontWeight: 700,
               flexShrink: 0, opacity: 0.3,
             }}
           >
@@ -124,7 +124,7 @@ export function AppShellClient({ children, userRole, unreadMessages, pendingRent
                     width: collapsed ? undefined : 166,
                     height: 50, padding: "0 12px", gap: 10,
                     borderRadius: 8,
-                    background: isActive ? "#D6DFDD" : "transparent",
+                    background: isActive ? "var(--secondary-550)" : "transparent",
                     textDecoration: "none",
                     borderBottom: index < navItems.length - 1 ? "1px solid var(--secondary-500)" : "none",
                     justifyContent: collapsed ? "center" : "flex-start",
@@ -144,7 +144,7 @@ export function AppShellClient({ children, userRole, unreadMessages, pendingRent
                         <span style={{
                           minWidth: 22, height: 22,
                           background: "var(--neutral-grey-600)", borderRadius: 103,
-                          fontSize: 10, fontWeight: 700, color: "#FFFFFF",
+                          fontSize: "var(--font-size-50)", fontWeight: 700, color: "var(--neutral-white)",
                           display: "flex", alignItems: "center", justifyContent: "center",
                           padding: "0 5px", flexShrink: 0, fontFamily: "var(--font-family-base)",
                         }}>
@@ -226,13 +226,12 @@ export function AppShellClient({ children, userRole, unreadMessages, pendingRent
           </div>
         </nav>
 
-        {/* Content — weisses Card */}
-        <main style={{
-          flex: 1, overflowY: "auto",
-          background: "#FFFFFF", borderRadius: "40px 40px 0 0",
-        }}>
-          {children}
-        </main>
+        {/* Content — weisses Card, clip wrapper keeps top radius while scrolling */}
+        <div style={{ flex: 1, borderRadius: "40px 40px 0 0", overflow: "hidden" }}>
+          <main style={{ height: "100%", overflowY: "auto", background: "#FFFFFF" }}>
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   );

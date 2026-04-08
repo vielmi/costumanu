@@ -14,16 +14,15 @@ export default async function KostuemeNeuPage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: membership } = await supabase
-    .from("theater_members")
-    .select("theater_id")
-    .eq("user_id", user.id)
-    .limit(1)
-    .single();
+  const [{ data: membership }, { data: profile }] = await Promise.all([
+    supabase.from("theater_members").select("theater_id, theaters(name)").eq("user_id", user.id).limit(1).single(),
+    supabase.from("profiles").select("display_name").eq("user_id", user.id).single(),
+  ]);
 
   if (!membership) redirect("/");
 
   const theaterId = membership.theater_id;
+  const theaterName = (membership.theaters as unknown as { name: string })?.name ?? "";
 
   const vocabs = ["gender", "clothing_type", "clothing_subtype", "material", "muster", "color", "sparte", "temperature", "washing_type", "drying", "ironing"];
   const results = await Promise.all(
@@ -33,9 +32,14 @@ export default async function KostuemeNeuPage({
   );
   const [genders, clothingTypes, clothingSubtypes, materials, musters, colors, sparten, temperatures, washingTypes, dryings, ironings] = results;
 
+  const currentUserName = (profile as unknown as { display_name: string } | null)?.display_name ?? "Unbekannt";
+
   return (
     <KostuemeNeuClient
       theaterId={theaterId}
+      theaterName={theaterName}
+      currentUserId={user.id}
+      currentUserName={currentUserName}
       costumeType={costumeType as "single" | "ensemble" | "serie"}
       taxonomy={{
         genders: genders.data ?? [],
