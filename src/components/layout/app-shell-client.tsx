@@ -60,10 +60,11 @@ export function AppShellClient({ children, userRole, unreadMessages, pendingRent
         <div style={{
           width: sidebarW, flexShrink: 0,
           display: "flex", alignItems: "center",
-          padding: "0 12px 0 20px", gap: 8,
+          padding: collapsed ? "0 12px" : "0 12px 0 20px", gap: 8,
           transition: "width 200ms ease", overflow: "hidden",
+          justifyContent: collapsed ? "center" : "flex-start",
         }}>
-          <AppLogo showText={!collapsed} />
+          {!collapsed && <AppLogo />}
           <button
             onClick={() => setCollapsed((c) => !c)}
             aria-label={collapsed ? "Sidebar öffnen" : "Sidebar schliessen"}
@@ -72,7 +73,7 @@ export function AppShellClient({ children, userRole, unreadMessages, pendingRent
               padding: 4, display: "flex", alignItems: "center", justifyContent: "center",
               color: "var(--neutral-grey-600)",
               fontFamily: "var(--font-family-base)", fontSize: 16, fontWeight: 700,
-              flexShrink: 0, opacity: 0.2,
+              flexShrink: 0, opacity: 0.3,
             }}
           >
             {collapsed ? "»" : "«"}
