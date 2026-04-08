@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Menu, MessageCircle, Heart, ShoppingBag, Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu } from "@/components/layout/navigation-menu";
