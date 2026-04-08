@@ -139,6 +139,7 @@ Vollständige Icon-Liste in `design-system.md §5`.
 
 ## Komponenten-Konventionen
 
+- **Neue App-Seiten:** Immer `<AppShell>` aus `src/components/layout/app-shell.tsx` verwenden — nie eigenen Header/Sidebar bauen
 - **Seiten-Hintergrund:** Immer `background: "var(--page-bg)"` (`--secondary-500` = `#ECF1EE`) — nie hardcoded `#ECF1EE` oder `--secondary-500` für den Root-Hintergrund verwenden
 - **Brand Logo:** Immer `<AppLogo />` aus `src/components/layout/app-logo.tsx` — Specs in `design-system.md §6.5`
 - **Buttons:** Immer `btn-primary` / `btn-secondary` / `btn-tertiary` aus `design-system.md §6.1`

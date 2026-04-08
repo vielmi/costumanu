@@ -1498,6 +1498,55 @@ Horizontale Tabs mit Underline-Indikator.
 
 ---
 
+#### `AppShell` — Standard Seiten-Layout
+
+**Jede neue App-Seite verwendet `AppShell` als äussere Hülle.** Die Komponente liefert Header (Logo + Collapse-Button), Sidebar-Navigation mit aktivem Menüpunkt und weissen Content-Bereich.
+
+**Pfade:**
+| Datei | Zweck |
+|---|---|
+| `src/components/layout/app-shell.tsx` | Server Component — fetcht Auth, userRole, Badges |
+| `src/components/layout/app-shell-client.tsx` | Client Component — rendert Header + Sidebar + Content |
+
+**Template für neue Seiten (`src/app/[route]/page.tsx`):**
+```tsx
+import { AppShell } from "@/components/layout/app-shell";
+
+export default async function MeinePage() {
+  return (
+    <AppShell>
+      <div style={{ padding: 40 }}>
+        {/* Seiteninhalt hier */}
+      </div>
+    </AppShell>
+  );
+}
+```
+
+**Layout-Specs:**
+| Element | Wert |
+|---|---|
+| Seiten-Hintergrund | `var(--page-bg)` = `#ECF1EE` |
+| Header-Höhe | 72px |
+| Sidebar-Breite (expanded) | 209px |
+| Sidebar-Breite (collapsed) | 64px |
+| Content-Bereich | `background: #FFFFFF`, `border-radius: 40px 40px 0 0` |
+| Nav-Item Höhe | 50px |
+| Aktiver Nav-Item | `background: #D6DFDD` |
+
+**Was AppShell automatisch liefert:**
+- Auth-Check (redirect auf `/login` falls nicht eingeloggt)
+- `userRole` aus `theater_members` (für Admin-Nav-Item)
+- Badge-Counts: `unreadMessages`, `pendingRentals`
+- Sidebar-Collapse per Button
+- Aktiver Menüpunkt via `usePathname()`
+
+**Wann AppShell NICHT verwenden:**
+- Seiten mit eigenem vollständigem Shell (z.B. `CockpitShell` für Home `/`, `KostuemeNeuClient`)
+- Login-Seite, Auth-Callbacks
+
+---
+
 #### Seiten-Hintergrund
 
 Alle App-Seiten verwenden den Token `--page-bg` als Root-Hintergrundfarbe.
