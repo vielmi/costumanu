@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { SiteHeader } from "@/components/layout/site-header";
-import { SiteFooter } from "@/components/layout/site-footer";
+import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Pencil, Building2, Phone, Mail } from "lucide-react";
@@ -69,9 +68,7 @@ export default async function ProfilPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--page-bg)" }}>
-      <SiteHeader />
-
+    <AppShell>
       <main className="mx-auto max-w-5xl px-4 py-8">
         <h1 className="mb-6 text-2xl font-bold">{t("profile.title")}</h1>
 
@@ -190,8 +187,6 @@ export default async function ProfilPage() {
           </Button>
         </div>
       </main>
-
-      <SiteFooter />
-    </div>
+    </AppShell>
   );
 }
