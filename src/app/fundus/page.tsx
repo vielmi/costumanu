@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { SiteHeader } from "@/components/layout/site-header";
-import { SiteFooter } from "@/components/layout/site-footer";
+import { AppShell } from "@/components/layout/app-shell";
 import { FundusClient } from "@/components/fundus/fundus-client";
 import type { Costume } from "@/lib/types/costume";
 
@@ -39,16 +38,14 @@ export default async function FundusPage() {
     if (bootstrapError || !newTheaterId) {
       console.error("Bootstrap failed:", JSON.stringify(bootstrapError));
       return (
-        <div style={{ minHeight: "100vh", background: "var(--page-bg)" }}>
-          <SiteHeader />
+        <AppShell>
           <main className="mx-auto max-w-5xl px-4 py-8">
             <h1 className="text-xl font-bold text-destructive">Fehler beim Erstellen des Theaters</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               Bitte versuche es später erneut oder kontaktiere den Support.
             </p>
           </main>
-          <SiteFooter />
-        </div>
+        </AppShell>
       );
     }
 
@@ -70,17 +67,13 @@ export default async function FundusPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--page-bg)" }}>
-      <SiteHeader />
-
+    <AppShell>
       <main className="mx-auto max-w-5xl px-4 py-8">
         <FundusClient
           initialCostumes={(costumes ?? []) as unknown as Costume[]}
           theaterId={theaterId}
         />
       </main>
-
-      <SiteFooter />
-    </div>
+    </AppShell>
   );
 }

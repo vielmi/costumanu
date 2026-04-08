@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { AppShell } from "@/components/layout/app-shell";
 import { KonfigurationClient } from "@/components/einstellungen/konfiguration-client";
 
 function getAdmin() {
@@ -68,14 +69,16 @@ export default async function KonfigurationPage() {
     });
 
     return (
-      <KonfigurationClient
-        isPlatformAdmin={true}
-        theaterId=""
-        terms={terms ?? []}
-        members={[]}
-        allTheaters={allTheaters ?? []}
-        allMembers={allMemberList}
-      />
+      <AppShell>
+        <KonfigurationClient
+          isPlatformAdmin={true}
+          theaterId=""
+          terms={terms ?? []}
+          members={[]}
+          allTheaters={allTheaters ?? []}
+          allMembers={allMemberList}
+        />
+      </AppShell>
     );
   }
 
@@ -124,13 +127,15 @@ export default async function KonfigurationPage() {
   }).filter((m) => theaterUserIds.has(m.userId));
 
   return (
-    <KonfigurationClient
-      isPlatformAdmin={false}
-      theaterId={theaterId}
-      terms={terms ?? []}
-      members={memberList}
-      allTheaters={[]}
-      allMembers={[]}
-    />
+    <AppShell>
+      <KonfigurationClient
+        isPlatformAdmin={false}
+        theaterId={theaterId}
+        terms={terms ?? []}
+        members={memberList}
+        allTheaters={[]}
+        allMembers={[]}
+      />
+    </AppShell>
   );
 }

@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { SiteHeader } from "@/components/layout/site-header";
-import { SiteFooter } from "@/components/layout/site-footer";
+import { AppShell } from "@/components/layout/app-shell";
 import { ThreadList } from "@/components/messages/thread-list";
 import { t } from "@/lib/i18n";
 
@@ -114,19 +113,11 @@ export default async function NachrichtenPage() {
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--page-bg)" }}>
-      <SiteHeader />
-
+    <AppShell>
       <main className="mx-auto max-w-5xl px-4 py-8">
         <h1 className="mb-6 text-2xl font-bold">{t("messages.title")}</h1>
-
-        <ThreadList
-          initialThreads={normalizedThreads}
-          userId={user.id}
-        />
+        <ThreadList initialThreads={normalizedThreads} userId={user.id} />
       </main>
-
-      <SiteFooter />
-    </div>
+    </AppShell>
   );
 }

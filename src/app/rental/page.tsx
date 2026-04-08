@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { SiteHeader } from "@/components/layout/site-header";
-import { SiteFooter } from "@/components/layout/site-footer";
+import { AppShell } from "@/components/layout/app-shell";
 import { RentalOverview } from "@/components/rental/rental-overview";
 import { t } from "@/lib/i18n";
 
@@ -40,18 +39,12 @@ export default async function AusleihePage() {
     if (bootstrapError || !newTheaterId) {
       console.error("Bootstrap failed:", JSON.stringify(bootstrapError));
       return (
-        <div style={{ minHeight: "100vh", background: "var(--page-bg)" }}>
-          <SiteHeader />
+        <AppShell>
           <main className="mx-auto max-w-5xl px-4 py-8">
-            <h1 className="text-xl font-bold text-destructive">
-              {t("inventory.errorTitle")}
-            </h1>
-            <p className="mt-4 text-sm text-muted-foreground">
-              {t("inventory.errorDescription")}
-            </p>
+            <h1 className="text-xl font-bold text-destructive">{t("inventory.errorTitle")}</h1>
+            <p className="mt-4 text-sm text-muted-foreground">{t("inventory.errorDescription")}</p>
           </main>
-          <SiteFooter />
-        </div>
+        </AppShell>
       );
     }
 
@@ -95,9 +88,7 @@ export default async function AusleihePage() {
     .single();
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--page-bg)" }}>
-      <SiteHeader />
-
+    <AppShell>
       <main className="mx-auto max-w-5xl px-4 py-8">
         <RentalOverview
           initialCartItems={(cartItems ?? []) as unknown as Parameters<typeof RentalOverview>[0]["initialCartItems"]}
@@ -108,8 +99,6 @@ export default async function AusleihePage() {
           profile={profile ?? { display_name: "", professional_title: null, phone: null }}
         />
       </main>
-
-      <SiteFooter />
-    </div>
+    </AppShell>
   );
 }

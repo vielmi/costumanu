@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { AppLogo } from "@/components/layout/app-logo";
 import {
   createTheaterAction,
   updateTheaterAction,
@@ -727,11 +726,10 @@ export function KonfigurationClient({
       ];
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--page-bg)", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
 
-      {/* Header */}
-      <div style={{ height: 72, flexShrink: 0, display: "flex", alignItems: "center", padding: "0 40px", gap: 24, background: "var(--page-bg)" }}>
-        <AppLogo />
+      {/* Title + Tabs */}
+      <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 24, padding: "24px 40px 0" }}>
         <h1 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-500)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-grey-700)", margin: 0 }}>
           Konfiguration
         </h1>
@@ -744,14 +742,12 @@ export function KonfigurationClient({
         }}>
           {isPlatformAdmin ? "Platform Admin" : "Admin"}
         </span>
-
-        {/* Tabs */}
         <div style={{ display: "flex", gap: 4, marginLeft: 16 }}>
           {tabs.map((t) => (
             <button key={t.key} type="button" onClick={() => setActiveTab(t.key)}
               style={{
                 height: 40, padding: "0 20px", borderRadius: 10, border: "none",
-                background: activeTab === t.key ? "#FFFFFF" : "transparent",
+                background: activeTab === t.key ? "var(--page-bg)" : "transparent",
                 fontFamily: "var(--font-family-base)",
                 fontSize: "var(--font-size-200)",
                 fontWeight: activeTab === t.key ? "var(--font-weight-700)" : "var(--font-weight-500)",
