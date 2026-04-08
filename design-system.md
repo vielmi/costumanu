@@ -1529,7 +1529,7 @@ export default async function MeinePage() {
 | Seiten-Hintergrund | `var(--page-bg)` = `#ECF1EE` |
 | Header-Höhe | 72px |
 | Sidebar-Breite (expanded) | 209px |
-| Sidebar-Breite (collapsed) | 64px |
+| Sidebar-Breite (collapsed) | 80px (K-Icon + »-Button) |
 | Content-Bereich | `background: #FFFFFF`, `border-radius: 40px 40px 0 0` |
 | Nav-Item Höhe | 50px |
 | Aktiver Nav-Item | `background: #D6DFDD` |
