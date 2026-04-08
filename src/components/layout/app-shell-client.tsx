@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { AppLogo } from "@/components/layout/app-logo";
 
 type NavItem = { label: string; href: string; icon: string; badgeKey?: string; adminOnly?: boolean };
@@ -37,8 +38,27 @@ export function AppShellClient({ children, userRole, unreadMessages, pendingRent
   const isAdmin = userRole === "owner" || userRole === "admin";
   const navItems = isAdmin ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
   const [collapsed, setCollapsed] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const sidebarW = collapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_W;
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    }
+    if (profileOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [profileOpen]);
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
 
   function getBadge(key?: string) {
     if (key === "messages") return unreadMessages;
@@ -139,15 +159,16 @@ export function AppShellClient({ children, userRole, unreadMessages, pendingRent
           </div>
 
           {/* Profil-Footer */}
-          <div style={{
+          <div ref={profileRef} style={{
             padding: "8px 8px 8px 12px", borderTop: "1px solid var(--neutral-grey-200)",
             flexShrink: 0, minHeight: 99, display: "flex", alignItems: "center",
+            position: "relative",
           }}>
-            <Link href="/profile" style={{
+            <button onClick={() => setProfileOpen((o) => !o)} style={{
               display: "flex", alignItems: "center", gap: 8,
               width: "100%", padding: "0 8px",
-              borderRadius: "var(--radius-sm)", textDecoration: "none",
-              justifyContent: collapsed ? "center" : "flex-start",
+              borderRadius: "var(--radius-sm)", background: "none", border: "none",
+              cursor: "pointer", justifyContent: collapsed ? "center" : "flex-start",
             }}>
               <div style={{
                 width: 60, height: 60, borderRadius: "50%",
@@ -162,14 +183,46 @@ export function AppShellClient({ children, userRole, unreadMessages, pendingRent
                   <span style={{
                     fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)",
                     fontWeight: "var(--font-weight-700)", color: "var(--neutral-grey-600)",
-                    flex: 1, whiteSpace: "nowrap",
+                    flex: 1, whiteSpace: "nowrap", textAlign: "left",
                   }}>
                     Mein Profil
                   </span>
-                  <Image src="/icons/icon-arrow-dropdown-down.svg" alt="" width={16} height={16} style={{ flexShrink: 0 }} />
+                  <Image
+                    src="/icons/icon-arrow-dropdown-down.svg" alt="" width={16} height={16}
+                    style={{ flexShrink: 0, transform: profileOpen ? "rotate(180deg)" : "none", transition: "transform 150ms ease" }}
+                  />
                 </>
               )}
-            </Link>
+            </button>
+
+            {/* Dropdown */}
+            {profileOpen && (
+              <div style={{
+                position: "absolute", bottom: "calc(100% + 4px)", left: 12, right: 8,
+                background: "#FFFFFF", border: "1px solid var(--neutral-grey-200)",
+                borderRadius: "var(--radius-sm)", boxShadow: "var(--shadow-300)",
+                overflow: "hidden", zIndex: 200,
+              }}>
+                <Link href="/profile" onClick={() => setProfileOpen(false)} style={{
+                  display: "flex", alignItems: "center", gap: 10,
+                  height: 48, padding: "0 16px", textDecoration: "none",
+                  fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)",
+                  fontWeight: "var(--font-weight-500)", color: "var(--neutral-grey-700)",
+                  borderBottom: "1px solid var(--neutral-grey-100)",
+                }}>
+                  Mein Profil
+                </Link>
+                <button onClick={handleLogout} style={{
+                  display: "flex", alignItems: "center", gap: 10,
+                  width: "100%", height: 48, padding: "0 16px",
+                  background: "none", border: "none", cursor: "pointer", textAlign: "left",
+                  fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)",
+                  fontWeight: "var(--font-weight-500)", color: "var(--color-error)",
+                }}>
+                  Abmelden
+                </button>
+              </div>
+            )}
           </div>
         </nav>
 

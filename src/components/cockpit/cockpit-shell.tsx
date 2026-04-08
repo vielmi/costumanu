@@ -66,12 +66,19 @@ export function CockpitShell({
   const navItems = isAdmin ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
   const [collapsed, setCollapsed] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
   const sidebarW = collapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_W;
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<{ id: string; name: string }[]>([]);
@@ -112,6 +119,16 @@ export function CockpitShell({
     if (dropdownOpen) document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [dropdownOpen]);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    }
+    if (profileOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [profileOpen]);
 
   function getBadge(key?: string) {
     if (key === "messages") return unreadMessages;
@@ -451,74 +468,66 @@ export function CockpitShell({
           </div>
 
           {/* Profile footer */}
-          <div
-            style={{
-              padding: "8px 8px 8px 12px",
-              borderTop: "1px solid var(--neutral-grey-200)",
-              flexShrink: 0,
-              minHeight: 99,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <Link
-              href="/profile"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                width: "100%",
-                padding: "0 8px",
-                borderRadius: "var(--radius-sm)",
-                textDecoration: "none",
-                justifyContent: collapsed ? "center" : "flex-start",
-              }}
-            >
-              <div
-                style={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: "50%",
-                  background: "var(--secondary-700)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                  overflow: "hidden",
-                }}
-              >
-                <Image
-                  src="/icons/icon-avatar.svg"
-                  alt=""
-                  width={28}
-                  height={28}
-                  style={{ filter: "invert(1)" }}
-                />
+          <div ref={profileRef} style={{
+            padding: "8px 8px 8px 12px", borderTop: "1px solid var(--neutral-grey-200)",
+            flexShrink: 0, minHeight: 99, display: "flex", alignItems: "center",
+            position: "relative",
+          }}>
+            <button onClick={() => setProfileOpen((o) => !o)} style={{
+              display: "flex", alignItems: "center", gap: 8,
+              width: "100%", padding: "0 8px",
+              borderRadius: "var(--radius-sm)", background: "none", border: "none",
+              cursor: "pointer", justifyContent: collapsed ? "center" : "flex-start",
+            }}>
+              <div style={{
+                width: 60, height: 60, borderRadius: "50%",
+                background: "var(--secondary-700)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0, overflow: "hidden",
+              }}>
+                <Image src="/icons/icon-avatar.svg" alt="" width={28} height={28} style={{ filter: "invert(1)" }} />
               </div>
               {!collapsed && (
                 <>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-family-base)",
-                      fontSize: "var(--font-size-200)",
-                      fontWeight: "var(--font-weight-700)",
-                      color: "var(--neutral-grey-600)",
-                      flex: 1,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
+                  <span style={{
+                    fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)",
+                    fontWeight: "var(--font-weight-700)", color: "var(--neutral-grey-600)",
+                    flex: 1, whiteSpace: "nowrap", textAlign: "left",
+                  }}>
                     Mein Profil
                   </span>
-                  <Image
-                    src="/icons/icon-arrow-dropdown-down.svg"
-                    alt=""
-                    width={16}
-                    height={16}
-                    style={{ flexShrink: 0 }}
+                  <Image src="/icons/icon-arrow-dropdown-down.svg" alt="" width={16} height={16}
+                    style={{ flexShrink: 0, transform: profileOpen ? "rotate(180deg)" : "none", transition: "transform 150ms ease" }}
                   />
                 </>
               )}
-            </Link>
+            </button>
+
+            {profileOpen && (
+              <div style={{
+                position: "absolute", bottom: "calc(100% + 4px)", left: 12, right: 8,
+                background: "#FFFFFF", border: "1px solid var(--neutral-grey-200)",
+                borderRadius: "var(--radius-sm)", boxShadow: "var(--shadow-300)",
+                overflow: "hidden", zIndex: 200,
+              }}>
+                <Link href="/profile" onClick={() => setProfileOpen(false)} style={{
+                  display: "flex", alignItems: "center", height: 48, padding: "0 16px",
+                  textDecoration: "none", fontFamily: "var(--font-family-base)",
+                  fontSize: "var(--font-size-200)", fontWeight: "var(--font-weight-500)",
+                  color: "var(--neutral-grey-700)", borderBottom: "1px solid var(--neutral-grey-100)",
+                }}>
+                  Mein Profil
+                </Link>
+                <button onClick={handleLogout} style={{
+                  display: "flex", alignItems: "center", width: "100%", height: 48, padding: "0 16px",
+                  background: "none", border: "none", cursor: "pointer", textAlign: "left",
+                  fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)",
+                  fontWeight: "var(--font-weight-500)", color: "var(--color-error)",
+                }}>
+                  Abmelden
+                </button>
+              </div>
+            )}
           </div>
         </nav>
 
