@@ -1,9 +1,5 @@
-"use client";
+import { type NetworkTheater, SuchmodusCockpit } from "@/components/suchmodus/suchmodus-cockpit";
 
-export function ViewerCockpitShell() {
-  return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <p>Viewer Cockpit – coming soon</p>
-    </div>
-  );
+export function ViewerCockpitShell({ networkTheaters }: { networkTheaters: NetworkTheater[] }) {
+  return <SuchmodusCockpit networkTheaters={networkTheaters} />;
 }

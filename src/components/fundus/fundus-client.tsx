@@ -12,13 +12,22 @@ import { t } from "@/lib/i18n";
 interface FundusClientProps {
   initialCostumes: Costume[];
   theaterId: string;
+  // When provided, queries across multiple theaters (network mode)
+  theaterIds?: string[];
+  showAddButton?: boolean;
 }
 
-export function FundusClient({ initialCostumes, theaterId }: FundusClientProps) {
+export function FundusClient({
+  initialCostumes,
+  theaterId,
+  theaterIds,
+  showAddButton = true,
+}: FundusClientProps) {
   const supabase = createClient();
+  const queryIds = theaterIds ?? [theaterId];
 
   const { data: costumes } = useQuery({
-    queryKey: ["costumes", theaterId],
+    queryKey: ["costumes", queryIds],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("costumes")
@@ -30,7 +39,7 @@ export function FundusClient({ initialCostumes, theaterId }: FundusClientProps) 
           costume_provenance(id, costume_id, production_title, year, role_name),
           costume_items(id, costume_id, theater_id, barcode_id, size_label, condition_grade, current_status)
         `)
-        .eq("theater_id", theaterId)
+        .in("theater_id", queryIds)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -43,12 +52,14 @@ export function FundusClient({ initialCostumes, theaterId }: FundusClientProps) 
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t("inventory.title")}</h1>
-        <Button asChild>
-          <Link href="/kostueme/neu">
-            <Plus className="mr-2 h-4 w-4" />
-            {t("inventory.addCostume")}
-          </Link>
-        </Button>
+        {showAddButton && (
+          <Button asChild>
+            <Link href="/kostueme/neu">
+              <Plus className="mr-2 h-4 w-4" />
+              {t("inventory.addCostume")}
+            </Link>
+          </Button>
+        )}
       </div>
 
       {costumes.length === 0 ? (

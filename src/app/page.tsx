@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CockpitShell } from "@/components/cockpit/cockpit-shell";
 import { ViewerCockpitShell } from "@/components/cockpit/viewer-cockpit-shell";
+import { type NetworkTheater } from "@/components/suchmodus/suchmodus-cockpit";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -59,6 +60,7 @@ export default async function Home() {
         .select("id", { count: "exact", head: true })
         .eq("lender_theater_id", theaterId)
         .eq("status", "requested")
+        .neq("borrower_user_id", user.id)
     : { count: 0 };
 
   // Badge: unread messages
@@ -83,7 +85,13 @@ export default async function Home() {
   }
 
   if (userRole === "viewer") {
-    return <ViewerCockpitShell />;
+    const { data: networkData } = await supabase
+      .from("theaters")
+      .select("id, name, slug, settings")
+      .eq("settings->>show_in_network", "true")
+      .order("name");
+
+    return <ViewerCockpitShell networkTheaters={(networkData ?? []) as NetworkTheater[]} />;
   }
 
   return (

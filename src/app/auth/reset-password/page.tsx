@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { t } from "@/lib/i18n";
-import { SiteHeader } from "@/components/layout/site-header";
+import { AppLogo } from "@/components/layout/app-logo";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,11 +43,13 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--page-bg)" }}>
-      <SiteHeader />
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--page-bg)" }}>
+      <div style={{ height: 72, flexShrink: 0, display: "flex", alignItems: "center", padding: "0 20px" }}>
+        <AppLogo />
+      </div>
 
-      <main className="mx-auto flex max-w-md items-center justify-center px-4 py-16">
-        <Card className="w-full">
+      <main style={{ flex: 1, overflowY: "auto", background: "#FFFFFF", borderRadius: "40px 40px 0 0", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 16px" }}>
+        <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-center text-xl">
               {t("auth.newPassword")}

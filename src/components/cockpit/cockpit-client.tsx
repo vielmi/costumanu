@@ -359,7 +359,7 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
 
           {/* CTA Card "Suchmodus öffnen" — text top, + bottom */}
           <Link
-            href="/search"
+            href="/suchmodus"
             style={{
               width: 187,
               height: 245,

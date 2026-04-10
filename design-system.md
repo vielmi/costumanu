@@ -72,6 +72,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 | `font-size-300`  | Subtitle 1 | 16px | 150% | 0% | 0% | 0% |
 | `font-size-200`  | Subtitle 2 | 14px | 150% | 0.2% | 0.2% | 0% |
 | `font-size-100`  | Label-1 | 12px | 150% | 1% | 0% | 0% |
+| `font-size-50`   | Micro (ID-Nummern) | 10px | — | — | — | — |
+
+> `font-size-50` ist nicht in der Figma-Skala definiert, wird aber in der Implementierung für Kostüm-ID-Texte (10px) verwendet.
 
 ### Typography Scale — Mobile (`-s` suffix)
 
@@ -117,6 +120,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   --font-size-300:  16px;   /* Subtitle 1*/
   --font-size-200:  14px;   /* Subtitle 2*/
   --font-size-100:  12px;   /* Label-1   */
+  --font-size-50:   10px;   /* Micro — nicht in Figma-Skala, für ID-Nummern (Kostüm List Item) */
 
   /* ─── Font Sizes: Mobile ─── */
   --font-size-1000-s: 30px; /* H1 — scaled down from 36px tablet */
@@ -211,6 +215,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 --secondary-800: #556E68;
 --secondary-700: #75958D;
 --secondary-600: #BFD0C6;
+--secondary-550: #D6DFDD;  /* Aktiver Nav-Item Hintergrund — nicht in Figma, aus globals.css */
 --secondary-500: #ECF1EE;
 ```
 
@@ -263,6 +268,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   --secondary-800: #556E68;
   --secondary-700: #75958D;
   --secondary-600: #BFD0C6;
+  --secondary-550: #D6DFDD;  /* Aktiver Nav-Item Hintergrund */
   --secondary-500: #ECF1EE;
 
   /* Tertiary */

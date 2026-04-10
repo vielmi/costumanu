@@ -1,157 +1,72 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { SiteHeader } from "@/components/layout/site-header";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { ResultsClient, type CostumeResult } from "@/components/results/results-client";
-import type { TaxonomyTerm } from "@/lib/types/costume";
+import { AppShell } from "@/components/layout/app-shell";
+import { FundusClient } from "@/components/fundus/fundus-client";
+import { ScopeToggle } from "@/components/results/scope-toggle";
+import type { Costume } from "@/lib/types/costume";
 
-const PAGE_SIZE = 20;
+type SearchParams = Promise<{ scope?: string }>;
 
-type SearchParams = Promise<{
-  gender?: string;
-  clothing_type?: string;
-  epoche?: string;
-  sparte?: string;
-  theater?: string;
-  q?: string;
-}>;
-
-export default async function ErgebnissePage({
+export default async function ResultsPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const params = await searchParams;
+  const { scope } = await searchParams;
+  const isNetwork = scope === "network";
+
   const supabase = await createClient();
 
-  // Resolve filter labels for display
-  const filterTermIds = [
-    params.gender,
-    params.clothing_type,
-    params.epoche,
-    params.sparte,
-  ].filter(Boolean) as string[];
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
 
-  let filterTerms: TaxonomyTerm[] = [];
-  if (filterTermIds.length > 0) {
-    const { data } = await supabase
-      .from("taxonomy_terms")
-      .select("id, vocabulary, label_de, parent_id, sort_order")
-      .in("id", filterTermIds);
-    filterTerms = (data ?? []) as TaxonomyTerm[];
-  }
+  // Own theater
+  const { data: membership } = await supabase
+    .from("theater_members")
+    .select("theater_id")
+    .eq("user_id", user.id)
+    .limit(1)
+    .single();
 
-  // Resolve theater name if filtering by theater
-  let theaterName: string | null = null;
-  if (params.theater) {
-    const { data } = await supabase
-      .from("theaters")
-      .select("name")
-      .eq("id", params.theater)
-      .single();
-    theaterName = data?.name ?? null;
-  }
+  const theaterId: string = membership?.theater_id ?? "";
 
-  // Build costume query
-  let query = supabase
-    .from("costumes")
-    .select(
-      `
-      id, name, description, gender_term_id, clothing_type_id,
-      is_ensemble, theater_id, created_at,
-      gender_term:taxonomy_terms!gender_term_id(id, vocabulary, label_de, parent_id, sort_order),
-      clothing_type:taxonomy_terms!clothing_type_id(id, vocabulary, label_de, parent_id, sort_order),
-      costume_media(id, storage_path, sort_order),
-      costume_provenance(production_title, year),
-      costume_taxonomy(term_id),
-      theater:theaters!theater_id(id, name, slug)
-    `,
-      { count: "exact" }
-    )
-    .is("parent_costume_id", null) // exclude ensemble children
-    .order("created_at", { ascending: false })
-    .range(0, PAGE_SIZE - 1);
+  // Network theaters (show_in_network = true)
+  const { data: networkData } = await supabase
+    .from("theaters")
+    .select("id")
+    .eq("settings->>show_in_network", "true");
 
-  // Apply filters
-  if (params.gender) {
-    query = query.eq("gender_term_id", params.gender);
-  }
-  if (params.clothing_type) {
-    query = query.eq("clothing_type_id", params.clothing_type);
-  }
-  if (params.theater) {
-    query = query.eq("theater_id", params.theater);
-  }
-  if (params.q) {
-    query = query.textSearch("fts_doc", params.q, { type: "websearch" });
-  }
+  const networkTheaterIds = (networkData ?? []).map((t) => t.id);
 
-  const { data: costumes, count, error } = await query;
+  // Fetch costumes based on scope
+  const queryIds = isNetwork ? networkTheaterIds : [theaterId];
 
-  if (error) {
-    console.error("[Ergebnisse] Query failed:", error);
-  }
-
-  // For epoche/sparte filters, we need to post-filter via costume_taxonomy
-  // since these are many-to-many relations
-  let filteredCostumes = (costumes ?? []) as unknown as CostumeResult[];
-  if (params.epoche || params.sparte) {
-    const requiredTermIds = [params.epoche, params.sparte].filter(Boolean) as string[];
-    filteredCostumes = filteredCostumes.filter((c) => {
-      const costumeTermIds = ((c.costume_taxonomy as { term_id: string }[]) ?? []).map(
-        (ct) => ct.term_id
-      );
-      return requiredTermIds.every((id) => costumeTermIds.includes(id));
-    });
-  }
-
-  // Build page title from active filters
-  const filterLabels = filterTerms.map((t) => t.label_de);
-  if (theaterName) filterLabels.push(theaterName);
-  const pageTitle =
-    filterLabels.length > 0 ? filterLabels.join(" · ") : "Alle Kostüme";
-
-  // Build active filters for chips
-  const activeFilters: { id: string; label: string; paramKey: string }[] = [];
-  for (const term of filterTerms) {
-    const paramKey =
-      term.vocabulary === "gender"
-        ? "gender"
-        : term.vocabulary === "clothing_type"
-          ? "clothing_type"
-          : term.vocabulary === "epoche"
-            ? "epoche"
-            : "sparte";
-    activeFilters.push({ id: term.id, label: term.label_de, paramKey });
-  }
-  if (theaterName && params.theater) {
-    activeFilters.push({
-      id: params.theater,
-      label: theaterName,
-      paramKey: "theater",
-    });
-  }
-  if (params.q) {
-    activeFilters.push({
-      id: "q",
-      label: `"${params.q}"`,
-      paramKey: "q",
-    });
-  }
+  const { data: costumes } = queryIds.length > 0
+    ? await supabase
+        .from("costumes")
+        .select(`
+          id, name, description, gender_term_id, clothing_type_id, created_at, theater_id,
+          gender_term:taxonomy_terms!gender_term_id(id, vocabulary, label_de, parent_id, sort_order),
+          clothing_type:taxonomy_terms!clothing_type_id(id, vocabulary, label_de, parent_id, sort_order),
+          costume_media(id, costume_id, storage_path, sort_order, created_at),
+          costume_provenance(id, costume_id, production_title, year, role_name),
+          costume_items(id, costume_id, theater_id, barcode_id, size_label, condition_grade, current_status)
+        `)
+        .in("theater_id", queryIds)
+        .order("created_at", { ascending: false })
+    : { data: [] };
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--page-bg)" }}>
-      <SiteHeader />
-      <main className="mx-auto max-w-5xl px-4 py-6">
-        <ResultsClient
-          initialCostumes={filteredCostumes}
-          totalCount={count ?? filteredCostumes.length}
-          pageTitle={pageTitle}
-          activeFilters={activeFilters}
-          searchParams={params}
-          pageSize={PAGE_SIZE}
+    <AppShell>
+      <main className="mx-auto max-w-5xl px-4 py-8">
+        <ScopeToggle scope={isNetwork ? "network" : "own"} />
+        <FundusClient
+          initialCostumes={(costumes ?? []) as unknown as Costume[]}
+          theaterId={theaterId}
+          theaterIds={isNetwork ? networkTheaterIds : undefined}
+          showAddButton={false}
         />
       </main>
-      <SiteFooter />
-    </div>
+    </AppShell>
   );
 }

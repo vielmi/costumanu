@@ -8,13 +8,14 @@
 
 ## Modul-Übersicht
 
-| # | Modul | Route (vorgeschlagen) | Status |
+| # | Modul | Route | Status |
 |---|---|---|---|
-| 1 | Cockpit | `/cockpit` | ✅ Dokumentiert |
-| 2 | Kostümübersicht | `/kostueme` | ⏳ |
-| 3 | Kostüm erfassen | `/kostueme/neu` | ⏳ |
-| 4 | Anfrage & Ausleihe | `/anfragen` | ⏳ |
-| 5 | Kostüm Detail | `/kostueme/[id]` | ✅ Dokumentiert |
+| 1 | Cockpit | `/` (Home) | ✅ Dokumentiert |
+| 2 | Kostümübersicht | `/fundus` | ✅ Implementiert |
+| 3 | Kostüm erfassen | `/kostueme/neu` | ✅ Implementiert |
+| 4 | Ausleihe | `/rental` | ✅ Implementiert |
+| 5 | Kostüm Detail | `/costume/[id]` | ✅ Dokumentiert |
+| 6 | Nachrichten | `/messages` | ✅ Implementiert |
 
 > **Geteilte Komponenten** (in Sektion am Ende dieses Dokuments, gehören zusätzlich in design-system.md):
 > Mobile Navigation (Drawer + Multi-Level), Footer, Search-Filter Overlay, Search Input + Dropdown
@@ -44,24 +45,27 @@ Startseite nach dem Login. Zeigt 3 Navigations-Kacheln, Liste zuletzt bearbeitet
 
 | Eigenschaft | Wert |
 |---|---|
-| Grösse Desktop | 269x180px |
+| Grösse Desktop | `flex: 1` (fluid, gleichmässig breit im Row) |
+| Höhe | 180px |
 | Border-radius | `--radius-md` (12px) |
 | Overlay hell | `rgba(0, 0, 0, 0.3)` |
 | Overlay dunkel | `rgba(0, 0, 0, 0.5)` (mittlere Kachel) |
 | Titel | Body-1-medium, 20px, `#FFFFFF` |
 | Icon | `icon-arrow-right`, 26x26px, weiss |
 
+> ⚠️ Figma zeigt 269px fix — Implementierung nutzt `flex: 1` damit alle drei Kacheln gleichmässig den verfügbaren Platz füllen.
+
 **Drei Kacheln:**
 
 | Kachel | Titel | Route |
 |---|---|---|
-| 1 | Kostüm Übersicht | `/kostueme` |
+| 1 | Kostüm Übersicht | `/fundus` |
 | 2 | Aktuelle- & vergangene Aufführungen | `/auffuehrungen` |
 | 3 | Darsteller & Masse | `/darsteller` |
 
 ```css
 .image-card {
-  width: 269px;
+  flex: 1;   /* fluid — passt sich an Content-Breite an */
   height: 180px;
   border-radius: var(--radius-md);
   position: relative;
@@ -136,7 +140,7 @@ Startseite nach dem Login. Zeigt 3 Navigations-Kacheln, Liste zuletzt bearbeitet
   flex-shrink: 0;
 }
 .costume-list-item__id {
-  font-size: 10px;
+  font-size: var(--font-size-50); /* 10px — Token undokumentiert in design-system.md, existiert aber in globals.css */
   font-weight: 400;
   color: var(--neutral-grey-500);
 }
@@ -1581,10 +1585,18 @@ interface AnfrageForm {
 
 ## 13. Modul Ausleihen
 
-**Route:** `/ausleihen`
+**Route:** `/rental`
 
 ### Übersicht
-3-stufiger Ausleih-Flow: (1) Ausleih-Quelle wählen → (2) Kostüme aus Merkliste wählen → (3) Ausleihliste + Bestätigung.
+3-stufiger Ausleih-Flow: (1) Personalien → (2) Kostümauswahl → (3) Zusammenfassung + Bestätigung.
+
+**Step-Keys (Implementierung):**
+
+| Step | Key | Label |
+|---|---|---|
+| 1 | `personalien` | Kontaktdaten des Ausleihnehmers |
+| 2 | `auswahl` | Kostüme auswählen (aus Merkliste/Scan/manuell) |
+| 3 | `zusammenfassung` | Ausleihliste + Bestätigung |
 
 ### Schritt 1: Ausleih-Quelle wählen
 
@@ -1698,7 +1710,7 @@ interface Ausleihe {
 
 ## 14. Modul Nachrichten
 
-**Route:** `/nachrichten`
+**Route:** `/messages`
 
 ### Übersicht
 Nachrichten-Inbox mit Chat-Liste, Suchfeld oben, Absender-Avatare mit Badge.
@@ -1725,7 +1737,7 @@ Nachrichten          (Abschnittstitel, Body-2-medium, 18px)
 
 | Eigenschaft | Wert |
 |---|---|
-| Avatar | 45x45px, `border-radius: 4px` (Institutions-Avatar) oder rund (Personen) |
+| Avatar | 45x45px, `border-radius: 50%` — Implementierung nutzt einheitlich rund für alle Thread-Typen |
 | Badge (ungelesen) | 21x21px Kreis, `#000000` BG, weisse Zahl Label-1-medium 12px, oben rechts am Avatar |
 | Absender | Subtitle-1-medium, 16px, `#000000` |
 | Preview | Subtitle-2-regular, 14px, `neutral-grey-500` |

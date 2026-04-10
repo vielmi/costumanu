@@ -12,7 +12,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -45,10 +44,7 @@ export default function LoginPage() {
     setLoading(true);
 
     const supabase = createClient();
-
-    const { error: authError } = isSignUp
-      ? await supabase.auth.signUp({ email, password })
-      : await supabase.auth.signInWithPassword({ email, password });
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
     if (authError) {
       setError(authError.message);
@@ -72,7 +68,7 @@ export default function LoginPage() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-center text-xl">
-              {isSignUp ? t("auth.signUp") : t("auth.signIn")}
+              {t("auth.signIn")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -117,36 +113,16 @@ export default function LoginPage() {
               )}
 
               <Button type="submit" disabled={loading}>
-                {loading
-                  ? t("common.loading")
-                  : isSignUp
-                    ? t("auth.signUp")
-                    : t("auth.signIn")}
+                {loading ? t("common.loading") : t("auth.signIn")}
               </Button>
-
-              {!isSignUp && (
-                <button
-                  type="button"
-                  onClick={handleResetPassword}
-                  disabled={loading}
-                  className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-                >
-                  {t("auth.forgotPassword")}
-                </button>
-              )}
 
               <button
                 type="button"
-                onClick={() => {
-                  setIsSignUp(!isSignUp);
-                  setError(null);
-                  setResetSent(false);
-                }}
+                onClick={handleResetPassword}
+                disabled={loading}
                 className="text-sm text-muted-foreground underline-offset-4 hover:underline"
               >
-                {isSignUp
-                  ? t("auth.alreadyRegistered")
-                  : t("auth.noAccount")}
+                {t("auth.forgotPassword")}
               </button>
             </form>
           </CardContent>
@@ -156,5 +132,4 @@ export default function LoginPage() {
       <SiteFooter />
     </div>
   );
-
 }

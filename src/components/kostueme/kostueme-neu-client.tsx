@@ -637,8 +637,8 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
         {/* Camera filled circle — 50×50 dark */}
         <button
           type="button"
-          onClick={() => imageInputRef.current?.click()}
-          title="Bilder hinzufügen"
+          onClick={() => setShowCamera(true)}
+          title="Foto aufnehmen"
           style={{
             width: 50, height: 50,
             borderRadius: "50%",
@@ -1185,15 +1185,11 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                             <div style={{
                               width: 30, height: 30, borderRadius: 8, flexShrink: 0,
                               border: "2px solid var(--secondary-700)",
-                              padding: 3,
                               background: "transparent",
-                              boxSizing: "border-box",
+                              display: "flex", alignItems: "center", justifyContent: "center",
                             }}>
                               {isActive && (
-                                <div style={{
-                                  width: 20, height: 20, borderRadius: 6,
-                                  background: "var(--secondary-700)",
-                                }} />
+                                <div style={{ width: 16, height: 16, borderRadius: 4, background: "var(--secondary-700)" }} />
                               )}
                             </div>
                             <span style={{
@@ -1256,10 +1252,11 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                           <div style={{
                             width: 30, height: 30, borderRadius: 8, flexShrink: 0,
                             border: "2px solid var(--secondary-700)",
-                            background: "transparent", position: "relative",
+                            background: "transparent",
+                            display: "flex", alignItems: "center", justifyContent: "center",
                           }}>
                             {isActive && (
-                              <div style={{ position: "absolute", top: 5, left: 5, width: 20, height: 20, borderRadius: 6, background: "var(--secondary-700)" }} />
+                              <div style={{ width: 16, height: 16, borderRadius: 4, background: "var(--secondary-700)" }} />
                             )}
                           </div>
                           <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-400)", color: "var(--secondary-800)" }}>
@@ -1294,10 +1291,11 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                           <div style={{
                             width: 30, height: 30, borderRadius: 8, flexShrink: 0,
                             border: "2px solid var(--secondary-700)",
-                            background: "transparent", position: "relative",
+                            background: "transparent",
+                            display: "flex", alignItems: "center", justifyContent: "center",
                           }}>
                             {isActive && (
-                              <div style={{ position: "absolute", top: 5, left: 5, width: 20, height: 20, borderRadius: 6, background: "var(--secondary-700)" }} />
+                              <div style={{ width: 16, height: 16, borderRadius: 4, background: "var(--secondary-700)" }} />
                             )}
                           </div>
                           <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-400)", color: "var(--secondary-800)" }}>

@@ -24,6 +24,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
         .select("id", { count: "exact", head: true })
         .eq("lender_theater_id", theaterId)
         .eq("status", "requested")
+        .neq("borrower_user_id", user.id)
     : { count: 0 };
 
   const { data: participations } = await supabase
