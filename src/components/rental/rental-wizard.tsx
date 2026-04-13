@@ -463,6 +463,7 @@ const COSTUME_SOURCES: {
 ];
 
 function Step2Auswahl({
+  cartItems: _cartItems,
   selectedCostumes,
   costumeSource,
   setCostumeSource,
@@ -470,6 +471,7 @@ function Step2Auswahl({
   onNext,
   onPrevious,
 }: {
+  cartItems: CartItem[];
   selectedCostumes: CartItem[];
   costumeSource: CostumeSource;
   setCostumeSource: (v: CostumeSource) => void;

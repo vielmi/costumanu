@@ -42,7 +42,8 @@ export default async function Home() {
         .limit(5)
     : { data: [] };
 
-  const recentCostumes = (rawCostumes ?? []).map((c: Record<string, unknown>) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recentCostumes = (rawCostumes ?? []).map((c: any) => ({
     id: c.id,
     name: c.name,
     created_at: c.created_at,
