@@ -14,14 +14,14 @@ import type { Costume, TaxonomyTerm } from "@/lib/types/costume";
 type CostumeDetailClientProps = {
   costume: Costume;
   taxonomyByVocabulary: Record<string, TaxonomyTerm[]>;
-  children: Costume[];
+  ensembleChildren: Costume[];
   similarCostumes: Costume[];
 };
 
 export function CostumeDetailClient({
   costume,
   taxonomyByVocabulary,
-  children,
+  ensembleChildren,
   similarCostumes,
 }: CostumeDetailClientProps) {
   const firstItem = costume.costume_items?.[0];
@@ -177,11 +177,11 @@ export function CostumeDetailClient({
       )}
 
       {/* Kostümteile (Ensemble children) */}
-      {children.length > 0 && (
+      {ensembleChildren.length > 0 && (
         <section className="px-4">
           <h2 className="mb-3 text-lg font-bold">{t("costume.costumeParts")}</h2>
           <div className="flex flex-col gap-2">
-            {children.map((child) => (
+            {ensembleChildren.map((child) => (
               <Link
                 key={child.id}
                 href={`/costume/${child.id}`}

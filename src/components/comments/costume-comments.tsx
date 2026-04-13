@@ -174,7 +174,7 @@ export function CostumeComments({ costumeId, theaterId, currentUserId, currentUs
 
     if (!data) return;
 
-    const flat: Comment[] = data.map((c: any) => ({
+    const flat: Comment[] = data.map((c: Record<string, unknown> & { profiles?: { display_name?: string } }) => ({
       id: c.id,
       body: c.body,
       created_at: c.created_at,
@@ -207,7 +207,7 @@ export function CostumeComments({ costumeId, theaterId, currentUserId, currentUs
       .eq("theater_id", theaterId);
 
     if (data) {
-      setMembers(data.map((m: any) => ({
+      setMembers(data.map((m: { user_id: string; profiles?: { display_name?: string } | { display_name?: string }[] }) => ({
         user_id: m.user_id,
         display_name: m.profiles?.display_name ?? "Unbekannt",
       })));
