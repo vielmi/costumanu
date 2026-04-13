@@ -1,0 +1,21 @@
+-- ============================================================
+-- MIGRATION: Fix — Rekursive Platform-Admin Policy droppen
+-- ============================================================
+-- Problem: "Platform admins can view all theater_members" macht
+-- ein direktes EXISTS auf profiles:
+--
+--   EXISTS (SELECT 1 FROM profiles
+--           WHERE id = auth.uid() AND platform_role = 'platform_admin')
+--
+-- Die profiles-Tabelle hat eine "Members can view co-member profiles"
+-- Policy, die theater_members liest → Zirkuläre Abhängigkeit:
+--
+--   theater_members → profiles → theater_members → ∞
+--
+-- Fix: Policy droppen.
+-- "Platform admin can view all members" (USING is_platform_admin())
+-- macht dieselbe Prüfung via SECURITY DEFINER-Funktion, die
+-- die profiles-RLS umgeht → kein Rekursionsrisiko.
+-- ============================================================
+
+DROP POLICY IF EXISTS "Platform admins can view all theater_members" ON theater_members;

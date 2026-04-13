@@ -1,0 +1,21 @@
+-- ============================================================
+-- MIGRATION: Fix — "Members can view co-members" Policy droppen
+-- ============================================================
+-- Problem: Jede Implementierung dieser Policy liest theater_members
+-- innerhalb einer theater_members-Policy → 42P17 infinite recursion.
+--
+-- Varianten die nicht funktionieren:
+--   - SECURITY DEFINER + SET LOCAL row_security = off
+--     → Supabase Cloud erlaubt diesen Parameter nicht
+--   - SECURITY DEFINER ohne SET LOCAL
+--     → rekursiert trotzdem (postgres ist kein echter Superuser
+--       in Supabase Cloud, RLS wird trotzdem angewandt)
+--
+-- Lösung: Policy droppen.
+-- "Users can view their own membership" (user_id = auth.uid())
+-- reicht für alle aktuellen Features (Fundus, Kostüme Neu, etc.).
+-- Co-Member-Sichtbarkeit kann später über eine dedizierte
+-- RPC-Funktion mit Service Role implementiert werden.
+-- ============================================================
+
+DROP POLICY IF EXISTS "Members can view co-members" ON theater_members;
