@@ -68,7 +68,6 @@ type Fixtures = {
   asLeo:    Page  // Stadttheater Bern   — viewer
 }
 
-// eslint-disable-next-line react-hooks/rules-of-hooks
 export const test = base.extend<Fixtures>({
   // eslint-disable-next-line react-hooks/rules-of-hooks
   asAdmin:  async ({ page }, use) => { await loginAs(page, USERS.platformAdmin); await use(page) },

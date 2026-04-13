@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 interface Comment {

@@ -470,7 +470,6 @@ function Step2Auswahl({
   onNext,
   onPrevious,
 }: {
-  cartItems?: CartItem[];
   selectedCostumes: CartItem[];
   costumeSource: CostumeSource;
   setCostumeSource: (v: CostumeSource) => void;
