@@ -39,7 +39,7 @@ export default async function CostumeDetailPage({
   }
 
   // Fetch ensemble children if this is an ensemble
-  let children: Costume[] = [];
+  let ensembleChildren: Costume[] = [];
   if (costume.is_ensemble) {
     const { data } = await supabase
       .from("costumes")
@@ -52,7 +52,7 @@ export default async function CostumeDetailPage({
       )
       .eq("parent_costume_id", id)
       .order("created_at");
-    children = (data ?? []) as unknown as Costume[];
+    ensembleChildren = (data ?? []) as unknown as Costume[];
   }
 
   // Fetch similar costumes (same clothing type, different costume)

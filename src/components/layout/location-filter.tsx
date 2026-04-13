@@ -57,11 +57,12 @@ export function LocationFilter({
     staleTime: 5 * 60 * 1000,
   });
 
-  // Sync external prop changes
+  // Sync external prop changes — setState in effect is intentional here
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setSelected(new Set(selectedTheaterIds));
     setAllLocations(selectedTheaterIds.length === 0);
-  }, [selectedTheaterIds]);
+  }, [selectedTheaterIds]); // eslint-disable-line react-hooks/rules-of-hooks
 
   function toggleTheater(theaterId: string) {
     setSelected((prev) => {

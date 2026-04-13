@@ -159,11 +159,6 @@ export function CostumeComments({ costumeId, theaterId, currentUserId, currentUs
   const [mentionResults, setMentionResults] = useState<Member[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    loadComments();
-    loadMembers();
-  }, [costumeId]);
-
   async function loadComments() {
     const supabase = createClient();
     const { data } = await supabase
@@ -213,6 +208,12 @@ export function CostumeComments({ costumeId, theaterId, currentUserId, currentUs
       })));
     }
   }
+
+  useEffect(() => {
+    loadComments();
+    loadMembers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [costumeId]);
 
   function handleBodyChange(val: string) {
     setBody(val);
