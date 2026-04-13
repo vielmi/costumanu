@@ -8,17 +8,17 @@ const KOSTÜM_NAME = `E2E Test Kostüm ${Date.now()}`
 
 test.describe('Kostüm erfassen', () => {
   test.skip(
-    !process.env.TEST_ADMIN_EMAIL || !process.env.TEST_ADMIN_PASSWORD,
-    'TEST_ADMIN_EMAIL / TEST_ADMIN_PASSWORD nicht gesetzt'
+    !process.env.TEST_OWNER_A_EMAIL || !process.env.TEST_OWNER_A_PASSWORD,
+    'TEST_OWNER_A_EMAIL / TEST_OWNER_A_PASSWORD nicht gesetzt'
   )
 
-  test('Formular "Neues Kostüm" ist erreichbar', async ({ asAdmin: page }) => {
+  test('Formular "Neues Kostüm" ist erreichbar', async ({ asFinja: page }) => {
     await page.goto('/kostueme/neu')
     await expect(page).not.toHaveURL(/login/)
     await expect(page.getByRole('heading', { name: /kostüm|erfassen|neu/i })).toBeVisible()
   })
 
-  test('Alle drei Kostüm-Typen sind über URL-Parameter erreichbar', async ({ asAdmin: page }) => {
+  test('Alle drei Kostüm-Typen sind über URL-Parameter erreichbar', async ({ asFinja: page }) => {
     for (const type of ['single', 'ensemble', 'serie']) {
       await page.goto(`/kostueme/neu?type=${type}`)
       await expect(page).not.toHaveURL(/login/)
@@ -26,13 +26,13 @@ test.describe('Kostüm erfassen', () => {
     }
   })
 
-  test('Formular zeigt Pflichtfeld-Fehler bei leerem Namen', async ({ asAdmin: page }) => {
+  test('Formular zeigt Pflichtfeld-Fehler bei leerem Namen', async ({ asFinja: page }) => {
     await page.goto('/kostueme/neu')
     await page.getByRole('button', { name: /speichern|erfassen|erstellen/i }).click()
     await expect(page.getByText(/pflichtfeld|erforderlich|required/i)).toBeVisible({ timeout: 3000 })
   })
 
-  test('Neues Kostüm kann erfasst werden', async ({ asAdmin: page }) => {
+  test('Neues Kostüm kann erfasst werden', async ({ asFinja: page }) => {
     await page.goto('/kostueme/neu')
     await page.getByLabel(/name/i).fill(KOSTÜM_NAME)
     await page.getByRole('button', { name: /speichern|erfassen|erstellen/i }).click()
@@ -42,7 +42,7 @@ test.describe('Kostüm erfassen', () => {
     ).toBeVisible({ timeout: 8000 })
   })
 
-  test('Erfasstes Kostüm erscheint im Fundus', async ({ asAdmin: page }) => {
+  test('Erfasstes Kostüm erscheint im Fundus', async ({ asFinja: page }) => {
     // Kostüm erfassen
     await page.goto('/kostueme/neu')
     const name = `Fundus-Test ${Date.now()}`

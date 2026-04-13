@@ -23,7 +23,7 @@ test.describe('Konfiguration — Zugriff', () => {
     await page.goto('/einstellungen/konfiguration')
     // Platform Admin sieht Theater-Übersicht, Theater-Admin sieht Mitglieder
     await expect(
-      page.getByText(/theater|mitglied|benutzer|konfiguration/i)
+      page.getByRole('heading', { name: /konfiguration/i })
     ).toBeVisible({ timeout: 5000 })
   })
 })
