@@ -35,14 +35,14 @@ const EPOCHE_TILES = [
 
 const SPARTE_TILES = [
   { label: "Tanz",       image: "/images/suchmodus-tanz.jpg",       href: "/results?sparte=tanz"       },
-  { label: "Schauspiel", image: "/images/suchmodus-schauspiel.jpg", href: "/results?sparte=schauspiel" },
+  { label: "Schauspiel", image: "/images/suchmodus-feuerwehr.jpg", href: "/results?sparte=schauspiel" },
   { label: "Oper",       image: "/images/suchmodus-oper.jpg",       href: "/results?sparte=oper"       },
 ];
 
 const BEKLEIDUNGSART2_TILES = [
   { label: "Polizei",   image: "/images/suchmodus-polizei.jpg",   href: "/results?type=polizei"   },
   { label: "Reinigung", image: "/images/suchmodus-reinigung.jpg", href: "/results?type=reinigung" },
-  { label: "Feuerwehr", image: "/images/suchmodus-feuerwehr.jpg", href: "/results?type=feuerwehr" },
+  { label: "Feuerwehr", image: "/images/suchmodus-schauspiel.jpg", href: "/results?type=feuerwehr" },
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────

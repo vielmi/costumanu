@@ -16,7 +16,7 @@ export default async function KostuemeNeuPage({
 
   const [{ data: membership }, { data: profile }] = await Promise.all([
     supabase.from("theater_members").select("theater_id, theaters(name)").eq("user_id", user.id).limit(1).single(),
-    supabase.from("profiles").select("display_name").eq("user_id", user.id).single(),
+    supabase.from("profiles").select("display_name").eq("id", user.id).single(),
   ]);
 
   if (!membership) redirect("/");

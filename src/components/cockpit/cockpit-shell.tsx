@@ -347,10 +347,9 @@ export function CockpitShell({
                   { label: "Mehrteiler erfassen",   href: "/kostueme/neu?type=ensemble", icon: "icon-shirt-1"      },
                   { label: "Kostüm Serie erfassen", href: "/kostueme/neu?type=serie",    icon: "icon-serie"        },
                 ].map((item, i) => (
-                  <Link
+                  <button
                     key={item.href}
-                    href={item.href}
-                    onClick={() => setDropdownOpen(false)}
+                    onClick={() => { setDropdownOpen(false); router.push(item.href); }}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -363,11 +362,16 @@ export function CockpitShell({
                       fontSize: "var(--font-size-200)",
                       fontWeight: "var(--font-weight-500)",
                       color: "var(--neutral-grey-700)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      width: "100%",
+                      textAlign: "left",
                     }}
                   >
                     <Image src={`/icons/${item.icon}.svg`} alt="" width={18} height={18} />
                     {item.label}
-                  </Link>
+                  </button>
                 ))}
               </div>
             )}
