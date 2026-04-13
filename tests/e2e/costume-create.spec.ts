@@ -1,41 +1,57 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixtures'
 
 // ============================================================
 // E2E TEST: Kostüm erfassen
 // ============================================================
-// Voraussetzung: TEST_USER_EMAIL und TEST_USER_PASSWORD in .env.test
 
-const EMAIL = process.env.TEST_USER_EMAIL || ''
-const PASSWORD = process.env.TEST_USER_PASSWORD || ''
+const KOSTÜM_NAME = `E2E Test Kostüm ${Date.now()}`
 
 test.describe('Kostüm erfassen', () => {
-  test.beforeEach(async ({ page }) => {
-    // Login
-    await page.goto('/login')
-    await page.getByLabel(/e-mail/i).fill(EMAIL)
-    await page.getByLabel(/passwort/i).fill(PASSWORD)
-    await page.getByRole('button', { name: /anmelden|login/i }).click()
-    await page.waitForURL(/cockpit|fundus/)
-  })
+  test.skip(
+    !process.env.TEST_USER_EMAIL || !process.env.TEST_USER_PASSWORD,
+    'TEST_USER_EMAIL / TEST_USER_PASSWORD nicht gesetzt'
+  )
 
-  test('Formular "Neues Kostüm" ist erreichbar', async ({ page }) => {
+  test('Formular "Neues Kostüm" ist erreichbar', async ({ loggedInPage: page }) => {
     await page.goto('/kostueme/neu')
+    await expect(page).not.toHaveURL(/login/)
     await expect(page.getByRole('heading', { name: /kostüm|erfassen|neu/i })).toBeVisible()
   })
 
-  test('Formular zeigt Pflichtfeld-Fehler bei leerem Namen', async ({ page }) => {
-    await page.goto('/kostueme/neu')
-    await page.getByRole('button', { name: /speichern|erfassen|erstellen/i }).click()
-    await expect(page.getByText(/pflichtfeld|erforderlich|required/i)).toBeVisible()
+  test('Alle drei Kostüm-Typen sind über URL-Parameter erreichbar', async ({ loggedInPage: page }) => {
+    for (const type of ['single', 'ensemble', 'serie']) {
+      await page.goto(`/kostueme/neu?type=${type}`)
+      await expect(page).not.toHaveURL(/login/)
+      await expect(page.getByRole('heading', { name: /kostüm|erfassen|neu/i })).toBeVisible()
+    }
   })
 
-  test('Neues Kostüm kann erfasst werden', async ({ page }) => {
+  test('Formular zeigt Pflichtfeld-Fehler bei leerem Namen', async ({ loggedInPage: page }) => {
     await page.goto('/kostueme/neu')
-    await page.getByLabel(/name/i).fill('E2E Test Kostüm')
     await page.getByRole('button', { name: /speichern|erfassen|erstellen/i }).click()
-    // Erfolg: Weiterleitung auf Detailseite oder Erfolgsmeldung
+    await expect(page.getByText(/pflichtfeld|erforderlich|required/i)).toBeVisible({ timeout: 3000 })
+  })
+
+  test('Neues Kostüm kann erfasst werden', async ({ loggedInPage: page }) => {
+    await page.goto('/kostueme/neu')
+    await page.getByLabel(/name/i).fill(KOSTÜM_NAME)
+    await page.getByRole('button', { name: /speichern|erfassen|erstellen/i }).click()
     await expect(
-      page.getByText(/gespeichert|erfolgreich|E2E Test Kostüm/i)
-    ).toBeVisible({ timeout: 5000 })
+      page.getByText(/gespeichert|erfolgreich/i)
+        .or(page.getByText(KOSTÜM_NAME))
+    ).toBeVisible({ timeout: 8000 })
+  })
+
+  test('Erfasstes Kostüm erscheint im Fundus', async ({ loggedInPage: page }) => {
+    // Kostüm erfassen
+    await page.goto('/kostueme/neu')
+    const name = `Fundus-Test ${Date.now()}`
+    await page.getByLabel(/name/i).fill(name)
+    await page.getByRole('button', { name: /speichern|erfassen|erstellen/i }).click()
+    await page.waitForURL(/fundus|kostueme/, { timeout: 8000 })
+
+    // Im Fundus suchen
+    await page.goto('/fundus')
+    await expect(page.getByText(name)).toBeVisible({ timeout: 5000 })
   })
 })
