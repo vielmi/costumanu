@@ -223,7 +223,6 @@ export function RentalWizard({
       {/* Step 2: Auswahl */}
       {currentStep === 1 && (
         <Step2Auswahl
-          cartItems={cartItems}
           selectedCostumes={selectedCostumes}
           costumeSource={costumeSource}
           setCostumeSource={setCostumeSource}
@@ -463,7 +462,6 @@ const COSTUME_SOURCES: {
 ];
 
 function Step2Auswahl({
-  cartItems: _cartItems,
   selectedCostumes,
   costumeSource,
   setCostumeSource,
@@ -471,7 +469,6 @@ function Step2Auswahl({
   onNext,
   onPrevious,
 }: {
-  cartItems: CartItem[];
   selectedCostumes: CartItem[];
   costumeSource: CostumeSource;
   setCostumeSource: (v: CostumeSource) => void;

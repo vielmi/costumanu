@@ -75,8 +75,26 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # Platform Admin
+          TEST_ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
+          TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
+          # Rückwärtskompatibel
           TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          # Stadttheater Zürich
+          TEST_OWNER_A_EMAIL: ${{ secrets.TEST_OWNER_A_EMAIL }}
+          TEST_OWNER_A_PASSWORD: ${{ secrets.TEST_OWNER_A_PASSWORD }}
+          TEST_MEMBER_A_EMAIL: ${{ secrets.TEST_MEMBER_A_EMAIL }}
+          TEST_MEMBER_A_PASSWORD: ${{ secrets.TEST_MEMBER_A_PASSWORD }}
+          TEST_VIEWER_A_EMAIL: ${{ secrets.TEST_VIEWER_A_EMAIL }}
+          TEST_VIEWER_A_PASSWORD: ${{ secrets.TEST_VIEWER_A_PASSWORD }}
+          # Stadttheater Bern
+          TEST_OWNER_B_EMAIL: ${{ secrets.TEST_OWNER_B_EMAIL }}
+          TEST_OWNER_B_PASSWORD: ${{ secrets.TEST_OWNER_B_PASSWORD }}
+          TEST_MEMBER_B_EMAIL: ${{ secrets.TEST_MEMBER_B_EMAIL }}
+          TEST_MEMBER_B_PASSWORD: ${{ secrets.TEST_MEMBER_B_PASSWORD }}
+          TEST_VIEWER_B_EMAIL: ${{ secrets.TEST_VIEWER_B_EMAIL }}
+          TEST_VIEWER_B_PASSWORD: ${{ secrets.TEST_VIEWER_B_PASSWORD }}
           PLAYWRIGHT_BASE_URL: http://localhost:3000
 
       - name: Playwright Report hochladen (bei Fehler)
