@@ -42,7 +42,7 @@ export default async function Home() {
         .limit(5)
     : { data: [] };
 
-  const recentCostumes = (rawCostumes ?? []).map((c: any) => ({
+  const recentCostumes = (rawCostumes ?? []).map((c: Record<string, unknown>) => ({
     id: c.id,
     name: c.name,
     created_at: c.created_at,

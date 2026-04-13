@@ -91,7 +91,6 @@ export default async function CostumeDetailPage({
         <CostumeDetailClient
           costume={costume as unknown as Costume}
           taxonomyByVocabulary={taxonomyByVocabulary}
-          children={children}
           similarCostumes={similarCostumes}
         />
       </main>

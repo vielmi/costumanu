@@ -68,13 +68,21 @@ type Fixtures = {
   asLeo:    Page  // Stadttheater Bern   — viewer
 }
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 export const test = base.extend<Fixtures>({
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   asAdmin:  async ({ page }, use) => { await loginAs(page, USERS.platformAdmin); await use(page) },
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   asFinja:  async ({ page }, use) => { await loginAs(page, USERS.finja);         await use(page) },
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   asAlma:   async ({ page }, use) => { await loginAs(page, USERS.alma);          await use(page) },
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   asViktor: async ({ page }, use) => { await loginAs(page, USERS.viktor);        await use(page) },
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   asKlara:  async ({ page }, use) => { await loginAs(page, USERS.klara);         await use(page) },
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   asSina:   async ({ page }, use) => { await loginAs(page, USERS.sina);          await use(page) },
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   asLeo:    async ({ page }, use) => { await loginAs(page, USERS.leo);           await use(page) },
 })
 
