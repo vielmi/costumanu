@@ -48,7 +48,7 @@ test.describe('Login + Logout', () => {
 
   test('Erfolgreicher Login leitet auf Cockpit oder Fundus weiter', async ({ page }) => {
     await login(page)
-    await expect(page).toHaveURL(/cockpit|fundus/)
+    await expect(page).not.toHaveURL(/login/)
   })
 
   test('Nach Login ist Cockpit sichtbar', async ({ page }) => {

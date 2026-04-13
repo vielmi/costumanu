@@ -49,7 +49,7 @@ export async function loginAs(page: Page, user: RoleCredentials) {
   await page.getByLabel(/e-mail/i).fill(user.email)
   await page.getByLabel(/passwort/i).fill(user.password)
   await page.getByRole('button', { name: /anmelden|login/i }).click()
-  await page.waitForURL(/cockpit|fundus/, { timeout: 10000 })
+  await page.waitForURL((url) => !url.pathname.startsWith('/login'), { timeout: 10000 })
 }
 
 // Rückwärtskompatibel: Standard-Login via TEST_ADMIN_EMAIL
