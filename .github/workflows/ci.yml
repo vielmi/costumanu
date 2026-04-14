@@ -69,6 +69,24 @@ jobs:
       - name: Playwright Browser installieren
         run: npx playwright install --with-deps chromium webkit
 
+      - name: Credentials prüfen (debug)
+        env:
+          TEST_ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
+          TEST_OWNER_A_EMAIL: ${{ secrets.TEST_OWNER_A_EMAIL }}
+          TEST_MEMBER_A_EMAIL: ${{ secrets.TEST_MEMBER_A_EMAIL }}
+          TEST_VIEWER_A_EMAIL: ${{ secrets.TEST_VIEWER_A_EMAIL }}
+          TEST_OWNER_B_EMAIL: ${{ secrets.TEST_OWNER_B_EMAIL }}
+          TEST_MEMBER_B_EMAIL: ${{ secrets.TEST_MEMBER_B_EMAIL }}
+          TEST_VIEWER_B_EMAIL: ${{ secrets.TEST_VIEWER_B_EMAIL }}
+        run: |
+          echo "TEST_ADMIN_EMAIL set:    $([ -n "$TEST_ADMIN_EMAIL" ]    && echo YES || echo NO)"
+          echo "TEST_OWNER_A_EMAIL set:  $([ -n "$TEST_OWNER_A_EMAIL" ]  && echo YES || echo NO)"
+          echo "TEST_MEMBER_A_EMAIL set: $([ -n "$TEST_MEMBER_A_EMAIL" ] && echo YES || echo NO)"
+          echo "TEST_VIEWER_A_EMAIL set: $([ -n "$TEST_VIEWER_A_EMAIL" ] && echo YES || echo NO)"
+          echo "TEST_OWNER_B_EMAIL set:  $([ -n "$TEST_OWNER_B_EMAIL" ]  && echo YES || echo NO)"
+          echo "TEST_MEMBER_B_EMAIL set: $([ -n "$TEST_MEMBER_B_EMAIL" ] && echo YES || echo NO)"
+          echo "TEST_VIEWER_B_EMAIL set: $([ -n "$TEST_VIEWER_B_EMAIL" ] && echo YES || echo NO)"
+
       - name: E2E Tests ausführen
         run: npm run test:e2e
         env:
