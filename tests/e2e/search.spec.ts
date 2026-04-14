@@ -44,16 +44,19 @@ test.describe('Suchmodus — Navigation', () => {
   test('Kategorie-Kacheln sind sichtbar', async ({ page }) => {
     await page.goto('/suchmodus')
     await page.waitForLoadState('networkidle')
-    const tiles = page.locator('a[href*="results"], a[href*="suche"]')
+    const tiles = page.locator('a[href*="results"]')
     await expect(tiles.first()).toBeVisible({ timeout: 10000 })
   })
 
   test('Klick auf Kategorie-Kachel navigiert zu Ergebnisseite', async ({ page }) => {
     await page.goto('/suchmodus')
     await page.waitForLoadState('networkidle')
-    const tile = page.locator('a[href*="results"], a[href*="suche"]').first()
+    const tile = page.locator('a[href*="results"]').first()
     await tile.waitFor({ state: 'visible', timeout: 10000 })
-    await tile.click()
-    await expect(page).toHaveURL(/results|suche/, { timeout: 10000 })
+    await Promise.all([
+      page.waitForURL(/results/, { timeout: 15000 }),
+      tile.click(),
+    ])
+    await expect(page).toHaveURL(/results/)
   })
 })
