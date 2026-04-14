@@ -59,15 +59,13 @@ test.describe('Login + Logout', () => {
 
   test('Logout leitet auf Login-Seite weiter', async ({ page }) => {
     await login(page)
-    // Logout via Dropdown oder Logout-Button
-    const logoutBtn = page.getByRole('button', { name: /logout|abmelden/i })
-    if (await logoutBtn.isVisible()) {
-      await logoutBtn.click()
-    } else {
-      // Fallback: Logout via Klick auf User-Avatar/Dropdown
-      await page.getByRole('button', { name: /profil|account|user/i }).first().click()
-      await page.getByRole('menuitem', { name: /logout|abmelden/i }).click()
+    // Avatar-Button klicken um Dropdown zu öffnen
+    const avatarBtn = page.getByRole('button', { name: /profil|account|user|avatar/i }).first()
+    if (await avatarBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await avatarBtn.click()
     }
+    // Abmelden-Button klicken (direkt sichtbar oder nach Dropdown)
+    await page.getByRole('button', { name: /abmelden/i }).click()
     await expect(page).toHaveURL(/login/, { timeout: 5000 })
   })
 
