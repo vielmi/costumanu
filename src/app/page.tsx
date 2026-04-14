@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CockpitShell } from "@/components/cockpit/cockpit-shell";
-import { ViewerCockpitShell } from "@/components/cockpit/viewer-cockpit-shell";
-import { type NetworkTheater } from "@/components/suchmodus/suchmodus-cockpit";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -24,6 +22,10 @@ export default async function Home() {
 
   const theaterId: string | null = membership?.theater_id ?? null;
   const userRole: string = membership?.role ?? "member";
+
+  if (userRole === "viewer") {
+    redirect("/suchmodus");
+  }
 
   // Fetch recent costumes + provenance for production column
   const { data: rawCostumes } = theaterId
@@ -83,16 +85,6 @@ export default async function Home() {
       )
     );
     unreadMessages = results.reduce((sum, r) => sum + (r.count ?? 0), 0);
-  }
-
-  if (userRole === "viewer") {
-    const { data: networkData } = await supabase
-      .from("theaters")
-      .select("id, name, slug, settings")
-      .eq("settings->>show_in_network", "true")
-      .order("name");
-
-    return <ViewerCockpitShell networkTheaters={(networkData ?? []) as NetworkTheater[]} />;
   }
 
   return (
