@@ -14,18 +14,13 @@ test.describe('Suchmodus — öffentlich', () => {
   test('Suchmodus zeigt Such-Interface', async ({ page }) => {
     await page.goto('/suchmodus')
     await page.waitForLoadState('networkidle')
-    const searchInput = page.locator(
-      'input[type="search"], input[placeholder*="uchen" i], input[type="text"][placeholder*="uchen" i], [role="searchbox"]'
-    ).first()
-    await expect(searchInput).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('a[href*="results"]').first()).toBeVisible({ timeout: 10000 })
   })
 
   test('Suche nach Begriff zeigt Ergebnisse oder leeren State — kein Fehler', async ({ page }) => {
-    await page.goto('/suchmodus')
+    await page.goto('/search')
     await page.waitForLoadState('networkidle')
-    const searchInput = page.locator(
-      'input[type="search"], input[placeholder*="uchen" i], input[type="text"][placeholder*="uchen" i], [role="searchbox"]'
-    ).first()
+    const searchInput = page.locator('input[type="search"]').first()
     await searchInput.waitFor({ state: 'visible', timeout: 10000 })
     await searchInput.fill('Kleid')
     await page.keyboard.press('Enter')

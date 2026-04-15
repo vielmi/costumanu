@@ -25,7 +25,7 @@ test.describe('Finja Fundusleitung — owner, Stadttheater Zürich', () => {
   test('Kostüm erfassen ist erlaubt', async ({ asFinja: page }) => {
     await page.goto('/kostueme/neu')
     await expect(page).not.toHaveURL(/login|cockpit/)
-    await expect(page.getByRole('heading', { name: /kostüm|erfassen|neu/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Kategorie' })).toBeVisible()
   })
 
   test('Konfiguration ist erreichbar', async ({ asFinja: page }) => {
@@ -46,7 +46,7 @@ test.describe('Alma Assistentin — member, Stadttheater Zürich', () => {
   test('Kostüm erfassen ist erlaubt', async ({ asAlma: page }) => {
     await page.goto('/kostueme/neu')
     await expect(page).not.toHaveURL(/login|cockpit/)
-    await expect(page.getByRole('heading', { name: /kostüm|erfassen|neu/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Kategorie' })).toBeVisible()
   })
 
   test('Konfiguration ist NICHT erreichbar', async ({ asAlma: page }) => {

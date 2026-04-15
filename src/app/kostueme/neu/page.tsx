@@ -15,11 +15,12 @@ export default async function KostuemeNeuPage({
   if (!user) redirect("/login");
 
   const [{ data: membership }, { data: profile }] = await Promise.all([
-    supabase.from("theater_members").select("theater_id, theaters(name)").eq("user_id", user.id).limit(1).single(),
+    supabase.from("theater_members").select("theater_id, role, theaters(name)").eq("user_id", user.id).limit(1).single(),
     supabase.from("profiles").select("display_name").eq("id", user.id).single(),
   ]);
 
   if (!membership) redirect("/");
+  if ((membership as unknown as { role: string }).role === "viewer") redirect("/suchmodus");
 
   const theaterId = membership.theater_id;
   const theaterName = (membership.theaters as unknown as { name: string })?.name ?? "";
