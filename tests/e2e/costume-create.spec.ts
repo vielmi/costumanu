@@ -15,14 +15,14 @@ test.describe('Kostüm erfassen', () => {
   test('Formular "Neues Kostüm" ist erreichbar', async ({ asFinja: page }) => {
     await page.goto('/kostueme/neu')
     await expect(page).not.toHaveURL(/login/)
-    await expect(page.getByLabel(/name des kostüms/i)).toBeVisible({ timeout: 8000 })
+    await expect(page.getByPlaceholder(/abendkleid|kostüm/i)).toBeVisible({ timeout: 8000 })
   })
 
   test('Alle drei Kostüm-Typen sind über URL-Parameter erreichbar', async ({ asFinja: page }) => {
     for (const type of ['single', 'ensemble', 'serie']) {
       await page.goto(`/kostueme/neu?type=${type}`)
       await expect(page).not.toHaveURL(/login/)
-      await expect(page.getByLabel(/name des kostüms/i)).toBeVisible({ timeout: 8000 })
+      await expect(page.getByPlaceholder(/abendkleid|kostüm/i)).toBeVisible({ timeout: 8000 })
     }
   })
 
