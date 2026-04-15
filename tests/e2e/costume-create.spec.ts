@@ -29,17 +29,17 @@ test.describe('Kostüm erfassen', () => {
     }
   })
 
-  test('Speichern-Button ist disabled solange Name leer', async ({ asFinja: page }) => {
+  test('Speichern-Button ist disabled solange Pflichtfelder leer', async ({ asFinja: page }) => {
     await page.goto('/kostueme/neu')
     await expect(page).not.toHaveURL(/login/)
     const saveBtn = page.getByRole('button', { name: /speichern/i })
     await expect(saveBtn).toBeDisabled({ timeout: 8000 })
   })
 
-  test('Speichern-Button wird aktiv nach Namenseingabe', async ({ asFinja: page }) => {
+  test('Speichern-Button bleibt disabled wenn nur Name gefüllt', async ({ asFinja: page }) => {
     await page.goto('/kostueme/neu')
     await page.getByPlaceholder('z.B. Abendkleid aus Satin & Tüll').fill('Test Kostüm E2E')
     const saveBtn = page.getByRole('button', { name: /speichern/i })
-    await expect(saveBtn).toBeEnabled({ timeout: 5000 })
+    await expect(saveBtn).toBeDisabled({ timeout: 5000 })
   })
 })

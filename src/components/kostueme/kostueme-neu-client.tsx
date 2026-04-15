@@ -656,18 +656,18 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
         <button
           type="button"
           onClick={handleSave}
-          disabled={saving || !form.name.trim()}
+          disabled={saving || !form.name.trim() || !form.genderId || !form.clothingTypeLabel || form.colorIds.length === 0}
           style={{
             height: "var(--button-height-md)",
             padding: "0 30px",
             borderRadius: 16,
-            background: saving || !form.name.trim() ? "var(--neutral-grey-300)" : "var(--primary-900)",
+            background: saving || !form.name.trim() || !form.genderId || !form.clothingTypeLabel || form.colorIds.length === 0 ? "var(--neutral-grey-300)" : "var(--primary-900)",
             color: "var(--neutral-white)",
             border: "none",
             fontFamily: "var(--font-family-base)",
             fontSize: "var(--font-size-350)",
             fontWeight: "var(--font-weight-500)",
-            cursor: saving || !form.name.trim() ? "not-allowed" : "pointer",
+            cursor: saving || !form.name.trim() || !form.genderId || !form.clothingTypeLabel || form.colorIds.length === 0 ? "not-allowed" : "pointer",
             whiteSpace: "nowrap",
             flexShrink: 0,
             transition: "background 150ms ease",
@@ -799,6 +799,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
 
               {/* Geschlecht */}
               <div>
+                <SubHeading>Kategorie *</SubHeading>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
                   {GENDER_CARDS.map((g) => {
                     const active = form.genderId === g.id;
@@ -806,7 +807,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                       <button
                         key={g.id}
                         type="button"
-                        onClick={() => setField("genderId", form.genderId === g.id ? "" : g.id)}
+                        onClick={() => setField("genderId", g.id)}
                         style={{
                           width: 174,
                           height: 102,
@@ -873,7 +874,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
 
               {/* Bekleidungsart — radio grid */}
               <div>
-                <SubHeading>Bekleidungsart</SubHeading>
+                <SubHeading>Bekleidungsart *</SubHeading>
 
                 {/* Radio cards grid */}
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24 }}>
@@ -1073,7 +1074,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
 
               {/* Farbrichtung */}
               <div>
-                <SubHeading>Farbrichtung</SubHeading>
+                <SubHeading>Farbrichtung *</SubHeading>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 174px)", gap: 8 }}>
                   {colorOptions.map((o) => {
                     const isActive = form.colorIds.includes(o.id);
@@ -1083,7 +1084,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                     const isLight = labelLower === "weiss" || labelLower === "beige" || labelLower === "silber" || isTransparent;
                     const hex = COLOR_HEX[labelLower] ?? "#CCCCCC";
                     return (
-                      <button key={o.id} type="button" onClick={() => toggleArr("colorIds", o.id)}
+                      <button key={o.id} type="button" onClick={() => setField("colorIds", form.colorIds[0] === o.id ? [] : [o.id])}
                         style={{
                           width: 174, height: 54,
                           display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -1373,7 +1374,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                         fontWeight: "var(--font-weight-500)",
                         textAlign: "center",
                       }}>
-                        <strong>Bilder</strong> und <strong>Videos</strong> hochladen oder aufnehmen
+                        <strong>Bilder</strong> hochladen oder aufnehmen
                       </span>
                     </>
                   ) : (
@@ -1530,19 +1531,6 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                       </button>
                     );
                   })}
-                </div>
-              </div>
-
-              {/* Kostümmasse — flat fields */}
-              <div>
-                <SubHeading>Kostümmasse</SubHeading>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, auto)", gap: "20px 30px" }}>
-                  <MeasureInput label="Brustumfang" value={form.chest} onChange={(v) => setField("chest", v)} />
-                  <MeasureInput label="Hüftumfang" value={form.hip} onChange={(v) => setField("hip", v)} />
-                  <MeasureInput label="Taillenumfang" value={form.waist} onChange={(v) => setField("waist", v)} />
-                  <MeasureInput label="Rückenbreite" value={form.shoulderWidth} onChange={(v) => setField("shoulderWidth", v)} />
-                  <MeasureInput label="Rückenlänge" value={form.backLength} onChange={(v) => setField("backLength", v)} />
-                  <MeasureInput label="Beinlänge" value={form.legLength} onChange={(v) => setField("legLength", v)} />
                 </div>
               </div>
 
