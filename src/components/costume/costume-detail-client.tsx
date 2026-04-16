@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Share2, Heart, ShoppingBag, MapPin, Copy, Check, MoreVertical } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { ArrowLeft, Share2, Heart, ShoppingBag, MapPin, Copy, Check } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ImageCarousel } from "@/components/costume/image-carousel";
 import { CostumeSpecs } from "@/components/costume/costume-specs";
 import { SimilarCostumes } from "@/components/costume/similar-costumes";
+import { ContextMenu } from "@/components/ui/context-menu";
+import { DeleteConfirmationSheet } from "@/components/ui/delete-confirmation-sheet";
 import { createClient } from "@/lib/supabase/client";
 import { deleteCostume } from "@/lib/services/costume-service";
 import { t } from "@/lib/i18n";
@@ -32,20 +34,10 @@ export function CostumeDetailClient({
   const firstItem = costume.costume_items?.[0];
   const firstProvenance = costume.costume_provenance?.[0];
 
-  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [showDeleteSheet, setShowDeleteSheet] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setShowMoreMenu(false);
-      }
-    }
-    if (showMoreMenu) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showMoreMenu]);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   async function handleDelete() {
     setDeleting(true);
@@ -53,11 +45,17 @@ export function CostumeDetailClient({
       const mediaPaths = (costume.costume_media ?? []).map((m) => m.storage_path);
       await deleteCostume(supabase, costume.id, mediaPaths);
       router.push("/fundus");
-    } catch {
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Löschen fehlgeschlagen");
       setDeleting(false);
       setShowDeleteSheet(false);
     }
   }
+
+  const menuItems = [
+    { label: "Bearbeiten", action: () => { setMenuOpen(false); router.push(`/kostueme/neu?edit=${costume.id}`); } },
+    { label: "Löschen",    action: () => { setMenuOpen(false); setShowDeleteSheet(true); }, danger: true },
+  ];
 
   return (
     <>
@@ -65,96 +63,68 @@ export function CostumeDetailClient({
       {/* Header row: Breadcrumbs + 3-dot menu */}
       <div className="flex items-start justify-between px-4 pt-4">
         <div>
-        <Link
-          href="/results"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          {t("costume.back")}
-        </Link>
-        <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-          {costume.gender_term && (
-            <>
-              <Link
-                href={`/results?gender=${costume.gender_term.id}`}
-                className="hover:underline"
-              >
-                {costume.gender_term.label_de}
-              </Link>
-              <span>&rsaquo;</span>
-            </>
-          )}
-          {costume.clothing_type && (
-            <>
-              <Link
-                href={`/results?clothing_type=${costume.clothing_type.id}`}
-                className="hover:underline"
-              >
-                {costume.clothing_type.label_de}
-              </Link>
-              <span>&rsaquo;</span>
-            </>
-          )}
-          <span className="text-foreground">{costume.name}</span>
-        </div>
+          <Link
+            href="/results"
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {t("costume.back")}
+          </Link>
+          <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+            {costume.gender_term && (
+              <>
+                <Link href={`/results?gender=${costume.gender_term.id}`} className="hover:underline">
+                  {costume.gender_term.label_de}
+                </Link>
+                <span>&rsaquo;</span>
+              </>
+            )}
+            {costume.clothing_type && (
+              <>
+                <Link href={`/results?clothing_type=${costume.clothing_type.id}`} className="hover:underline">
+                  {costume.clothing_type.label_de}
+                </Link>
+                <span>&rsaquo;</span>
+              </>
+            )}
+            <span className="text-foreground">{costume.name}</span>
+          </div>
         </div>
 
-        {/* 3-dot menu */}
-        <div ref={menuRef} style={{ position: "relative", flexShrink: 0 }}>
+        <ContextMenu
+          items={menuItems}
+          isOpen={menuOpen}
+          onToggle={() => setMenuOpen((o) => !o)}
+          onClose={() => setMenuOpen(false)}
+        />
+      </div>
+
+      {/* Inline error banner */}
+      {actionError && (
+        <div
+          style={{
+            margin: "0 16px",
+            padding: "8px 12px",
+            background: "var(--color-error-light, #fee2e2)",
+            borderRadius: "var(--radius-xs)",
+            fontFamily: "var(--font-family-base)",
+            fontSize: "var(--font-size-200)",
+            color: "var(--color-error)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          {actionError}
           <button
             type="button"
-            onClick={() => setShowMoreMenu((o) => !o)}
-            style={{
-              background: "transparent", border: "none", cursor: "pointer",
-              padding: 6, borderRadius: "var(--radius-xs)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              color: "var(--neutral-grey-600)",
-            }}
-            aria-label="Mehr Optionen"
+            onClick={() => setActionError(null)}
+            style={{ background: "none", border: "none", cursor: "pointer", padding: "0 4px", color: "var(--color-error)" }}
           >
-            <MoreVertical size={20} />
+            ✕
           </button>
-          {showMoreMenu && (
-            <div style={{
-              position: "absolute", top: "calc(100% + 4px)", right: 0,
-              background: "#FFFFFF", borderRadius: "var(--radius-sm)",
-              boxShadow: "var(--shadow-300)", zIndex: 100,
-              overflow: "hidden", minWidth: 160,
-            }}>
-              {[
-                {
-                  label: "Bearbeiten",
-                  action: () => { setShowMoreMenu(false); router.push(`/kostueme/neu?edit=${costume.id}`); },
-                },
-                {
-                  label: "Löschen",
-                  action: () => { setShowMoreMenu(false); setShowDeleteSheet(true); },
-                  danger: true,
-                },
-              ].map(({ label, action, danger }) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={action}
-                  style={{
-                    display: "block", width: "100%", textAlign: "left",
-                    padding: "10px 16px",
-                    fontFamily: "var(--font-family-base)",
-                    fontSize: "var(--font-size-300)",
-                    fontWeight: "var(--font-weight-400)",
-                    color: danger ? "var(--primary-900)" : "var(--neutral-grey-600)",
-                    background: "transparent", border: "none",
-                    borderBottom: "1px solid var(--secondary-500)",
-                    cursor: "pointer",
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
-      </div>
+      )}
 
       {/* Two-column: Image left | Info right */}
       <div className="flex flex-col gap-6 px-4" style={{ alignItems: "flex-start" }}
@@ -333,74 +303,13 @@ export function CostumeDetailClient({
       )}
     </div>
 
-    {/* ─── Delete confirmation sheet ─── */}
     {showDeleteSheet && (
-      <>
-        <div
-          onClick={() => setShowDeleteSheet(false)}
-          style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.4)" }}
-        />
-        <div style={{
-          position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 2001,
-          background: "var(--neutral-white)",
-          borderRadius: "24px 24px 0 0",
-          padding: "28px 20px 40px",
-          display: "flex", flexDirection: "column", gap: 12,
-        }}>
-          <div style={{
-            width: 36, height: 4, borderRadius: 2,
-            background: "var(--neutral-grey-200)",
-            alignSelf: "center", marginBottom: 8,
-          }} />
-          <p style={{
-            fontFamily: "var(--font-family-base)",
-            fontSize: "var(--font-size-325)", fontWeight: 600,
-            color: "var(--neutral-grey-600)", marginBottom: 4,
-          }}>
-            Kostüm löschen?
-          </p>
-          <p style={{
-            fontFamily: "var(--font-family-base)",
-            fontSize: "var(--font-size-200)", color: "var(--neutral-grey-400)",
-            marginBottom: 8,
-          }}>
-            Das Kostüm wird unwiderruflich gelöscht und kann nicht wiederhergestellt werden.
-          </p>
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={deleting}
-            style={{
-              height: "var(--button-height-md)", borderRadius: "var(--radius-md)",
-              background: "none",
-              border: "1.5px solid var(--primary-900)",
-              color: "var(--primary-900)",
-              fontFamily: "var(--font-family-base)",
-              fontSize: "var(--font-size-250)", fontWeight: 600,
-              cursor: deleting ? "not-allowed" : "pointer",
-              opacity: deleting ? 0.6 : 1,
-            }}
-          >
-            {deleting ? "Wird gelöscht…" : "Endgültig löschen"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowDeleteSheet(false)}
-            disabled={deleting}
-            style={{
-              height: "var(--button-height-md)", borderRadius: "var(--radius-md)",
-              background: "var(--secondary-900)",
-              border: "none",
-              color: "var(--neutral-white)",
-              fontFamily: "var(--font-family-base)",
-              fontSize: "var(--font-size-250)", fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            Abbrechen
-          </button>
-        </div>
-      </>
+      <DeleteConfirmationSheet
+        itemName={costume.name}
+        isDeleting={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteSheet(false)}
+      />
     )}
     </>
   );

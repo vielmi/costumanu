@@ -1,7 +1,16 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getCostume } from "@/lib/services/costume-service";
 import { KostuemeNeuClient } from "@/components/kostueme/kostueme-neu-client";
 import type { Costume } from "@/lib/types/costume";
+
+const VALID_COSTUME_TYPES = ["single", "ensemble", "serie"] as const;
+type CostumeType = (typeof VALID_COSTUME_TYPES)[number];
+
+function parseCostumeType(value: string | undefined): CostumeType {
+  if (VALID_COSTUME_TYPES.includes(value as CostumeType)) return value as CostumeType;
+  return "single";
+}
 
 export default async function KostuemeNeuPage({
   searchParams,
@@ -10,7 +19,7 @@ export default async function KostuemeNeuPage({
 }) {
   const supabase = await createClient();
   const params = await searchParams;
-  const costumeType = params.type ?? "single";
+  const costumeType = parseCostumeType(params.type);
   const editId = params.edit ?? null;
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -37,25 +46,7 @@ export default async function KostuemeNeuPage({
 
   const currentUserName = (profile as unknown as { display_name: string } | null)?.display_name ?? "Unbekannt";
 
-  // Fetch costume for edit mode
-  let editCostume: Costume | null = null;
-  if (editId) {
-    const { data } = await supabase
-      .from("costumes")
-      .select(`
-        id, name, description, gender_term_id, clothing_type_id,
-        parent_costume_id, is_ensemble, created_at, theater_id,
-        gender_term:taxonomy_terms!gender_term_id(id, vocabulary, label_de, parent_id, sort_order),
-        clothing_type:taxonomy_terms!clothing_type_id(id, vocabulary, label_de, parent_id, sort_order),
-        costume_media(id, costume_id, storage_path, sort_order, created_at),
-        costume_provenance(id, costume_id, production_title, year, actor_name, role_name, director_name, costume_designer, costume_assistant, is_original_production),
-        costume_items(id, costume_id, theater_id, barcode_id, rfid_id, size_label, size_data, condition_grade, current_status, storage_location_path, is_public_for_rent, updated_at),
-        costume_taxonomy(term_id, taxonomy_term:taxonomy_terms(id, vocabulary, label_de, parent_id, sort_order))
-      `)
-      .eq("id", editId)
-      .single();
-    editCostume = data as unknown as Costume | null;
-  }
+  const editCostume: Costume | null = editId ? await getCostume(supabase, editId) : null;
 
   return (
     <KostuemeNeuClient
@@ -63,7 +54,7 @@ export default async function KostuemeNeuPage({
       theaterName={theaterName}
       currentUserId={user.id}
       currentUserName={currentUserName}
-      costumeType={costumeType as "single" | "ensemble" | "serie"}
+      costumeType={costumeType}
       editCostume={editCostume ?? undefined}
       taxonomy={{
         genders: genders.data ?? [],

@@ -4,6 +4,17 @@ import { createClient } from "@supabase/supabase-js";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
+const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const MAX_NAME_LENGTH = 100;
+
+function validateNameAndSlug(name: string, slug: string) {
+  if (!name.trim()) throw new Error("Name darf nicht leer sein");
+  if (name.trim().length > MAX_NAME_LENGTH) throw new Error(`Name darf maximal ${MAX_NAME_LENGTH} Zeichen haben`);
+  if (!slug.trim()) throw new Error("Slug darf nicht leer sein");
+  const normalized = slug.trim().toLowerCase().replace(/\s+/g, "-");
+  if (!SLUG_PATTERN.test(normalized)) throw new Error("Slug darf nur Kleinbuchstaben, Ziffern und Bindestriche enthalten");
+}
+
 function getAdminClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -48,6 +59,7 @@ export async function createTheaterAction(formData: {
   name: string;
   slug: string;
 }) {
+  validateNameAndSlug(formData.name, formData.slug);
   const { isPlatformAdmin } = await assertAdmin();
   if (!isPlatformAdmin) throw new Error("Keine Berechtigung");
   const admin = getAdminClient();
@@ -69,6 +81,7 @@ export async function updateTheaterAction(formData: {
   name: string;
   slug: string;
 }) {
+  validateNameAndSlug(formData.name, formData.slug);
   const { isPlatformAdmin } = await assertAdmin();
   if (!isPlatformAdmin) throw new Error("Keine Berechtigung");
   const admin = getAdminClient();

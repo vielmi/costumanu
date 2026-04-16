@@ -7,16 +7,65 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Costume } from "@/lib/types/costume";
+import type { Costume, TaxonomyTerm } from "@/lib/types/costume";
 
-// ─── Queries ────────────────────────────────────────────────────────────────
+// ─── Internal types ──────────────────────────────────────────────────────────
+
+interface RecentCostumeMedia {
+  storage_path: string;
+  sort_order: number;
+}
+
+interface RecentCostumeItem {
+  current_status: string;
+}
+
+interface RecentCostumeProvenance {
+  production_title: string;
+  year: number | null;
+}
+
+interface RecentCostumeRow {
+  id: string;
+  name: string;
+  created_at: string;
+  gender_term: TaxonomyTerm | TaxonomyTerm[] | null;
+  clothing_type: TaxonomyTerm | TaxonomyTerm[] | null;
+  costume_media: RecentCostumeMedia[];
+  costume_items: RecentCostumeItem[];
+  costume_provenance: RecentCostumeProvenance[];
+}
+
+export interface RecentCostume {
+  id: string;
+  name: string;
+  created_at: string;
+  gender_term: TaxonomyTerm | null;
+  clothing_type: TaxonomyTerm | null;
+  costume_media: RecentCostumeMedia[];
+  costume_items: RecentCostumeItem[];
+  costume_provenance: RecentCostumeProvenance[];
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/**
+ * Supabase gibt joins manchmal als Array zurück, auch wenn es nur ein Element ist.
+ * Diese Funktion normalisiert das auf einen einzelnen Wert oder null.
+ */
+function extractFirst<T>(value: T | T[] | null | undefined): T | null {
+  if (!value) return null;
+  return Array.isArray(value) ? (value[0] ?? null) : value;
+}
+
+// ─── Queries ─────────────────────────────────────────────────────────────────
 
 /** Zuletzt erstellte Kostüme eines Theaters (für Cockpit-Liste). */
 export async function getRecentCostumes(
   supabase: SupabaseClient,
   theaterId: string,
   limit = 5
-) {
+): Promise<RecentCostume[]> {
   const { data, error } = await supabase
     .from("costumes")
     .select(`
@@ -33,20 +82,19 @@ export async function getRecentCostumes(
 
   if (error) throw error;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (data ?? []).map((c: any) => ({
-    id: c.id as string,
-    name: c.name as string,
-    created_at: c.created_at as string,
-    gender_term: Array.isArray(c.gender_term) ? (c.gender_term[0] ?? null) : c.gender_term,
-    clothing_type: Array.isArray(c.clothing_type) ? (c.clothing_type[0] ?? null) : c.clothing_type,
-    costume_media: (c.costume_media ?? []) as { storage_path: string; sort_order: number }[],
-    costume_items: (c.costume_items ?? []) as { current_status: string }[],
-    costume_provenance: (c.costume_provenance ?? []) as { production_title: string; year: number | null }[],
+  return (data as RecentCostumeRow[]).map((c) => ({
+    id: c.id,
+    name: c.name,
+    created_at: c.created_at,
+    gender_term: extractFirst(c.gender_term),
+    clothing_type: extractFirst(c.clothing_type),
+    costume_media: c.costume_media ?? [],
+    costume_items: c.costume_items ?? [],
+    costume_provenance: c.costume_provenance ?? [],
   }));
 }
 
-/** Vollständiges Kostüm mit allen Relationen (für Detailseite). */
+/** Vollständiges Kostüm mit allen Relationen (für Detailseite und Bearbeitung). */
 export async function getCostume(supabase: SupabaseClient, id: string): Promise<Costume | null> {
   const { data, error } = await supabase
     .from("costumes")
@@ -67,7 +115,7 @@ export async function getCostume(supabase: SupabaseClient, id: string): Promise<
   return data as Costume;
 }
 
-/** Ähnliche Kostüme (gleicher clothing_type, anderes Theater erlaubt). */
+/** Ähnliche Kostüme (gleicher clothing_type). */
 export async function getSimilarCostumes(
   supabase: SupabaseClient,
   clothingTypeId: string,
@@ -101,7 +149,7 @@ export async function getEnsembleChildren(
   return (data ?? []) as Costume[];
 }
 
-// ─── Mutations ──────────────────────────────────────────────────────────────
+// ─── Mutations ───────────────────────────────────────────────────────────────
 
 /** Löscht ein Kostüm vollständig inkl. aller abhängigen Datensätze und Storage-Dateien. */
 export async function deleteCostume(
@@ -134,7 +182,7 @@ export async function duplicateCostume(
 
   const { data: newC, error: insertError } = await supabase
     .from("costumes")
-    .insert({ ...orig, name: orig.name + "_Kopie" })
+    .insert({ ...orig, name: `${orig.name}_Kopie` })
     .select("id")
     .single();
 
@@ -150,10 +198,10 @@ export async function duplicateCostume(
   ]);
 
   await Promise.all([
-    items.data?.length    ? supabase.from("costume_items").insert(items.data.map((i) => ({ ...i, costume_id: newId })))        : Promise.resolve(),
-    taxonomy.data?.length ? supabase.from("costume_taxonomy").insert(taxonomy.data.map((t) => ({ costume_id: newId, term_id: t.term_id }))) : Promise.resolve(),
+    items.data?.length     ? supabase.from("costume_items").insert(items.data.map((i) => ({ ...i, costume_id: newId }))) : Promise.resolve(),
+    taxonomy.data?.length  ? supabase.from("costume_taxonomy").insert(taxonomy.data.map((t) => ({ costume_id: newId, term_id: t.term_id }))) : Promise.resolve(),
     provenance.data?.length ? supabase.from("costume_provenance").insert(provenance.data.map((p) => ({ ...p, costume_id: newId }))) : Promise.resolve(),
-    media.data?.length    ? supabase.from("costume_media").insert(media.data.map((m) => ({ ...m, costume_id: newId })))        : Promise.resolve(),
+    media.data?.length     ? supabase.from("costume_media").insert(media.data.map((m) => ({ ...m, costume_id: newId }))) : Promise.resolve(),
   ]);
 
   return newId;
