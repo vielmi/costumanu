@@ -110,16 +110,18 @@ export async function createUserAction(formData: {
 
   const uid = newUser.user.id;
 
-  await admin.from("profiles").insert({
+  const { error: profileErr } = await admin.from("profiles").upsert({
     id: uid,
     display_name: `${formData.firstName} ${formData.lastName}`.trim(),
   });
+  if (profileErr) throw new Error("Profil konnte nicht erstellt werden: " + profileErr.message);
 
-  await admin.from("theater_members").insert({
+  const { error: memberErr } = await admin.from("theater_members").upsert({
     user_id: uid,
     theater_id: targetTheaterId,
     role: formData.role,
   });
+  if (memberErr) throw new Error("Theater-Zuweisung fehlgeschlagen: " + memberErr.message);
 
   revalidatePath("/einstellungen/konfiguration");
 }
@@ -161,7 +163,15 @@ export async function updateUserAction(formData: {
 export async function deleteUserAction(userId: string) {
   await assertAdmin();
   const admin = getAdminClient();
+
+  // Remove dependent rows first to avoid FK constraint errors
+  await admin.from("theater_members").delete().eq("user_id", userId);
+  await admin.from("profiles").delete().eq("id", userId);
+
   const { error } = await admin.auth.admin.deleteUser(userId);
-  if (error) throw new Error(error.message);
+  // Ignore "not found" — DB records already cleaned up, auth user was already gone
+  if (error && !error.message.toLowerCase().includes("not found")) {
+    throw new Error(error.message);
+  }
   revalidatePath("/einstellungen/konfiguration");
 }

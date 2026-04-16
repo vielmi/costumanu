@@ -57,6 +57,7 @@ interface Props {
   currentUserName: string;
   costumeType: "single" | "ensemble" | "serie";
   taxonomy: Taxonomy;
+  editCostume?: import("@/lib/types/costume").Costume;
 }
 
 const NAV_SECTIONS = [
@@ -121,53 +122,182 @@ function Pill({ label, active, onClick }: { label: string; active: boolean; onCl
   );
 }
 
-// ─── Search card (Aufführung fields) ─────────────────────────────────────────
-function SearchCard({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+// ─── Creatable search card (Aufführung fields) ───────────────────────────────
+type ProvenanceColumn = "production_title" | "actor_name" | "role_name" | "year";
+
+function CreatableSearchCard({
+  label,
+  value,
+  onChange,
+  dbColumn,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  dbColumn: ProvenanceColumn;
+}) {
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const supabase = useRef(createClient()).current;
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (!value.trim()) {
+      setSuggestions([]);
+      setOpen(false);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      let results: string[] = [];
+      if (dbColumn === "year") {
+        const { data } = await supabase
+          .from("costume_provenance")
+          .select("year")
+          .not("year", "is", null)
+          .limit(50);
+        const all = [...new Set((data ?? []).map((d: { year: number | null }) => String(d.year)).filter(Boolean))];
+        results = all.filter((y) => y.startsWith(value)).slice(0, 8);
+      } else {
+        const { data } = await supabase
+          .from("costume_provenance")
+          .select(dbColumn)
+          .ilike(dbColumn, `%${value}%`)
+          .limit(20);
+        results = [...new Set(
+          (data ?? []).map((d: Record<string, unknown>) => String(d[dbColumn])).filter(Boolean)
+        )].slice(0, 8);
+      }
+      setSuggestions(results);
+      setOpen(true);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [value, dbColumn, supabase]);
+
+  const exactMatch = suggestions.some((s) => s.toLowerCase() === value.trim().toLowerCase());
+  const showCreate = value.trim().length > 0 && !exactMatch;
+
+  function handleSelect(s: string) {
+    onChange(s);
+    setOpen(false);
+    setSuggestions([]);
+  }
+
   return (
-    <div style={{
-      background: "var(--secondary-500)",
-      borderRadius: "var(--radius-md)",
-      padding: "13px 13px 16px",
-      flex: 1,
-    }}>
+    <div ref={containerRef} style={{ position: "relative" }}>
       <div style={{
-        fontFamily: "var(--font-family-base)",
-        fontSize: "var(--font-size-350)",
-        fontWeight: "var(--font-weight-500)",
-        color: "var(--neutral-black)",
-        marginBottom: 10,
-      }}>
-        {label}
-      </div>
-      <div style={{
-        border: "1px solid var(--neutral-black)",
-        borderRadius: 47,
-        height: 60,
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        padding: "0 16px",
         background: "var(--secondary-500)",
+        borderRadius: "var(--radius-md)",
+        padding: "13px 13px 16px",
+        flex: 1,
       }}>
-        <Image src="/icons/icon-search.svg" alt="" width={25} height={25} />
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="durchsuchen"
-          style={{
-            flex: 1,
-            border: "none",
-            background: "transparent",
-            fontFamily: "var(--font-family-base)",
-            fontSize: "var(--font-size-200)",
-            fontWeight: "var(--font-weight-400)",
-            color: "var(--neutral-grey-600)",
-            letterSpacing: "0.002em",
-            outline: "none",
-          }}
-        />
+        <div style={{
+          fontFamily: "var(--font-family-base)",
+          fontSize: "var(--font-size-350)",
+          fontWeight: "var(--font-weight-500)",
+          color: "var(--neutral-black)",
+          marginBottom: 10,
+        }}>
+          {label}
+        </div>
+        <div style={{
+          border: "1px solid var(--neutral-black)",
+          borderRadius: 47,
+          height: 60,
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          padding: "0 16px",
+          background: "var(--secondary-500)",
+        }}>
+          <Image src="/icons/icon-search.svg" alt="" width={25} height={25} />
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onFocus={() => { if (value.trim()) setOpen(true); }}
+            placeholder="durchsuchen"
+            style={{
+              flex: 1,
+              border: "none",
+              background: "transparent",
+              fontFamily: "var(--font-family-base)",
+              fontSize: "var(--font-size-200)",
+              fontWeight: "var(--font-weight-400)",
+              color: "var(--neutral-grey-600)",
+              letterSpacing: "0.002em",
+              outline: "none",
+            }}
+          />
+        </div>
       </div>
+      {open && (suggestions.length > 0 || showCreate) && (
+        <div style={{
+          position: "absolute",
+          top: "calc(100% + 4px)",
+          left: 0,
+          right: 0,
+          background: "white",
+          borderRadius: "var(--radius-sm)",
+          boxShadow: "var(--shadow-300)",
+          zIndex: 100,
+          overflow: "hidden",
+        }}>
+          {suggestions.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onMouseDown={() => handleSelect(s)}
+              style={{
+                display: "block",
+                width: "100%",
+                textAlign: "left",
+                padding: "10px 16px",
+                fontFamily: "var(--font-family-base)",
+                fontSize: "var(--font-size-300)",
+                fontWeight: "var(--font-weight-400)",
+                color: "var(--neutral-grey-600)",
+                background: "transparent",
+                border: "none",
+                borderBottom: "1px solid var(--secondary-500)",
+                cursor: "pointer",
+              }}
+            >
+              {s}
+            </button>
+          ))}
+          {showCreate && (
+            <button
+              type="button"
+              onMouseDown={() => handleSelect(value.trim())}
+              style={{
+                display: "block",
+                width: "100%",
+                textAlign: "left",
+                padding: "10px 16px",
+                fontFamily: "var(--font-family-base)",
+                fontSize: "var(--font-size-300)",
+                fontWeight: "var(--font-weight-500)",
+                color: "var(--primary-900)",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              + Neu erstellen: „{value.trim()}"
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -328,8 +458,86 @@ function SectionCard({ id, sectionRef, children }: {
   );
 }
 
+// ─── Build initial form from an existing costume (edit mode) ─────────────────
+function buildFormFromCostume(c: import("@/lib/types/costume").Costume): ReturnType<typeof emptyForm> {
+  const item = c.costume_items?.[0];
+  const prov = c.costume_provenance?.[0];
+  const storageParts = item?.storage_location_path?.split(".") ?? [];
+  const termsByVocab: Record<string, string[]> = {};
+  for (const ct of c.costume_taxonomy ?? []) {
+    const term = Array.isArray(ct.taxonomy_term) ? ct.taxonomy_term[0] : ct.taxonomy_term;
+    if (!term) continue;
+    termsByVocab[term.vocabulary] ??= [];
+    termsByVocab[term.vocabulary].push(ct.term_id);
+  }
+  return {
+    name: c.name,
+    description: c.description ?? "",
+    genderId: c.gender_term?.label_de.toLowerCase() ?? "",
+    clothingTypeLabel: c.clothing_type?.label_de ?? "",
+    clothingTypeSearch: c.clothing_type?.label_de ?? "",
+    clothingTypeSuggestions: [],
+    materialSearch: "",
+    materialIds: termsByVocab["material"] ?? [],
+    musterIds: termsByVocab["muster"] ?? [],
+    colorIds: termsByVocab["color"] ?? [],
+    spartanIds: termsByVocab["sparte"] ?? [],
+    temperatureIds: termsByVocab["temperature"] ?? [],
+    washingTypeIds: termsByVocab["washing_type"] ?? [],
+    dryingIds: termsByVocab["drying"] ?? [],
+    ironingIds: termsByVocab["ironing"] ?? [],
+    keineReinigung: false,
+    nichtBuegeln: false,
+    colorNote: "",
+    materialNotes: "",
+    sizeLabel: item?.size_label ?? "",
+    sizeNotes: "",
+    locationFloor: storageParts[0] ?? "",
+    locationRack: storageParts[1] ?? "",
+    locationSector: storageParts[2] ?? "",
+    currentStatus: item?.current_status ?? "available",
+    isPublicForRent: item?.is_public_for_rent ?? false,
+    chest: item?.size_data?.chest ? String(item.size_data.chest) : "",
+    waist: item?.size_data?.waist ? String(item.size_data.waist) : "",
+    hip: item?.size_data?.hip ? String(item.size_data.hip) : "",
+    backLength: item?.size_data?.back_length ? String(item.size_data.back_length) : "",
+    shoulderWidth: item?.size_data?.shoulder_width ? String(item.size_data.shoulder_width) : "",
+    legLength: item?.size_data?.leg_length ? String(item.size_data.leg_length) : "",
+    storageLocation: item?.storage_location_path ?? "",
+    barcodeId: item?.barcode_id ?? "",
+    rfidId: item?.rfid_id ?? "",
+    qrCodeId: "",
+    conditionGrade: item?.condition_grade ? String(item.condition_grade) : "3",
+    productionTitle: prov?.production_title ?? "",
+    productionYear: prov?.year ? String(prov.year) : "",
+    actorName: prov?.actor_name ?? "",
+    roleName: prov?.role_name ?? "",
+    notes: "",
+  };
+}
+
+function emptyForm() {
+  return {
+    name: "", description: "", genderId: "",
+    clothingTypeLabel: "", clothingTypeSearch: "", clothingTypeSuggestions: [] as string[],
+    materialSearch: "", materialIds: [] as string[], musterIds: [] as string[],
+    colorIds: [] as string[], spartanIds: [] as string[], temperatureIds: [] as string[],
+    washingTypeIds: [] as string[], dryingIds: [] as string[], ironingIds: [] as string[],
+    keineReinigung: false, nichtBuegeln: false,
+    colorNote: "", materialNotes: "",
+    sizeLabel: "", sizeNotes: "",
+    locationFloor: "", locationRack: "", locationSector: "",
+    currentStatus: "available", isPublicForRent: false,
+    chest: "", waist: "", hip: "", backLength: "", shoulderWidth: "", legLength: "",
+    storageLocation: "", barcodeId: "", rfidId: "", qrCodeId: "",
+    conditionGrade: "3",
+    productionTitle: "", productionYear: "", actorName: "", roleName: "",
+    notes: "",
+  };
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
-export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, currentUserName, costumeType, taxonomy }: Props) {
+export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, currentUserName, costumeType, taxonomy, editCostume }: Props) {
   const router = useRouter();
   const supabase = createClient();
   const mainRef = useRef<HTMLDivElement>(null);
@@ -342,49 +550,14 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
   const [pendingComments, setPendingComments] = useState<{ body: string; author_name: string; created_at: string }[]>([]);
   const [commentDraft, setCommentDraft] = useState("");
 
-  const avatarInputRef = useRef<HTMLInputElement>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [showDeleteSheet, setShowDeleteSheet] = useState(false);
 
   const imageInputRef = useRef<HTMLInputElement>(null);
   const cameraCaptureRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
 
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    genderId: "",
-    clothingTypeLabel: "",
-    clothingTypeSearch: "",
-    clothingTypeSuggestions: [] as string[],
-    materialSearch: "",
-    materialIds: [] as string[],
-    musterIds: [] as string[],
-    colorIds: [] as string[],
-    spartanIds: [] as string[],
-    temperatureIds: [] as string[],
-    washingTypeIds: [] as string[],
-    dryingIds: [] as string[],
-    ironingIds: [] as string[],
-    keineReinigung: false,
-    nichtBuegeln: false,
-    colorNote: "",
-    materialNotes: "",
-    sizeLabel: "",
-    sizeNotes: "",
-    locationFloor: "",
-    locationRack: "",
-    locationSector: "",
-    currentStatus: "available",
-    isPublicForRent: false,
-    chest: "", waist: "", hip: "", backLength: "", shoulderWidth: "", legLength: "",
-    storageLocation: "",
-    barcodeId: "",
-    rfidId: "",
-    qrCodeId: "",
-    conditionGrade: "3",
-    productionTitle: "", productionYear: "", actorName: "", roleName: "",
-    notes: "",
-  });
+  const [form, setForm] = useState(() => editCostume ? buildFormFromCostume(editCostume) : emptyForm());
 
   function setField<K extends keyof typeof form>(key: K, val: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: val }));
@@ -428,12 +601,6 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
     }
   }
 
-  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setAvatarPreview(URL.createObjectURL(file));
-  }
-
   function handleImageAdd(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
     setImages((prev) => [...prev, ...files.map((f) => ({ file: f, preview: URL.createObjectURL(f) }))]);
@@ -452,85 +619,131 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
     if (!form.name.trim()) return;
     setSaving(true);
     try {
-      const { data: costume, error: costumeErr } = await supabase
-        .from("costumes")
-        .insert({
-          theater_id: theaterId,
+      const taxTermIds = [
+        ...form.materialIds, ...form.musterIds, ...form.colorIds,
+        ...form.spartanIds, ...form.temperatureIds, ...form.washingTypeIds,
+        ...form.dryingIds, ...form.ironingIds,
+      ];
+      const sizeData = {
+        chest: form.chest || null, waist: form.waist || null, hip: form.hip || null,
+        back_length: form.backLength || null, shoulder_width: form.shoulderWidth || null,
+        leg_length: form.legLength || null,
+      };
+      const storagePath = [form.locationFloor, form.locationRack, form.locationSector].filter(Boolean).join(".") || form.storageLocation || null;
+
+      if (editCostume) {
+        // ── UPDATE mode ──
+        await supabase.from("costumes").update({
           name: form.name,
           description: form.description || null,
           gender_term_id: genderTermId,
           clothing_type_id: taxonomy.clothingTypes.find((t) => t.label_de === form.clothingTypeLabel)?.id ?? null,
-          is_ensemble: costumeType === "ensemble",
-        })
-        .select("id")
-        .single();
+        }).eq("id", editCostume.id);
 
-      if (costumeErr || !costume) throw costumeErr;
+        await supabase.from("costume_taxonomy").delete().eq("costume_id", editCostume.id);
+        if (taxTermIds.length > 0) {
+          await supabase.from("costume_taxonomy").insert(
+            taxTermIds.map((term_id) => ({ costume_id: editCostume.id, term_id }))
+          );
+        }
 
-      const taxRelations: { costume_id: string; term_id: string }[] = [
-        ...form.materialIds,
-        ...form.musterIds,
-        ...form.colorIds,
-        ...form.spartanIds,
-        ...form.temperatureIds,
-        ...form.washingTypeIds,
-        ...form.dryingIds,
-        ...form.ironingIds,
-      ].map((term_id) => ({ costume_id: costume.id, term_id }));
+        const existingItem = editCostume.costume_items?.[0];
+        if (existingItem) {
+          await supabase.from("costume_items").update({
+            barcode_id: form.barcodeId || null,
+            size_label: form.sizeLabel || null,
+            size_data: sizeData,
+            condition_grade: form.conditionGrade ? Number(form.conditionGrade) : null,
+            current_status: form.currentStatus,
+            storage_location_path: storagePath,
+            is_public_for_rent: form.isPublicForRent,
+          }).eq("id", existingItem.id);
+        }
 
-      if (taxRelations.length > 0) {
-        await supabase.from("costume_taxonomy").insert(taxRelations);
-      }
+        await supabase.from("costume_provenance").delete().eq("costume_id", editCostume.id);
+        if (form.productionTitle) {
+          await supabase.from("costume_provenance").insert({
+            costume_id: editCostume.id,
+            production_title: form.productionTitle,
+            year: form.productionYear ? Number(form.productionYear) : null,
+            actor_name: form.actorName || null,
+            role_name: form.roleName || null,
+          });
+        }
 
-      await supabase.from("costume_items").insert({
-        costume_id: costume.id,
-        theater_id: theaterId,
-        barcode_id: form.barcodeId || null,
-        size_label: form.sizeLabel || null,
-        size_data: {
-          chest: form.chest || null,
-          waist: form.waist || null,
-          hip: form.hip || null,
-          back_length: form.backLength || null,
-          shoulder_width: form.shoulderWidth || null,
-          leg_length: form.legLength || null,
-        },
-        condition_grade: form.conditionGrade ? Number(form.conditionGrade) : null,
-        current_status: form.currentStatus,
-        storage_location_path: [form.locationFloor, form.locationRack, form.locationSector].filter(Boolean).join(".") || form.storageLocation || null,
-        is_public_for_rent: form.isPublicForRent,
-      });
+        const existingCount = editCostume.costume_media?.length ?? 0;
+        for (let i = 0; i < images.length; i++) {
+          const img = images[i];
+          const ext = img.file.name.split(".").pop() ?? "jpg";
+          const path = `${theaterId}/${editCostume.id}/${existingCount + i}.${ext}`;
+          await supabase.storage.from("costume-images").upload(path, img.file);
+          await supabase.from("costume_media").insert({ costume_id: editCostume.id, storage_path: path, sort_order: existingCount + i });
+        }
 
-      if (form.productionTitle) {
-        await supabase.from("costume_provenance").insert({
-          costume_id: costume.id,
-          production_title: form.productionTitle,
-          year: form.productionYear ? Number(form.productionYear) : null,
-          actor_name: form.actorName || null,
-          role_name: form.roleName || null,
+        router.push(`/costume/${editCostume.id}`);
+      } else {
+        // ── INSERT mode ──
+        const { data: costume, error: costumeErr } = await supabase
+          .from("costumes")
+          .insert({
+            theater_id: theaterId,
+            name: form.name,
+            description: form.description || null,
+            gender_term_id: genderTermId,
+            clothing_type_id: taxonomy.clothingTypes.find((t) => t.label_de === form.clothingTypeLabel)?.id ?? null,
+            is_ensemble: costumeType === "ensemble",
+          })
+          .select("id")
+          .single();
+
+        if (costumeErr || !costume) throw costumeErr;
+
+        if (taxTermIds.length > 0) {
+          await supabase.from("costume_taxonomy").insert(
+            taxTermIds.map((term_id) => ({ costume_id: costume.id, term_id }))
+          );
+        }
+
+        await supabase.from("costume_items").insert({
+          costume_id: costume.id, theater_id: theaterId,
+          barcode_id: form.barcodeId || null,
+          size_label: form.sizeLabel || null,
+          size_data: sizeData,
+          condition_grade: form.conditionGrade ? Number(form.conditionGrade) : null,
+          current_status: form.currentStatus,
+          storage_location_path: storagePath,
+          is_public_for_rent: form.isPublicForRent,
         });
-      }
 
-      for (let i = 0; i < images.length; i++) {
-        const img = images[i];
-        const ext = img.file.name.split(".").pop() ?? "jpg";
-        const path = `${theaterId}/${costume.id}/${i}.${ext}`;
-        await supabase.storage.from("costume-images").upload(path, img.file);
-        await supabase.from("costume_media").insert({ costume_id: costume.id, storage_path: path, sort_order: i });
-      }
-
-      if (pendingComments.length > 0) {
-        await supabase.from("costume_comments").insert(
-          pendingComments.map((c) => ({
+        if (form.productionTitle) {
+          await supabase.from("costume_provenance").insert({
             costume_id: costume.id,
-            user_id: currentUserId,
-            body: c.body,
-            parent_id: null,
-          }))
-        );
-      }
+            production_title: form.productionTitle,
+            year: form.productionYear ? Number(form.productionYear) : null,
+            actor_name: form.actorName || null,
+            role_name: form.roleName || null,
+          });
+        }
 
-      router.push(`/costume/${costume.id}`);
+        for (let i = 0; i < images.length; i++) {
+          const img = images[i];
+          const ext = img.file.name.split(".").pop() ?? "jpg";
+          const path = `${theaterId}/${costume.id}/${i}.${ext}`;
+          await supabase.storage.from("costume-images").upload(path, img.file);
+          await supabase.from("costume_media").insert({ costume_id: costume.id, storage_path: path, sort_order: i });
+        }
+
+        if (pendingComments.length > 0) {
+          await supabase.from("costume_comments").insert(
+            pendingComments.map((c) => ({
+              costume_id: costume.id, user_id: currentUserId,
+              body: c.body, parent_id: null,
+            }))
+          );
+        }
+
+        router.push(`/costume/${costume.id}`);
+      }
     } catch {
       setSaving(false);
     }
@@ -572,64 +785,66 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
         {/* Content row — starts at same x-position as white content card */}
         <div style={{ flex: 1, display: "flex", alignItems: "center", padding: "0 20px 0 24px", gap: 14 }}>
 
-        {/* Two avatar circles */}
-        <div style={{ display: "flex", alignItems: "center", flexShrink: 0, position: "relative" }}>
-          {/* Avatar 1 — filled, clickable */}
-          <div
-            onClick={() => avatarInputRef.current?.click()}
+        {/* icon-more mit Dropdown */}
+        <div style={{ position: "relative", flexShrink: 0 }}>
+          <button
+            type="button"
+            onClick={() => setShowMoreMenu((v) => !v)}
             style={{
-              width: 60, height: 60,
-              borderRadius: "50%",
-              border: "4px solid var(--secondary-500)",
-              background: "var(--neutral-grey-300)",
-              overflow: "hidden",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              cursor: "pointer",
-              flexShrink: 0,
-              zIndex: 2,
-              position: "relative",
+              background: "transparent", border: "none", cursor: "pointer",
+              padding: 4, display: "flex", alignItems: "center", justifyContent: "center",
             }}
           >
-            {avatarPreview ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarPreview} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            ) : (
-              <Image src="/icons/icon-avatar.svg" alt="" width={28} height={28} style={{ opacity: 0.6 }} />
-            )}
-          </div>
-          {/* Avatar 2 — empty placeholder */}
-          <div style={{
-            width: 60, height: 60,
-            borderRadius: "50%",
-            border: "1px dashed var(--neutral-grey-700)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            flexShrink: 0,
-            marginLeft: -14,
-          }}>
-            <Image src="/icons/icon-avatar.svg" alt="" width={28} height={28} style={{ opacity: 0.3 }} />
-          </div>
-          {/* Camera overlay on avatar 1 */}
-          <div style={{
-            position: "absolute",
-            bottom: 0, left: 38,
-            width: 22, height: 22,
-            borderRadius: "50%",
-            background: "var(--neutral-grey-700)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            zIndex: 3,
-          }}>
-            <Image src="/icons/icon-camera.svg" alt="" width={10} height={10} style={{ filter: "invert(1)" }} />
-          </div>
-          <input ref={avatarInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleAvatarChange} />
+            <Image src="/icons/icon-more.svg" alt="Mehr" width={32} height={32} />
+          </button>
+          {showMoreMenu && (
+            <>
+              {/* Backdrop */}
+              <div
+                style={{ position: "fixed", inset: 0, zIndex: 99 }}
+                onClick={() => setShowMoreMenu(false)}
+              />
+              {/* Menu */}
+              <div style={{
+                position: "absolute",
+                top: "calc(100% + 6px)",
+                left: 0,
+                zIndex: 100,
+                background: "#FFFFFF",
+                borderRadius: 12,
+                boxShadow: "var(--shadow-300)",
+                border: "1px solid var(--neutral-grey-200)",
+                minWidth: 200,
+                overflow: "hidden",
+              }}>
+                {[
+                  { label: "Bearbeiten",           action: () => { /* TODO */ setShowMoreMenu(false) } },
+                  { label: "Löschen",               action: () => { setShowMoreMenu(false); setShowDeleteSheet(true) } },
+                  { label: "Direkt sichtbar machen", action: () => { /* TODO */ setShowMoreMenu(false) } },
+                ].map(({ label, action }) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={action}
+                    style={{
+                      width: "100%", textAlign: "left",
+                      padding: "12px 16px",
+                      background: "none", border: "none", cursor: "pointer",
+                      fontFamily: "var(--font-family-base)",
+                      fontSize: "var(--font-size-200)",
+                      color: label === "Löschen" ? "var(--primary-900)" : "var(--neutral-grey-700)",
+                      borderBottom: label !== "Direkt sichtbar machen" ? "1px solid var(--neutral-grey-100)" : "none",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "var(--secondary-500)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
-
-        {/* icon-more */}
-        <button type="button" style={{
-          background: "transparent", border: "none", cursor: "pointer",
-          padding: 4, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-        }}>
-          <Image src="/icons/icon-more.svg" alt="Mehr" width={32} height={32} />
-        </button>
 
         {/* Spacer */}
         <div style={{ flex: 1 }} />
@@ -865,10 +1080,10 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
               <div>
                 <SubHeading>Aufführung</SubHeading>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                  <SearchCard label="Epoche" value={form.productionYear} onChange={(v) => setField("productionYear", v)} />
-                  <SearchCard label="Stücktitel" value={form.productionTitle} onChange={(v) => setField("productionTitle", v)} />
-                  <SearchCard label="Darsteller" value={form.actorName} onChange={(v) => setField("actorName", v)} />
-                  <SearchCard label="Rolle" value={form.roleName} onChange={(v) => setField("roleName", v)} />
+                  <CreatableSearchCard label="Epoche" value={form.productionYear} onChange={(v) => setField("productionYear", v)} dbColumn="year" />
+                  <CreatableSearchCard label="Stücktitel" value={form.productionTitle} onChange={(v) => setField("productionTitle", v)} dbColumn="production_title" />
+                  <CreatableSearchCard label="Darsteller" value={form.actorName} onChange={(v) => setField("actorName", v)} dbColumn="actor_name" />
+                  <CreatableSearchCard label="Rolle" value={form.roleName} onChange={(v) => setField("roleName", v)} dbColumn="role_name" />
                 </div>
               </div>
 
@@ -1996,6 +2211,82 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
           }}
           onClose={() => setShowCamera(false)}
         />
+      )}
+
+      {showDeleteSheet && (
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={() => setShowDeleteSheet(false)}
+            style={{
+              position: "fixed", inset: 0, zIndex: 2000,
+              background: "rgba(0,0,0,0.4)",
+            }}
+          />
+          {/* Sheet */}
+          <div style={{
+            position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 2001,
+            background: "var(--neutral-white)",
+            borderRadius: "24px 24px 0 0",
+            padding: "28px 20px 40px",
+            display: "flex", flexDirection: "column", gap: 12,
+          }}>
+            {/* Handle */}
+            <div style={{
+              width: 36, height: 4, borderRadius: 2,
+              background: "var(--neutral-grey-200)",
+              alignSelf: "center", marginBottom: 8,
+            }} />
+
+            <p style={{
+              fontFamily: "var(--font-family-base)",
+              fontSize: "var(--font-size-325)", fontWeight: 600,
+              color: "var(--neutral-grey-600)",
+              marginBottom: 4,
+            }}>
+              Kostüm löschen?
+            </p>
+            <p style={{
+              fontFamily: "var(--font-family-base)",
+              fontSize: "var(--font-size-200)", color: "var(--neutral-grey-400)",
+              marginBottom: 8,
+            }}>
+              Das Kostüm wird unwiderruflich gelöscht und kann nicht wiederhergestellt werden.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => { /* TODO: delete action */ setShowDeleteSheet(false) }}
+              style={{
+                height: "var(--button-height-md)", borderRadius: "var(--radius-md)",
+                background: "none",
+                border: "1.5px solid var(--primary-900)",
+                color: "var(--primary-900)",
+                fontFamily: "var(--font-family-base)",
+                fontSize: "var(--font-size-250)", fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Endgültig löschen
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowDeleteSheet(false)}
+              style={{
+                height: "var(--button-height-md)", borderRadius: "var(--radius-md)",
+                background: "var(--secondary-900)",
+                border: "none",
+                color: "var(--neutral-white)",
+                fontFamily: "var(--font-family-base)",
+                fontSize: "var(--font-size-250)", fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Abbrechen
+            </button>
+          </div>
+        </>
       )}
 
       {showCloseSheet && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   createTheaterAction,
@@ -17,7 +17,6 @@ interface Term {
   vocabulary: string;
   label_de: string;
   sort_order: number;
-  theater_id: string | null;
 }
 
 interface Member {
@@ -140,6 +139,8 @@ function TaxonomyTab({
   const [editLabel, setEditLabel] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const dragId = useRef<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   const effectiveTheaterId = isPlatformAdmin ? selectedTheaterId : theaterId;
 
@@ -156,10 +157,9 @@ function TaxonomyTab({
       .insert({
         vocabulary: activeVocab,
         label_de: label,
-        theater_id: effectiveTheaterId,
         sort_order: vocabTerms.length,
       })
-      .select("id, vocabulary, label_de, sort_order, theater_id")
+      .select("id, vocabulary, label_de, sort_order")
       .single();
     setSaving(false);
     if (err) { setError(err.message); return; }
@@ -186,21 +186,31 @@ function TaxonomyTab({
     setTerms((prev) => prev.filter((t) => t.id !== id));
   }
 
-  async function move(term: Term, dir: "up" | "down") {
-    const idx = vocabTerms.findIndex((t) => t.id === term.id);
-    const other = dir === "up" ? vocabTerms[idx - 1] : vocabTerms[idx + 1];
-    if (!other) return;
+  async function reorder(fromId: string, toId: string) {
+    if (fromId === toId) return;
+    const fromIdx = vocabTerms.findIndex((t) => t.id === fromId);
+    const toIdx   = vocabTerms.findIndex((t) => t.id === toId);
+    if (fromIdx === -1 || toIdx === -1) return;
+
+    // Build new ordered list
+    const reordered = [...vocabTerms];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
+
+    // Optimistic update
+    setTerms((all) => {
+      const others = all.filter((t) => t.vocabulary !== activeVocab);
+      return [...others, ...reordered.map((t, i) => ({ ...t, sort_order: i }))];
+    });
+
+    // Persist to DB
     setSaving(true);
-    await Promise.all([
-      supabase.from("taxonomy_terms").update({ sort_order: other.sort_order }).eq("id", term.id),
-      supabase.from("taxonomy_terms").update({ sort_order: term.sort_order }).eq("id", other.id),
-    ]);
+    await Promise.all(
+      reordered.map((t, i) =>
+        supabase.from("taxonomy_terms").update({ sort_order: i }).eq("id", t.id)
+      )
+    );
     setSaving(false);
-    setTerms((all) => all.map((t) => {
-      if (t.id === term.id) return { ...t, sort_order: other.sort_order };
-      if (t.id === other.id) return { ...t, sort_order: term.sort_order };
-      return t;
-    }));
   }
 
   return (
@@ -248,16 +258,36 @@ function TaxonomyTab({
           {error && <ErrorBox message={error} />}
 
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 32 }}>
-            {vocabTerms.map((term, idx) => {
+            {vocabTerms.map((term) => {
               const isEditing = editingId === term.id;
+              const isDragOver = dragOverId === term.id;
               return (
-                <div key={term.id} style={{ display: "flex", alignItems: "center", gap: 12, height: 56, padding: "0 16px", borderRadius: 12, background: "var(--secondary-500)", border: "1px solid var(--neutral-grey-200)" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 1, flexShrink: 0 }}>
-                    <button type="button" onClick={() => move(term, "up")} disabled={idx === 0 || saving}
-                      style={{ background: "none", border: "none", cursor: idx === 0 ? "default" : "pointer", opacity: idx === 0 ? 0.2 : 0.6, padding: "1px 4px", fontSize: "var(--font-size-50)", lineHeight: 1 }}>▲</button>
-                    <button type="button" onClick={() => move(term, "down")} disabled={idx === vocabTerms.length - 1 || saving}
-                      style={{ background: "none", border: "none", cursor: idx === vocabTerms.length - 1 ? "default" : "pointer", opacity: idx === vocabTerms.length - 1 ? 0.2 : 0.6, padding: "1px 4px", fontSize: "var(--font-size-50)", lineHeight: 1 }}>▼</button>
-                  </div>
+                <div
+                  key={term.id}
+                  draggable
+                  onDragStart={() => { dragId.current = term.id; }}
+                  onDragEnd={() => { dragId.current = null; setDragOverId(null); }}
+                  onDragOver={(e) => { e.preventDefault(); setDragOverId(term.id); }}
+                  onDragLeave={() => setDragOverId(null)}
+                  onDrop={(e) => { e.preventDefault(); if (dragId.current) reorder(dragId.current, term.id); setDragOverId(null); }}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    height: 56, padding: "0 16px", borderRadius: 12,
+                    background: isDragOver ? "var(--secondary-600)" : "var(--secondary-500)",
+                    border: isDragOver ? "1.5px solid var(--primary-900)" : "1px solid var(--neutral-grey-200)",
+                    transition: "background 0.15s, border 0.15s",
+                    cursor: "grab",
+                  }}
+                >
+                  {/* Drag handle */}
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, opacity: 0.35 }}>
+                    <circle cx="5" cy="4" r="1.5" fill="currentColor"/>
+                    <circle cx="5" cy="8" r="1.5" fill="currentColor"/>
+                    <circle cx="5" cy="12" r="1.5" fill="currentColor"/>
+                    <circle cx="11" cy="4" r="1.5" fill="currentColor"/>
+                    <circle cx="11" cy="8" r="1.5" fill="currentColor"/>
+                    <circle cx="11" cy="12" r="1.5" fill="currentColor"/>
+                  </svg>
 
                   {isEditing ? (
                     <input autoFocus value={editLabel} onChange={(e) => setEditLabel(e.target.value)}
@@ -277,8 +307,8 @@ function TaxonomyTab({
                       </>
                     ) : (
                       <>
-                        <button type="button" onClick={() => { setEditingId(term.id); setEditLabel(term.label_de); }} style={btnSecondary}>Bearbeiten</button>
-                        <button type="button" onClick={() => deleteTerm(term.id)} disabled={saving} style={btnDanger}>Löschen</button>
+                        <button type="button" onClick={(e) => { e.stopPropagation(); setEditingId(term.id); setEditLabel(term.label_de); }} style={btnSecondary}>Bearbeiten</button>
+                        <button type="button" onClick={(e) => { e.stopPropagation(); deleteTerm(term.id); }} disabled={saving} style={btnDanger}>Löschen</button>
                       </>
                     )}
                   </div>
@@ -472,11 +502,11 @@ function UserForm({ initial, onSave, onCancel, isEdit, saving, allTheaters, show
       </div>
       <div>
         <label style={labelStyle}>E-Mail *</label>
-        <input type="email" value={f.email} onChange={(e) => set("email", e.target.value)} style={{ ...inputStyle, width: "100%" }} />
+        <input type="email" value={f.email} onChange={(e) => set("email", e.target.value)} autoComplete="off" style={{ ...inputStyle, width: "100%" }} />
       </div>
       <div>
         <label style={labelStyle}>Passwort {isEdit ? "(leer lassen = unverändert)" : "*"}</label>
-        <input type="password" value={f.password} onChange={(e) => set("password", e.target.value)} style={{ ...inputStyle, width: "100%" }} />
+        <input type="password" value={f.password} onChange={(e) => set("password", e.target.value)} autoComplete="new-password" style={{ ...inputStyle, width: "100%" }} />
       </div>
       {showTheaterPicker && (
         <div>
@@ -522,11 +552,12 @@ function UsersTab({
   const [members, setMembers] = useState<Member[]>(initialMembers);
   const [mode, setMode] = useState<"list" | "create" | "edit">("list");
   const [editTarget, setEditTarget] = useState<Member | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Member | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const emptyForm: UserFormState = {
-    firstName: "", lastName: "", email: "", password: "", role: "member",
+    firstName: "", lastName: "", email: "", password: "", role: "viewer",
     theaterId: defaultTheaterId,
   };
 
@@ -615,7 +646,7 @@ function UsersTab({
               isEdit={mode === "edit"}
               saving={isPending}
               allTheaters={allTheaters}
-              showTheaterPicker={isPlatformAdmin && mode === "create"}
+              showTheaterPicker={isPlatformAdmin}
             />
           </div>
         </div>
@@ -674,7 +705,7 @@ function UsersTab({
                 <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
                   <button type="button" onClick={() => { setEditTarget(m); setMode("edit"); setError(null); }} style={{ ...btnSecondary, height: 34 }}>Bearbeiten</button>
                   {!m.isSelf && (
-                    <button type="button" onClick={() => handleDelete(m.userId)} disabled={isPending} style={{ ...btnDanger, height: 34 }}>Löschen</button>
+                    <button type="button" onClick={() => setDeleteTarget(m)} disabled={isPending} style={{ ...btnDanger, height: 34 }}>Löschen</button>
                   )}
                 </div>
               </div>
@@ -687,6 +718,42 @@ function UsersTab({
           </div>
         </div>
       </div>
+
+      {deleteTarget && (
+        <>
+          <div onClick={() => setDeleteTarget(null)} style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.4)" }} />
+          <div style={{
+            position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 2001,
+            background: "var(--neutral-white)",
+            borderRadius: "24px 24px 0 0",
+            padding: "28px 20px 40px",
+            display: "flex", flexDirection: "column", gap: 12,
+          }}>
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: "var(--neutral-grey-200)", alignSelf: "center", marginBottom: 8 }} />
+            <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-325)", fontWeight: 600, color: "var(--neutral-grey-600)", marginBottom: 4 }}>
+              Benutzer löschen?
+            </p>
+            <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-400)", marginBottom: 8 }}>
+              {deleteTarget.email} wird unwiderruflich gelöscht und kann nicht wiederhergestellt werden.
+            </p>
+            <button
+              type="button"
+              onClick={() => { handleDelete(deleteTarget.userId); setDeleteTarget(null); }}
+              disabled={isPending}
+              style={{ height: "var(--button-height-md)", borderRadius: "var(--radius-md)", background: "none", border: "1.5px solid var(--primary-900)", color: "var(--primary-900)", fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-250)", fontWeight: 600, cursor: "pointer" }}
+            >
+              Endgültig löschen
+            </button>
+            <button
+              type="button"
+              onClick={() => setDeleteTarget(null)}
+              style={{ height: "var(--button-height-md)", borderRadius: "var(--radius-md)", background: "var(--secondary-900)", border: "none", color: "var(--neutral-white)", fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-250)", fontWeight: 600, cursor: "pointer" }}
+            >
+              Abbrechen
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

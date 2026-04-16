@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { SiteHeader } from "@/components/layout/site-header";
-import { SiteFooter } from "@/components/layout/site-footer";
+import { AppShell } from "@/components/layout/app-shell";
 import { CostumeDetailClient } from "@/components/costume/costume-detail-client";
 import type { Costume, TaxonomyTerm } from "@/lib/types/costume";
 
@@ -85,17 +84,13 @@ export default async function CostumeDetailPage({
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--page-bg)" }}>
-      <SiteHeader />
-      <main className="mx-auto max-w-5xl">
-        <CostumeDetailClient
-          costume={costume as unknown as Costume}
-          taxonomyByVocabulary={taxonomyByVocabulary}
-          ensembleChildren={ensembleChildren}
-          similarCostumes={similarCostumes}
-        />
-      </main>
-      <SiteFooter />
-    </div>
+    <AppShell>
+      <CostumeDetailClient
+        costume={costume as unknown as Costume}
+        taxonomyByVocabulary={taxonomyByVocabulary}
+        ensembleChildren={ensembleChildren}
+        similarCostumes={similarCostumes}
+      />
+    </AppShell>
   );
 }
