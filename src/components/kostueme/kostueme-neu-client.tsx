@@ -139,7 +139,7 @@ function CreatableSearchCard({
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const supabase = useRef(createClient()).current;
+  const supabase = createClient();
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -152,12 +152,12 @@ function CreatableSearchCard({
   }, []);
 
   useEffect(() => {
-    if (!value.trim()) {
-      setSuggestions([]);
-      setOpen(false);
-      return;
-    }
     const timer = setTimeout(async () => {
+      if (!value.trim()) {
+        setSuggestions([]);
+        setOpen(false);
+        return;
+      }
       let results: string[] = [];
       if (dbColumn === "year") {
         const { data } = await supabase
@@ -293,7 +293,7 @@ function CreatableSearchCard({
                 cursor: "pointer",
               }}
             >
-              + Neu erstellen: „{value.trim()}"
+              + Neu erstellen: &bdquo;{value.trim()}&ldquo;
             </button>
           )}
         </div>

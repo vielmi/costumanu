@@ -27,7 +27,7 @@ export function CostumeDetailClient({
   similarCostumes,
 }: CostumeDetailClientProps) {
   const router = useRouter();
-  const supabase = useRef(createClient()).current;
+  const supabase = createClient();
   const firstItem = costume.costume_items?.[0];
   const firstProvenance = costume.costume_provenance?.[0];
 
