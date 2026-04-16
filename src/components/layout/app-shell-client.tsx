@@ -10,14 +10,9 @@ import { AppLogo } from "@/components/layout/app-logo";
 type NavItem = { label: string; href: string; icon: string; badgeKey?: string; adminOnly?: boolean };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Home",         href: "/",                             icon: "icon-home-menu"       },
-  { label: "Kostüme",      href: "/fundus",                       icon: "icon-shirt"           },
-  { label: "Aufführungen", href: "/auffuehrungen",                icon: "icon-production-menu" },
-  { label: "Darsteller",   href: "/darsteller",                   icon: "icon-artist-menu"     },
-  { label: "Termine",      href: "/termine",                      icon: "icon-calendar-menu"   },
-  { label: "Kontakte",     href: "/kontakte",                     icon: "icon-contact-book"    },
-  { label: "Nachrichten",  href: "/messages",   badgeKey: "messages", icon: "icon-chat"        },
-  { label: "Ausleihen",    href: "/rental",     badgeKey: "rentals",  icon: "icon-shopping-bag"},
+  { label: "Home",         href: "/",               icon: "icon-home-menu"       },
+  { label: "Kostüme",      href: "/fundus",          icon: "icon-shirt"           },
+  { label: "Aufführungen", href: "/auffuehrungen",   icon: "icon-production-menu" },
 ];
 
 const ADMIN_NAV_ITEM: NavItem = {
@@ -35,7 +30,7 @@ interface Props {
 }
 
 export function AppShellClient({ children, userRole, unreadMessages, pendingRentals }: Props) {
-  const isAdmin = userRole === "owner" || userRole === "admin";
+  const isAdmin = userRole === "owner" || userRole === "admin" || userRole === "platform_admin";
   const navItems = isAdmin ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
   const [collapsed, setCollapsed] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -112,7 +107,8 @@ export function AppShellClient({ children, userRole, unreadMessages, pendingRent
         }}>
           <div style={{ flex: 1, padding: "4px 8px", overflowY: "auto" }}>
             {navItems.map((item, index) => {
-              const isActive = pathname === item.href;
+              const isActive = pathname === item.href ||
+                (item.href === "/fundus" && (pathname.startsWith("/costume/") || pathname.startsWith("/kostueme/")));
               const badge = getBadge(item.badgeKey);
               return (
                 <Link

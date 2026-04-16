@@ -13,15 +13,14 @@ export default async function Home() {
     redirect("/login");
   }
 
-  const { data: membership } = await supabase
-    .from("theater_members")
-    .select("theater_id, role")
-    .eq("user_id", user.id)
-    .limit(1)
-    .single();
+  const [{ data: membership }, { data: profile }] = await Promise.all([
+    supabase.from("theater_members").select("theater_id, role").eq("user_id", user.id).limit(1).single(),
+    supabase.from("profiles").select("platform_role").eq("id", user.id).single(),
+  ]);
 
+  const isPlatformAdmin = profile?.platform_role === "platform_admin";
   const theaterId: string | null = membership?.theater_id ?? null;
-  const userRole: string = membership?.role ?? "member";
+  const userRole: string = isPlatformAdmin ? "platform_admin" : (membership?.role ?? "member");
 
   if (userRole === "viewer") {
     redirect("/suchmodus");

@@ -8,9 +8,12 @@ import type { CostumeMedia } from "@/lib/types/costume";
 type ImageCarouselProps = {
   media: CostumeMedia[];
   name: string;
+  height?: string;
+  objectFit?: "cover" | "contain";
+  className?: string;
 };
 
-export function ImageCarousel({ media, name }: ImageCarouselProps) {
+export function ImageCarousel({ media, name, height = "260px", objectFit = "cover", className = "mx-4" }: ImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const supabase = createClient();
 
@@ -20,7 +23,7 @@ export function ImageCarousel({ media, name }: ImageCarouselProps) {
 
   if (media.length === 0) {
     return (
-      <div className="mx-4 flex aspect-[3/4] items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
+      <div className={`${className} flex items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground`} style={{ height }}>
         {t("costume.noPhoto")}
       </div>
     );
@@ -29,15 +32,16 @@ export function ImageCarousel({ media, name }: ImageCarouselProps) {
   const currentUrl = publicUrls[currentIndex];
 
   return (
-    <div className="relative mx-4">
+    <div className={`relative ${className}`}>
       {/* Main image */}
-      <div className="aspect-[3/4] overflow-hidden rounded-xl bg-muted">
+      <div className="overflow-hidden rounded-xl bg-muted" style={{ height }}>
         {currentUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={currentUrl}
             alt={`${name} – ${t("costume.image")} ${currentIndex + 1}`}
-            className="h-full w-full object-cover"
+            className="h-full w-full"
+            style={{ objectFit }}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted-foreground/10" />
