@@ -6,6 +6,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { MoreVertical } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { deleteCostume, duplicateCostume } from "@/lib/services/costume-service";
+import { getPublicUrl } from "@/lib/services/storage-service";
 import type { RecentCostume } from "@/components/cockpit/cockpit-shell";
 
 interface CockpitContentProps {
@@ -83,14 +85,7 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
     setDeleting(true);
     try {
       const mediaPaths = (costume.costume_media ?? []).map((m) => m.storage_path);
-      if (mediaPaths.length > 0) {
-        await supabase.storage.from("costume-images").remove(mediaPaths);
-      }
-      await supabase.from("costume_taxonomy").delete().eq("costume_id", costume.id);
-      await supabase.from("costume_provenance").delete().eq("costume_id", costume.id);
-      await supabase.from("costume_items").delete().eq("costume_id", costume.id);
-      await supabase.from("costume_media").delete().eq("costume_id", costume.id);
-      await supabase.from("costumes").delete().eq("id", costume.id);
+      await deleteCostume(supabase, costume.id, mediaPaths);
       router.refresh();
     } catch {
       setDeleting(false);
@@ -102,40 +97,7 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
     setDuplicating(true);
     setMenuOpen(false);
     try {
-      // Fetch full costume record
-      const { data: orig } = await supabase
-        .from("costumes")
-        .select("theater_id, name, description, gender_term_id, clothing_type_id, is_ensemble, ensemble_parent_id, is_public, direct_visible")
-        .eq("id", costume.id)
-        .single();
-
-      if (!orig) return;
-
-      // Insert new costume with "_Kopie" suffix
-      const { data: newC } = await supabase
-        .from("costumes")
-        .insert({ ...orig, name: orig.name + "_Kopie" })
-        .select("id")
-        .single();
-
-      if (!newC) return;
-      const newId = newC.id;
-
-      // Copy related records in parallel
-      const [items, taxonomy, provenance, media] = await Promise.all([
-        supabase.from("costume_items").select("size_label, barcode_id, rfid_id, current_status, storage_location_path, condition, notes").eq("costume_id", costume.id),
-        supabase.from("costume_taxonomy").select("term_id").eq("costume_id", costume.id),
-        supabase.from("costume_provenance").select("production_title, year, role_name, actor_name, sort_order").eq("costume_id", costume.id),
-        supabase.from("costume_media").select("storage_path, sort_order, mime_type").eq("costume_id", costume.id),
-      ]);
-
-      await Promise.all([
-        items.data?.length ? supabase.from("costume_items").insert(items.data.map((i) => ({ ...i, costume_id: newId }))) : Promise.resolve(),
-        taxonomy.data?.length ? supabase.from("costume_taxonomy").insert(taxonomy.data.map((t) => ({ costume_id: newId, term_id: t.term_id }))) : Promise.resolve(),
-        provenance.data?.length ? supabase.from("costume_provenance").insert(provenance.data.map((p) => ({ ...p, costume_id: newId }))) : Promise.resolve(),
-        media.data?.length ? supabase.from("costume_media").insert(media.data.map((m) => ({ ...m, costume_id: newId }))) : Promise.resolve(),
-      ]);
-
+      await duplicateCostume(supabase, costume.id);
       router.refresh();
     } finally {
       setDuplicating(false);
@@ -146,9 +108,7 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
   const firstProvenance = costume.costume_provenance?.[0];
   const status = getStatusFromItems(costume.costume_items);
 
-  const imageUrl = firstMedia
-    ? supabase.storage.from("costume-images").getPublicUrl(firstMedia.storage_path).data.publicUrl
-    : null;
+  const imageUrl = firstMedia ? getPublicUrl(supabase, firstMedia.storage_path) : null;
 
   const productionLabel = firstProvenance
     ? firstProvenance.year

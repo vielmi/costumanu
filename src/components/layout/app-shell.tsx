@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShellClient } from "@/components/layout/app-shell-client";
+import { resolveUserContext } from "@/lib/services/profile-service";
+import { getPendingRentalsCount, getUnreadMessagesCount } from "@/lib/services/notification-service";
 
 export async function AppShell({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -8,49 +10,18 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [{ data: membership }, { data: profile }] = await Promise.all([
-    supabase.from("theater_members").select("theater_id, role").eq("user_id", user.id).limit(1).single(),
-    supabase.from("profiles").select("platform_role").eq("id", user.id).single(),
+  const { userRole, theaterId } = await resolveUserContext(supabase, user.id);
+
+  const [pendingRentals, unreadMessages] = await Promise.all([
+    theaterId ? getPendingRentalsCount(supabase, theaterId, user.id) : Promise.resolve(0),
+    getUnreadMessagesCount(supabase, user.id),
   ]);
-
-  const isPlatformAdmin = profile?.platform_role === "platform_admin";
-  const userRole  = isPlatformAdmin ? "platform_admin" : (membership?.role ?? "member");
-  const theaterId = membership?.theater_id ?? null;
-
-  const { count: pendingRentals } = theaterId
-    ? await supabase
-        .from("rental_orders")
-        .select("id", { count: "exact", head: true })
-        .eq("lender_theater_id", theaterId)
-        .eq("status", "requested")
-        .neq("borrower_user_id", user.id)
-    : { count: 0 };
-
-  const { data: participations } = await supabase
-    .from("chat_thread_participants")
-    .select("thread_id, last_read_at")
-    .eq("user_id", user.id);
-
-  let unreadMessages = 0;
-  if (participations?.length) {
-    const results = await Promise.all(
-      participations.map((p) =>
-        supabase
-          .from("chat_messages")
-          .select("id", { count: "exact", head: true })
-          .eq("thread_id", p.thread_id)
-          .neq("sender_id", user.id)
-          .gt("created_at", p.last_read_at ?? "1970-01-01T00:00:00Z")
-      )
-    );
-    unreadMessages = results.reduce((sum, r) => sum + (r.count ?? 0), 0);
-  }
 
   return (
     <AppShellClient
       userRole={userRole}
       unreadMessages={unreadMessages}
-      pendingRentals={pendingRentals ?? 0}
+      pendingRentals={pendingRentals}
     >
       {children}
     </AppShellClient>

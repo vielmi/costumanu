@@ -10,6 +10,7 @@ import { ImageCarousel } from "@/components/costume/image-carousel";
 import { CostumeSpecs } from "@/components/costume/costume-specs";
 import { SimilarCostumes } from "@/components/costume/similar-costumes";
 import { createClient } from "@/lib/supabase/client";
+import { deleteCostume } from "@/lib/services/costume-service";
 import { t } from "@/lib/i18n";
 import type { Costume, TaxonomyTerm } from "@/lib/types/costume";
 
@@ -49,15 +50,8 @@ export function CostumeDetailClient({
   async function handleDelete() {
     setDeleting(true);
     try {
-      await supabase.from("costume_taxonomy").delete().eq("costume_id", costume.id);
-      await supabase.from("costume_provenance").delete().eq("costume_id", costume.id);
-      await supabase.from("costume_items").delete().eq("costume_id", costume.id);
       const mediaPaths = (costume.costume_media ?? []).map((m) => m.storage_path);
-      if (mediaPaths.length > 0) {
-        await supabase.storage.from("costume-images").remove(mediaPaths);
-      }
-      await supabase.from("costume_media").delete().eq("costume_id", costume.id);
-      await supabase.from("costumes").delete().eq("id", costume.id);
+      await deleteCostume(supabase, costume.id, mediaPaths);
       router.push("/fundus");
     } catch {
       setDeleting(false);
