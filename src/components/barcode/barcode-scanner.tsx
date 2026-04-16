@@ -64,8 +64,8 @@ function WebScanner({ onDetected, onClose }: BarcodeScannerProps) {
             }
           }
         );
-      } catch (e: any) {
-        setError("Kamera konnte nicht gestartet werden: " + (e?.message ?? e));
+      } catch (e: unknown) {
+        setError("Kamera konnte nicht gestartet werden: " + (e instanceof Error ? e.message : String(e)));
       }
     }
 

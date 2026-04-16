@@ -28,10 +28,10 @@ export default async function KonfigurationPage() {
 
   const isPlatformAdmin = profile?.platform_role === "platform_admin";
 
-  // Load taxonomy terms (same for both roles)
-  const { data: terms } = await supabase
+  // Load taxonomy terms via admin client (bypasses RLS)
+  const { data: terms } = await admin
     .from("taxonomy_terms")
-    .select("id, vocabulary, label_de, sort_order, theater_id")
+    .select("id, vocabulary, label_de, sort_order")
     .order("vocabulary")
     .order("sort_order");
 

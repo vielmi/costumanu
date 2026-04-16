@@ -8,14 +8,13 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: membership } = await supabase
-    .from("theater_members")
-    .select("theater_id, role")
-    .eq("user_id", user.id)
-    .limit(1)
-    .single();
+  const [{ data: membership }, { data: profile }] = await Promise.all([
+    supabase.from("theater_members").select("theater_id, role").eq("user_id", user.id).limit(1).single(),
+    supabase.from("profiles").select("platform_role").eq("id", user.id).single(),
+  ]);
 
-  const userRole  = membership?.role ?? "member";
+  const isPlatformAdmin = profile?.platform_role === "platform_admin";
+  const userRole  = isPlatformAdmin ? "platform_admin" : (membership?.role ?? "member");
   const theaterId = membership?.theater_id ?? null;
 
   const { count: pendingRentals } = theaterId

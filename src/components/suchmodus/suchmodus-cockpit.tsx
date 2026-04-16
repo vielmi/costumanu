@@ -35,13 +35,13 @@ const EPOCHE_TILES = [
 
 const SPARTE_TILES = [
   { label: "Tanz",       image: "/images/suchmodus-tanz.jpg",       href: "/results?sparte=tanz"       },
-  { label: "Schauspiel", image: "/images/suchmodus-feuerwehr.jpg", href: "/results?sparte=schauspiel" },
+  { label: "Schauspiel", image: "/images/suchmodus-feuerwehr.jpg",  href: "/results?sparte=schauspiel" },
   { label: "Oper",       image: "/images/suchmodus-oper.jpg",       href: "/results?sparte=oper"       },
 ];
 
 const BEKLEIDUNGSART2_TILES = [
-  { label: "Polizei",   image: "/images/suchmodus-polizei.jpg",   href: "/results?type=polizei"   },
-  { label: "Reinigung", image: "/images/suchmodus-reinigung.jpg", href: "/results?type=reinigung" },
+  { label: "Polizei",   image: "/images/suchmodus-polizei.jpg",    href: "/results?type=polizei"   },
+  { label: "Reinigung", image: "/images/suchmodus-reinigung.jpg",  href: "/results?type=reinigung" },
   { label: "Feuerwehr", image: "/images/suchmodus-schauspiel.jpg", href: "/results?type=feuerwehr" },
 ];
 
@@ -52,15 +52,16 @@ function CategoryTile({ label, image, href }: { label: string; image?: string; h
     <Link
       href={href}
       style={{
-        flex: 1,
-        minHeight: 430,
+        flexShrink: 0,
         borderRadius: 20,
         position: "relative",
         overflow: "hidden",
         background: "var(--secondary-900)",
         display: "block",
         textDecoration: "none",
+        // Desktop: flex:1, Mobile: 75vw — via CSS class below
       }}
+      className="category-tile"
     >
       {image && (
         // eslint-disable-next-line @next/next/no-img-element
@@ -71,15 +72,15 @@ function CategoryTile({ label, image, href }: { label: string; image?: string; h
         />
       )}
       <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
-      <div style={{ position: "absolute", bottom: 40, left: 44, display: "flex", alignItems: "center", gap: 20 }}>
+      <div style={{ position: "absolute", bottom: 24, left: 24, display: "flex", alignItems: "center", gap: 12 }}>
         <span className="text-h2 text-h1--medium" style={{ color: "#FFFFFF" }}>
           {label}
         </span>
         <Image
           src="/icons/icon-arrow-right-2.svg"
           alt=""
-          width={43}
-          height={43}
+          width={32}
+          height={32}
           style={{ filter: "invert(1)", flexShrink: 0 }}
         />
       </div>
@@ -92,7 +93,8 @@ function GenderCard({ label, icon, href }: { label: string; icon: string; href: 
     <Link
       href={href}
       style={{
-        width: 226,
+        flex: 1,
+        minWidth: 0,
         height: 140,
         background: "#FFFFFF",
         border: "1px solid var(--secondary-900)",
@@ -104,7 +106,6 @@ function GenderCard({ label, icon, href }: { label: string; icon: string; href: 
         paddingBottom: 14,
         gap: 8,
         textDecoration: "none",
-        flexShrink: 0,
         cursor: "pointer",
       }}
     >
@@ -124,12 +125,120 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Horizontal scroll row for tiles on mobile, flex row on desktop
+function TileRow({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="tile-row">
+      {children}
+    </div>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: NetworkTheater[] }) {
-
   return (
     <div style={{ background: "#FFFFFF", minHeight: "100vh" }}>
+
+      {/* Responsive styles */}
+      <style>{`
+        .suchmodus-padding {
+          padding: 60px 67px;
+        }
+        .suchmodus-padding-bottom {
+          padding: 0 67px 60px;
+        }
+        .tile-row {
+          display: flex;
+          gap: 30px;
+        }
+        .category-tile {
+          flex: 1;
+          min-height: 430px;
+        }
+        .gender-row {
+          display: flex;
+          gap: 30px;
+          width: 100%;
+        }
+        .hero-height {
+          height: 668px;
+        }
+        .hero-text {
+          position: absolute;
+          bottom: 80px;
+          left: 74px;
+          max-width: 573px;
+        }
+        .hero-filterbar {
+          position: absolute;
+          top: 42px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .network-oval {
+          width: 255px;
+          height: 381px;
+          border-radius: 166px;
+        }
+        @media (max-width: 743px) {
+          .suchmodus-padding {
+            padding: 40px 16px;
+          }
+          .suchmodus-padding-bottom {
+            padding: 0 0 40px;
+          }
+          .suchmodus-section-title {
+            padding: 0 16px;
+          }
+          .tile-row {
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding: 0 16px;
+            gap: 12px;
+            /* Hide scrollbar */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+          }
+          .tile-row::-webkit-scrollbar {
+            display: none;
+          }
+          .category-tile {
+            flex: none;
+            width: 75vw;
+            min-height: 220px;
+            scroll-snap-align: start;
+          }
+          .gender-row {
+            gap: 12px;
+          }
+          .hero-height {
+            height: 420px;
+          }
+          .hero-text {
+            bottom: 32px;
+            left: 20px;
+            right: 20px;
+            max-width: none;
+          }
+          .hero-filterbar {
+            top: 20px;
+            left: 16px;
+            right: 16px;
+            transform: none;
+            width: calc(100% - 32px);
+          }
+          .network-oval {
+            width: 160px;
+            height: 240px;
+            border-radius: 100px;
+          }
+        }
+      `}</style>
 
       {/* ═══ Header ═══ */}
       <header style={{
@@ -145,7 +254,6 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
         padding: "0 20px",
       }}>
         <AppLogo />
-
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           {[
             { icon: "icon-user",         href: "/profile",  label: "Profil"      },
@@ -165,9 +273,8 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
       </header>
 
       {/* ═══ Hero ═══ */}
-      <div style={{
+      <div className="hero-height" style={{
         width: "100%",
-        height: 668,
         position: "relative",
         overflow: "hidden",
         background: "var(--secondary-900)",
@@ -181,16 +288,9 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
         <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
 
         {/* Filter bar */}
-        <div style={{
-          position: "absolute",
-          top: 42,
-          left: "50%",
-          transform: "translateX(-50%)",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-        }}>
+        <div className="hero-filterbar">
           <Link href="/results" style={{
+            flex: 1,
             height: 60,
             padding: "0 24px",
             background: "var(--primary-900)",
@@ -207,7 +307,7 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
           </Link>
 
           <Link href="/results" style={{
-            width: 60, height: 60,
+            width: 60, height: 60, flexShrink: 0,
             background: "#FFFFFF",
             border: "1px solid var(--primary-900)",
             borderRadius: "50%",
@@ -217,7 +317,7 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
           </Link>
 
           <Link href="/search" style={{
-            width: 60, height: 60,
+            width: 60, height: 60, flexShrink: 0,
             background: "#FFFFFF",
             border: "1px solid var(--primary-900)",
             borderRadius: "50%",
@@ -227,10 +327,10 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
           </Link>
         </div>
 
-        {/* Hero text — clamp bleibt inline da kein passender Utility-Token */}
-        <div style={{ position: "absolute", bottom: 80, left: 74, maxWidth: 573 }}>
+        {/* Hero text */}
+        <div className="hero-text">
           <h1 className="text-h1--medium" style={{
-            fontSize: "clamp(36px, 5.3vw, 60px)",
+            fontSize: "clamp(28px, 5.3vw, 60px)",
             color: "#FFFFFF",
             lineHeight: "var(--line-height-120)",
             margin: 0,
@@ -241,27 +341,27 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
       </div>
 
       {/* ═══ Gender Cards ═══ */}
-      <div style={{ padding: "60px 67px" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 30, alignItems: "center" }}>
-          <div style={{ display: "flex", gap: 30 }}>
+      <div className="suchmodus-padding">
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "stretch" }}>
+          <div className="gender-row">
             {GENDER_CARDS.slice(0, 3).map((c) => <GenderCard key={c.label} {...c} />)}
           </div>
-          <div style={{ display: "flex", gap: 30 }}>
+          <div className="gender-row">
             {GENDER_CARDS.slice(3).map((c) => <GenderCard key={c.label} {...c} />)}
           </div>
         </div>
       </div>
 
-      {/* ═══ Bekleidungsart — grüne Sektion ═══ */}
-      <div style={{ background: "var(--accent-01)", padding: "60px 67px" }}>
-        <SectionTitle>Bekleidungsart</SectionTitle>
-        <div style={{ display: "flex", gap: 30 }}>
+      {/* ═══ Bekleidungsart ═══ */}
+      <div style={{ background: "var(--accent-01)" }} className="suchmodus-padding">
+        <div className="suchmodus-section-title"><SectionTitle>Bekleidungsart</SectionTitle></div>
+        <TileRow>
           {BEKLEIDUNGSART_TILES.map((t) => <CategoryTile key={t.label} {...t} />)}
-        </div>
+        </TileRow>
       </div>
 
       {/* ═══ CTA Event Card ═══ */}
-      <div style={{ padding: "60px 67px" }}>
+      <div className="suchmodus-padding">
         <div style={{
           borderRadius: 30,
           overflow: "hidden",
@@ -276,8 +376,7 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
           />
           <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)" }} />
-
-          <div style={{ position: "relative", zIndex: 1, padding: "40px 60px" }}>
+          <div style={{ position: "relative", zIndex: 1, padding: "40px clamp(20px, 5vw, 60px)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 80 }}>
               <span className="text-body-1" style={{ color: "#FFFFFF", fontWeight: "var(--font-weight-500)" }}>
                 Save the date
@@ -286,7 +385,6 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
                 <Image key={i} src="/icons/icon-arrow-right-2.svg" alt="" width={42} height={42} style={{ filter: "invert(1)" }} />
               ))}
             </div>
-
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
               <div>
                 <p className="text-h1 text-h1--regular" style={{ color: "#FFFFFF", marginBottom: 8 }}>
@@ -301,7 +399,7 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
                 alt=""
                 width={60}
                 height={60}
-                style={{ filter: "invert(62%) sepia(40%) saturate(500%) hue-rotate(5deg)" }}
+                style={{ filter: "invert(62%) sepia(40%) saturate(500%) hue-rotate(5deg)", flexShrink: 0 }}
               />
             </div>
           </div>
@@ -309,40 +407,37 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
       </div>
 
       {/* ═══ Epoche ═══ */}
-      <div style={{ padding: "0 67px 60px" }}>
-        <SectionTitle>Epoche</SectionTitle>
-        <div style={{ display: "flex", gap: 30 }}>
+      <div className="suchmodus-padding-bottom">
+        <div className="suchmodus-section-title" style={{ paddingBottom: 0 }}><SectionTitle>Epoche</SectionTitle></div>
+        <TileRow>
           {EPOCHE_TILES.map((t) => <CategoryTile key={t.label} {...t} />)}
-        </div>
+        </TileRow>
       </div>
 
       {/* ═══ Sparte ═══ */}
-      <div style={{ padding: "0 67px 60px" }}>
-        <SectionTitle>Sparte</SectionTitle>
-        <div style={{ display: "flex", gap: 30 }}>
+      <div className="suchmodus-padding-bottom">
+        <div className="suchmodus-section-title"><SectionTitle>Sparte</SectionTitle></div>
+        <TileRow>
           {SPARTE_TILES.map((t) => <CategoryTile key={t.label} {...t} />)}
-        </div>
+        </TileRow>
       </div>
 
-      {/* ═══ Bekleidungsart (spezifisch) ═══ */}
-      <div style={{ padding: "0 67px 60px" }}>
-        <SectionTitle>Bekleidungsart</SectionTitle>
-        <div style={{ display: "flex", gap: 30 }}>
+      {/* ═══ Arbeitsuniformen ═══ */}
+      <div className="suchmodus-padding-bottom">
+        <div className="suchmodus-section-title"><SectionTitle>Arbeitsuniformen</SectionTitle></div>
+        <TileRow>
           {BEKLEIDUNGSART2_TILES.map((t) => <CategoryTile key={t.label} {...t} />)}
-        </div>
+        </TileRow>
       </div>
 
       {/* ═══ Kostüm Netzwerk ═══ */}
-      <div style={{ padding: "60px 67px" }}>
+      <div className="suchmodus-padding">
         <h2 className="text-h1 text-h1--medium" style={{ color: "var(--neutral-grey-600)", textAlign: "center", marginBottom: 48 }}>
           Kostüm Netzwerk
         </h2>
         <div style={{ display: "flex", justifyContent: "center", gap: 32, flexWrap: "wrap" }}>
           {networkTheaters.map(({ name, slug, settings }) => (
-            <Link key={slug} href={`/netzwerk/${slug}`} style={{
-              width: 255,
-              height: 381,
-              borderRadius: 166,
+            <Link key={slug} href={`/netzwerk/${slug}`} className="network-oval" style={{
               background: settings?.brand_color ?? "var(--secondary-900)",
               display: "flex",
               alignItems: "center",
@@ -370,7 +465,6 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
 
       {/* ═══ Footer ═══ */}
       <SiteFooter />
-
 
     </div>
   );

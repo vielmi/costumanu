@@ -8,22 +8,22 @@ import { test, expect } from './fixtures'
 
 test.describe('Konfiguration — Zugriff', () => {
   test.skip(
-    !process.env.TEST_USER_EMAIL || !process.env.TEST_USER_PASSWORD,
-    'TEST_USER_EMAIL / TEST_USER_PASSWORD nicht gesetzt'
+    !process.env.TEST_ADMIN_EMAIL || !process.env.TEST_ADMIN_PASSWORD,
+    'TEST_ADMIN_EMAIL / TEST_ADMIN_PASSWORD nicht gesetzt'
   )
 
-  test('Konfigurationsseite ist für eingeloggten Admin erreichbar', async ({ loggedInPage: page }) => {
+  test('Konfigurationsseite ist für eingeloggten Admin erreichbar', async ({ asAdmin: page }) => {
     await page.goto('/einstellungen/konfiguration')
     await expect(page).not.toHaveURL(/login/)
     // Kein unerwarteter Fehler
     await expect(page.getByText(/interner fehler|server error/i)).not.toBeVisible()
   })
 
-  test('Konfigurationsseite zeigt Theater-Liste oder User-Liste', async ({ loggedInPage: page }) => {
+  test('Konfigurationsseite zeigt Theater-Liste oder User-Liste', async ({ asAdmin: page }) => {
     await page.goto('/einstellungen/konfiguration')
     // Platform Admin sieht Theater-Übersicht, Theater-Admin sieht Mitglieder
     await expect(
-      page.getByText(/theater|mitglied|benutzer|konfiguration/i)
+      page.getByRole('heading', { name: /konfiguration/i })
     ).toBeVisible({ timeout: 5000 })
   })
 })

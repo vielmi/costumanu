@@ -43,11 +43,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Home",          href: "/",              icon: "icon-home-menu"       },
   { label: "Kostüme",       href: "/fundus",         icon: "icon-shirt"           },
   { label: "Aufführungen",  href: "/auffuehrungen",  icon: "icon-production-menu" },
-  { label: "Darsteller",    href: "/darsteller",     icon: "icon-artist-menu"     },
-  { label: "Termine",       href: "/termine",        icon: "icon-calendar-menu"   },
-  { label: "Kontakte",      href: "/kontakte",       icon: "icon-contact-book"    },
-  { label: "Nachrichten",   href: "/messages",       icon: "icon-chat",    badgeKey: "messages" },
-  { label: "Ausleihen",     href: "/rental",         icon: "icon-shopping-bag", badgeKey: "rentals" },
 ];
 
 const ADMIN_NAV_ITEM: NavItem = { label: "Konfiguration", href: "/einstellungen/konfiguration", icon: "icon-setting", adminOnly: true };
@@ -62,7 +57,7 @@ export function CockpitShell({
   pendingRentals,
   userRole,
 }: CockpitShellProps) {
-  const isAdmin = userRole === "owner" || userRole === "admin";
+  const isAdmin = userRole === "owner" || userRole === "admin" || userRole === "platform_admin";
   const navItems = isAdmin ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
   const [collapsed, setCollapsed] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -267,29 +262,6 @@ export function CockpitShell({
 
           {/* Buttons group — right-aligned */}
           <div style={{ display: "flex", gap: 12, alignItems: "center", flexShrink: 0 }}>
-
-          {/* Ausleihe erfassen — secondary */}
-          <Link
-            href="/rental/new"
-            style={{
-              height: "var(--button-height-md)",
-              padding: "0 30px",
-              borderRadius: "16px",
-              border: "1px solid var(--primary-900)",
-              color: "var(--primary-900)",
-              background: "transparent",
-              display: "flex",
-              alignItems: "center",
-              fontFamily: "var(--font-family-base)",
-              fontSize: "var(--font-size-350)",
-              fontWeight: "var(--font-weight-500)",
-              textDecoration: "none",
-              whiteSpace: "nowrap",
-              flexShrink: 0,
-            }}
-          >
-            Ausleihe erfassen
-          </Link>
 
           {/* Kostüm erfassen — primary with dropdown */}
           <div ref={dropdownRef} style={{ position: "relative", flexShrink: 0 }}>

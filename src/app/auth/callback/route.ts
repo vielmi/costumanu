@@ -13,8 +13,8 @@ export async function GET(request: Request) {
       // Supabase sets amr to "recovery" when the session comes from a password reset link
       const isRecovery =
         type === "recovery" ||
-        (data.session as any)?.amr?.some(
-          (entry: { method: string }) => entry.method === "recovery",
+        (data.session as { amr?: { method: string }[] } | null)?.amr?.some(
+          (entry) => entry.method === "recovery",
         );
       if (isRecovery) {
         return NextResponse.redirect(`${origin}/auth/reset-password`);

@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { SiteHeader } from "@/components/layout/site-header";
-import { SiteFooter } from "@/components/layout/site-footer";
+import { AppShell } from "@/components/layout/app-shell";
 import { CostumeDetailClient } from "@/components/costume/costume-detail-client";
 import type { Costume, TaxonomyTerm } from "@/lib/types/costume";
 
@@ -39,7 +38,7 @@ export default async function CostumeDetailPage({
   }
 
   // Fetch ensemble children if this is an ensemble
-  let children: Costume[] = [];
+  let ensembleChildren: Costume[] = [];
   if (costume.is_ensemble) {
     const { data } = await supabase
       .from("costumes")
@@ -52,7 +51,7 @@ export default async function CostumeDetailPage({
       )
       .eq("parent_costume_id", id)
       .order("created_at");
-    children = (data ?? []) as unknown as Costume[];
+    ensembleChildren = (data ?? []) as unknown as Costume[];
   }
 
   // Fetch similar costumes (same clothing type, different costume)
@@ -85,17 +84,13 @@ export default async function CostumeDetailPage({
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--page-bg)" }}>
-      <SiteHeader />
-      <main className="mx-auto max-w-5xl">
-        <CostumeDetailClient
-          costume={costume as unknown as Costume}
-          taxonomyByVocabulary={taxonomyByVocabulary}
-          children={children}
-          similarCostumes={similarCostumes}
-        />
-      </main>
-      <SiteFooter />
-    </div>
+    <AppShell>
+      <CostumeDetailClient
+        costume={costume as unknown as Costume}
+        taxonomyByVocabulary={taxonomyByVocabulary}
+        ensembleChildren={ensembleChildren}
+        similarCostumes={similarCostumes}
+      />
+    </AppShell>
   );
 }

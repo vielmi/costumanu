@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CockpitShell } from "@/components/cockpit/cockpit-shell";
-import { ViewerCockpitShell } from "@/components/cockpit/viewer-cockpit-shell";
-import { type NetworkTheater } from "@/components/suchmodus/suchmodus-cockpit";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -15,15 +13,18 @@ export default async function Home() {
     redirect("/login");
   }
 
-  const { data: membership } = await supabase
-    .from("theater_members")
-    .select("theater_id, role")
-    .eq("user_id", user.id)
-    .limit(1)
-    .single();
+  const [{ data: membership }, { data: profile }] = await Promise.all([
+    supabase.from("theater_members").select("theater_id, role").eq("user_id", user.id).limit(1).single(),
+    supabase.from("profiles").select("platform_role").eq("id", user.id).single(),
+  ]);
 
+  const isPlatformAdmin = profile?.platform_role === "platform_admin";
   const theaterId: string | null = membership?.theater_id ?? null;
-  const userRole: string = membership?.role ?? "member";
+  const userRole: string = isPlatformAdmin ? "platform_admin" : (membership?.role ?? "member");
+
+  if (userRole === "viewer") {
+    redirect("/suchmodus");
+  }
 
   // Fetch recent costumes + provenance for production column
   const { data: rawCostumes } = theaterId
@@ -42,6 +43,7 @@ export default async function Home() {
         .limit(5)
     : { data: [] };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recentCostumes = (rawCostumes ?? []).map((c: any) => ({
     id: c.id,
     name: c.name,
@@ -82,16 +84,6 @@ export default async function Home() {
       )
     );
     unreadMessages = results.reduce((sum, r) => sum + (r.count ?? 0), 0);
-  }
-
-  if (userRole === "viewer") {
-    const { data: networkData } = await supabase
-      .from("theaters")
-      .select("id, name, slug, settings")
-      .eq("settings->>show_in_network", "true")
-      .order("name");
-
-    return <ViewerCockpitShell networkTheaters={(networkData ?? []) as NetworkTheater[]} />;
   }
 
   return (

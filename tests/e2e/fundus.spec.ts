@@ -6,18 +6,18 @@ import { test, expect } from './fixtures'
 
 test.describe('Fundus', () => {
   test.skip(
-    !process.env.TEST_USER_EMAIL || !process.env.TEST_USER_PASSWORD,
-    'TEST_USER_EMAIL / TEST_USER_PASSWORD nicht gesetzt'
+    !process.env.TEST_ADMIN_EMAIL || !process.env.TEST_ADMIN_PASSWORD,
+    'TEST_ADMIN_EMAIL / TEST_ADMIN_PASSWORD nicht gesetzt'
   )
 
-  test('Fundus-Seite lädt nach Login', async ({ loggedInPage: page }) => {
+  test('Fundus-Seite lädt nach Login', async ({ asAdmin: page }) => {
     await page.goto('/fundus')
     await expect(page).not.toHaveURL(/login/)
     // Kein Bootstrap-Fehler
     await expect(page.getByText(/fehler beim erstellen des theaters/i)).not.toBeVisible()
   })
 
-  test('Fundus zeigt Kostüm-Liste oder leeren State', async ({ loggedInPage: page }) => {
+  test('Fundus zeigt Kostüm-Liste oder leeren State', async ({ asAdmin: page }) => {
     await page.goto('/fundus')
     // Entweder Kostüme sind sichtbar oder ein leerer Hinweis
     const hasCostumes = await page.getByRole('article').count() > 0
@@ -25,7 +25,7 @@ test.describe('Fundus', () => {
     expect(hasCostumes || hasEmptyState).toBeTruthy()
   })
 
-  test('Fundus hat Schaltfläche zum Erfassen neuer Kostüme', async ({ loggedInPage: page }) => {
+  test('Fundus hat Schaltfläche zum Erfassen neuer Kostüme', async ({ asAdmin: page }) => {
     await page.goto('/fundus')
     await expect(
       page.getByRole('link', { name: /neu|erfassen|hinzufügen/i })

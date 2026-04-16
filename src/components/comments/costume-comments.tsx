@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 interface Comment {
@@ -159,11 +158,6 @@ export function CostumeComments({ costumeId, theaterId, currentUserId, currentUs
   const [mentionResults, setMentionResults] = useState<Member[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    loadComments();
-    loadMembers();
-  }, [costumeId]);
-
   async function loadComments() {
     const supabase = createClient();
     const { data } = await supabase
@@ -174,6 +168,7 @@ export function CostumeComments({ costumeId, theaterId, currentUserId, currentUs
 
     if (!data) return;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const flat: Comment[] = data.map((c: any) => ({
       id: c.id,
       body: c.body,
@@ -207,12 +202,19 @@ export function CostumeComments({ costumeId, theaterId, currentUserId, currentUs
       .eq("theater_id", theaterId);
 
     if (data) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setMembers(data.map((m: any) => ({
         user_id: m.user_id,
         display_name: m.profiles?.display_name ?? "Unbekannt",
       })));
     }
   }
+
+  useEffect(() => {
+    loadComments();
+    loadMembers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [costumeId]);
 
   function handleBodyChange(val: string) {
     setBody(val);

@@ -25,7 +25,7 @@ test.describe('Finja Fundusleitung — owner, Stadttheater Zürich', () => {
   test('Kostüm erfassen ist erlaubt', async ({ asFinja: page }) => {
     await page.goto('/kostueme/neu')
     await expect(page).not.toHaveURL(/login|cockpit/)
-    await expect(page.getByRole('heading', { name: /kostüm|erfassen|neu/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Kategorie' })).toBeVisible()
   })
 
   test('Konfiguration ist erreichbar', async ({ asFinja: page }) => {
@@ -46,7 +46,7 @@ test.describe('Alma Assistentin — member, Stadttheater Zürich', () => {
   test('Kostüm erfassen ist erlaubt', async ({ asAlma: page }) => {
     await page.goto('/kostueme/neu')
     await expect(page).not.toHaveURL(/login|cockpit/)
-    await expect(page.getByRole('heading', { name: /kostüm|erfassen|neu/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Kategorie' })).toBeVisible()
   })
 
   test('Konfiguration ist NICHT erreichbar', async ({ asAlma: page }) => {
@@ -59,8 +59,12 @@ test.describe('Alma Assistentin — member, Stadttheater Zürich', () => {
 test.describe('Viktor Volontär — viewer, Stadttheater Zürich', () => {
   test.skip(!hasViktor, 'TEST_VIEWER_A_* nicht gesetzt')
 
-  test('Fundus ist erreichbar (read-only)', async ({ asViktor: page }) => {
-    await page.goto('/fundus')
+  test('Login leitet auf Suchmodus weiter', async ({ asViktor: page }) => {
+    await expect(page).toHaveURL(/suchmodus/)
+  })
+
+  test('Suchmodus ist erreichbar', async ({ asViktor: page }) => {
+    await page.goto('/suchmodus')
     await expect(page).not.toHaveURL(/login/)
   })
 
@@ -72,14 +76,6 @@ test.describe('Viktor Volontär — viewer, Stadttheater Zürich', () => {
   test('Konfiguration ist NICHT erreichbar', async ({ asViktor: page }) => {
     await page.goto('/einstellungen/konfiguration')
     await expect(page).not.toHaveURL(/konfiguration/)
-  })
-
-  test('"Neu erfassen"-Button ist nicht sichtbar', async ({ asViktor: page }) => {
-    await page.goto('/fundus')
-    await expect(
-      page.getByRole('button', { name: /erfassen|neu|hinzufügen/i })
-        .or(page.getByRole('link', { name: /erfassen|neu|hinzufügen/i }))
-    ).not.toBeVisible()
   })
 })
 

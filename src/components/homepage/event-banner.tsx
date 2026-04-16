@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, MapPin } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 
 type EventData = {
   id: string;
