@@ -63,12 +63,12 @@ export function CockpitShell({
       }}
     >
       <div style={{ flex: 1, display: "flex", overflow: "hidden", padding: "0 12px 12px", gap: 12 }}>
+        {/* Sidebar läuft volle Höhe — Logo auf gleicher Ebene wie Suche */}
         <Sidebar navItems={navItems} badges={badges} />
 
-        {/* Right column: top bar + main content */}
+        {/* Rechte Spalte: Suche oben (72 px), weisser Inhalt darunter */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12, overflow: "hidden", minWidth: 0 }}>
           <CockpitTopBar theaterId={theaterId} />
-
           <main
             style={{
               flex: 1,
