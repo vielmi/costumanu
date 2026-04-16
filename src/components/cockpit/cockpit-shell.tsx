@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { CockpitContent } from "@/components/cockpit/cockpit-client";
 import { Sidebar } from "@/components/layout/sidebar";
-import { SIDEBAR, COCKPIT } from "@/lib/constants/layout";
+import { COCKPIT } from "@/lib/constants/layout";
 import type { NavItem } from "@/components/layout/sidebar";
 import type { RecentCostume } from "@/lib/services/costume-service";
 
@@ -50,8 +50,6 @@ export function CockpitShell({
 }: CockpitShellProps) {
   const navItems = isAdmin(userRole) ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
   const badges = { messages: unreadMessages, rentals: pendingRentals };
-  const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR.EXPANDED_WIDTH);
-  const handleWidthChange = useCallback((w: number) => setSidebarWidth(w), []);
 
   return (
     <div
@@ -64,27 +62,24 @@ export function CockpitShell({
         paddingTop: 20,
       }}
     >
-      {/* Top bar: spans full width, logo section mirrors sidebar width */}
-      <CockpitTopBar sidebarWidth={sidebarWidth} theaterId={theaterId} />
-
-      {/* Body */}
       <div style={{ flex: 1, display: "flex", overflow: "hidden", padding: "0 12px 12px", gap: 12 }}>
-        <Sidebar
-          navItems={navItems}
-          badges={badges}
-          onWidthChange={handleWidthChange}
-        />
+        <Sidebar navItems={navItems} badges={badges} />
 
-        <main
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            background: "var(--neutral-white)",
-            borderRadius: "40px 40px 0 0",
-          }}
-        >
-          <CockpitContent recentCostumes={recentCostumes} theaterId={theaterId} />
-        </main>
+        {/* Right column: top bar + main content */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12, overflow: "hidden", minWidth: 0 }}>
+          <CockpitTopBar theaterId={theaterId} />
+
+          <main
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              background: "var(--neutral-white)",
+              borderRadius: "40px 40px 0 0",
+            }}
+          >
+            <CockpitContent recentCostumes={recentCostumes} theaterId={theaterId} />
+          </main>
+        </div>
       </div>
     </div>
   );
@@ -92,39 +87,19 @@ export function CockpitShell({
 
 // ─── CockpitTopBar ───────────────────────────────────────────────────────────
 
-interface CockpitTopBarProps {
-  sidebarWidth: number;
-  theaterId: string | null;
-}
-
-function CockpitTopBar({ sidebarWidth, theaterId }: CockpitTopBarProps) {
+function CockpitTopBar({ theaterId }: { theaterId: string | null }) {
   return (
     <div
       style={{
+        height: 72,
+        flexShrink: 0,
         display: "flex",
         alignItems: "center",
-        flexShrink: 0,
-        background: "var(--page-bg)",
-        height: 72,
-        paddingRight: 12,
+        gap: 12,
       }}
     >
-      {/* Spacer mirrors sidebar width so search starts after the sidebar */}
-      <div style={{ width: sidebarWidth, flexShrink: 0, transition: "width 200ms ease" }} />
-
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          padding: "0 24px 0 24px",
-          justifyContent: "space-between",
-        }}
-      >
-        <CockpitSearch theaterId={theaterId} />
-        <ErfassenDropdown />
-      </div>
+      <CockpitSearch theaterId={theaterId} />
+      <ErfassenDropdown />
     </div>
   );
 }
