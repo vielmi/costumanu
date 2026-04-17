@@ -3,18 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import type { GenderTerm } from "./suchmodus-cockpit";
 import styles from "./mobile-menu-drawer.module.css";
-
-// ─── Data ─────────────────────────────────────────────────────────────────────
-
-const KOSTÜME_ITEMS = [
-  { label: "Damen",   href: "/results?gender=damen"   },
-  { label: "Herren",  href: "/results?gender=herren"  },
-  { label: "Unisex",  href: "/results?gender=unisex"  },
-  { label: "Kinder",  href: "/results?gender=kinder"  },
-  { label: "Tiere",   href: "/results?gender=tier"    },
-  { label: "Fantasy", href: "/results?gender=fantasy" },
-] as const;
 
 const NETZWERK_ITEMS = [
   { label: "Nachrichten",    href: "/messages", icon: "icon-chat"         },
@@ -45,7 +35,7 @@ function ArrowRight() {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
-export function MobileMenuDrawer() {
+export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTerm[] }) {
   const [open, setOpen] = useState(false);
 
   function close() { setOpen(false); }
@@ -78,12 +68,12 @@ export function MobileMenuDrawer() {
           {/* Scrollable content */}
           <div className={styles.content}>
 
-            {/* Section: Kostüme */}
+            {/* Section: Kostüme — aus DB */}
             <p className={styles.sectionLabel}>Kostüme</p>
             <nav>
-              {KOSTÜME_ITEMS.map((item) => (
-                <Link key={item.href} href={item.href} onClick={close} className={styles.navItem}>
-                  <span className={styles.navLabel}>{item.label}</span>
+              {genderTerms.map((term) => (
+                <Link key={term.id} href={`/results?gender=${term.id}`} onClick={close} className={styles.navItem}>
+                  <span className={styles.navLabel}>{term.label_de}</span>
                   <ArrowRight />
                 </Link>
               ))}

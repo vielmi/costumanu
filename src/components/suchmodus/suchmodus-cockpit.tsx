@@ -4,6 +4,7 @@ import { AppLogo } from "@/components/layout/app-logo";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { StandortSheet } from "@/components/suchmodus/standort-sheet";
 import { MobileMenuDrawer } from "@/components/suchmodus/mobile-menu-drawer";
+import { getGenderIcon } from "@/lib/constants/icons";
 import styles from "./suchmodus-cockpit.module.css";
 
 export type NetworkTheater = {
@@ -13,16 +14,14 @@ export type NetworkTheater = {
   settings: { brand_color?: string; show_in_network?: boolean } | null;
 };
 
+export type GenderTerm = {
+  id: string;
+  label_de: string;
+};
+
 // ─── Data ────────────────────────────────────────────────────────────────────
 
-const GENDER_CARDS = [
-  { label: "Damen",   icon: "icon-female",   href: "/results?gender=damen"   },
-  { label: "Herren",  icon: "icon-male",     href: "/results?gender=herren"  },
-  { label: "Unisex",  icon: "icon-unisex",   href: "/results?gender=unisex"  },
-  { label: "Kinder",  icon: "icon-children", href: "/results?gender=kinder"  },
-  { label: "Tier",    icon: "icon-animal",   href: "/results?gender=tier"    },
-  { label: "Fantasy", icon: "icon-fantasy",  href: "/results?gender=fantasy" },
-];
+// Gender cards are built dynamically from DB terms — see genderTerms prop
 
 const BEKLEIDUNGSART_TILES = [
   { label: "Kleider",            image: "/images/suchmodus-20er.jpg",      href: "/results?type=kleider"  },
@@ -111,16 +110,18 @@ function TileRow({ children }: { children: React.ReactNode }) {
 export function SuchmodusCockpit({
   networkTheaters = [],
   theaters = [],
+  genderTerms = [],
 }: {
   networkTheaters?: NetworkTheater[];
   theaters?: NetworkTheater[];
+  genderTerms?: GenderTerm[];
 }) {
   return (
     <div className={styles.page}>
 
       {/* ═══ Header ═══ */}
       <header className={styles.header}>
-        <MobileMenuDrawer />
+        <MobileMenuDrawer genderTerms={genderTerms} />
         <AppLogo />
         <div className={styles.headerIcons}>
           {HEADER_ICONS.map(({ icon, href, label }) => (
@@ -171,7 +172,14 @@ export function SuchmodusCockpit({
       {/* ═══ Gender Cards ═══ */}
       <div className={styles.sectionPadded}>
         <div className={styles.genderGrid}>
-          {GENDER_CARDS.map((c) => <GenderCard key={c.label} {...c} />)}
+          {genderTerms.map((term) => (
+            <GenderCard
+              key={term.id}
+              label={term.label_de}
+              icon={`icon-${getGenderIcon(term.label_de)}`}
+              href={`/results?gender=${term.id}`}
+            />
+          ))}
         </div>
       </div>
 
