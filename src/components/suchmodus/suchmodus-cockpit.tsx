@@ -3,6 +3,7 @@ import Image from "next/image";
 import { AppLogo } from "@/components/layout/app-logo";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { StandortSheet } from "@/components/suchmodus/standort-sheet";
+import { MobileMenuDrawer } from "@/components/suchmodus/mobile-menu-drawer";
 import styles from "./suchmodus-cockpit.module.css";
 
 export type NetworkTheater = {
@@ -119,6 +120,7 @@ export function SuchmodusCockpit({
 
       {/* ═══ Header ═══ */}
       <header className={styles.header}>
+        <MobileMenuDrawer />
         <AppLogo />
         <div className={styles.headerIcons}>
           {HEADER_ICONS.map(({ icon, href, label }) => (
