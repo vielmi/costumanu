@@ -81,6 +81,63 @@
   margin: 16px 0;
 }
 
+/* ─── Back button (Level 2) ──────────────────────────────────────────────── */
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 0;
+}
+.backLabel {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-100);
+  font-weight: var(--font-weight-400);
+  color: #D1D1D1;
+  text-decoration: underline;
+  letter-spacing: 0.002em;
+}
+
+/* ─── Section title (Level 2) ────────────────────────────────────────────── */
+.level2Title {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-350);
+  font-weight: var(--font-weight-700);
+  color: #A4A4A4;
+  margin: 24px 0 12px;
+}
+
+/* ─── Loading / empty states ────────────────────────────────────────────── */
+.loadingLabel,
+.emptyLabel {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-300);
+  font-weight: var(--font-weight-400);
+  color: #A4A4A4;
+  margin-top: 16px;
+}
+
+/* ─── Nav item as button (Level 1 gender items) ──────────────────────────── */
+.navItemButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 58px;
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+.navItemButton:last-child {
+  border-bottom: none;
+}
+
 /* ─── Profile footer ─────────────────────────────────────────────────────── */
 .profileFooter {
   display: flex;
