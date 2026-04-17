@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { AppLogo } from "@/components/layout/app-logo";
 import { SiteFooter } from "@/components/layout/site-footer";
+import styles from "./suchmodus-cockpit.module.css";
 
 export type NetworkTheater = {
   id: string;
@@ -45,24 +46,18 @@ const BEKLEIDUNGSART2_TILES = [
   { label: "Feuerwehr", image: "/images/suchmodus-schauspiel.jpg", href: "/results?type=feuerwehr" },
 ];
 
+const HEADER_ICONS = [
+  { icon: "icon-user",         href: "/profile",  label: "Profil"      },
+  { icon: "icon-chat",         href: "/messages", label: "Nachrichten" },
+  { icon: "icon-heart",        href: "/wishlist", label: "Merkliste"   },
+  { icon: "icon-shopping-bag", href: "/rental",   label: "Ausleihe"    },
+] as const;
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function CategoryTile({ label, image, href }: { label: string; image?: string; href: string }) {
   return (
-    <Link
-      href={href}
-      style={{
-        flexShrink: 0,
-        borderRadius: 20,
-        position: "relative",
-        overflow: "hidden",
-        background: "var(--secondary-900)",
-        display: "block",
-        textDecoration: "none",
-        // Desktop: flex:1, Mobile: 75vw — via CSS class below
-      }}
-      className="category-tile"
-    >
+    <Link href={href} className={styles.categoryTile}>
       {image && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -72,7 +67,7 @@ function CategoryTile({ label, image, href }: { label: string; image?: string; h
         />
       )}
       <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
-      <div style={{ position: "absolute", bottom: 24, left: 24, display: "flex", alignItems: "center", gap: 12 }}>
+      <div className={styles.tileLabelRow}>
         <span className="text-h2 text-h1--medium" style={{ color: "#FFFFFF" }}>
           {label}
         </span>
@@ -90,182 +85,37 @@ function CategoryTile({ label, image, href }: { label: string; image?: string; h
 
 function GenderCard({ label, icon, href }: { label: string; icon: string; href: string }) {
   return (
-    <Link
-      href={href}
-      style={{
-        flex: 1,
-        minWidth: 0,
-        height: 140,
-        background: "#FFFFFF",
-        border: "1px solid var(--secondary-900)",
-        borderRadius: "var(--radius-md)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "flex-end",
-        paddingBottom: 14,
-        gap: 8,
-        textDecoration: "none",
-        cursor: "pointer",
-      }}
-    >
+    <Link href={href} className={styles.genderCard}>
       <Image src={`/icons/${icon}.svg`} alt={label} width={44} height={44} />
-      <span className="text-h6" style={{ color: "var(--secondary-900)", fontWeight: "var(--font-weight-500)" }}>
-        {label}
-      </span>
+      <span className={styles.genderCardLabel}>{label}</span>
     </Link>
   );
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="text-h1 text-h1--medium" style={{ color: "var(--neutral-grey-600)", marginBottom: 32 }}>
-      {children}
-    </h2>
+    <div className={styles.sectionTitleWrap}>
+      <h2 className={styles.sectionTitle}>{children}</h2>
+    </div>
   );
 }
 
-// Horizontal scroll row for tiles on mobile, flex row on desktop
 function TileRow({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="tile-row">
-      {children}
-    </div>
-  );
+  return <div className={styles.tileRow}>{children}</div>;
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: NetworkTheater[] }) {
   return (
-    <div style={{ background: "#FFFFFF", minHeight: "100vh" }}>
-
-      {/* Responsive styles */}
-      <style>{`
-        .suchmodus-padding {
-          padding: 60px 67px;
-        }
-        .suchmodus-padding-bottom {
-          padding: 0 67px 60px;
-        }
-        .tile-row {
-          display: flex;
-          gap: 30px;
-        }
-        .category-tile {
-          flex: 1;
-          min-height: 430px;
-        }
-        .gender-row {
-          display: flex;
-          gap: 30px;
-          width: 100%;
-        }
-        .hero-height {
-          height: 668px;
-        }
-        .hero-text {
-          position: absolute;
-          bottom: 80px;
-          left: 74px;
-          max-width: 573px;
-        }
-        .hero-filterbar {
-          position: absolute;
-          top: 42px;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-        .network-oval {
-          width: 255px;
-          height: 381px;
-          border-radius: 166px;
-        }
-        @media (max-width: 743px) {
-          .suchmodus-padding {
-            padding: 40px 16px;
-          }
-          .suchmodus-padding-bottom {
-            padding: 0 0 40px;
-          }
-          .suchmodus-section-title {
-            padding: 0 16px;
-          }
-          .tile-row {
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-            padding: 0 16px;
-            gap: 12px;
-            /* Hide scrollbar */
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-          }
-          .tile-row::-webkit-scrollbar {
-            display: none;
-          }
-          .category-tile {
-            flex: none;
-            width: 75vw;
-            min-height: 220px;
-            scroll-snap-align: start;
-          }
-          .gender-row {
-            gap: 12px;
-          }
-          .hero-height {
-            height: 420px;
-          }
-          .hero-text {
-            bottom: 32px;
-            left: 20px;
-            right: 20px;
-            max-width: none;
-          }
-          .hero-filterbar {
-            top: 20px;
-            left: 16px;
-            right: 16px;
-            transform: none;
-            width: calc(100% - 32px);
-          }
-          .network-oval {
-            width: 160px;
-            height: 240px;
-            border-radius: 100px;
-          }
-        }
-      `}</style>
+    <div className={styles.page}>
 
       {/* ═══ Header ═══ */}
-      <header style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 50,
-        height: 80,
-        background: "#FFFFFF",
-        boxShadow: "0px 1px 10px rgba(0,0,0,0.20)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 20px",
-      }}>
+      <header className={styles.header}>
         <AppLogo />
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          {[
-            { icon: "icon-user",         href: "/profile",  label: "Profil"      },
-            { icon: "icon-chat",         href: "/messages", label: "Nachrichten" },
-            { icon: "icon-heart",        href: "/wishlist", label: "Merkliste"   },
-            { icon: "icon-shopping-bag", href: "/rental",   label: "Ausleihe"    },
-          ].map(({ icon, href, label }) => (
-            <Link key={href} href={href} style={{
-              width: 45, height: 45,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              textDecoration: "none",
-            }}>
+        <div className={styles.headerIcons}>
+          {HEADER_ICONS.map(({ icon, href, label }) => (
+            <Link key={href} href={href} className={styles.headerIcon}>
               <Image src={`/icons/${icon}.svg`} alt={label} width={24} height={24} />
             </Link>
           ))}
@@ -273,12 +123,7 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
       </header>
 
       {/* ═══ Hero ═══ */}
-      <div className="hero-height" style={{
-        width: "100%",
-        position: "relative",
-        overflow: "hidden",
-        background: "var(--secondary-900)",
-      }}>
+      <div className={styles.hero}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/suchmodus-oper-scene.jpg"
@@ -288,47 +133,23 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
         <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
 
         {/* Filter bar */}
-        <div className="hero-filterbar">
-          <Link href="/results" style={{
-            flex: 1,
-            height: 60,
-            padding: "0 24px",
-            background: "var(--primary-900)",
-            borderRadius: 61,
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            textDecoration: "none",
-          }}>
+        <div className={styles.heroFilterBar}>
+          <Link href="/results" className={styles.heroFilterButton}>
             <Image src="/icons/icon-filter.svg" alt="" width={24} height={24} style={{ filter: "invert(1)" }} />
             <span className="text-subtitle-1" style={{ color: "#FFFFFF", fontWeight: "var(--font-weight-500)", whiteSpace: "nowrap" }}>
               Kostüm finden
             </span>
           </Link>
-
-          <Link href="/results" style={{
-            width: 60, height: 60, flexShrink: 0,
-            background: "#FFFFFF",
-            border: "1px solid var(--primary-900)",
-            borderRadius: "50%",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
+          <Link href="/results" className={styles.heroFilterCircle}>
             <Image src="/icons/icon-location.svg" alt="Standort" width={24} height={24} />
           </Link>
-
-          <Link href="/search" style={{
-            width: 60, height: 60, flexShrink: 0,
-            background: "#FFFFFF",
-            border: "1px solid var(--primary-900)",
-            borderRadius: "50%",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
+          <Link href="/search" className={styles.heroFilterCircle}>
             <Image src="/icons/icon-search.svg" alt="Suche" width={24} height={24} />
           </Link>
         </div>
 
         {/* Hero text */}
-        <div className="hero-text">
+        <div className={styles.heroText}>
           <h1 className="text-h1--medium" style={{
             fontSize: "clamp(28px, 5.3vw, 60px)",
             color: "#FFFFFF",
@@ -341,34 +162,23 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
       </div>
 
       {/* ═══ Gender Cards ═══ */}
-      <div className="suchmodus-padding">
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "stretch" }}>
-          <div className="gender-row">
-            {GENDER_CARDS.slice(0, 3).map((c) => <GenderCard key={c.label} {...c} />)}
-          </div>
-          <div className="gender-row">
-            {GENDER_CARDS.slice(3).map((c) => <GenderCard key={c.label} {...c} />)}
-          </div>
+      <div className={styles.sectionPadded}>
+        <div className={styles.genderGrid}>
+          {GENDER_CARDS.map((c) => <GenderCard key={c.label} {...c} />)}
         </div>
       </div>
 
       {/* ═══ Bekleidungsart ═══ */}
-      <div style={{ background: "var(--accent-01)" }} className="suchmodus-padding">
-        <div className="suchmodus-section-title"><SectionTitle>Bekleidungsart</SectionTitle></div>
+      <div className={styles.sectionPadded} style={{ background: "var(--accent-01)" }}>
+        <SectionTitle>Bekleidungsart</SectionTitle>
         <TileRow>
           {BEKLEIDUNGSART_TILES.map((t) => <CategoryTile key={t.label} {...t} />)}
         </TileRow>
       </div>
 
       {/* ═══ CTA Event Card ═══ */}
-      <div className="suchmodus-padding">
-        <div style={{
-          borderRadius: 30,
-          overflow: "hidden",
-          position: "relative",
-          minHeight: 350,
-          background: "var(--secondary-700)",
-        }}>
+      <div className={styles.sectionPadded}>
+        <div className={styles.ctaCard}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/suchmodus-barock-scene.jpg"
@@ -407,51 +217,49 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
       </div>
 
       {/* ═══ Epoche ═══ */}
-      <div className="suchmodus-padding-bottom">
-        <div className="suchmodus-section-title" style={{ paddingBottom: 0 }}><SectionTitle>Epoche</SectionTitle></div>
+      <div className={styles.sectionPaddedBottom}>
+        <SectionTitle>Epoche</SectionTitle>
         <TileRow>
           {EPOCHE_TILES.map((t) => <CategoryTile key={t.label} {...t} />)}
         </TileRow>
       </div>
 
       {/* ═══ Sparte ═══ */}
-      <div className="suchmodus-padding-bottom">
-        <div className="suchmodus-section-title"><SectionTitle>Sparte</SectionTitle></div>
+      <div className={styles.sectionPaddedBottom}>
+        <SectionTitle>Sparte</SectionTitle>
         <TileRow>
           {SPARTE_TILES.map((t) => <CategoryTile key={t.label} {...t} />)}
         </TileRow>
       </div>
 
       {/* ═══ Arbeitsuniformen ═══ */}
-      <div className="suchmodus-padding-bottom">
-        <div className="suchmodus-section-title"><SectionTitle>Arbeitsuniformen</SectionTitle></div>
+      <div className={styles.sectionPaddedBottom}>
+        <SectionTitle>Arbeitsuniformen</SectionTitle>
         <TileRow>
           {BEKLEIDUNGSART2_TILES.map((t) => <CategoryTile key={t.label} {...t} />)}
         </TileRow>
       </div>
 
       {/* ═══ Kostüm Netzwerk ═══ */}
-      <div className="suchmodus-padding">
+      <div className={styles.sectionPadded}>
         <h2 className="text-h1 text-h1--medium" style={{ color: "var(--neutral-grey-600)", textAlign: "center", marginBottom: 48 }}>
           Kostüm Netzwerk
         </h2>
-        <div style={{ display: "flex", justifyContent: "center", gap: 32, flexWrap: "wrap" }}>
+        <div className={styles.networkGrid}>
           {networkTheaters.map(({ name, slug, settings }) => (
-            <Link key={slug} href={`/netzwerk/${slug}`} className="network-oval" style={{
-              background: settings?.brand_color ?? "var(--secondary-900)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              textDecoration: "none",
-              flexShrink: 0,
-              overflow: "hidden",
-              position: "relative",
-            }}>
+            <Link
+              key={slug}
+              href={`/netzwerk/${slug}`}
+              className={styles.networkOval}
+              style={{ background: settings?.brand_color ?? "var(--secondary-900)" }}
+            >
               <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.3)" }} />
-              <span className="text-h6" style={{
+              <span style={{
                 position: "relative",
                 zIndex: 1,
+                fontFamily: "var(--font-family-base)",
                 fontWeight: "var(--font-weight-700)",
+                fontSize: "var(--font-size-300)",
                 color: "#FFFFFF",
                 textAlign: "center",
                 padding: "0 20px",
