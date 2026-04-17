@@ -4,13 +4,22 @@ import { SuchmodusCockpit, type NetworkTheater } from "@/components/suchmodus/su
 export default async function SuchmodusPage() {
   const supabase = await createClient();
 
-  const { data } = await supabase
-    .from("theaters")
-    .select("id, name, slug, settings")
-    .eq("settings->>show_in_network", "true")
-    .order("name");
+  const [{ data: networkData }, { data: allData }] = await Promise.all([
+    supabase
+      .from("theaters")
+      .select("id, name, slug, settings")
+      .eq("settings->>show_in_network", "true")
+      .order("name"),
+    supabase
+      .from("theaters")
+      .select("id, name, slug, settings")
+      .order("name"),
+  ]);
 
-  const networkTheaters = (data ?? []) as NetworkTheater[];
-
-  return <SuchmodusCockpit networkTheaters={networkTheaters} />;
+  return (
+    <SuchmodusCockpit
+      networkTheaters={(networkData ?? []) as NetworkTheater[]}
+      theaters={(allData ?? []) as NetworkTheater[]}
+    />
+  );
 }

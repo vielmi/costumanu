@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { AppLogo } from "@/components/layout/app-logo";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { StandortSheet } from "@/components/suchmodus/standort-sheet";
 import styles from "./suchmodus-cockpit.module.css";
 
 export type NetworkTheater = {
@@ -106,7 +107,13 @@ function TileRow({ children }: { children: React.ReactNode }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: NetworkTheater[] }) {
+export function SuchmodusCockpit({
+  networkTheaters = [],
+  theaters = [],
+}: {
+  networkTheaters?: NetworkTheater[];
+  theaters?: NetworkTheater[];
+}) {
   return (
     <div className={styles.page}>
 
@@ -140,9 +147,7 @@ export function SuchmodusCockpit({ networkTheaters = [] }: { networkTheaters?: N
               Kostüm finden
             </span>
           </Link>
-          <Link href="/results" className={styles.heroFilterCircle}>
-            <Image src="/icons/icon-location.svg" alt="Standort" width={24} height={24} />
-          </Link>
+          <StandortSheet theaters={theaters} />
           <Link href="/search" className={styles.heroFilterCircle}>
             <Image src="/icons/icon-search.svg" alt="Suche" width={24} height={24} />
           </Link>
