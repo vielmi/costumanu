@@ -14,6 +14,7 @@ type Suggestion = {
   id: string;
   name: string;
   costume_provenance: { production_title: string; year: number | null }[];
+  costume_media: { storage_path: string; sort_order: number }[];
 };
 
 function useDebounce(value: string, delay: number): string {
@@ -29,9 +30,17 @@ function useDebounce(value: string, delay: number): string {
 
 interface SearchOverlayProps {
   initialQuery: string;
+  cancelHref?: string;
+  costumeRoutePrefix?: string;
+  inputClassName?: string;
 }
 
-export function SearchOverlay({ initialQuery }: SearchOverlayProps) {
+export function SearchOverlay({
+  initialQuery,
+  cancelHref = "/",
+  costumeRoutePrefix = "/costume",
+  inputClassName,
+}: SearchOverlayProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState(initialQuery);
@@ -54,7 +63,8 @@ export function SearchOverlay({ initialQuery }: SearchOverlayProps) {
         .select(
           `
           id, name,
-          costume_provenance(production_title, year)
+          costume_provenance(production_title, year),
+          costume_media(storage_path, sort_order)
         `
         )
         .textSearch("fts_doc", debouncedQuery, { type: "websearch" })
@@ -76,10 +86,10 @@ export function SearchOverlay({ initialQuery }: SearchOverlayProps) {
       e.preventDefault();
       const trimmed = query.trim();
       if (trimmed) {
-        router.push(`/results?q=${encodeURIComponent(trimmed)}`);
+        router.push(`${costumeRoutePrefix}?q=${encodeURIComponent(trimmed)}`);
       }
     },
-    [query, router]
+    [query, router, costumeRoutePrefix]
   );
 
   function handleClear() {
@@ -106,7 +116,7 @@ export function SearchOverlay({ initialQuery }: SearchOverlayProps) {
             placeholder={t("search.placeholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="h-12 rounded-full pl-12 pr-10 text-base"
+            className={inputClassName ?? "h-12 rounded-full pl-12 pr-10 text-base"}
             autoComplete="off"
           />
           {query.length > 0 && (
@@ -122,7 +132,7 @@ export function SearchOverlay({ initialQuery }: SearchOverlayProps) {
         </form>
 
         <Button variant="ghost" size="sm" asChild className="shrink-0">
-          <Link href="/">{t("common.cancel")}</Link>
+          <Link href={cancelHref}>{t("common.cancel")}</Link>
         </Button>
       </div>
 
@@ -150,20 +160,46 @@ export function SearchOverlay({ initialQuery }: SearchOverlayProps) {
                       .join(" · ")
                   : null;
 
+                const sortedMedia = [...(suggestion.costume_media ?? [])].sort(
+                  (a, b) => a.sort_order - b.sort_order
+                );
+                const imageUrl = sortedMedia[0]
+                  ? supabase.storage
+                      .from("costume-images")
+                      .getPublicUrl(sortedMedia[0].storage_path).data.publicUrl
+                  : null;
+
                 return (
                   <li key={suggestion.id}>
                     <Link
-                      href={`/costume/${suggestion.id}`}
-                      className="flex flex-col gap-0.5 px-2 py-3 transition-colors hover:bg-muted/50"
+                      href={`${costumeRoutePrefix}/${suggestion.id}`}
+                      className="flex items-center gap-3 px-2 py-3 transition-colors hover:bg-muted/50"
                     >
-                      <span className="text-sm font-medium">
-                        {suggestion.name}
-                      </span>
-                      {subtitle && (
-                        <span className="text-xs text-muted-foreground">
-                          {subtitle}
+                      {/* Thumbnail */}
+                      <div className="h-[75px] w-[75px] shrink-0 overflow-hidden rounded-[4px] bg-muted">
+                        {imageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={imageUrl}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-full w-full bg-muted" />
+                        )}
+                      </div>
+
+                      {/* Text */}
+                      <div className="flex min-w-0 flex-col gap-1">
+                        <span className="text-sm font-bold leading-snug">
+                          {suggestion.name}
                         </span>
-                      )}
+                        {subtitle && (
+                          <span className="text-sm text-muted-foreground">
+                            {subtitle}
+                          </span>
+                        )}
+                      </div>
                     </Link>
                   </li>
                 );

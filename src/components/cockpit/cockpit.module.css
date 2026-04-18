@@ -1,0 +1,196 @@
+/* ─── Shell ──────────────────────────────────────────────────────────────── */
+.shell {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--page-bg);
+  overflow: hidden;
+  padding-top: 20px;
+}
+
+.shellInner {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  padding: 0 12px 12px;
+  gap: 12px;
+}
+
+.mainContent {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--neutral-white);
+  border-radius: 40px 40px 0 0;
+}
+
+.sidebarWrap {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Mobile header (hidden on desktop) ─────────────────────────────────── */
+.mobileHeader {
+  display: none;
+}
+
+/* ─── Content ────────────────────────────────────────────────────────────── */
+.imageCards {
+  display: flex;
+  gap: 12px;
+}
+
+.recentRow {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* Suchmodus CTA is rendered inside recentRow on desktop, above it on mobile */
+.suchmodusMobile {
+  display: none;
+}
+
+.suchmodusDesktop {
+  display: flex;
+}
+
+/* Costume list — full-width breakout on mobile */
+.costumeList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.costumeRow {
+  border-radius: var(--radius-xs);
+}
+
+/* Production + gender badge — hidden on mobile */
+.productionLabel {
+  display: block;
+}
+
+.genderBadge {
+  display: flex;
+}
+
+/* Desktop top bar — hidden on mobile */
+.desktopTopBar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 72px;
+  padding-bottom: 12px;
+}
+
+/* ─── Tablet overrides (744px – 1100px) ─────────────────────────────────── */
+@media (min-width: 744px) and (max-width: 1100px) {
+  .productionLabel {
+    display: none;
+  }
+
+  .genderBadge {
+    display: none;
+  }
+}
+
+/* ─── Mobile overrides (< 744px) ────────────────────────────────────────── */
+@media (max-width: 743px) {
+  .shell {
+    padding-top: 0;
+  }
+
+  .shellInner {
+    padding: 0;
+    gap: 0;
+  }
+
+  .mainContent {
+    border-radius: 0;
+  }
+
+  .sidebarWrap {
+    display: none;
+  }
+
+  .mobileHeader {
+    display: flex;
+    align-items: center;
+    padding: 0 8px 0 4px;
+    height: 80px;
+    flex-shrink: 0;
+    gap: 0;
+    /* Logo fills remaining space, pushing icons to the right */
+  }
+
+  .mobileHeaderIcons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .mobileHeaderIconBtn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .desktopTopBar {
+    display: none !important;
+  }
+
+  /* Image cards: horizontal scroll */
+  .imageCards {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 16px 4px;
+    scrollbar-width: none;
+  }
+  .imageCards::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Switch CTA position: mobile version above, desktop version hidden */
+  .suchmodusMobile {
+    display: block;
+  }
+
+  .suchmodusDesktop {
+    display: none;
+  }
+
+  /* Recent list takes full width */
+  .recentRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  /* Reduce content padding on mobile */
+  .contentPadding {
+    padding: 16px 16px 32px !important;
+  }
+
+  .costumeRow {
+    border-radius: 0;
+  }
+
+  /* Hide production label and gender badge in rows */
+  .productionLabel {
+    display: none;
+  }
+
+  .genderBadge {
+    display: none;
+  }
+}

@@ -1,0 +1,241 @@
+/* ─── Page ───────────────────────────────────────────────────────────────── */
+.page {
+  background: #FFFFFF;
+  min-height: 100vh;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 80px;
+  background: #FFFFFF;
+  box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.20);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+.headerIcons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.headerIcon {
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* ─── Hero ───────────────────────────────────────────────────────────────── */
+.hero {
+  width: 100%;
+  height: 668px;
+  position: relative;
+  overflow: hidden;
+  background: var(--secondary-900);
+}
+.heroFilterBar {
+  position: absolute;
+  top: 42px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.heroFilterButton {
+  flex: 1;
+  height: 60px;
+  padding: 0 24px;
+  background: var(--primary-900);
+  border-radius: 61px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.heroFilterCircle {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  background: #FFFFFF;
+  border: 1px solid var(--primary-900);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.heroText {
+  position: absolute;
+  bottom: 80px;
+  left: 74px;
+  max-width: 573px;
+}
+
+/* ─── Section paddings ───────────────────────────────────────────────────── */
+.sectionPadded {
+  padding: 60px 67px;
+}
+.sectionPaddedBottom {
+  padding: 0 67px 60px;
+}
+.sectionTitleWrap {
+  margin-bottom: 32px;
+}
+.sectionTitle {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-800);
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-grey-600);
+}
+
+/* ─── Gender grid ────────────────────────────────────────────────────────── */
+.genderGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.genderCard {
+  height: 140px;
+  background: #FFFFFF;
+  border: 1px solid var(--secondary-900);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 14px;
+  gap: 8px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.genderCardLabel {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-300);
+  font-weight: var(--font-weight-500);
+  color: var(--secondary-900);
+}
+
+/* ─── Category tile rows ─────────────────────────────────────────────────── */
+.tileRow {
+  display: flex;
+  gap: 30px;
+}
+.categoryTile {
+  flex: 1;
+  min-height: 430px;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  background: var(--secondary-900);
+  display: block;
+  text-decoration: none;
+}
+.tileLabelRow {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ─── CTA event card ─────────────────────────────────────────────────────── */
+.ctaCard {
+  border-radius: 30px;
+  overflow: hidden;
+  position: relative;
+  min-height: 350px;
+  background: var(--secondary-700);
+}
+
+/* ─── Network ────────────────────────────────────────────────────────────── */
+.networkGrid {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.networkOval {
+  width: 255px;
+  height: 381px;
+  border-radius: 166px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ─── Mobile (< 744px) ───────────────────────────────────────────────────── */
+@media (max-width: 743px) {
+  .header {
+    height: 70px;
+  }
+
+  .sectionPadded {
+    padding: 40px 16px;
+  }
+  .sectionPaddedBottom {
+    padding: 0 0 40px;
+  }
+  .sectionTitleWrap {
+    padding: 0 16px;
+    margin-bottom: 20px;
+  }
+
+  .hero {
+    height: 400px;
+  }
+  .heroFilterBar {
+    top: 20px;
+    left: 16px;
+    right: 16px;
+    transform: none;
+    width: calc(100% - 32px);
+  }
+  .heroText {
+    bottom: 32px;
+    left: 20px;
+    right: 20px;
+    max-width: none;
+  }
+
+  /* 2 columns on mobile instead of 3 */
+  .genderGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Horizontal scroll tiles */
+  .tileRow {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 16px;
+    gap: 12px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .tileRow::-webkit-scrollbar {
+    display: none;
+  }
+  .categoryTile {
+    flex: none;
+    width: 60vw;
+    min-height: 270px;
+    scroll-snap-align: start;
+  }
+
+  .networkOval {
+    width: 120px;
+    height: 179px;
+    border-radius: 78px;
+  }
+}

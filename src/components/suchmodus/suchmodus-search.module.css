@@ -1,0 +1,194 @@
+/* ─── Page ─────────────────────────────────────────────────────────────── */
+.page {
+  min-height: 100svh;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Header row ────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 16px 12px;
+}
+
+/* ─── Pill input ────────────────────────────────────────────────────────── */
+.inputWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  height: 60px;
+  border: 1px solid #000000;
+  border-radius: 47px;
+  padding: 0 16px;
+  gap: 10px;
+  background: #FFFFFF;
+}
+
+.inputIcon {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+
+.input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-family-base);
+  font-size: 16px;
+  font-weight: var(--font-weight-400);
+  color: #000000;
+  min-width: 0;
+}
+
+.input::placeholder {
+  color: #606060;
+  font-weight: var(--font-weight-400);
+}
+
+/* hide default browser clear button on search inputs */
+.input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.clearBtn {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid #242727;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* ─── Cancel link ───────────────────────────────────────────────────────── */
+.cancelLink {
+  flex-shrink: 0;
+  font-family: var(--font-family-base);
+  font-size: 14px;
+  font-weight: var(--font-weight-400);
+  color: #000000;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+/* ─── Suggestions section ───────────────────────────────────────────────── */
+.suggestions {
+  flex: 1;
+  padding: 12px 0 0;
+}
+
+.suggestionsLabel {
+  font-family: var(--font-family-base);
+  font-size: 14px;
+  font-weight: var(--font-weight-400);
+  color: var(--neutral-grey-600);
+  letter-spacing: 0.002em;
+  margin: 0 0 8px;
+  padding: 0 16px;
+}
+
+/* ─── Suggestion list ───────────────────────────────────────────────────── */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-bottom: 1px solid #F0F0F0;
+  transition: background 100ms ease;
+  min-height: 91px;
+}
+
+.listItem:active {
+  background: #F5F5F5;
+}
+
+/* ─── Thumbnail ─────────────────────────────────────────────────────────── */
+.listItemThumb {
+  width: 75px;
+  height: 75px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #F0F0F0;
+}
+
+.listItemImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.listItemImgPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: #E8E8E8;
+}
+
+/* ─── Text ──────────────────────────────────────────────────────────────── */
+.listItemText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.listItemName {
+  font-family: var(--font-family-base);
+  font-size: 16px;
+  font-weight: var(--font-weight-700);
+  color: #000000;
+  line-height: 1.5;
+}
+
+.listItemSub {
+  font-family: var(--font-family-base);
+  font-size: 16px;
+  font-weight: var(--font-weight-400);
+  color: #000000;
+  line-height: 1.5;
+}
+
+/* ─── Empty / hint ──────────────────────────────────────────────────────── */
+.emptyText {
+  text-align: center;
+  padding: 40px 16px;
+  font-family: var(--font-family-base);
+  font-size: 14px;
+  color: #606060;
+  margin: 0;
+}
+
+.hint {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 32px;
+}
+
+.hintText {
+  font-family: var(--font-family-base);
+  font-size: 14px;
+  font-weight: var(--font-weight-400);
+  color: #9E9E9E;
+  text-align: center;
+  margin: 0;
+}

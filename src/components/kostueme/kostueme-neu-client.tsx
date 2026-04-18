@@ -329,49 +329,6 @@ function FlatInput({ value, onChange, placeholder }: { value: string; onChange: 
   );
 }
 
-// ─── Measurement input ────────────────────────────────────────────────────────
-function MeasureInput({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <span style={{
-        fontFamily: "var(--font-family-base)",
-        fontSize: "var(--font-size-300)",
-        fontWeight: "var(--font-weight-500)",
-        color: "var(--neutral-grey-600)",
-      }}>
-        {label}
-      </span>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          style={{
-            width: 222,
-            height: 60,
-            background: "var(--neutral-grey-100)",
-            border: "none",
-            borderBottom: "1px solid var(--neutral-black)",
-            padding: "0 16px",
-            fontFamily: "var(--font-family-base)",
-            fontSize: "var(--font-size-350)",
-            fontWeight: "var(--font-weight-400)",
-            color: "var(--neutral-black)",
-            outline: "none",
-            boxSizing: "border-box",
-          }}
-        />
-        <span style={{
-          fontFamily: "var(--font-family-base)",
-          fontSize: "var(--font-size-350)",
-          fontWeight: "var(--font-weight-400)",
-          color: "var(--neutral-black)",
-        }}>cm</span>
-      </div>
-    </div>
-  );
-}
-
 // ─── Section heading ──────────────────────────────────────────────────────────
 function SectionHeading({ icon, children }: { icon: string; children: React.ReactNode }) {
   return (

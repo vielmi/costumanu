@@ -1,0 +1,281 @@
+/* ─── Page ───────────────────────────────────────────────────────────────── */
+.page {
+  background: #FFFFFF;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: #FFFFFF;
+  box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.12);
+  height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 10px;
+}
+
+.headerTitle {
+  flex: 1;
+  font-family: var(--font-family-base);
+  font-size: 16px;
+  font-weight: var(--font-weight-500);
+  color: #000000;
+  margin: 0;
+}
+
+.closeBtn {
+  width: 46px;
+  height: 46px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ─── Scrollable body ────────────────────────────────────────────────────── */
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 16px 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ─── Section ────────────────────────────────────────────────────────────── */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 15px;
+  background: #000000;
+  border-radius: 49px;
+  font-family: var(--font-family-base);
+  font-size: 16px;
+  font-weight: var(--font-weight-400);
+  color: #FFFFFF;
+  width: fit-content;
+}
+
+.subSectionLabel {
+  font-family: var(--font-family-base);
+  font-size: 16px;
+  font-weight: var(--font-weight-500);
+  color: #000000;
+  margin: 0 0 8px;
+}
+
+/* ─── Gender grid ────────────────────────────────────────────────────────── */
+.genderGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.genderCard {
+  height: 93px;
+  border: 1px solid var(--secondary-700);
+  border-radius: var(--radius-sm);
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 12px;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.genderCard.selected {
+  background: var(--secondary-500);
+  border-color: var(--secondary-800);
+}
+
+.genderCardLabel {
+  font-family: var(--font-family-base);
+  font-size: 14px;
+  font-weight: var(--font-weight-500);
+  color: var(--secondary-700);
+  text-align: center;
+}
+
+.genderCard.selected .genderCardLabel {
+  color: var(--secondary-800);
+}
+
+/* ─── Chip grid ──────────────────────────────────────────────────────────── */
+.chipGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--secondary-700);
+  border-radius: var(--radius-full);
+  background: #FFFFFF;
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: 14px;
+  font-weight: var(--font-weight-500);
+  color: var(--secondary-700);
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+  white-space: nowrap;
+}
+
+.chip.selected {
+  background: var(--secondary-800);
+  border-color: var(--secondary-800);
+  color: #FFFFFF;
+}
+
+/* ─── Muster cards ───────────────────────────────────────────────────────── */
+.musterGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.musterCard {
+  height: 80px;
+  border: 1px solid var(--secondary-800);
+  border-radius: var(--radius-sm);
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 8px;
+  gap: 4px;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.musterCard.selected {
+  background: var(--secondary-500);
+}
+
+.musterCardLabel {
+  font-family: var(--font-family-base);
+  font-size: 12px;
+  font-weight: var(--font-weight-500);
+  color: var(--secondary-800);
+  text-align: center;
+}
+
+/* ─── Search input ───────────────────────────────────────────────────────── */
+.searchWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 18px;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  height: 60px;
+  padding: 0 20px 0 54px;
+  border: 1px solid #000000;
+  border-radius: 47px;
+  background: #FFFFFF;
+  font-family: var(--font-family-base);
+  font-size: 16px;
+  font-weight: var(--font-weight-500);
+  color: #242727;
+  outline: none;
+  transition: border-color 120ms ease;
+}
+
+.searchInput::placeholder {
+  color: #606060;
+  font-weight: var(--font-weight-500);
+}
+
+.searchInput:focus {
+  border-color: var(--secondary-800);
+}
+
+/* ─── Color swatches ─────────────────────────────────────────────────────── */
+.colorGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.colorSwatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease;
+  flex-shrink: 0;
+}
+
+.colorSwatch.selected {
+  border-color: var(--secondary-800);
+  transform: scale(1.15);
+}
+
+/* ─── Sticky footer with apply button ───────────────────────────────────── */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px 28px;
+  background: #FFFFFF;
+  box-shadow: 0px -2px 12px rgba(0, 0, 0, 0.10);
+  display: flex;
+  gap: 10px;
+}
+
+.resetBtn {
+  height: 56px;
+  padding: 0 20px;
+  background: #FFFFFF;
+  border: 1px solid #000000;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: 16px;
+  font-weight: var(--font-weight-500);
+  color: #000000;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.applyBtn {
+  flex: 1;
+  height: 56px;
+  background: var(--primary-900);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: 16px;
+  font-weight: var(--font-weight-500);
+  color: #FFFFFF;
+}
