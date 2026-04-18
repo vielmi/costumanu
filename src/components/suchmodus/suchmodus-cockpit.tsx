@@ -144,14 +144,14 @@ export function SuchmodusCockpit({
 
         {/* Filter bar */}
         <div className={styles.heroFilterBar}>
-          <Link href="/results" className={styles.heroFilterButton}>
+          <Link href="/suchmodus/filter" className={styles.heroFilterButton}>
             <Image src="/icons/icon-filter.svg" alt="" width={24} height={24} style={{ filter: "invert(1)" }} />
             <span className="text-subtitle-1" style={{ color: "#FFFFFF", fontWeight: "var(--font-weight-500)", whiteSpace: "nowrap" }}>
               Kostüm finden
             </span>
           </Link>
           <StandortSheet theaters={theaters} />
-          <Link href="/search" className={styles.heroFilterCircle}>
+          <Link href="/suchmodus/search" className={styles.heroFilterCircle}>
             <Image src="/icons/icon-search.svg" alt="Suche" width={24} height={24} />
           </Link>
         </div>
@@ -177,7 +177,7 @@ export function SuchmodusCockpit({
               key={term.id}
               label={term.label_de}
               icon={`icon-${getGenderIcon(term.label_de)}`}
-              href={`/results?gender=${term.id}`}
+              href={`/suchmodus/results?gender=${term.id}`}
             />
           ))}
         </div>

@@ -2,11 +2,15 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { CockpitContent } from "@/components/cockpit/cockpit-client";
 import { Sidebar } from "@/components/layout/sidebar";
+import { AppLogo } from "@/components/layout/app-logo";
+import { CockpitMobileDrawer } from "@/components/cockpit/cockpit-mobile-drawer";
 import { COCKPIT } from "@/lib/constants/layout";
+import styles from "./cockpit.module.css";
 import type { NavItem } from "@/components/layout/sidebar";
 import type { RecentCostume } from "@/lib/services/costume-service";
 
@@ -30,13 +34,6 @@ const ADMIN_NAV_ITEM: NavItem = {
   label: "Konfiguration", href: "/einstellungen/konfiguration", icon: "icon-setting",
 };
 
-const ERFASSEN_ITEMS = [
-  { label: "Etikett scannen",      href: "/kostueme/scan",              icon: "icon-barcode-scan" },
-  { label: "Kostüm erfassen",      href: "/kostueme/neu",               icon: "icon-shirt"        },
-  { label: "Mehrteiler erfassen",  href: "/kostueme/neu?type=ensemble", icon: "icon-shirt-1"      },
-  { label: "Kostüm Serie erfassen",href: "/kostueme/neu?type=serie",    icon: "icon-serie"        },
-] as const;
-
 function isAdmin(userRole: string): boolean {
   return userRole === "owner" || userRole === "admin" || userRole === "platform_admin";
 }
@@ -52,31 +49,33 @@ export function CockpitShell({
   const badges = { messages: unreadMessages, rentals: pendingRentals };
 
   return (
-    <div
-      style={{
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        background: "var(--page-bg)",
-        overflow: "hidden",
-        paddingTop: 20,
-      }}
-    >
-      <div style={{ flex: 1, display: "flex", overflow: "hidden", padding: "0 12px 12px", gap: 12 }}>
-        {/* Sidebar läuft volle Höhe — Logo auf gleicher Ebene wie Suche */}
-        <Sidebar navItems={navItems} badges={badges} />
+    <div className={styles.shell}>
+      {/* ── Mobile header (burger + logo + icons) ── */}
+      <div className={styles.mobileHeader}>
+        <CockpitMobileDrawer navItems={navItems} />
+        <div style={{ flex: 1 }}>
+          <AppLogo />
+        </div>
+        <div className={styles.mobileHeaderIcons}>
+          <Link href="/search" className={styles.mobileHeaderIconBtn} aria-label="Suche">
+            <Image src="/icons/icon-search.svg" alt="" width={22} height={22} />
+          </Link>
+          <Link href="/kostueme/neu" className={styles.mobileHeaderIconBtn} aria-label="Kostüm erfassen">
+            <Image src="/icons/icon-plus-m.svg" alt="" width={22} height={22} />
+          </Link>
+        </div>
+      </div>
 
-        {/* Rechte Spalte: Suche oben (72 px), weisser Inhalt direkt darunter */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 0, overflow: "hidden", minWidth: 0 }}>
+      <div className={styles.shellInner}>
+        {/* Sidebar — desktop only */}
+        <div className={styles.sidebarWrap}>
+          <Sidebar navItems={navItems} badges={badges} />
+        </div>
+
+        {/* Rechte Spalte */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 }}>
           <CockpitTopBar theaterId={theaterId} />
-          <main
-            style={{
-              flex: 1,
-              overflowY: "auto",
-              background: "var(--neutral-white)",
-              borderRadius: "40px 40px 0 0",
-            }}
-          >
+          <main className={styles.mainContent}>
             <CockpitContent recentCostumes={recentCostumes} theaterId={theaterId} />
           </main>
         </div>
@@ -85,28 +84,18 @@ export function CockpitShell({
   );
 }
 
-// ─── CockpitTopBar ───────────────────────────────────────────────────────────
+// ─── CockpitTopBar (desktop only) ────────────────────────────────────────────
 
 function CockpitTopBar({ theaterId }: { theaterId: string | null }) {
   return (
-    <div
-      style={{
-        height: 72,
-        flexShrink: 0,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 12,
-        paddingBottom: 12,
-      }}
-    >
+    <div className={styles.desktopTopBar}>
       <CockpitSearch theaterId={theaterId} />
       <ErfassenDropdown />
     </div>
   );
 }
 
-// ─── CockpitSearch ───────────────────────────────────────────────────────────
+// ─── CockpitSearch ────────────────────────────────────────────────────────────
 
 function CockpitSearch({ theaterId }: { theaterId: string | null }) {
   const [query, setQuery] = useState("");
@@ -264,7 +253,14 @@ function CockpitSearch({ theaterId }: { theaterId: string | null }) {
   );
 }
 
-// ─── ErfassenDropdown ────────────────────────────────────────────────────────
+// ─── ErfassenDropdown ─────────────────────────────────────────────────────────
+
+const ERFASSEN_ITEMS = [
+  { label: "Etikett scannen",      href: "/kostueme/scan",              icon: "icon-barcode-scan" },
+  { label: "Kostüm erfassen",      href: "/kostueme/neu",               icon: "icon-shirt"        },
+  { label: "Mehrteiler erfassen",  href: "/kostueme/neu?type=ensemble", icon: "icon-shirt-1"      },
+  { label: "Kostüm Serie erfassen",href: "/kostueme/neu?type=serie",    icon: "icon-serie"        },
+] as const;
 
 function ErfassenDropdown() {
   const [isOpen, setIsOpen] = useState(false);

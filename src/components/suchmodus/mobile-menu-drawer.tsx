@@ -202,7 +202,7 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
               {!loading && clothingTypes.length > 0 && (
                 <nav>
                   <Link
-                    href={`/results?gender=${activeGender?.id}`}
+                    href={`/suchmodus/results?gender=${activeGender?.id}`}
                     onClick={close}
                     className={styles.navItem}
                   >
@@ -212,7 +212,7 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
                   {clothingTypes.map((ct) => (
                     <Link
                       key={ct.id}
-                      href={`/results?gender=${activeGender?.id}&clothing_type=${ct.id}`}
+                      href={`/suchmodus/results?gender=${activeGender?.id}&clothing_type=${ct.id}`}
                       onClick={close}
                       className={styles.navItem}
                     >

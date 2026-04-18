@@ -26,10 +26,10 @@ export function StandortSheet({ theaters }: StandortSheetProps) {
   function handleSave() {
     setOpen(false);
     if (allLocations || selectedIds.size === 0) {
-      router.push("/results");
+      router.push("/suchmodus/results");
     } else {
       const ids = Array.from(selectedIds).join(",");
-      router.push(`/results?theater=${ids}`);
+      router.push(`/suchmodus/results?theater=${ids}`);
     }
   }
 

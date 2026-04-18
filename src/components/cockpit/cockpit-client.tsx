@@ -11,6 +11,7 @@ import { getGenderIcon } from "@/lib/constants/icons";
 import { COCKPIT } from "@/lib/constants/layout";
 import { ContextMenu } from "@/components/ui/context-menu";
 import { DeleteConfirmationSheet } from "@/components/ui/delete-confirmation-sheet";
+import styles from "./cockpit.module.css";
 import type { RecentCostume } from "@/lib/services/costume-service";
 
 interface CockpitContentProps {
@@ -124,7 +125,6 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
 
   return (
     <>
-      {/* Inline error banner — shown below the row when an action fails */}
       {actionError && (
         <div
           style={{
@@ -151,18 +151,17 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
       )}
 
       <div
+        className={styles.costumeRow}
         style={{
           display: "flex",
           alignItems: "stretch",
           height: 70,
-          borderRadius: "var(--radius-xs)",
           background: isActive ? "var(--secondary-500)" : "var(--neutral-grey-100)",
           flexShrink: 0,
           position: "relative",
           overflow: "visible",
         }}
       >
-        {/* Active indicator bar */}
         {isActive && (
           <div
             style={{
@@ -176,7 +175,6 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
           />
         )}
 
-        {/* 3-dot menu — left side, outside <Link> to avoid navigation on click */}
         <div style={{ display: "flex", alignItems: "center", padding: "0 4px 0 12px", flexShrink: 0, position: "relative", zIndex: 10 }}>
           <ContextMenu
             items={menuItems}
@@ -188,7 +186,6 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
           />
         </div>
 
-        {/* Row content */}
         <Link
           href={`/costume/${costume.id}`}
           style={{ flex: 1, display: "flex", alignItems: "center", gap: 12, padding: "0 16px 0 4px", textDecoration: "none" }}
@@ -226,8 +223,9 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
             </span>
           </div>
 
-          {/* Production */}
+          {/* Production — hidden on mobile */}
           <span
+            className={styles.productionLabel}
             style={{
               fontSize: "var(--font-size-200)", color: "var(--neutral-grey-600)",
               fontFamily: "var(--font-family-base)", flexShrink: 0,
@@ -238,12 +236,13 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
             {productionLabel}
           </span>
 
-          {/* Gender / type badge */}
+          {/* Gender / type badge — hidden on mobile */}
           <div
+            className={styles.genderBadge}
             style={{
               border: "1px solid var(--neutral-grey-300)", borderRadius: "var(--radius-md)",
               height: 40, padding: "0 10px",
-              display: "flex", alignItems: "center", gap: 8, flexShrink: 0,
+              alignItems: "center", gap: 8, flexShrink: 0,
             }}
           >
             <Image src={`/icons/icon-${genderIcon}.svg`} alt={costume.gender_term?.label_de ?? ""} width={16} height={16} />
@@ -267,20 +266,57 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
   );
 }
 
+// ─── Suchmodus CTA card (reusable) ───────────────────────────────────────────
+
+function SuchmodusCta({ fullWidth }: { fullWidth?: boolean }) {
+  return (
+    <Link
+      href="/suchmodus"
+      style={{
+        width: fullWidth ? "100%" : COCKPIT.CTA_CARD_WIDTH,
+        height: fullWidth ? 110 : COCKPIT.CTA_CARD_HEIGHT,
+        borderRadius: "var(--radius-md)",
+        position: "relative", overflow: "hidden",
+        background: "var(--tertiary-900)", textDecoration: "none",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0,
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/images/cockpit-search.jpg" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
+      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: fullWidth ? "row" : "column", alignItems: "center", justifyContent: "center", gap: fullWidth ? 16 : 20, padding: "0 20px" }}>
+        <span style={{ fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-500)", color: "#FFFFFF", fontFamily: "var(--font-family-base)", textAlign: "center", lineHeight: "var(--line-height-150)" }}>
+          Suchmodus öffnen
+        </span>
+        <div style={{ width: fullWidth ? 40 : 60, height: fullWidth ? 40 : 60, borderRadius: "50%", border: "1px solid #FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <Image src="/icons/icon-plus-m.svg" alt="" width={fullWidth ? 18 : 24} height={fullWidth ? 18 : 24} style={{ filter: "invert(1)" }} />
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// ─── Main ────────────────────────────────────────────────────────────────────
+
 export function CockpitContent({ recentCostumes }: CockpitContentProps) {
   return (
-    <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 32 }}>
+    <div className={styles.contentPadding} style={{ padding: 24, display: "flex", flexDirection: "column", gap: 32 }}>
 
-      {/* Image cards */}
-      <div style={{ display: "flex", gap: 12 }}>
+      {/* Image cards — horizontal scroll on mobile */}
+      <div className={styles.imageCards}>
         {IMAGE_CARDS.map((card) => (
           <Link
             key={card.href}
             href={card.href}
             style={{
-              flex: 1, height: 180, borderRadius: "var(--radius-md)",
+              flex: 1,
+              minWidth: 220,
+              height: 180,
+              borderRadius: "var(--radius-md)",
               position: "relative", overflow: "hidden",
-              background: card.bg, textDecoration: "none", display: "block", minWidth: 0,
+              background: card.bg, textDecoration: "none", display: "block",
+              scrollSnapAlign: "start",
+              flexShrink: 0,
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -314,7 +350,12 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
           <span style={{ fontWeight: "var(--font-weight-700)", textDecoration: "underline" }}>Kostüme</span>
         </h2>
 
-        <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+        {/* Suchmodus CTA — mobile: above list, full-width */}
+        <div className={styles.suchmodusMobile} style={{ marginBottom: 16 }}>
+          <SuchmodusCta fullWidth />
+        </div>
+
+        <div className={styles.recentRow}>
           <div style={{ flex: 1, minWidth: 0 }}>
             {recentCostumes.length === 0 ? (
               <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-300)", color: "var(--neutral-grey-500)" }}>
@@ -322,7 +363,7 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
                 <Link href="/kostueme/neu" style={{ color: "var(--primary-900)" }}>Jetzt erstes Kostüm erfassen</Link>
               </p>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div className={styles.costumeList}>
                 {recentCostumes.map((costume, index) => (
                   <CostumeRow key={costume.id} costume={costume} isActive={index === 0} />
                 ))}
@@ -330,35 +371,15 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
             )}
           </div>
 
-          {/* CTA: Suchmodus */}
-          <Link
-            href="/suchmodus"
-            style={{
-              width: COCKPIT.CTA_CARD_WIDTH,
-              height: COCKPIT.CTA_CARD_HEIGHT,
-              borderRadius: "var(--radius-md)",
-              position: "relative", overflow: "hidden",
-              background: "var(--tertiary-900)", textDecoration: "none",
-              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0,
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/cockpit-search.jpg" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
-            <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, padding: "0 16px" }}>
-              <span style={{ fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-500)", color: "#FFFFFF", fontFamily: "var(--font-family-base)", textAlign: "center", lineHeight: "var(--line-height-150)" }}>
-                Suchmodus öffnen
-              </span>
-              <div style={{ width: 60, height: 60, borderRadius: "50%", border: "1px solid #FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Image src="/icons/icon-plus-m.svg" alt="" width={24} height={24} style={{ filter: "invert(1)" }} />
-              </div>
-            </div>
-          </Link>
+          {/* Suchmodus CTA — desktop: right of list */}
+          <div className={styles.suchmodusDesktop}>
+            <SuchmodusCta />
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// Legacy export for any existing imports
+// Legacy export
 export { CockpitContent as CockpitClient };
