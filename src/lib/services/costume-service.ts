@@ -115,13 +115,26 @@ export async function getCostume(supabase: SupabaseClient, id: string): Promise<
   return data as Costume;
 }
 
+export interface SimilarCostume {
+  id: string;
+  name: string;
+  clothing_type: { id: string; label_de: string } | null;
+  costume_media: { storage_path: string; sort_order: number }[];
+}
+
+export interface EnsembleChild {
+  id: string;
+  name: string;
+  costume_media: { storage_path: string; sort_order: number }[];
+}
+
 /** Ähnliche Kostüme (gleicher clothing_type). */
 export async function getSimilarCostumes(
   supabase: SupabaseClient,
   clothingTypeId: string,
   excludeId: string,
   limit = 4
-): Promise<Costume[]> {
+): Promise<SimilarCostume[]> {
   const { data } = await supabase
     .from("costumes")
     .select(`
@@ -133,20 +146,20 @@ export async function getSimilarCostumes(
     .neq("id", excludeId)
     .limit(limit);
 
-  return (data ?? []) as Costume[];
+  return (data ?? []) as unknown as SimilarCostume[];
 }
 
 /** Ensemble-Kinder eines Kostüms. */
 export async function getEnsembleChildren(
   supabase: SupabaseClient,
   parentId: string
-): Promise<Costume[]> {
+): Promise<EnsembleChild[]> {
   const { data } = await supabase
     .from("costumes")
     .select("id, name, costume_media(storage_path, sort_order)")
     .eq("parent_costume_id", parentId);
 
-  return (data ?? []) as Costume[];
+  return (data ?? []) as unknown as EnsembleChild[];
 }
 
 // ─── Mutations ───────────────────────────────────────────────────────────────
@@ -174,7 +187,7 @@ export async function duplicateCostume(
 ): Promise<string> {
   const { data: orig, error } = await supabase
     .from("costumes")
-    .select("theater_id, name, description, gender_term_id, clothing_type_id, is_ensemble, ensemble_parent_id, is_public, direct_visible")
+    .select("theater_id, name, description, gender_term_id, clothing_type_id, is_ensemble, parent_costume_id")
     .eq("id", sourceId)
     .single();
 

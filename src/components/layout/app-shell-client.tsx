@@ -47,8 +47,8 @@ export function AppShellClient({ children, userRole, unreadMessages, pendingRent
         />
 
         {/* Content */}
-        <div style={{ flex: 1, borderRadius: "40px 40px 0 0", overflow: "hidden", marginTop: 20 }}>
-          <main style={{ height: "100%", overflowY: "auto", background: "#FFFFFF" }}>
+        <div style={{ flex: 1, borderRadius: "var(--radius-panel) var(--radius-panel) 0 0", overflow: "hidden", marginTop: 20 }}>
+          <main style={{ height: "100%", overflowY: "auto", background: "var(--neutral-white)" }}>
             {children}
           </main>
         </div>

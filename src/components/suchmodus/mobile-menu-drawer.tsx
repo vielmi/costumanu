@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import type { GenderTerm } from "./suchmodus-cockpit";
+import { BurgerIcon } from "@/lib/constants/icons";
 import styles from "./mobile-menu-drawer.module.css";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -20,34 +21,6 @@ const NETZWERK_ITEMS = [
   { label: "Netzwerk",       href: "/netzwerk", icon: "icon-production-menu" },
   { label: "Support",        href: "/support",  icon: "icon-contact-menu"    },
 ] as const;
-
-// ─── Icons ────────────────────────────────────────────────────────────────────
-
-function BurgerIcon() {
-  return (
-    <svg width="24" height="18" viewBox="0 0 24 18" fill="none" aria-hidden="true">
-      <rect width="24" height="2" rx="1" fill="currentColor" />
-      <rect y="8" width="24" height="2" rx="1" fill="currentColor" />
-      <rect y="16" width="24" height="2" rx="1" fill="currentColor" />
-    </svg>
-  );
-}
-
-function ArrowRight() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M7.5 5L12.5 10L7.5 15" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ArrowLeft() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M12.5 5L7.5 10L12.5 15" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
@@ -146,7 +119,7 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
                       className={styles.navItemButton}
                     >
                       <span className={styles.navLabel}>{term.label_de}</span>
-                      <ArrowRight />
+                      <Image src="/icons/icon-arrow-s.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
                     </button>
                   ))}
                 </nav>
@@ -165,7 +138,7 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
                         style={{ filter: "invert(1)", flexShrink: 0 }}
                       />
                       <span className={styles.navLabel}>{item.label}</span>
-                      <ArrowRight />
+                      <Image src="/icons/icon-arrow-s.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
                     </Link>
                   ))}
                 </nav>
@@ -176,7 +149,7 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
                   <Image src="/icons/icon-avatar.svg" alt="" width={32} height={32} style={{ filter: "invert(1)" }} />
                 </div>
                 <span className={styles.profileLabel}>Mein Profil</span>
-                <ArrowRight />
+                <Image src="/icons/icon-arrow-s.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
               </Link>
             </>
           )}
@@ -186,7 +159,7 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
             <div className={styles.content}>
               {/* ← Übersicht */}
               <button type="button" onClick={goBack} className={styles.backButton}>
-                <ArrowLeft />
+                <Image src="/icons/icon-arrow-left.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
                 <span className={styles.backLabel}>Übersicht</span>
               </button>
 
@@ -207,7 +180,7 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
                     className={styles.navItem}
                   >
                     <span className={styles.navLabel}>Alles entdecken</span>
-                    <ArrowRight />
+                    <Image src="/icons/icon-arrow-s.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
                   </Link>
                   {clothingTypes.map((ct) => (
                     <Link
@@ -217,7 +190,7 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
                       className={styles.navItem}
                     >
                       <span className={styles.navLabel}>{ct.label_de}</span>
-                      <ArrowRight />
+                      <Image src="/icons/icon-arrow-s.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
                     </Link>
                   ))}
                 </nav>

@@ -64,7 +64,7 @@ export default function LoginPage() {
       </div>
 
       {/* Content */}
-      <main style={{ flex: 1, overflowY: "auto", background: "#FFFFFF", borderRadius: "40px 40px 0 0", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 16px" }}>
+      <main style={{ flex: 1, overflowY: "auto", background: "var(--neutral-white)", borderRadius: "var(--radius-panel) var(--radius-panel) 0 0", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 16px" }}>
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-center text-xl">

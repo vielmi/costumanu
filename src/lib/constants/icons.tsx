@@ -1,7 +1,20 @@
 /**
  * Icon-Mappings für Taxonomy-Labels auf SVG-Dateinamen.
  * Ändert sich ein Label in der DB, nur hier anpassen.
+ *
+ * Shared React Icon Components (inline SVG, unterstützen currentColor):
+ *   BurgerIcon — 3-Streifen Hamburger-Menü
  */
+
+export function BurgerIcon() {
+  return (
+    <svg width="24" height="18" viewBox="0 0 24 18" fill="none" aria-hidden="true">
+      <rect width="24" height="2" rx="1" fill="currentColor" />
+      <rect y="8" width="24" height="2" rx="1" fill="currentColor" />
+      <rect y="16" width="24" height="2" rx="1" fill="currentColor" />
+    </svg>
+  );
+}
 
 export const GENDER_ICON: Record<string, string> = {
   Herren: "male",

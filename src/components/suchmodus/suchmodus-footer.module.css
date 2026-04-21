@@ -1,0 +1,50 @@
+/* ─── Suchmodus Footer ───────────────────────────────────────────────────────
+ * Wird auf allen drei Suchmodus-Seiten verwendet:
+ *   /suchmodus            (Cockpit)
+ *   /suchmodus/results    (Resultate)
+ *   /suchmodus/costume/:id (Kostüm-Detail)
+ *
+ * Token: --radius-footer (24px) für die abgerundete Oberkante
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+.footer {
+  background: var(--neutral-black);
+  border-radius: var(--radius-footer) var(--radius-footer) 0 0;
+  padding: 32px 16px 48px;
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.logo {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-400);
+  font-weight: var(--font-weight-700);
+  color: var(--neutral-white);
+  letter-spacing: -0.02em;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-200);
+  font-weight: var(--font-weight-400);
+  color: rgba(255, 255, 255, 0.70);
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.link:last-child {
+  border-bottom: none;
+}
+.link:hover { color: var(--neutral-white); }
+.link:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 4px; }

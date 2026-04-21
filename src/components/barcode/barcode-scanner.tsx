@@ -101,7 +101,7 @@ function WebScanner({ onDetected, onClose }: BarcodeScannerProps) {
       </button>
 
       {error ? (
-        <p style={{ color: "#FF525A", fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-300)", textAlign: "center", padding: "0 32px" }}>
+        <p style={{ color: "var(--color-error)", fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-300)", textAlign: "center", padding: "0 32px" }}>
           {error}
         </p>
       ) : (

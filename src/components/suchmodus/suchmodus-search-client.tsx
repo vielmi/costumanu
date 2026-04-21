@@ -83,9 +83,7 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
           />
           {query.length > 0 && (
             <button type="button" onClick={handleClear} className={styles.clearBtn} aria-label="Eingabe löschen">
-              <svg width="9" height="9" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M32 1.82856L30.1715 0L16 14.1714L1.82856 0L0 1.82856L14.1714 16L0 30.1715L1.82856 32L16 17.8286L30.1715 32L32 30.1715L17.8286 16L32 1.82856Z" fill="#242727"/>
-              </svg>
+              <Image src="/icons/icon-close-small.svg" alt="" width={9} height={9} />
             </button>
           )}
         </div>

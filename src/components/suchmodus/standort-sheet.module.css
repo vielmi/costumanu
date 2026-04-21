@@ -1,0 +1,176 @@
+/* ─── Trigger button ─────────────────────────────────────────────────────── */
+.triggerBtn {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  background: var(--neutral-white);
+  border: 1px solid var(--primary-900);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.triggerBtn:hover { background: var(--secondary-500); }
+.triggerBtn:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 2px; }
+
+/* ─── Backdrop ───────────────────────────────────────────────────────────── */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(36, 39, 39, 0.80);
+}
+
+/* ─── Bottom sheet ───────────────────────────────────────────────────────── */
+.sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2001;
+  background: var(--neutral-white);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  box-shadow: 0px -2px 20px rgba(0, 0, 0, 0.2);
+  padding: 28px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─── Sheet header ───────────────────────────────────────────────────────── */
+.sheetHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.sheetTitle {
+  flex: 1;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-300);
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-black);
+  margin-left: 10px;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  flex-shrink: 0;
+  border-radius: var(--radius-xs);
+  transition: opacity 120ms ease;
+}
+.closeBtn:hover { opacity: 0.7; }
+.closeBtn:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 2px; }
+
+/* ─── Theater list ───────────────────────────────────────────────────────── */
+.theaterList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.theaterBtn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 64px;
+  padding: 0 16px;
+  border-radius: var(--radius-sm);
+  background: var(--neutral-white);
+  border: 1px solid var(--neutral-grey-600);
+  cursor: pointer;
+  text-align: left;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.theaterBtn:hover:not(.selected) { background: var(--secondary-500); border-color: var(--secondary-700); }
+.theaterBtn:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 2px; }
+
+.theaterBtn.selected {
+  background: var(--secondary-500);
+  border-color: var(--secondary-700);
+}
+
+.theaterName {
+  flex: 1;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-350);
+  font-weight: var(--font-weight-700);
+  color: var(--neutral-grey-600);
+}
+
+.theaterBtn.selected .theaterName {
+  color: var(--secondary-800);
+}
+
+/* ─── Checkbox ───────────────────────────────────────────────────────────── */
+.checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-xs);
+  border: 2px solid var(--secondary-800);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--neutral-white);
+  flex-shrink: 0;
+}
+
+.checkbox.checked {
+  background: var(--secondary-800);
+}
+
+/* ─── All locations toggle ───────────────────────────────────────────────── */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.toggleSwitch {
+  width: 50px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--secondary-500);
+  box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.3);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: background 150ms ease;
+}
+
+.toggleSwitch.on {
+  background: var(--secondary-800);
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  background: var(--neutral-white);
+  box-shadow: 0px 1px 2.5px rgba(0, 0, 0, 0.2);
+  transition: left 150ms ease;
+}
+
+.toggleThumb.on {
+  left: calc(100% - 25px);
+}
+
+.toggleLabel {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-350);
+  font-weight: var(--font-weight-700);
+  color: var(--neutral-grey-600);
+}

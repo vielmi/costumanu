@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { SuchmodusFooter } from "@/components/suchmodus/suchmodus-footer";
 import styles from "./suchmodus-results.module.css";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -16,40 +17,6 @@ export type ResultCostume = {
   theaterName: string | null;
   isAvailable: boolean;
 };
-
-// ─── Icons ────────────────────────────────────────────────────────────────────
-
-function ArrowLeft() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M15 5L9 12L15 19" stroke="#000000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function HeartIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-      <path d="M9 15.5S2 11 2 6.5C2 4.5 3.5 3 5.5 3C7 3 8.5 3.8 9 5C9.5 3.8 11 3 12.5 3C14.5 3 16 4.5 16 6.5C16 11 9 15.5 9 15.5Z" stroke="#000000" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
-      <path d="M1 4L3.5 6.5L9 1" stroke="#000000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ArrowRightSmall() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M6 4L10 8L6 12" stroke="rgba(255,255,255,0.7)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 // ─── Card ────────────────────────────────────────────────────────────────────
 
@@ -69,7 +36,7 @@ function CostumeCard({ costume }: { costume: ResultCostume }) {
           aria-label="Merken"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
         >
-          <HeartIcon />
+          <Image src="/icons/icon-heart.svg" alt="" width={18} height={18} />
         </button>
       </div>
 
@@ -83,7 +50,7 @@ function CostumeCard({ costume }: { costume: ResultCostume }) {
         )}
         <div className={styles.cardAvailability}>
           <span className={`${styles.availDot} ${costume.isAvailable ? styles.available : styles.onRequest}`}>
-            {costume.isAvailable && <CheckIcon />}
+            {costume.isAvailable && <Image src="/icons/icon-check.svg" alt="" width={10} height={10} />}
           </span>
           {costume.theaterName && (
             <span className={styles.cardTheater}>{costume.theaterName}</span>
@@ -95,12 +62,6 @@ function CostumeCard({ costume }: { costume: ResultCostume }) {
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-
-const FOOTER_LINKS = [
-  { label: "Häufige Fragen",     href: "/support"  },
-  { label: "Ausleihe & Abholung", href: "/rental"  },
-  { label: "Support & Kontakt",   href: "/support"  },
-] as const;
 
 export function SuchmodusResultsClient({
   title,
@@ -124,7 +85,7 @@ export function SuchmodusResultsClient({
             onClick={() => router.back()}
             aria-label="Zurück"
           >
-            <ArrowLeft />
+            <Image src="/icons/icon-arrow-left.svg" alt="" width={24} height={24} />
           </button>
 
           <div className={styles.titleGroup}>
@@ -167,17 +128,7 @@ export function SuchmodusResultsClient({
       )}
 
       {/* ═══ Footer ═══ */}
-      <footer className={styles.footer}>
-        <span className={styles.footerLogo}>kostüm+</span>
-        <nav className={styles.footerLinks}>
-          {FOOTER_LINKS.map((link) => (
-            <Link key={link.label} href={link.href} className={styles.footerLink}>
-              <span>{link.label}</span>
-              <ArrowRightSmall />
-            </Link>
-          ))}
-        </nav>
-      </footer>
+      <SuchmodusFooter />
     </div>
   );
 }

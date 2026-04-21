@@ -64,6 +64,10 @@ const VOCABULARIES = [
   { key: "sector",           label: "Sektor"         },
 ];
 
+// Lagerort-Vocabularies: pro Theater vom Theater-Admin bearbeitbar.
+// Alle anderen Vocabularies sind global (theaterübergreifend) und nur vom Platform Admin bearbeitbar.
+const STORAGE_VOCAB_KEYS = ["floor", "rail", "sector"];
+
 const ROLES = [
   { value: "owner",  label: "Owner"  },
   { value: "admin",  label: "Admin"  },
@@ -89,19 +93,13 @@ const btnSecondary: React.CSSProperties = {
   fontSize: "var(--font-size-200)", color: "var(--neutral-grey-600)",
 };
 
-const btnDanger: React.CSSProperties = {
-  height: 40, padding: "0 16px", borderRadius: 10,
-  background: "transparent", border: "1px solid var(--color-error)",
-  cursor: "pointer", fontFamily: "var(--font-family-base)",
-  fontSize: "var(--font-size-200)", color: "var(--color-error)",
-};
 
 const inputStyle: React.CSSProperties = {
   height: 44, borderRadius: 10,
   border: "1px solid var(--neutral-grey-300)",
   padding: "0 14px", fontFamily: "var(--font-family-base)",
-  fontSize: "var(--font-size-200)", color: "#000000",
-  background: "#FFFFFF", outline: "none", boxSizing: "border-box",
+  fontSize: "var(--font-size-200)", color: "var(--neutral-black)",
+  background: "var(--neutral-white)", outline: "none", boxSizing: "border-box",
 };
 
 const labelStyle: React.CSSProperties = {
@@ -111,7 +109,7 @@ const labelStyle: React.CSSProperties = {
 };
 
 const panelStyle: React.CSSProperties = {
-  flex: 1, background: "#FFFFFF", borderRadius: "40px 40px 0 0",
+  flex: 1, background: "var(--neutral-white)", borderRadius: "var(--radius-panel) var(--radius-panel) 0 0",
   overflow: "hidden", display: "flex", flexDirection: "column",
 };
 
@@ -143,6 +141,9 @@ function TaxonomyTab({
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   const effectiveTheaterId = isPlatformAdmin ? selectedTheaterId : theaterId;
+
+  const isStorageVocab = STORAGE_VOCAB_KEYS.includes(activeVocab);
+  const canEdit = isPlatformAdmin || isStorageVocab;
 
   const vocabTerms = terms
     .filter((t) => t.vocabulary === activeVocab)
@@ -231,28 +232,47 @@ function TaxonomyTab({
             </select>
           </div>
         )}
-        <div style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-100)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-grey-500)", letterSpacing: "0.08em", textTransform: "uppercase", padding: "0 12px", marginBottom: 8 }}>Kategorien</div>
-        {VOCABULARIES.map((v) => {
-          const count = terms.filter((t) => t.vocabulary === v.key).length;
-          const isActive = activeVocab === v.key;
-          return (
-            <button key={v.key} type="button" onClick={() => setActiveVocab(v.key)}
-              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 44, padding: "0 12px", borderRadius: 8, border: "none", background: isActive ? "#D6DFDD" : "transparent", cursor: "pointer", textAlign: "left" }}>
-              <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: isActive ? "var(--font-weight-700)" : "var(--font-weight-500)", color: "var(--neutral-grey-700)" }}>{v.label}</span>
-              <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-100)", color: "var(--neutral-grey-500)", background: "var(--neutral-grey-200)", borderRadius: 99, padding: "1px 7px", minWidth: 22, textAlign: "center" }}>{count}</span>
-            </button>
-          );
-        })}
+        {[
+          { groupLabel: "Suchbare Eigenschaften", keys: VOCABULARIES.filter(v => !STORAGE_VOCAB_KEYS.includes(v.key)) },
+          { groupLabel: "Lagerort",               keys: VOCABULARIES.filter(v =>  STORAGE_VOCAB_KEYS.includes(v.key)) },
+        ].map(({ groupLabel, keys }) => (
+          <div key={groupLabel} style={{ marginBottom: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 12px", marginBottom: 4 }}>
+              <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-100)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-grey-500)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                {groupLabel}
+              </span>
+              {!isPlatformAdmin && groupLabel !== "Lagerort" && (
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, opacity: 0.4 }}>
+                  <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              )}
+            </div>
+            {keys.map((v) => {
+              const count = terms.filter((t) => t.vocabulary === v.key).length;
+              const isActive = activeVocab === v.key;
+              return (
+                <button key={v.key} type="button" onClick={() => setActiveVocab(v.key)}
+                  style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 44, padding: "0 12px", borderRadius: 8, border: "none", background: isActive ? "var(--secondary-550)" : "transparent", cursor: "pointer", textAlign: "left", width: "100%" }}>
+                  <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: isActive ? "var(--font-weight-700)" : "var(--font-weight-500)", color: "var(--neutral-grey-700)" }}>{v.label}</span>
+                  <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-100)", color: "var(--neutral-grey-500)", background: "var(--neutral-grey-200)", borderRadius: 99, padding: "1px 7px", minWidth: 22, textAlign: "center" }}>{count}</span>
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
       {/* Main panel */}
       <div style={panelStyle}>
         <div style={{ flex: 1, overflowY: "auto", padding: "40px 48px" }}>
-          <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-700)", color: "#000000", margin: "0 0 8px" }}>
+          <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-black)", margin: "0 0 8px" }}>
             {VOCABULARIES.find((v) => v.key === activeVocab)?.label}
           </h2>
           <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-500)", margin: "0 0 32px" }}>
-            Einträge können bearbeitet, umbenannt, gelöscht und neu erstellt werden.
+            {canEdit
+              ? "Einträge können bearbeitet, umbenannt, gelöscht und neu erstellt werden."
+              : "Diese Eigenschaften sind theaterübergreifend definiert und können nur vom Platform Admin bearbeitet werden."}
           </p>
 
           {error && <ErrorBox message={error} />}
@@ -264,30 +284,32 @@ function TaxonomyTab({
               return (
                 <div
                   key={term.id}
-                  draggable
-                  onDragStart={() => { dragId.current = term.id; }}
-                  onDragEnd={() => { dragId.current = null; setDragOverId(null); }}
-                  onDragOver={(e) => { e.preventDefault(); setDragOverId(term.id); }}
-                  onDragLeave={() => setDragOverId(null)}
-                  onDrop={(e) => { e.preventDefault(); if (dragId.current) reorder(dragId.current, term.id); setDragOverId(null); }}
+                  draggable={canEdit}
+                  onDragStart={canEdit ? () => { dragId.current = term.id; } : undefined}
+                  onDragEnd={canEdit ? () => { dragId.current = null; setDragOverId(null); } : undefined}
+                  onDragOver={canEdit ? (e) => { e.preventDefault(); setDragOverId(term.id); } : undefined}
+                  onDragLeave={canEdit ? () => setDragOverId(null) : undefined}
+                  onDrop={canEdit ? (e) => { e.preventDefault(); if (dragId.current) reorder(dragId.current, term.id); setDragOverId(null); } : undefined}
                   style={{
                     display: "flex", alignItems: "center", gap: 12,
                     height: 56, padding: "0 16px", borderRadius: 12,
                     background: isDragOver ? "var(--secondary-600)" : "var(--secondary-500)",
                     border: isDragOver ? "1.5px solid var(--primary-900)" : "1px solid var(--neutral-grey-200)",
                     transition: "background 0.15s, border 0.15s",
-                    cursor: "grab",
+                    cursor: canEdit ? "grab" : "default",
                   }}
                 >
-                  {/* Drag handle */}
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, opacity: 0.35 }}>
-                    <circle cx="5" cy="4" r="1.5" fill="currentColor"/>
-                    <circle cx="5" cy="8" r="1.5" fill="currentColor"/>
-                    <circle cx="5" cy="12" r="1.5" fill="currentColor"/>
-                    <circle cx="11" cy="4" r="1.5" fill="currentColor"/>
-                    <circle cx="11" cy="8" r="1.5" fill="currentColor"/>
-                    <circle cx="11" cy="12" r="1.5" fill="currentColor"/>
-                  </svg>
+                  {/* Drag handle — nur wenn bearbeitbar */}
+                  {canEdit && (
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, opacity: 0.35 }}>
+                      <circle cx="5" cy="4" r="1.5" fill="currentColor"/>
+                      <circle cx="5" cy="8" r="1.5" fill="currentColor"/>
+                      <circle cx="5" cy="12" r="1.5" fill="currentColor"/>
+                      <circle cx="11" cy="4" r="1.5" fill="currentColor"/>
+                      <circle cx="11" cy="8" r="1.5" fill="currentColor"/>
+                      <circle cx="11" cy="12" r="1.5" fill="currentColor"/>
+                    </svg>
+                  )}
 
                   {isEditing ? (
                     <input autoFocus value={editLabel} onChange={(e) => setEditLabel(e.target.value)}
@@ -299,19 +321,21 @@ function TaxonomyTab({
                     </span>
                   )}
 
-                  <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                    {isEditing ? (
-                      <>
-                        <button type="button" onClick={() => saveEdit(term.id)} disabled={saving} style={btnPrimary}>Speichern</button>
-                        <button type="button" onClick={() => setEditingId(null)} style={btnSecondary}>Abbrechen</button>
-                      </>
-                    ) : (
-                      <>
-                        <button type="button" onClick={(e) => { e.stopPropagation(); setEditingId(term.id); setEditLabel(term.label_de); }} style={btnSecondary}>Bearbeiten</button>
-                        <button type="button" onClick={(e) => { e.stopPropagation(); deleteTerm(term.id); }} disabled={saving} style={btnDanger}>Löschen</button>
-                      </>
-                    )}
-                  </div>
+                  {canEdit && (
+                    <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                      {isEditing ? (
+                        <>
+                          <button type="button" onClick={() => saveEdit(term.id)} disabled={saving} style={btnPrimary}>Speichern</button>
+                          <button type="button" onClick={() => setEditingId(null)} style={btnSecondary}>Abbrechen</button>
+                        </>
+                      ) : (
+                        <>
+                          <button type="button" onClick={(e) => { e.stopPropagation(); setEditingId(term.id); setEditLabel(term.label_de); }} style={btnSecondary}>Bearbeiten</button>
+                          <button type="button" onClick={(e) => { e.stopPropagation(); deleteTerm(term.id); }} disabled={saving} className="btn-danger btn-danger--sm">Löschen</button>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -322,20 +346,22 @@ function TaxonomyTab({
             )}
           </div>
 
-          <div style={{ borderTop: "1px solid var(--neutral-grey-200)", paddingTop: 24 }}>
-            <div style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-grey-700)", marginBottom: 12 }}>
-              Neuer Eintrag
+          {canEdit && (
+            <div style={{ borderTop: "1px solid var(--neutral-grey-200)", paddingTop: 24 }}>
+              <div style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-grey-700)", marginBottom: 12 }}>
+                Neuer Eintrag
+              </div>
+              <div style={{ display: "flex", gap: 10 }}>
+                <input type="text" value={newLabel} onChange={(e) => setNewLabel(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") addTerm(); }}
+                  placeholder="Bezeichnung…" style={{ ...inputStyle, width: 320 }} />
+                <button type="button" onClick={addTerm} disabled={saving || !newLabel.trim()}
+                  style={{ ...btnPrimary, opacity: newLabel.trim() ? 1 : 0.4 }}>
+                  Hinzufügen
+                </button>
+              </div>
             </div>
-            <div style={{ display: "flex", gap: 10 }}>
-              <input type="text" value={newLabel} onChange={(e) => setNewLabel(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") addTerm(); }}
-                placeholder="Bezeichnung…" style={{ ...inputStyle, width: 320 }} />
-              <button type="button" onClick={addTerm} disabled={saving || !newLabel.trim()}
-                style={{ ...btnPrimary, opacity: newLabel.trim() ? 1 : 0.4 }}>
-                Hinzufügen
-              </button>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
@@ -393,7 +419,7 @@ function TheaterTab({ initialTheaters }: { initialTheaters: Theater[] }) {
         <div style={panelStyle}>
           <div style={{ flex: 1, overflowY: "auto", padding: "40px 48px" }}>
             <button type="button" onClick={() => setMode("list")} style={{ ...btnSecondary, marginBottom: 24 }}>← Zurück</button>
-            <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-700)", color: "#000000", margin: "0 0 32px" }}>
+            <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-black)", margin: "0 0 32px" }}>
               {mode === "create" ? "Neues Theater anlegen" : "Theater bearbeiten"}
             </h2>
             {error && <ErrorBox message={error} />}
@@ -427,7 +453,7 @@ function TheaterTab({ initialTheaters }: { initialTheaters: Theater[] }) {
         <div style={{ flex: 1, overflowY: "auto", padding: "40px 48px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
             <div>
-              <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-700)", color: "#000000", margin: "0 0 4px" }}>Theater</h2>
+              <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-black)", margin: "0 0 4px" }}>Theater</h2>
               <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-500)", margin: 0 }}>
                 {theaters.length} {theaters.length === 1 ? "Theater" : "Theater"} auf der Plattform
               </p>
@@ -633,7 +659,7 @@ function UsersTab({
           <div style={{ flex: 1, overflowY: "auto", padding: "40px 48px" }}>
             <button type="button" onClick={() => { setMode("list"); setEditTarget(null); setError(null); }}
               style={{ ...btnSecondary, marginBottom: 24 }}>← Zurück</button>
-            <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-700)", color: "#000000", margin: "0 0 32px" }}>
+            <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-black)", margin: "0 0 32px" }}>
               {mode === "create" ? "Neuen Benutzer erfassen" : "Benutzer bearbeiten"}
             </h2>
             {error && <ErrorBox message={error} />}
@@ -668,11 +694,11 @@ function UsersTab({
         <div style={{ flex: 1, overflowY: "auto", padding: "40px 48px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
             <div>
-              <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-700)", color: "#000000", margin: "0 0 4px" }}>
+              <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-black)", margin: "0 0 4px" }}>
                 Benutzerverwaltung
               </h2>
               <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-500)", margin: 0 }}>
-                {members.length} {members.length === 1 ? "Benutzer" : "Benutzer"}{isPlatformAdmin ? " auf der Plattform" : " in diesem Theater"}
+                {members.length} {members.length === 1 ? "Benutzer" : "Benutzer"}{isPlatformAdmin ? " auf der Plattform" : ` in ${allTheaters.find(t => t.id === defaultTheaterId)?.name ?? "diesem Theater"}`}
               </p>
             </div>
             <button type="button" onClick={() => { setMode("create"); setError(null); }} style={btnPrimary}>
@@ -705,7 +731,7 @@ function UsersTab({
                 <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
                   <button type="button" onClick={() => { setEditTarget(m); setMode("edit"); setError(null); }} style={{ ...btnSecondary, height: 34 }}>Bearbeiten</button>
                   {!m.isSelf && (
-                    <button type="button" onClick={() => setDeleteTarget(m)} disabled={isPending} style={{ ...btnDanger, height: 34 }}>Löschen</button>
+                    <button type="button" onClick={() => setDeleteTarget(m)} disabled={isPending} className="btn-danger btn-danger--sm">Löschen</button>
                   )}
                 </div>
               </div>
@@ -721,7 +747,7 @@ function UsersTab({
 
       {deleteTarget && (
         <>
-          <div onClick={() => setDeleteTarget(null)} style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.4)" }} />
+          <div onClick={() => setDeleteTarget(null)} style={{ position: "fixed", inset: 0, zIndex: 2000, background: "var(--overlay-medium)" }} />
           <div style={{
             position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 2001,
             background: "var(--neutral-white)",
@@ -730,7 +756,7 @@ function UsersTab({
             display: "flex", flexDirection: "column", gap: 12,
           }}>
             <div style={{ width: 36, height: 4, borderRadius: 2, background: "var(--neutral-grey-200)", alignSelf: "center", marginBottom: 8 }} />
-            <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-325)", fontWeight: 600, color: "var(--neutral-grey-600)", marginBottom: 4 }}>
+            <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-325)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-grey-600)", marginBottom: 4 }}>
               Benutzer löschen?
             </p>
             <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-400)", marginBottom: 8 }}>
@@ -740,14 +766,14 @@ function UsersTab({
               type="button"
               onClick={() => { handleDelete(deleteTarget.userId); setDeleteTarget(null); }}
               disabled={isPending}
-              style={{ height: "var(--button-height-md)", borderRadius: "var(--radius-md)", background: "none", border: "1.5px solid var(--primary-900)", color: "var(--primary-900)", fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-250)", fontWeight: 600, cursor: "pointer" }}
+              style={{ height: "var(--button-height-md)", borderRadius: "var(--radius-md)", background: "none", border: "1.5px solid var(--primary-900)", color: "var(--primary-900)", fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-250)", fontWeight: "var(--font-weight-500)", cursor: "pointer" }}
             >
               Endgültig löschen
             </button>
             <button
               type="button"
               onClick={() => setDeleteTarget(null)}
-              style={{ height: "var(--button-height-md)", borderRadius: "var(--radius-md)", background: "var(--secondary-900)", border: "none", color: "var(--neutral-white)", fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-250)", fontWeight: 600, cursor: "pointer" }}
+              style={{ height: "var(--button-height-md)", borderRadius: "var(--radius-md)", background: "var(--secondary-900)", border: "none", color: "var(--neutral-white)", fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-250)", fontWeight: "var(--font-weight-500)", cursor: "pointer" }}
             >
               Abbrechen
             </button>

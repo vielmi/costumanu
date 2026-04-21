@@ -20,7 +20,7 @@
   flex: 1;
   overflow-y: auto;
   background: var(--neutral-white);
-  border-radius: 40px 40px 0 0;
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
 }
 
 .sidebarWrap {
@@ -83,6 +83,102 @@
   gap: 12px;
   height: 72px;
   padding-bottom: 12px;
+}
+
+/* ─── Search dropdown ───────────────────────────────────────────────────── */
+.searchDropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--neutral-white);
+  border: 1px solid var(--neutral-grey-200);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-300);
+  z-index: 200;
+  overflow: hidden;
+}
+
+.searchEmpty {
+  padding: 14px 20px;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-200);
+  color: var(--neutral-grey-400);
+}
+
+.searchResultBtn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 64px;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--neutral-grey-100);
+  cursor: pointer;
+  text-align: left;
+  transition: background 100ms ease;
+}
+
+.searchResultBtn:hover {
+  background: var(--secondary-500);
+}
+
+.searchResultBtn:focus-visible {
+  outline: 2px solid var(--primary-900);
+  outline-offset: -2px;
+}
+
+.searchResultBtn:last-child {
+  border-bottom: none;
+}
+
+.searchResultThumb {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--neutral-grey-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.searchResultImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.searchResultText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.searchResultName {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-200);
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-grey-700);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.searchResultSub {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-100);
+  font-weight: var(--font-weight-400);
+  color: var(--neutral-grey-500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ─── Tablet overrides (744px – 1100px) ─────────────────────────────────── */

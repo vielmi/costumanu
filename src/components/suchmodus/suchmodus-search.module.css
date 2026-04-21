@@ -1,7 +1,7 @@
 /* ─── Page ─────────────────────────────────────────────────────────────── */
 .page {
   min-height: 100svh;
-  background: #FFFFFF;
+  background: var(--neutral-white);
   display: flex;
   flex-direction: column;
 }
@@ -20,11 +20,11 @@
   display: flex;
   align-items: center;
   height: 60px;
-  border: 1px solid #000000;
-  border-radius: 47px;
+  border: 1px solid var(--neutral-black);
+  border-radius: var(--radius-full);
   padding: 0 16px;
   gap: 10px;
-  background: #FFFFFF;
+  background: var(--neutral-white);
 }
 
 .inputIcon {
@@ -39,14 +39,18 @@
   outline: none;
   background: transparent;
   font-family: var(--font-family-base);
-  font-size: 16px;
+  font-size: var(--font-size-300);
   font-weight: var(--font-weight-400);
-  color: #000000;
+  color: var(--neutral-black);
   min-width: 0;
 }
 
+.inputWrap:focus-within {
+  border-color: var(--secondary-800);
+}
+
 .input::placeholder {
-  color: #606060;
+  color: var(--neutral-grey-500);
   font-weight: var(--font-weight-400);
 }
 
@@ -63,7 +67,7 @@
   align-items: center;
   justify-content: center;
   background: transparent;
-  border: 1px solid #242727;
+  border: 1px solid var(--neutral-grey-600);
   border-radius: 50%;
   cursor: pointer;
   padding: 0;
@@ -73,9 +77,9 @@
 .cancelLink {
   flex-shrink: 0;
   font-family: var(--font-family-base);
-  font-size: 14px;
+  font-size: var(--font-size-200);
   font-weight: var(--font-weight-400);
-  color: #000000;
+  color: var(--neutral-black);
   text-decoration: underline;
   white-space: nowrap;
 }
@@ -88,7 +92,7 @@
 
 .suggestionsLabel {
   font-family: var(--font-family-base);
-  font-size: 14px;
+  font-size: var(--font-size-200);
   font-weight: var(--font-weight-400);
   color: var(--neutral-grey-600);
   letter-spacing: 0.002em;
@@ -109,7 +113,7 @@
   gap: 14px;
   padding: 8px 16px;
   text-decoration: none;
-  border-bottom: 1px solid #F0F0F0;
+  border-bottom: 1px solid var(--neutral-grey-100);
   transition: background 100ms ease;
   min-height: 91px;
 }
@@ -125,7 +129,7 @@
   flex-shrink: 0;
   border-radius: 4px;
   overflow: hidden;
-  background: #F0F0F0;
+  background: var(--neutral-grey-100);
 }
 
 .listItemImg {
@@ -138,7 +142,7 @@
 .listItemImgPlaceholder {
   width: 100%;
   height: 100%;
-  background: #E8E8E8;
+  background: var(--neutral-grey-200);
 }
 
 /* ─── Text ──────────────────────────────────────────────────────────────── */
@@ -152,17 +156,17 @@
 
 .listItemName {
   font-family: var(--font-family-base);
-  font-size: 16px;
+  font-size: var(--font-size-300);
   font-weight: var(--font-weight-700);
-  color: #000000;
+  color: var(--neutral-black);
   line-height: 1.5;
 }
 
 .listItemSub {
   font-family: var(--font-family-base);
-  font-size: 16px;
+  font-size: var(--font-size-300);
   font-weight: var(--font-weight-400);
-  color: #000000;
+  color: var(--neutral-black);
   line-height: 1.5;
 }
 
@@ -171,8 +175,8 @@
   text-align: center;
   padding: 40px 16px;
   font-family: var(--font-family-base);
-  font-size: 14px;
-  color: #606060;
+  font-size: var(--font-size-200);
+  color: var(--neutral-grey-500);
   margin: 0;
 }
 
@@ -186,7 +190,7 @@
 
 .hintText {
   font-family: var(--font-family-base);
-  font-size: 14px;
+  font-size: var(--font-size-200);
   font-weight: var(--font-weight-400);
   color: #9E9E9E;
   text-align: center;
