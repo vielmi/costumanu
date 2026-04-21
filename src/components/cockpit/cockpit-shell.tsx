@@ -97,9 +97,16 @@ function CockpitTopBar({ theaterId }: { theaterId: string | null }) {
 
 // ─── CockpitSearch ────────────────────────────────────────────────────────────
 
+type SearchResult = {
+  id: string;
+  name: string;
+  costume_provenance: { production_title: string; year: number | null }[];
+  costume_media: { storage_path: string; sort_order: number }[];
+};
+
 function CockpitSearch({ theaterId }: { theaterId: string | null }) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<{ id: string; name: string }[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -123,11 +130,11 @@ function CockpitSearch({ theaterId }: { theaterId: string | null }) {
       }
       const { data } = await supabase
         .from("costumes")
-        .select("id, name")
+        .select("id, name, costume_provenance(production_title, year), costume_media(storage_path, sort_order)")
         .eq("theater_id", theaterId)
         .ilike("name", `%${query}%`)
         .limit(8);
-      setResults(data ?? []);
+      setResults((data ?? []) as SearchResult[]);
     }, 200);
     return () => clearTimeout(timer);
   }, [query, theaterId, supabase]);
@@ -188,64 +195,42 @@ function CockpitSearch({ theaterId }: { theaterId: string | null }) {
       </div>
 
       {isOpen && query.trim() && (
-        <div
-          style={{
-            position: "absolute",
-            top: "calc(100% + 6px)",
-            left: 0,
-            right: 0,
-            background: "var(--neutral-white)",
-            border: "1px solid var(--neutral-grey-200)",
-            borderRadius: 16,
-            boxShadow: "var(--shadow-300)",
-            zIndex: 200,
-            overflow: "hidden",
-          }}
-        >
+        <div className={styles.searchDropdown}>
           {results.length === 0 ? (
-            <div
-              style={{
-                padding: "14px 20px",
-                fontFamily: "var(--font-family-base)",
-                fontSize: "var(--font-size-200)",
-                color: "var(--neutral-grey-400)",
-              }}
-            >
-              Keine Kostüme gefunden
-            </div>
+            <p className={styles.searchEmpty}>Keine Kostüme gefunden</p>
           ) : (
-            results.map((costume) => (
-              <button
-                key={costume.id}
-                type="button"
-                onClick={() => navigateTo(costume.id)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  width: "100%",
-                  height: 52,
-                  padding: "0 20px",
-                  background: "none",
-                  border: "none",
-                  borderBottom: "1px solid var(--neutral-grey-100)",
-                  cursor: "pointer",
-                  textAlign: "left",
-                }}
-              >
-                <Image src="/icons/icon-shirt.svg" alt="" width={16} height={16} style={{ opacity: 0.4, flexShrink: 0 }} />
-                <span
-                  style={{
-                    fontFamily: "var(--font-family-base)",
-                    fontSize: "var(--font-size-200)",
-                    fontWeight: "var(--font-weight-500)",
-                    color: "var(--neutral-grey-700)",
-                  }}
+            results.map((costume) => {
+              const prov = costume.costume_provenance?.[0];
+              const subtitle = prov
+                ? [prov.production_title, prov.year ? String(prov.year) : null].filter(Boolean).join(" | ")
+                : null;
+              const sortedMedia = [...(costume.costume_media ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+              const imageUrl = sortedMedia[0]
+                ? supabase.storage.from("costume-images").getPublicUrl(sortedMedia[0].storage_path).data.publicUrl
+                : null;
+
+              return (
+                <button
+                  key={costume.id}
+                  type="button"
+                  onClick={() => navigateTo(costume.id)}
+                  className={styles.searchResultBtn}
                 >
-                  {costume.name}
-                </span>
-              </button>
-            ))
+                  <div className={styles.searchResultThumb}>
+                    {imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={imageUrl} alt="" className={styles.searchResultImg} />
+                    ) : (
+                      <Image src="/icons/icon-shirt.svg" alt="" width={20} height={20} style={{ opacity: 0.4 }} />
+                    )}
+                  </div>
+                  <div className={styles.searchResultText}>
+                    <span className={styles.searchResultName}>{costume.name}</span>
+                    {subtitle && <span className={styles.searchResultSub}>{subtitle}</span>}
+                  </div>
+                </button>
+              );
+            })
           )}
         </div>
       )}
@@ -256,10 +241,8 @@ function CockpitSearch({ theaterId }: { theaterId: string | null }) {
 // ─── ErfassenDropdown ─────────────────────────────────────────────────────────
 
 const ERFASSEN_ITEMS = [
-  { label: "Etikett scannen",      href: "/kostueme/scan",              icon: "icon-barcode-scan" },
-  { label: "Kostüm erfassen",      href: "/kostueme/neu",               icon: "icon-shirt"        },
-  { label: "Mehrteiler erfassen",  href: "/kostueme/neu?type=ensemble", icon: "icon-shirt-1"      },
-  { label: "Kostüm Serie erfassen",href: "/kostueme/neu?type=serie",    icon: "icon-serie"        },
+  { label: "Etikett scannen", href: "/kostueme/scan", icon: "icon-barcode-scan" },
+  { label: "Kostüm erfassen", href: "/kostueme/neu",  icon: "icon-shirt"        },
 ] as const;
 
 function ErfassenDropdown() {

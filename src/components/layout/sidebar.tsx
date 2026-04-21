@@ -66,6 +66,7 @@ export function Sidebar({ navItems, badges, onWidthChange }: SidebarProps) {
     <div
       style={{
         width,
+        height: "100%",
         flexShrink: 0,
         display: "flex",
         flexDirection: "column",

@@ -39,7 +39,7 @@ export default async function KostuemeNeuPage({
   const vocabs = ["gender", "clothing_type", "clothing_subtype", "material", "muster", "color", "sparte", "temperature", "washing_type", "drying", "ironing"];
   const results = await Promise.all(
     vocabs.map((v) =>
-      supabase.from("taxonomy_terms").select("id, label_de").eq("vocabulary", v).order("sort_order")
+      supabase.from("taxonomy_terms").select("id, label_de, parent_id").eq("vocabulary", v).order("sort_order")
     )
   );
   const [genders, clothingTypes, clothingSubtypes, materials, musters, colors, sparten, temperatures, washingTypes, dryings, ironings] = results;

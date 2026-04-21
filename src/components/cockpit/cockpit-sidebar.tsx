@@ -107,7 +107,7 @@ export function CockpitSidebar() {
                 padding: "0 8px",
                 gap: 8,
                 borderRadius: "var(--radius-sm)",
-                background: isActive ? "#D6DFDD" : "transparent",
+                background: isActive ? "var(--secondary-550)" : "transparent",
                 textDecoration: "none",
                 borderTop: index > 0 ? "1px solid var(--neutral-grey-400)" : "none",
                 justifyContent: collapsed ? "center" : "flex-start",

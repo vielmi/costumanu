@@ -16,6 +16,14 @@
 | 4 | Ausleihe | `/rental` | ✅ Implementiert |
 | 5 | Kostüm Detail | `/costume/[id]` | ✅ Dokumentiert |
 | 6 | Nachrichten | `/messages` | ✅ Implementiert |
+| 15 | Suchmodus Cockpit | `/suchmodus` | ✅ Dokumentiert |
+| 16 | Suchmodus Filter-Overlay | `/suchmodus/filter` | ✅ Dokumentiert |
+| 17 | Suchmodus Resultate-Grid | `/suchmodus/results` | ✅ Dokumentiert |
+| 18 | Suchmodus Kostüm-Detail | `/suchmodus/costume/[id]` | ✅ Dokumentiert |
+| 19 | Suchmodus Suche | `/suchmodus/search` | ✅ Dokumentiert |
+| 20 | Suchmodus Mobile Menu Drawer | — (Shared) | ✅ Dokumentiert |
+| 21 | Standort-Sheet | — (Shared) | ✅ Dokumentiert |
+| 22 | Cockpit Mobile-Layout (Drawer) | — (Shared) | ✅ Dokumentiert |
 
 > **Geteilte Komponenten** (in Sektion am Ende dieses Dokuments, gehören zusätzlich in design-system.md):
 > Mobile Navigation (Drawer + Multi-Level), Footer, Search-Filter Overlay, Search Input + Dropdown
@@ -1818,4 +1826,500 @@ interface MessageThread {
 
 ---
 
-*Stand: Alle Mobile-Screens vollständig dokumentiert — kostüm+ / costumanu*
+---
+
+## 15. Suchmodus Cockpit
+
+**Route:** `/suchmodus`
+
+### Übersicht
+Landing-Page des Suchmodus. Vollbild-Hero mit Filter-Bar, Kategorie-Grid (Gender-Kacheln), horizontal scrollende Category Tiles, CTA-Karte, Netzwerk-Ovals, Footer.
+
+### Layout-Struktur
+
+```
++--------------------------------------------------+
+|  Header (sticky, 80px / Mobile: 70px)            |
++--------------------------------------------------+
+|  Hero (668px / Mobile: 400px)                    |
+|    [ Kostüm finden | ⊙ Standort | ⊙ Suche ]      |  ← Filter Bar
+|    Grosse Titel-Überschrift                       |
++--------------------------------------------------+
+|  Gender-Grid (3 Spalten / Mobile: 2 Spalten)     |
+|  Category Tiles (horizontal scroll Mobile)       |
+|  CTA-Event-Karte                                 |
+|  Netzwerk-Ovals                                  |
+|  Footer                                          |
++--------------------------------------------------+
+```
+
+### Header
+
+| Eigenschaft | Wert |
+|---|---|
+| Höhe Desktop | 80px |
+| Höhe Mobile | 70px |
+| Position | sticky, top: 0, z-index: 50 |
+| Shadow | `0px 1px 10px rgba(0,0,0,0.20)` |
+| Padding | `0 20px` |
+| Icons rechts | 45×45px Hitbox je Icon |
+
+### Hero
+
+| Eigenschaft | Wert |
+|---|---|
+| Höhe Desktop | 668px |
+| Höhe Mobile | 400px |
+| Position | `relative`, `overflow: hidden` |
+
+#### Filter Bar
+
+| Eigenschaft | Wert |
+|---|---|
+| Position Desktop | `absolute`, `top: 42px`, `left: 50%`, `transform: translateX(-50%)` |
+| Position Mobile | `top: 20px`, `left/right: 16px`, `transform: none`, `width: calc(100% - 32px)` |
+| Gap | 10px |
+| **Filter-Button** | `height: 60px`, `padding: 0 24px`, `border-radius: 61px`, `background: primary-900`, weisser Text |
+| **Standort-Button** | 60×60px Kreis, `border: 1px solid primary-900`, weisser Hintergrund → Öffnet Standort-Sheet |
+| **Such-Button** | 60×60px Kreis, `border: 1px solid primary-900` |
+
+> ⚠️ Filter Bar hat `transform` auf Desktop — Kind-Elemente mit `position: fixed` müssen via React Portal gerendert werden (siehe Standort-Sheet, Modul 21).
+
+### Gender-Grid
+
+| Eigenschaft | Wert |
+|---|---|
+| Spalten Desktop | `repeat(3, 1fr)` |
+| Spalten Mobile | `repeat(2, 1fr)` |
+| Gap | 12px |
+| Kachel-Höhe | 140px |
+| Border | `1px solid secondary-900` |
+| Border-radius | `var(--radius-md)` |
+| Padding-bottom | 14px |
+| Gap innen | 8px |
+| Label | `font-size: var(--font-size-300)`, `font-weight: var(--font-weight-500)` |
+
+### Category Tiles
+
+| Eigenschaft | Desktop | Mobile |
+|---|---|---|
+| Layout | `display: flex`, `gap: 30px` | `overflow-x: auto`, `scroll-snap-type: x mandatory`, `gap: 12px`, `padding: 0 16px` |
+| Kachel-Breite | `flex: 1` (fluid) | `60vw` |
+| Kachel-Höhe | 430px | 270px |
+| Border-radius | `var(--radius-card)` (20px) | idem |
+| Scroll-Snap | — | `scroll-snap-align: start` |
+
+### Section-Abstände
+
+| Klasse | Desktop | Mobile |
+|---|---|---|
+| `.sectionPadded` | `60px 67px` | `40px 16px` |
+| `.sectionPaddedBottom` | `0 67px 60px` | `0 0 40px` |
+| `.sectionTitleWrap` | `margin-bottom: 32px` | `padding: 0 16px`, `margin-bottom: 20px` |
+| Titel | `var(--font-size-800)`, `font-weight-500`, `neutral-grey-600` | idem |
+
+### Netzwerk-Ovals
+
+| Eigenschaft | Desktop | Mobile |
+|---|---|---|
+| Grösse | 255×381px | 120×179px |
+| Border-radius | 166px | 78px |
+| Gap | 32px | idem |
+
+---
+
+## 16. Suchmodus Filter-Overlay
+
+**Route:** `/suchmodus/filter`
+**Typ:** Vollbild-Seite (Mobile), keine Overlay-Schicht
+
+### Layout
+
+```
++------------------------------------------+
+|  Header (sticky, 70px)                   |
+|  [Filter-Icon] Kostümfilter  [X]         |
++------------------------------------------+
+|  Body (scrollbar, padding: 24px 16px 120px) |
+|  Sektionen mit je einem Badge-Pill        |
++------------------------------------------+
+|  Footer (fixed, bottom, 2 Buttons)       |
+|  [Zurücksetzen]  [Filter anwenden ——>]   |
++------------------------------------------+
+```
+
+### Header
+
+| Eigenschaft | Wert |
+|---|---|
+| Höhe | 70px |
+| Position | sticky, top: 0, z-index: 40 |
+| Shadow | `0px 1px 10px rgba(0,0,0,0.12)` |
+| Padding | `0 16px` |
+| Close-Button | 46×46px |
+
+### Sektion-Badge
+
+| Eigenschaft | Wert |
+|---|---|
+| Background | `var(--neutral-black)` |
+| Border-radius | 49px |
+| Padding | `3px 15px` |
+| Font | `var(--font-size-300)`, `font-weight-400`, `neutral-white` |
+
+### Gender-Kacheln
+
+| Eigenschaft | Wert |
+|---|---|
+| Grid | `1fr 1fr`, `gap: 12px` |
+| Höhe | 93px |
+| Border | `1px solid secondary-700` |
+| Border-radius | `var(--radius-sm)` |
+| Selected | `background: secondary-500`, `border-color: secondary-800` |
+
+### Chips
+
+| Eigenschaft | Wert |
+|---|---|
+| Höhe | 36px |
+| Padding | `0 16px` |
+| Border | `1px solid secondary-700` |
+| Border-radius | `var(--radius-full)` |
+| Font | `var(--font-size-200)`, `font-weight-500`, `secondary-700` |
+| Selected | `background: secondary-800`, `color: neutral-white` |
+
+### Sticky Footer (Filter-Buttons)
+
+| Eigenschaft | Wert |
+|---|---|
+| Position | `fixed`, `bottom: 0`, `left/right: 0` |
+| Padding | `12px 16px 28px` |
+| Shadow | `0px -2px 12px rgba(0,0,0,0.10)` |
+| Zurücksetzen | `btn-secondary` |
+| Filter anwenden | `btn-primary`, `flex: 1` |
+
+### Filter-Sektionen
+
+| Sektion | Inhalt |
+|---|---|
+| Kategorie | Gender-Kacheln (2-spaltig) + Bekleidungsart-Chips + Suchfeld |
+| Sparte | Chips |
+| Aufführung | 4× Suchfeld (Epoche, Stücktitel, Darsteller, Rolle) |
+| Regie & Assistenz | 3× Suchfeld |
+| Konfektionsgrösse | International (XS–XXL) + EU (32–54 S) als Chips |
+| Material | Suchfeld + Chips + Muster-Grid (3-spaltig, 80px hoch) |
+| Farbe | Color Swatches 36×36px, border-radius 50%, selected: scale(1.15) |
+
+---
+
+## 17. Suchmodus Resultate-Grid
+
+**Route:** `/suchmodus/results`
+
+### Layout
+
+```
++------------------------------------------+
+|  Header (sticky)                          |
+|  ← Titel (Anzahl)  [Grid/List] [Filter]  |
+|  [Aktive Filter Chips, horizontal scroll] |
++------------------------------------------+
+|  Grid (2 Spalten, gap: 13px)              |
+|  [Karte] [Karte]                          |
+|  [Karte] [Karte]                          |
++------------------------------------------+
+|  Footer                                  |
++------------------------------------------+
+```
+
+### Header
+
+| Eigenschaft | Wert |
+|---|---|
+| Position | sticky, top: 0, z-index: 50 |
+| Shadow | `0px 1px 10px rgba(0,0,0,0.10)` |
+| Header-Top-Höhe | 64px |
+| Zurück-Button | 40×40px |
+| Titel | `var(--font-size-500)`, `font-weight-500`, ellipsis |
+| Anzahl | `var(--font-size-200)`, `font-weight-400`, `neutral-grey-400` |
+| View-Toggle Buttons | 34×34px, `border-radius: 6px`, active: `background: rgba(0,0,0,0.08)` |
+| Filter-Button | `height: 34px`, `padding: 0 12px`, `border-radius: 8px`, `border: 1px solid rgba(0,0,0,0.20)`, `var(--font-size-150)`, `font-weight-500` |
+
+### Kostüm-Karte (Grid-Ansicht)
+
+| Eigenschaft | Wert |
+|---|---|
+| Grid | `1fr 1fr`, `gap: 13px`, `padding: 16px` |
+| Border-radius | `var(--radius-sm)` |
+| Bild | `aspect-ratio: 0.688`, `object-fit: cover` |
+| Bookmark-Button | 40×40px Kreis, `box-shadow: 0px 2px 6px rgba(0,0,0,0.15)` |
+| Kategorie | `var(--font-size-100)`, uppercase, `letter-spacing: 0.02em`, `neutral-grey-400` |
+| Name | `var(--font-size-300)`, `font-weight-500`, `neutral-black`, 2-zeilig clamp |
+| Aufführung | `var(--font-size-200)`, `font-weight-400`, `neutral-grey-400` |
+| Theater | `var(--font-size-75)`, `font-weight-500`, `neutral-grey-400`, ellipsis |
+| Verfügbar-Dot | 16×16px, `accent-01` oder outline `neutral-grey-400` |
+
+---
+
+## 18. Suchmodus Kostüm-Detail
+
+**Route:** `/suchmodus/costume/[id]`
+
+### Layout
+
+```
++------------------------------------------+
+|  Breadcrumb-Bar (sticky, 52px)            |
+|  ← [Resultate > Kostümname]              |
++------------------------------------------+
+|  Bild (aspect-ratio: 340/372)            |
+|  ● o o  (Pagination Dots)               |
+|  Bekleidungstyp  (Label)                 |
+|  Titel (H4)                              |
+|  Meta: Gender | Grösse                   |
+|  Beschreibung                            |
+|  ✓ Verfügbar — Theatername              |
++------------------------------------------+
+|  [Ausleihen] [Teilen] [Merken]           |
++------------------------------------------+
+|  Spezifikationen (Accordion)             |
+|  Ähnliche Kostüme (horizontal scroll)    |
++------------------------------------------+
+|  Footer                                  |
++------------------------------------------+
+```
+
+### Breadcrumb-Bar
+
+| Eigenschaft | Wert |
+|---|---|
+| Höhe | 52px |
+| Position | sticky, top: 0, z-index: 40 |
+| Shadow | `0px 1px 6px rgba(0,0,0,0.08)` |
+| Font | `var(--font-size-100)`, `font-weight-400` |
+
+### Bild-Bereich
+
+| Eigenschaft | Wert |
+|---|---|
+| Aspect-ratio | `340 / 372` |
+| Object-fit | cover |
+| Heart-Button | 40×40px, oben rechts, `box-shadow: 0px 2px 6px rgba(0,0,0,0.15)` |
+| Pagination Dots | 11×11px, border-radius 50%, aktiv: `neutral-black` fill |
+
+### Info-Bereich
+
+| Element | Font |
+|---|---|
+| Bekleidungstyp | `var(--font-size-200)`, `font-weight-400`, `neutral-grey-600` |
+| Titel | `var(--font-size-700)`, `font-weight-500`, `neutral-black`, `line-height: 140%` |
+| Meta-Labels | `var(--font-size-200)`, `font-weight-400` |
+| Verfügbarkeit | `var(--font-size-150)`, `font-weight-500`, `neutral-grey-600` |
+
+### Accordion (Spezifikationen)
+
+| Eigenschaft | Wert |
+|---|---|
+| Titel-Label | `var(--font-size-600)`, `font-weight-500`, `neutral-grey-600` |
+| Accordion-Titel | `var(--font-size-350)`, `font-weight-700` |
+| Trennlinie | `1px solid neutral-black` |
+| Chevron-Animation | `rotate(180deg)` wenn open, `transition: 200ms ease` |
+| Feld-Label | `var(--font-size-300)`, `font-weight-700`, `neutral-black` |
+| Feld-Wert | `var(--font-size-300)`, `font-weight-400`, `neutral-grey-600` |
+
+### Ähnliche Kostüme
+
+| Eigenschaft | Wert |
+|---|---|
+| Layout | horizontal scroll, `scroll-snap-type: x mandatory`, no scrollbar |
+| Karte-Breite | 155px |
+| Bild | 155×195px, `var(--radius-xs)` |
+| Heart-Button | `background: rgba(255,255,255,0.60)`, 40×40px |
+
+---
+
+## 19. Suchmodus Suche
+
+**Route:** `/suchmodus/search`
+
+### Layout
+
+```
++------------------------------------------+
+|  [Q  Suche …  X]     [Abbrechen]         |
++------------------------------------------+
+|  Suchvorschläge (Label)                  |
+|  ─────────────────────────────────────   |
+|  [Bild 75px] Kostüm-Titel               |
+|              Aufführung                  |
+|  ─────────────────────────────────────   |
+|  …                                       |
++------------------------------------------+
+```
+
+### Such-Input
+
+| Eigenschaft | Wert |
+|---|---|
+| Höhe | 60px |
+| Border | `1px solid neutral-black` |
+| Border-radius | `var(--radius-full)` |
+| Padding | `0 16px`, `gap: 10px` |
+| Font | `var(--font-size-300)`, `font-weight-400` |
+| Placeholder | `neutral-grey-500` |
+| Clear-Button | 20×20px Kreis, `border: 1px solid neutral-grey-600` |
+| Cancel-Link | `var(--font-size-200)`, underline, `flex-shrink: 0` |
+
+### Ergebnis-Liste
+
+| Eigenschaft | Wert |
+|---|---|
+| Item-Höhe | min-height: 91px |
+| Thumbnail | 75×75px, `border-radius: 4px` |
+| Gap | 14px |
+| Trennlinie | `1px solid neutral-grey-100` |
+| Name | `var(--font-size-300)`, `font-weight-700`, `neutral-black` |
+| Untertitel | `var(--font-size-300)`, `font-weight-400`, `neutral-black` |
+
+---
+
+## 20. Suchmodus Mobile Menu Drawer
+
+**Verwendung:** Burger-Menu im Suchmodus-Header (nur Mobile < 744px)
+
+### Trigger
+
+| Eigenschaft | Wert |
+|---|---|
+| Sichtbarkeit | `display: none` (Desktop), `display: flex` (Mobile) |
+| Grösse | 8px Padding, kein Border/Background |
+| Icon | BurgerIcon SVG (24×24px), `fill: currentColor`, `neutral-black` |
+
+### Overlay (Level 1)
+
+| Eigenschaft | Wert |
+|---|---|
+| Position | `fixed`, `inset: 0`, `z-index: 3000` |
+| Background | `var(--neutral-grey-600)` |
+| Close-Button | 46×46px, oben rechts (`top: 7px, right: 7px`) |
+| Content-Padding | `56px 32px 0` |
+
+### Navigation Items
+
+| Eigenschaft | Wert |
+|---|---|
+| Sektion-Label | `var(--font-size-350)`, `font-weight-700`, `neutral-grey-400` |
+| Nav-Item-Höhe | 58px |
+| Nav-Label | `var(--font-size-400)`, `font-weight-400`, `neutral-white` |
+| Trennlinie | `1px solid rgba(255,255,255,0.2)` |
+
+### Level 2 (Bekleidungsart)
+
+Öffnet sich bei Klick auf eine Kategorie (z.B. "Herren"). Gleiche Optik, mit Zurück-Link:
+
+| Eigenschaft | Wert |
+|---|---|
+| Zurück-Label | `var(--font-size-100)`, `font-weight-400`, `neutral-grey-300`, underline |
+| Level-2-Titel | `var(--font-size-350)`, `font-weight-700`, `neutral-grey-400` |
+| Inhalte | DB-gefilterte Bekleidungsarten |
+
+### Profil-Footer
+
+| Eigenschaft | Wert |
+|---|---|
+| Höhe | 95px |
+| Padding | `0 32px` |
+| Background | `neutral-grey-600` |
+| Shadow | `0px -3px 10px rgba(0,0,0,0.25)` |
+| Border-radius | `8px 8px 0 0` |
+| Avatar | 60×60px Kreis, `secondary-700` |
+| Name | `var(--font-size-350)`, `font-weight-500`, `neutral-white` |
+
+---
+
+## 21. Standort-Sheet
+
+**Verwendung:** Trigger im Suchmodus Filter-Bar → Bottom Sheet zur Theater-Auswahl
+
+> ⚠️ Wird via `ReactDOM.createPortal` in `document.body` gerendert, da der Parent `.heroFilterBar` `transform: translateX(-50%)` hat, was `position: fixed` bricht.
+
+### Trigger-Button
+
+| Eigenschaft | Wert |
+|---|---|
+| Grösse | 60×60px |
+| Border | `1px solid var(--primary-900)` |
+| Border-radius | `var(--radius-full)` |
+| Background | `neutral-white` |
+
+### Backdrop
+
+| Eigenschaft | Wert |
+|---|---|
+| Position | `fixed`, `inset: 0`, `z-index: 2000` |
+| Background | `rgba(36, 39, 39, 0.80)` |
+
+### Sheet
+
+| Eigenschaft | Wert |
+|---|---|
+| Position | `fixed`, `bottom: 0`, `left/right: 0`, `z-index: 2001` |
+| Border-radius | `var(--radius-card) var(--radius-card) 0 0` |
+| Shadow | `0px -2px 20px rgba(0,0,0,0.2)` |
+| Padding | `28px 16px 40px` |
+
+### Theater-Zeilen
+
+| Eigenschaft | Wert |
+|---|---|
+| Höhe | 64px |
+| Padding | `0 16px` |
+| Border-radius | `var(--radius-sm)` |
+| Default | `border: 1px solid neutral-grey-600` |
+| Selected | `background: secondary-500`, `border-color: secondary-700` |
+| Theater-Name | `var(--font-size-350)`, `font-weight-700` |
+| Checkbox | 22×22px, `border: 2px solid secondary-800`, `var(--radius-xs)`, filled wenn selected |
+
+### Toggle (Alle Standorte)
+
+| Eigenschaft | Wert |
+|---|---|
+| Schalter | 50×28px, `border-radius: var(--radius-full)` |
+| Off | `background: secondary-500` |
+| On | `background: secondary-800` |
+| Thumb | 22×22px, weiss, `left: 3px` → `calc(100% - 25px)` |
+| Animation | `transition: background/left 150ms ease` |
+
+### Save-Button
+
+`btn-primary`, `width: 100%`
+
+---
+
+## 22. Cockpit Mobile-Layout (Drawer)
+
+**Verwendung:** Burger-Menu im App-Cockpit (Hauptbereich, Mobile < 744px)
+
+> Funktional identisch mit Modul 20 (Suchmodus Mobile Menu Drawer), aber separate Implementierung für den Cockpit-Kontext.
+
+### Unterschiede zu Modul 20
+
+| Eigenschaft | Cockpit (22) | Suchmodus (20) |
+|---|---|---|
+| Burger-Button sichtbar | immer (`display: flex`) | nur Mobile (`display: none` Desktop) |
+| Nav-Item-Trennlinie | `rgba(255,255,255,0.12)` | `rgba(255,255,255,0.2)` |
+| Divider-Margin | `20px 0 16px` | `16px 0` |
+| Avatar Grösse | 50×50px | 60×60px |
+| Profil-Label Font | `var(--font-size-300)` | `var(--font-size-350)` |
+| Logout-Button | vorhanden (`var(--font-size-200)`, underline, `neutral-grey-400`) | kein Logout |
+
+### Overlay & Content
+
+Identisch mit Modul 20:
+- Position: `fixed`, `inset: 0`, `z-index: 3000`, `background: neutral-grey-600`
+- Content-Padding: `56px 32px 0`
+- Close-Button: 46×46px, `top: 7px right: 7px`
+
+---
+
+*Stand: Alle Module dokumentiert (Suchmodus vollständig) — kostüm+ / costumanu*

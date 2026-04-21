@@ -237,10 +237,48 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ### 05 Feedback Colors
 ```css
---color-error:   #FF525A;
---color-warning: #FEA800;
---color-success: #85CAA0;
+--color-error:       #FF525A;
+--color-warning:     #FEA800;
+--color-success:     #85CAA0;
+--color-error-light: #fee2e2;  /* Hintergrund für Fehler-Banner (tailwind red-100) */
 ```
+
+### 06 Overlay Tokens
+Werden für Bild-Overlays (Hero, Category Tiles, CTA Cards, Netzwerk-Ovals) verwendet.
+```css
+--overlay-light:  rgba(0, 0, 0, 0.30);
+--overlay-medium: rgba(0, 0, 0, 0.40);
+--overlay-heavy:  rgba(0, 0, 0, 0.60);
+```
+
+| Token | Opacity | Verwendung |
+|---|---|---|
+| `--overlay-light`  | 30% | Subtile Verdunkelung (z.B. Netzwerk-Ovals) |
+| `--overlay-medium` | 40% | Standard Bild-Overlay (Hero, Category Tiles) |
+| `--overlay-heavy`  | 60% | Starke Verdunkelung (z.B. CTA Event Card) |
+
+**Verwendungsbeispiel (TSX):**
+```tsx
+<div style={{ position: "absolute", inset: 0, background: "var(--overlay-medium)" }} />
+```
+
+### 07 Token-Verwendungsregeln
+
+**Regel: Keine hardcodierten Hex-Farben in Komponenten.**
+Alle Farben müssen via CSS Custom Properties gesetzt werden.
+
+| Kontext | Erlaubt | Verboten |
+|---|---|---|
+| Texte | `color: "var(--neutral-black)"` | `color: "#000000"` |
+| Hintergründe | `background: "var(--neutral-white)"` | `background: "#FFFFFF"` |
+| Seiten-Hintergrund | `background: "var(--page-bg)"` | `background: "#ECF1EE"` |
+| Fehler-Banner | `background: "var(--color-error-light)"` | `background: "#fee2e2"` |
+| Bild-Overlays | `background: "var(--overlay-medium)"` | `background: "rgba(0,0,0,0.4)"` |
+
+**Ausnahmen (absichtlich hardcodiert):**
+- SVG-Attribute (`stroke`, `fill`) in inline SVGs — CSS-Variablen werden dort nicht als HTML-Attribute unterstützt
+- Box-Shadows mit spezifischen Blur/Spread-Werten, die keinem Shadow-Token entsprechen
+- `COLOR_HEX`-Maps in Filter-Komponenten — diese sind Daten (Farbwähler-Swatches), keine Design-Tokens
 
 ### Full CSS Custom Properties Block
 ```css
@@ -283,9 +321,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   --accent-02: #F5E4E4;
 
   /* Feedback */
-  --color-error:   #FF525A;
-  --color-warning: #FEA800;
-  --color-success: #85CAA0;
+  --color-error:       #FF525A;
+  --color-warning:     #FEA800;
+  --color-success:     #85CAA0;
+  --color-error-light: #fee2e2;
+
+  /* Overlays */
+  --overlay-light:  rgba(0, 0, 0, 0.30);
+  --overlay-medium: rgba(0, 0, 0, 0.40);
+  --overlay-heavy:  rgba(0, 0, 0, 0.60);
 }
 ```
 
@@ -1748,6 +1792,12 @@ Kein formales Figma-Radius-Token-System vorhanden. Alle Werte aus Komponenten-Sp
   --radius-xl:   40px;   /* App Header (nur oben) */
   --radius-pill: 44px;   /* Tags, Toggle-Pills, Search */
   --radius-full: 9999px; /* Avatar, Radio, Toggle, Tertiary Button */
+
+  /* Semantische Radius-Tokens (Suchmodus & App-Panels) */
+  --radius-card:    20px; /* Kostüm-Kachel, Category Tile */
+  --radius-section: 30px; /* Abgerundete Sektions-Container */
+  --radius-footer:  24px; /* Suchmodus Footer (oben abgerundet) */
+  --radius-panel:   40px; /* App Header Panel (oben abgerundet) */
 }
 ```
 
@@ -1759,10 +1809,13 @@ Kein formales Figma-Radius-Token-System vorhanden. Alle Werte aus Komponenten-Sp
 | Button Primary/Secondary | `--radius-lg` (16px) |
 | Navigation Item | `--radius-sm` (8px) |
 | List Item | `--radius-xs` (4px) |
-| App Header | `40px 40px 0 0` |
+| App Header | `--radius-panel` = `40px 40px 0 0` |
 | Tag / Search | `--radius-pill` (44–47px) |
 | Avatar / Radio / Toggle / Tertiary | `--radius-full` |
 | Progress Step | `--radius-full` |
+| Kostüm-Kachel / Category Tile | `--radius-card` (20px) |
+| Suchmodus Footer | `--radius-footer 24px 24px 0 0` |
+| Abgerundeter Sektions-Container | `--radius-section` (30px) |
 
 ---
 

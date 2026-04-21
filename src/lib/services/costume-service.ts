@@ -187,7 +187,7 @@ export async function duplicateCostume(
 ): Promise<string> {
   const { data: orig, error } = await supabase
     .from("costumes")
-    .select("theater_id, name, description, gender_term_id, clothing_type_id, is_ensemble, ensemble_parent_id, is_public, direct_visible")
+    .select("theater_id, name, description, gender_term_id, clothing_type_id, is_ensemble, parent_costume_id")
     .eq("id", sourceId)
     .single();
 

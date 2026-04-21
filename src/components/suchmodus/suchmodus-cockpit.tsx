@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { AppLogo } from "@/components/layout/app-logo";
-import { SiteFooter } from "@/components/layout/site-footer";
+import { SuchmodusFooter } from "@/components/suchmodus/suchmodus-footer";
 import { StandortSheet } from "@/components/suchmodus/standort-sheet";
 import { MobileMenuDrawer } from "@/components/suchmodus/mobile-menu-drawer";
 import { getGenderIcon } from "@/lib/constants/icons";
@@ -67,9 +67,9 @@ function CategoryTile({ label, image, href }: { label: string; image?: string; h
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
         />
       )}
-      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
+      <div style={{ position: "absolute", inset: 0, background: "var(--overlay-medium)" }} />
       <div className={styles.tileLabelRow}>
-        <span className="text-h2 text-h1--medium" style={{ color: "#FFFFFF" }}>
+        <span className="text-h2 text-h1--medium" style={{ color: "var(--neutral-white)" }}>
           {label}
         </span>
         <Image
@@ -140,13 +140,13 @@ export function SuchmodusCockpit({
           alt=""
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
         />
-        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "var(--overlay-medium)" }} />
 
         {/* Filter bar */}
         <div className={styles.heroFilterBar}>
           <Link href="/suchmodus/filter" className={styles.heroFilterButton}>
             <Image src="/icons/icon-filter.svg" alt="" width={24} height={24} style={{ filter: "invert(1)" }} />
-            <span className="text-subtitle-1" style={{ color: "#FFFFFF", fontWeight: "var(--font-weight-500)", whiteSpace: "nowrap" }}>
+            <span className="text-subtitle-1" style={{ color: "var(--neutral-white)", fontWeight: "var(--font-weight-500)", whiteSpace: "nowrap" }}>
               Kostüm finden
             </span>
           </Link>
@@ -160,7 +160,7 @@ export function SuchmodusCockpit({
         <div className={styles.heroText}>
           <h1 className="text-h1--medium" style={{
             fontSize: "clamp(28px, 5.3vw, 60px)",
-            color: "#FFFFFF",
+            color: "var(--neutral-white)",
             lineHeight: "var(--line-height-120)",
             margin: 0,
           }}>
@@ -200,10 +200,10 @@ export function SuchmodusCockpit({
             alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
           />
-          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "var(--overlay-heavy)" }} />
           <div style={{ position: "relative", zIndex: 1, padding: "40px clamp(20px, 5vw, 60px)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 80 }}>
-              <span className="text-body-1" style={{ color: "#FFFFFF", fontWeight: "var(--font-weight-500)" }}>
+              <span className="text-body-1" style={{ color: "var(--neutral-white)", fontWeight: "var(--font-weight-500)" }}>
                 Save the date
               </span>
               {[0, 1, 2, 3].map((i) => (
@@ -212,7 +212,7 @@ export function SuchmodusCockpit({
             </div>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
               <div>
-                <p className="text-h1 text-h1--regular" style={{ color: "#FFFFFF", marginBottom: 8 }}>
+                <p className="text-h1 text-h1--regular" style={{ color: "var(--neutral-white)", marginBottom: 8 }}>
                   Rampenverkauf Fundus<br />Südpol Luzern
                 </p>
                 <p className="text-h1 text-h1--regular" style={{ color: "var(--primary-900)" }}>
@@ -268,14 +268,14 @@ export function SuchmodusCockpit({
               className={styles.networkOval}
               style={{ background: settings?.brand_color ?? "var(--secondary-900)" }}
             >
-              <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.3)" }} />
+              <div style={{ position: "absolute", inset: 0, background: "var(--overlay-light)" }} />
               <span style={{
                 position: "relative",
                 zIndex: 1,
                 fontFamily: "var(--font-family-base)",
                 fontWeight: "var(--font-weight-700)",
                 fontSize: "var(--font-size-300)",
-                color: "#FFFFFF",
+                color: "var(--neutral-white)",
                 textAlign: "center",
                 padding: "0 20px",
               }}>
@@ -287,7 +287,7 @@ export function SuchmodusCockpit({
       </div>
 
       {/* ═══ Footer ═══ */}
-      <SiteFooter />
+      <SuchmodusFooter />
 
     </div>
   );

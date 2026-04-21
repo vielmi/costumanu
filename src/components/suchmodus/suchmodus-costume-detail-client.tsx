@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { SuchmodusFooter } from "@/components/suchmodus/suchmodus-footer";
 import styles from "./suchmodus-costume-detail.module.css";
 import type { TaxonomyTerm } from "@/lib/types/costume";
 
@@ -32,48 +33,6 @@ export type SuchmodusCostumeDetailProps = {
   similarCostumes: SimilarCostume[];
 };
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
-
-function ArrowLeft() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-      <path d="M10 2L5 7.5L10 13" stroke="#000000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ChevronDown() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M4 6L8 10L12 6" stroke="#000000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function HeartIcon({ color = "#000000" }: { color?: string }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-      <path d="M9 15.5S2 11 2 6.5C2 4.5 3.5 3 5.5 3C7 3 8.5 3.8 9 5C9.5 3.8 11 3 12.5 3C14.5 3 16 4.5 16 6.5C16 11 9 15.5 9 15.5Z" stroke={color} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
-      <path d="M1 4L3.5 6.5L9 1" stroke="#000000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ArrowRightLg() {
-  return (
-    <svg width="27" height="27" viewBox="0 0 27 27" fill="none" aria-hidden="true">
-      <path d="M10 6L18 13.5L10 21" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 // ─── Accordion ────────────────────────────────────────────────────────────────
 
 function Accordion({ title, defaultOpen = false, children }: { title: string; defaultOpen?: boolean; children: React.ReactNode }) {
@@ -83,7 +42,7 @@ function Accordion({ title, defaultOpen = false, children }: { title: string; de
       <button type="button" className={styles.accordionHeader} onClick={() => setOpen((v) => !v)}>
         <span className={styles.accordionTitle}>{title}</span>
         <span className={`${styles.accordionChevron} ${open ? styles.open : ""}`}>
-          <ChevronDown />
+          <Image src="/icons/icon-arrow-dropdown-down.svg" alt="" width={16} height={16} />
         </span>
       </button>
       <div className={styles.accordionLine} />
@@ -103,12 +62,6 @@ function SpecRow({ label, value }: { label: string; value: string | null | undef
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-
-const FOOTER_LINKS = [
-  { label: "Häufige Fragen",      href: "/support" },
-  { label: "Ausleihe & Abholung", href: "/rental"  },
-  { label: "Support & Kontakt",   href: "/support"  },
-] as const;
 
 export function SuchmodusCostumeDetailClient({
   id,
@@ -146,7 +99,7 @@ export function SuchmodusCostumeDetailClient({
       {/* ═══ Breadcrumb ═══ */}
       <nav className={styles.breadcrumbBar}>
         <button type="button" className={styles.backBtn} onClick={() => router.back()} aria-label="Zurück">
-          <ArrowLeft />
+          <Image src="/icons/icon-arrow-left.svg" alt="" width={15} height={15} />
         </button>
         <div className={styles.breadcrumbs}>
           <Link href="/suchmodus" className={styles.breadcrumbItem}>Home</Link>
@@ -192,7 +145,7 @@ export function SuchmodusCostumeDetailClient({
           aria-label="Merken"
           onClick={(e) => e.stopPropagation()}
         >
-          <HeartIcon />
+          <Image src="/icons/icon-heart.svg" alt="" width={18} height={18} />
         </button>
       </div>
 
@@ -241,7 +194,7 @@ export function SuchmodusCostumeDetailClient({
         {/* Availability */}
         <div className={styles.availRow}>
           <span className={`${styles.availDot} ${isAvailable ? styles.available : styles.onRequest}`}>
-            {isAvailable && <CheckIcon />}
+            {isAvailable && <Image src="/icons/icon-check.svg" alt="" width={10} height={10} />}
           </span>
           {theater && <p className={styles.theaterName}>{theater.name}</p>}
         </div>
@@ -250,12 +203,12 @@ export function SuchmodusCostumeDetailClient({
       {/* ═══ CTA buttons ═══ */}
       <div className={styles.ctaGroup}>
         <div className={styles.btnRow}>
-          <button type="button" className={styles.btnSecondary}>
+          <button type="button" className={`btn-secondary ${styles.btnSecondary}`}>
             <Image src="/icons/icon-share.svg" alt="" width={22} height={22} style={{ filter: "invert(30%) sepia(80%) saturate(400%) hue-rotate(5deg)" }} />
             Teilen
           </button>
-          <button type="button" className={styles.btnSecondary}>
-            <HeartIcon color="var(--primary-900)" />
+          <button type="button" className={`btn-secondary ${styles.btnSecondary}`}>
+            <Image src="/icons/icon-heart.svg" alt="" width={18} height={18} />
             Merken
           </button>
         </div>
@@ -372,7 +325,7 @@ export function SuchmodusCostumeDetailClient({
                     aria-label="Merken"
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
                   >
-                    <HeartIcon />
+                    <Image src="/icons/icon-heart.svg" alt="" width={18} height={18} />
                   </button>
                 </div>
                 <div className={styles.similarCardInfo}>
@@ -387,23 +340,7 @@ export function SuchmodusCostumeDetailClient({
       )}
 
       {/* ═══ Footer ═══ */}
-      <footer className={styles.footer}>
-        <span className={styles.footerLogo}>kostüm+</span>
-        <nav className={styles.footerLinks}>
-          {FOOTER_LINKS.map((link) => (
-            <Link key={link.label} href={link.href} className={styles.footerLink}>
-              <span>{link.label}</span>
-              <ArrowRightLg />
-            </Link>
-          ))}
-        </nav>
-        <p className={styles.footerCopy}>
-          &copy; Kostüm+ |{" "}
-          <a href="/impressum">Impressum</a>{" "}
-          |{" "}
-          <a href="/datenschutz">Datenschutz</a>
-        </p>
-      </footer>
+      <SuchmodusFooter />
 
     </div>
   );

@@ -48,30 +48,6 @@ const COLOR_HEX: Record<string, string> = {
 const INT_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 const EU_SIZES  = ["32", "34", "36", "38", "40", "42", "44", "46", "48", "50", "52", "54 S"];
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
-
-function FilterIcon() {
-  return (
-    <svg width="21" height="21" viewBox="0 0 21 21" fill="none" aria-hidden="true">
-      <rect y="2"  width="21" height="2" rx="1" fill="#000" />
-      <rect y="9"  width="21" height="2" rx="1" fill="#000" />
-      <rect y="16" width="21" height="2" rx="1" fill="#000" />
-      <rect x="3"  y="0"  width="2" height="4" rx="1" fill="#000" />
-      <rect x="16" y="7"  width="2" height="4" rx="1" fill="#000" />
-      <rect x="10" y="14" width="2" height="4" rx="1" fill="#000" />
-    </svg>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <circle cx="9" cy="9" r="6" stroke="#000" strokeWidth="1.5" />
-      <path d="M13.5 13.5L17.5 17.5" stroke="#000" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 // ─── Toggle helper ────────────────────────────────────────────────────────────
 
 function toggle(set: Set<string>, id: string): Set<string> {
@@ -168,7 +144,7 @@ export function SuchmodusFilterClient({
 
       {/* ═══ Header ═══ */}
       <header className={styles.header}>
-        <FilterIcon />
+        <Image src="/icons/icon-filter.svg" alt="" width={21} height={21} />
         <h1 className={styles.headerTitle}>Kostümfilter</h1>
         <button type="button" className={styles.closeBtn} onClick={() => router.back()} aria-label="Schliessen">
           <Image src="/icons/icon-close-medium.svg" alt="" width={20} height={20} />
@@ -206,7 +182,7 @@ export function SuchmodusFilterClient({
           {/* Bekleidungsart */}
           <p className={styles.subSectionLabel} style={{ marginTop: 8 }}>Bekleidungsart</p>
           <div className={styles.searchWrap}>
-            <span className={styles.searchIcon}><SearchIcon /></span>
+            <span className={styles.searchIcon}><Image src="/icons/icon-search.svg" alt="" width={20} height={20} /></span>
             <input
               type="text"
               className={styles.searchInput}
@@ -258,7 +234,7 @@ export function SuchmodusFilterClient({
             { label: "Rolle",      value: roleSearch,     setter: setRoleSearch     },
           ].map(({ label, value, setter }) => (
             <div key={label} className={styles.searchWrap}>
-              <span className={styles.searchIcon}><SearchIcon /></span>
+              <span className={styles.searchIcon}><Image src="/icons/icon-search.svg" alt="" width={20} height={20} /></span>
               <input
                 type="text"
                 className={styles.searchInput}
@@ -279,7 +255,7 @@ export function SuchmodusFilterClient({
             { label: "Kostümassistenz",  value: assistantSearch,setter: setAssistantSearch },
           ].map(({ label, value, setter }) => (
             <div key={label} className={styles.searchWrap}>
-              <span className={styles.searchIcon}><SearchIcon /></span>
+              <span className={styles.searchIcon}><Image src="/icons/icon-search.svg" alt="" width={20} height={20} /></span>
               <input
                 type="text"
                 className={styles.searchInput}
@@ -328,7 +304,7 @@ export function SuchmodusFilterClient({
 
           <p className={styles.subSectionLabel}>Materialart &amp; Verarbeitung</p>
           <div className={styles.searchWrap}>
-            <span className={styles.searchIcon}><SearchIcon /></span>
+            <span className={styles.searchIcon}><Image src="/icons/icon-search.svg" alt="" width={20} height={20} /></span>
             <input
               type="text"
               className={styles.searchInput}
@@ -406,10 +382,10 @@ export function SuchmodusFilterClient({
 
       {/* ═══ Sticky footer ═══ */}
       <div className={styles.footer}>
-        <button type="button" className={styles.resetBtn} onClick={reset}>
+        <button type="button" className="btn-secondary" onClick={reset}>
           Zurücksetzen
         </button>
-        <button type="button" className={styles.applyBtn} onClick={apply}>
+        <button type="button" className="btn-primary" style={{ flex: 1 }} onClick={apply}>
           Filter anwenden
         </button>
       </div>

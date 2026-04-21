@@ -105,7 +105,7 @@ export function CostumeDetailClient({
           style={{
             margin: "0 16px",
             padding: "8px 12px",
-            background: "var(--color-error-light, #fee2e2)",
+            background: "var(--color-error-light)",
             borderRadius: "var(--radius-xs)",
             fontFamily: "var(--font-family-base)",
             fontSize: "var(--font-size-200)",
@@ -190,7 +190,7 @@ export function CostumeDetailClient({
 
             {/* Action Buttons */}
             <div className="flex gap-3">
-              <Button className="flex-1" style={{ background: "var(--primary-900)", color: "#fff" }}>
+              <Button className="flex-1" style={{ background: "var(--primary-900)", color: "var(--neutral-white)" }}>
                 <ShoppingBag className="mr-2 h-4 w-4" />
                 {t("costume.rent")}
               </Button>

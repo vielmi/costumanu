@@ -6,25 +6,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { NavItem } from "@/components/layout/sidebar";
+import { BurgerIcon } from "@/lib/constants/icons";
 import styles from "./cockpit-mobile-drawer.module.css";
 
-function BurgerIcon() {
-  return (
-    <svg width="24" height="18" viewBox="0 0 24 18" fill="none" aria-hidden="true">
-      <rect width="24" height="2" rx="1" fill="currentColor" />
-      <rect y="8" width="24" height="2" rx="1" fill="currentColor" />
-      <rect y="16" width="24" height="2" rx="1" fill="currentColor" />
-    </svg>
-  );
-}
 
-function ArrowRight() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M7.5 5L12.5 10L7.5 15" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 interface CockpitMobileDrawerProps {
   navItems: NavItem[];
@@ -78,7 +63,7 @@ export function CockpitMobileDrawer({ navItems }: CockpitMobileDrawerProps) {
                     style={{ filter: "invert(1)", flexShrink: 0 }}
                   />
                   <span className={styles.navLabel}>{item.label}</span>
-                  <ArrowRight />
+                  <Image src="/icons/icon-arrow-s.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
                 </Link>
               ))}
             </nav>
@@ -101,7 +86,7 @@ export function CockpitMobileDrawer({ navItems }: CockpitMobileDrawerProps) {
                     style={{ filter: "invert(1)", flexShrink: 0 }}
                   />
                   <span className={styles.navLabel}>{item.label}</span>
-                  <ArrowRight />
+                  <Image src="/icons/icon-arrow-s.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
                 </Link>
               ))}
             </nav>

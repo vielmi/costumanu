@@ -362,7 +362,7 @@ export function CostumeComments({ costumeId, theaterId, currentUserId, currentUs
                   height: 38, padding: "0 20px", borderRadius: 10,
                   background: body.trim() ? "var(--secondary-700)" : "var(--neutral-grey-200)",
                   border: "none", cursor: body.trim() ? "pointer" : "default",
-                  fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: 600,
+                  fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: "var(--font-weight-500)",
                   color: body.trim() ? "var(--neutral-white)" : "var(--neutral-grey-400)",
                   transition: "background 150ms",
                 }}

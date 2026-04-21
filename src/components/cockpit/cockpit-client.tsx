@@ -129,7 +129,7 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
         <div
           style={{
             padding: "8px 12px",
-            background: "var(--color-error-light, #fee2e2)",
+            background: "var(--color-error-light)",
             borderRadius: "var(--radius-xs)",
             fontFamily: "var(--font-family-base)",
             fontSize: "var(--font-size-200)",
@@ -175,7 +175,7 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
           />
         )}
 
-        <div style={{ display: "flex", alignItems: "center", padding: "0 4px 0 12px", flexShrink: 0, position: "relative", zIndex: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", padding: "0 4px 0 12px", flexShrink: 0, position: "relative" }}>
           <ContextMenu
             items={menuItems}
             isOpen={menuOpen}
@@ -215,7 +215,7 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
             <span
               style={{
                 fontSize: "var(--font-size-200)", fontWeight: "var(--font-weight-500)",
-                color: "#000000", fontFamily: "var(--font-family-base)",
+                color: "var(--neutral-black)", fontFamily: "var(--font-family-base)",
                 letterSpacing: "0.01em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               }}
             >
@@ -283,12 +283,12 @@ function SuchmodusCta({ fullWidth }: { fullWidth?: boolean }) {
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/images/cockpit-search.jpg" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
+      <div style={{ position: "absolute", inset: 0, background: "var(--overlay-medium)" }} />
       <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: fullWidth ? "row" : "column", alignItems: "center", justifyContent: "center", gap: fullWidth ? 16 : 20, padding: "0 20px" }}>
-        <span style={{ fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-500)", color: "#FFFFFF", fontFamily: "var(--font-family-base)", textAlign: "center", lineHeight: "var(--line-height-150)" }}>
+        <span style={{ fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-500)", color: "var(--neutral-white)", fontFamily: "var(--font-family-base)", textAlign: "center", lineHeight: "var(--line-height-150)" }}>
           Suchmodus öffnen
         </span>
-        <div style={{ width: fullWidth ? 40 : 60, height: fullWidth ? 40 : 60, borderRadius: "50%", border: "1px solid #FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <div style={{ width: fullWidth ? 40 : 60, height: fullWidth ? 40 : 60, borderRadius: "50%", border: "1px solid var(--neutral-white)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
           <Image src="/icons/icon-plus-m.svg" alt="" width={fullWidth ? 18 : 24} height={fullWidth ? 18 : 24} style={{ filter: "invert(1)" }} />
         </div>
       </div>
@@ -326,7 +326,7 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
               style={{
                 position: "absolute", bottom: 16, left: 20, right: 44,
                 fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-500)",
-                color: "#FFFFFF", fontFamily: "var(--font-family-base)", lineHeight: "var(--line-height-150)",
+                color: "var(--neutral-white)", fontFamily: "var(--font-family-base)", lineHeight: "var(--line-height-150)",
               }}
             >
               {card.title}

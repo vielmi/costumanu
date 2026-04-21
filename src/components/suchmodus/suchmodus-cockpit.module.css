@@ -1,6 +1,6 @@
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 .page {
-  background: #FFFFFF;
+  background: var(--neutral-white);
   min-height: 100vh;
 }
 
@@ -10,7 +10,7 @@
   top: 0;
   z-index: 50;
   height: 80px;
-  background: #FFFFFF;
+  background: var(--neutral-white);
   box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.20);
   display: flex;
   align-items: center;
@@ -63,7 +63,7 @@
   width: 60px;
   height: 60px;
   flex-shrink: 0;
-  background: #FFFFFF;
+  background: var(--neutral-white);
   border: 1px solid var(--primary-900);
   border-radius: 50%;
   display: flex;
@@ -102,7 +102,7 @@
 }
 .genderCard {
   height: 140px;
-  background: #FFFFFF;
+  background: var(--neutral-white);
   border: 1px solid var(--secondary-900);
   border-radius: var(--radius-md);
   display: flex;
@@ -113,7 +113,10 @@
   gap: 8px;
   text-decoration: none;
   cursor: pointer;
+  transition: background 120ms ease;
 }
+.genderCard:hover { background: var(--secondary-500); }
+.genderCard:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 2px; }
 .genderCardLabel {
   font-family: var(--font-family-base);
   font-size: var(--font-size-300);
@@ -129,13 +132,16 @@
 .categoryTile {
   flex: 1;
   min-height: 430px;
-  border-radius: 20px;
+  border-radius: var(--radius-card);
   position: relative;
   overflow: hidden;
   background: var(--secondary-900);
   display: block;
   text-decoration: none;
+  transition: opacity 120ms ease;
 }
+.categoryTile:hover { opacity: 0.88; }
+.categoryTile:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 2px; }
 .tileLabelRow {
   position: absolute;
   bottom: 24px;
@@ -147,7 +153,7 @@
 
 /* ─── CTA event card ─────────────────────────────────────────────────────── */
 .ctaCard {
-  border-radius: 30px;
+  border-radius: var(--radius-section);
   overflow: hidden;
   position: relative;
   min-height: 350px;
@@ -172,7 +178,10 @@
   flex-shrink: 0;
   overflow: hidden;
   position: relative;
+  transition: opacity 120ms ease;
 }
+.networkOval:hover { opacity: 0.85; }
+.networkOval:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 4px; }
 
 /* ─── Mobile (< 744px) ───────────────────────────────────────────────────── */
 @media (max-width: 743px) {
@@ -237,5 +246,9 @@
     width: 120px;
     height: 179px;
     border-radius: 78px;
+  }
+
+  .sectionTitle {
+    font-size: var(--font-size-800-s);
   }
 }

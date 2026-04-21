@@ -22,7 +22,7 @@ export function DeleteConfirmationSheet({
       {/* Backdrop */}
       <div
         onClick={onCancel}
-        style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.4)" }}
+        style={{ position: "fixed", inset: 0, zIndex: 2000, background: "var(--overlay-medium)" }}
       />
 
       {/* Sheet */}
@@ -57,7 +57,7 @@ export function DeleteConfirmationSheet({
           style={{
             fontFamily: "var(--font-family-base)",
             fontSize: "var(--font-size-325)",
-            fontWeight: 600,
+            fontWeight: "var(--font-weight-700)",
             color: "var(--neutral-grey-600)",
             marginBottom: 4,
           }}
@@ -81,18 +81,8 @@ export function DeleteConfirmationSheet({
           type="button"
           onClick={onConfirm}
           disabled={isDeleting}
-          style={{
-            height: "var(--button-height-md)",
-            borderRadius: "var(--radius-md)",
-            background: "none",
-            border: "1.5px solid var(--primary-900)",
-            color: "var(--primary-900)",
-            fontFamily: "var(--font-family-base)",
-            fontSize: "var(--font-size-250)",
-            fontWeight: 600,
-            cursor: isDeleting ? "not-allowed" : "pointer",
-            opacity: isDeleting ? 0.6 : 1,
-          }}
+          className="btn-danger"
+          style={{ width: "100%", opacity: isDeleting ? 0.6 : 1 }}
         >
           {isDeleting ? "Wird gelöscht…" : "Endgültig löschen"}
         </button>
@@ -101,17 +91,8 @@ export function DeleteConfirmationSheet({
           type="button"
           onClick={onCancel}
           disabled={isDeleting}
-          style={{
-            height: "var(--button-height-md)",
-            borderRadius: "var(--radius-md)",
-            background: "var(--secondary-900)",
-            border: "none",
-            color: "var(--neutral-white)",
-            fontFamily: "var(--font-family-base)",
-            fontSize: "var(--font-size-250)",
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
+          className="btn-primary"
+          style={{ width: "100%" }}
         >
           Abbrechen
         </button>

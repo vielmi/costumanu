@@ -41,7 +41,7 @@ export default function ScanPage() {
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24,
       }}>
         <p style={{
-          color: "#FF525A", fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-300)",
+          color: "var(--color-error)", fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-300)",
           textAlign: "center", padding: "0 32px", maxWidth: 340,
         }}>
           {error}
@@ -50,8 +50,8 @@ export default function ScanPage() {
           onClick={() => { setError(null); setScanning(true); }}
           style={{
             background: "var(--primary-900)", border: "none", borderRadius: 12,
-            padding: "12px 28px", color: "#000", fontFamily: "var(--font-family-base)",
-            fontSize: "var(--font-size-250)", fontWeight: 600, cursor: "pointer",
+            padding: "12px 28px", color: "var(--neutral-black)", fontFamily: "var(--font-family-base)",
+            fontSize: "var(--font-size-250)", fontWeight: "var(--font-weight-500)", cursor: "pointer",
           }}
         >
           Erneut scannen

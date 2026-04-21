@@ -1,6 +1,6 @@
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 .page {
-  background: #FFFFFF;
+  background: var(--neutral-white);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -11,7 +11,7 @@
   position: sticky;
   top: 0;
   z-index: 40;
-  background: #FFFFFF;
+  background: var(--neutral-white);
   box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.12);
   height: 70px;
   display: flex;
@@ -23,9 +23,9 @@
 .headerTitle {
   flex: 1;
   font-family: var(--font-family-base);
-  font-size: 16px;
+  font-size: var(--font-size-300);
   font-weight: var(--font-weight-500);
-  color: #000000;
+  color: var(--neutral-black);
   margin: 0;
 }
 
@@ -62,20 +62,20 @@
   display: inline-flex;
   align-items: center;
   padding: 3px 15px;
-  background: #000000;
+  background: var(--neutral-black);
   border-radius: 49px;
   font-family: var(--font-family-base);
-  font-size: 16px;
+  font-size: var(--font-size-300);
   font-weight: var(--font-weight-400);
-  color: #FFFFFF;
+  color: var(--neutral-white);
   width: fit-content;
 }
 
 .subSectionLabel {
   font-family: var(--font-family-base);
-  font-size: 16px;
+  font-size: var(--font-size-300);
   font-weight: var(--font-weight-500);
-  color: #000000;
+  color: var(--neutral-black);
   margin: 0 0 8px;
 }
 
@@ -90,7 +90,7 @@
   height: 93px;
   border: 1px solid var(--secondary-700);
   border-radius: var(--radius-sm);
-  background: #FFFFFF;
+  background: var(--neutral-white);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -108,7 +108,7 @@
 
 .genderCardLabel {
   font-family: var(--font-family-base);
-  font-size: 14px;
+  font-size: var(--font-size-200);
   font-weight: var(--font-weight-500);
   color: var(--secondary-700);
   text-align: center;
@@ -130,10 +130,10 @@
   padding: 0 16px;
   border: 1px solid var(--secondary-700);
   border-radius: var(--radius-full);
-  background: #FFFFFF;
+  background: var(--neutral-white);
   cursor: pointer;
   font-family: var(--font-family-base);
-  font-size: 14px;
+  font-size: var(--font-size-200);
   font-weight: var(--font-weight-500);
   color: var(--secondary-700);
   transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
@@ -143,7 +143,7 @@
 .chip.selected {
   background: var(--secondary-800);
   border-color: var(--secondary-800);
-  color: #FFFFFF;
+  color: var(--neutral-white);
 }
 
 /* ─── Muster cards ───────────────────────────────────────────────────────── */
@@ -157,7 +157,7 @@
   height: 80px;
   border: 1px solid var(--secondary-800);
   border-radius: var(--radius-sm);
-  background: #FFFFFF;
+  background: var(--neutral-white);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -174,7 +174,7 @@
 
 .musterCardLabel {
   font-family: var(--font-family-base);
-  font-size: 12px;
+  font-size: var(--font-size-100);
   font-weight: var(--font-weight-500);
   color: var(--secondary-800);
   text-align: center;
@@ -197,24 +197,25 @@
   width: 100%;
   height: 60px;
   padding: 0 20px 0 54px;
-  border: 1px solid #000000;
-  border-radius: 47px;
-  background: #FFFFFF;
+  border: 1px solid var(--neutral-black);
+  border-radius: var(--radius-full);
+  background: var(--neutral-white);
   font-family: var(--font-family-base);
-  font-size: 16px;
+  font-size: var(--font-size-300);
   font-weight: var(--font-weight-500);
-  color: #242727;
+  color: var(--neutral-grey-600);
   outline: none;
   transition: border-color 120ms ease;
 }
 
 .searchInput::placeholder {
-  color: #606060;
+  color: var(--neutral-grey-500);
   font-weight: var(--font-weight-500);
 }
 
-.searchInput:focus {
+.searchInput:focus-visible {
   border-color: var(--secondary-800);
+  outline: none;
 }
 
 /* ─── Color swatches ─────────────────────────────────────────────────────── */
@@ -246,36 +247,9 @@
   left: 0;
   right: 0;
   padding: 12px 16px 28px;
-  background: #FFFFFF;
+  background: var(--neutral-white);
   box-shadow: 0px -2px 12px rgba(0, 0, 0, 0.10);
   display: flex;
   gap: 10px;
 }
 
-.resetBtn {
-  height: 56px;
-  padding: 0 20px;
-  background: #FFFFFF;
-  border: 1px solid #000000;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  font-family: var(--font-family-base);
-  font-size: 16px;
-  font-weight: var(--font-weight-500);
-  color: #000000;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.applyBtn {
-  flex: 1;
-  height: 56px;
-  background: var(--primary-900);
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  font-family: var(--font-family-base);
-  font-size: 16px;
-  font-weight: var(--font-weight-500);
-  color: #FFFFFF;
-}
