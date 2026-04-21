@@ -671,7 +671,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
           <button
             type="button"
             onClick={handleSave}
-            disabled={saving}
+            disabled={saving || !(form.name.trim() && form.genderId && form.clothingTypeLabel && form.colorIds.length > 0)}
             className="btn-primary"
             style={{ whiteSpace: "nowrap", flexShrink: 0 }}
           >
