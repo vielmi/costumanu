@@ -4,7 +4,7 @@ import { AppShellClient } from "@/components/layout/app-shell-client";
 import { resolveUserContext } from "@/lib/services/profile-service";
 import { getPendingRentalsCount, getUnreadMessagesCount } from "@/lib/services/notification-service";
 
-export async function AppShell({ children }: { children: React.ReactNode }) {
+export async function AppShell({ children, topBar }: { children: React.ReactNode; topBar?: React.ReactNode }) {
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -22,6 +22,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       userRole={userRole}
       unreadMessages={unreadMessages}
       pendingRentals={pendingRentals}
+      topBar={topBar}
     >
       {children}
     </AppShellClient>
