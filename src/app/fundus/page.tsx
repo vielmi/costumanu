@@ -82,8 +82,10 @@ export default async function FundusPage() {
     ]);
 
   const clothingOptions = [
-    ...(clothingTypes ?? []).map((t) => t.label_de),
-    ...(clothingSubtypes ?? []).map((t) => t.label_de),
+    ...new Set([
+      ...(clothingTypes ?? []).map((t) => t.label_de),
+      ...(clothingSubtypes ?? []).map((t) => t.label_de),
+    ]),
   ];
 
   return (

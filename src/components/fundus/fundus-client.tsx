@@ -649,6 +649,7 @@ function CostumeCard({
         </div>
       )}
       <div
+        role="article"
         className={`${styles.card} ${isSelected ? styles.cardSelected : ""}`}
         style={{ zIndex: (statusMenuOpen || menuOpen) ? 10 : undefined }}
       >
@@ -853,6 +854,7 @@ function CostumeListRow({
         </div>
       )}
       <div
+        role="article"
         className={`${styles.listRow} ${isSelected ? styles.cardSelected : ""}`}
         style={{ zIndex: (statusMenuOpen || menuOpen) ? 10 : undefined }}
       >
