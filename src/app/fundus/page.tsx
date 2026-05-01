@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/layout/app-shell";
 import { FundusClient } from "@/components/fundus/fundus-client";
+import { FundusTopBar } from "@/components/fundus/fundus-top-bar";
 import type { Costume } from "@/lib/types/costume";
 
 export default async function FundusPage() {
@@ -52,26 +53,46 @@ export default async function FundusPage() {
     theaterId = newTheaterId;
   }
 
-  // Prefetch costumes with joined relations
-  const { data: costumes } = await supabase
-    .from("costumes")
-    .select(`
-      id, name, description, gender_term_id, clothing_type_id, created_at, theater_id,
-      gender_term:taxonomy_terms!gender_term_id(id, vocabulary, label_de, parent_id, sort_order),
-      clothing_type:taxonomy_terms!clothing_type_id(id, vocabulary, label_de, parent_id, sort_order),
-      costume_media(id, costume_id, storage_path, sort_order, created_at),
-      costume_provenance(id, costume_id, production_title, year, role_name),
-      costume_items(id, costume_id, theater_id, barcode_id, size_label, condition_grade, current_status)
-    `)
-    .eq("theater_id", theaterId)
-    .order("created_at", { ascending: false });
+  // Prefetch costumes and clothing taxonomy in parallel
+  const [{ data: costumes }, { data: clothingTypes }, { data: clothingSubtypes }] =
+    await Promise.all([
+      supabase
+        .from("costumes")
+        .select(`
+          id, name, description, gender_term_id, clothing_type_id, created_at, theater_id,
+          gender_term:taxonomy_terms!gender_term_id(id, vocabulary, label_de, parent_id, sort_order),
+          clothing_type:taxonomy_terms!clothing_type_id(id, vocabulary, label_de, parent_id, sort_order),
+          costume_media(id, costume_id, storage_path, sort_order, created_at),
+          costume_provenance(id, costume_id, production_title, year, role_name),
+          costume_items(id, costume_id, theater_id, barcode_id, size_label, condition_grade, current_status),
+          costume_taxonomy(term_id, taxonomy_term:taxonomy_terms(id, vocabulary, label_de))
+        `)
+        .eq("theater_id", theaterId)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("taxonomy_terms")
+        .select("label_de")
+        .eq("vocabulary", "clothing_type")
+        .order("sort_order"),
+      supabase
+        .from("taxonomy_terms")
+        .select("label_de")
+        .eq("vocabulary", "clothing_subtype")
+        .order("sort_order"),
+    ]);
+
+  const clothingOptions = [
+    ...(clothingTypes ?? []).map((t) => t.label_de),
+    ...(clothingSubtypes ?? []).map((t) => t.label_de),
+  ];
 
   return (
-    <AppShell>
-      <main className="mx-auto max-w-5xl px-4 py-8">
+    <AppShell topBar={<FundusTopBar theaterId={theaterId} />}>
+      <main>
         <FundusClient
           initialCostumes={(costumes ?? []) as unknown as Costume[]}
           theaterId={theaterId}
+          clothingOptions={clothingOptions}
         />
       </main>
     </AppShell>

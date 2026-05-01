@@ -64,7 +64,7 @@ export function CostumeDetailClient({
       <div className="flex items-start justify-between px-4 pt-4">
         <div>
           <Link
-            href="/results"
+            href="/fundus"
             className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -73,7 +73,7 @@ export function CostumeDetailClient({
           <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
             {costume.gender_term && (
               <>
-                <Link href={`/results?gender=${costume.gender_term.id}`} className="hover:underline">
+                <Link href={`/fundus?gender=${encodeURIComponent(costume.gender_term.label_de)}`} className="hover:underline">
                   {costume.gender_term.label_de}
                 </Link>
                 <span>&rsaquo;</span>
@@ -81,7 +81,7 @@ export function CostumeDetailClient({
             )}
             {costume.clothing_type && (
               <>
-                <Link href={`/results?clothing_type=${costume.clothing_type.id}`} className="hover:underline">
+                <Link href={`/fundus?clothingType=${encodeURIComponent(costume.clothing_type.label_de)}`} className="hover:underline">
                   {costume.clothing_type.label_de}
                 </Link>
                 <span>&rsaquo;</span>

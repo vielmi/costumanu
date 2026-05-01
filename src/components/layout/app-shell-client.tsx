@@ -19,12 +19,13 @@ function isAdmin(userRole: string): boolean {
 
 interface Props {
   children: React.ReactNode;
+  topBar?: React.ReactNode;
   userRole: string;
   unreadMessages: number;
   pendingRentals: number;
 }
 
-export function AppShellClient({ children, userRole, unreadMessages, pendingRentals }: Props) {
+export function AppShellClient({ children, topBar, userRole, unreadMessages, pendingRentals }: Props) {
   const navItems = isAdmin(userRole) ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
   const badges = { messages: unreadMessages, rentals: pendingRentals };
 
@@ -41,16 +42,21 @@ export function AppShellClient({ children, userRole, unreadMessages, pendingRent
     >
       {/* ── Body: Sidebar + Content ── */}
       <div style={{ flex: 1, display: "flex", overflow: "hidden", padding: "0 12px 12px 12px", gap: 12 }}>
-        <Sidebar
-          navItems={navItems}
-          badges={badges}
-        />
+        <Sidebar navItems={navItems} badges={badges} />
 
-        {/* Content */}
-        <div style={{ flex: 1, borderRadius: "var(--radius-panel) var(--radius-panel) 0 0", overflow: "hidden", marginTop: 20 }}>
-          <main style={{ height: "100%", overflowY: "auto", background: "var(--neutral-white)" }}>
-            {children}
-          </main>
+        {/* Right column: optional top bar + white content area */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 }}>
+          {topBar}
+          <div style={{
+            flex: 1,
+            borderRadius: "var(--radius-panel) var(--radius-panel) 0 0",
+            overflow: "hidden",
+            marginTop: topBar ? 0 : 20,
+          }}>
+            <main style={{ height: "100%", overflowY: "auto", background: "var(--neutral-white)" }}>
+              {children}
+            </main>
+          </div>
         </div>
       </div>
     </div>

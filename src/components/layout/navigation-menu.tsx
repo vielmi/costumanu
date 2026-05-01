@@ -302,7 +302,7 @@ function ClothingTypeMenu({
 
       {/* "Alle anzeigen" link for this gender */}
       <Link
-        href={`/results?gender=${gender.id}`}
+        href={`/fundus?gender=${encodeURIComponent(gender.label_de)}`}
         className="mb-2 flex items-center justify-between rounded-lg bg-surface-dark-foreground/5 p-3 transition-colors hover:bg-surface-dark-foreground/10"
         onClick={onClose}
       >
@@ -351,7 +351,7 @@ function SubTypeMenu({
 
       {/* "Alle anzeigen" link for this clothing type + gender */}
       <Link
-        href={`/results?gender=${gender.id}&clothing_type=${clothingType.id}`}
+        href={`/fundus?gender=${encodeURIComponent(gender.label_de)}&clothingType=${encodeURIComponent(clothingType.label_de)}`}
         className="mb-2 flex items-center justify-between rounded-lg bg-surface-dark-foreground/5 p-3 transition-colors hover:bg-surface-dark-foreground/10"
         onClick={onClose}
       >
@@ -366,7 +366,7 @@ function SubTypeMenu({
           {subTypes.map((sub) => (
             <Link
               key={sub.id}
-              href={`/results?gender=${gender.id}&clothing_type=${sub.id}`}
+              href={`/fundus?gender=${encodeURIComponent(gender.label_de)}&clothingType=${encodeURIComponent(sub.label_de)}`}
               className="flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-surface-dark-foreground/10"
               onClick={onClose}
             >
