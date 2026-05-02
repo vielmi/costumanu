@@ -21,9 +21,9 @@ test.describe('Konfiguration — Zugriff', () => {
 
   test('Konfigurationsseite zeigt Theater-Liste oder User-Liste', async ({ asAdmin: page }) => {
     await page.goto('/einstellungen/konfiguration')
-    // Platform Admin sieht Theater-Übersicht, Theater-Admin sieht Mitglieder
+    // Platform Admin sieht Theater-Tab, Theater-Admin sieht Benutzer-Tab
     await expect(
-      page.getByRole('heading', { name: /konfiguration/i })
+      page.getByRole('button', { name: /theater|benutzer|kostüm-merkmale/i }).first()
     ).toBeVisible({ timeout: 5000 })
   })
 })
