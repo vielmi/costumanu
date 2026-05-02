@@ -64,7 +64,7 @@ function SpecRow({ label, value }: { label: string; value: string | null | undef
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export function SuchmodusCostumeDetailClient({
-  id,
+  id: _id,
   name,
   description,
   isEnsemble,

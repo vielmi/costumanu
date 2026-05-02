@@ -28,7 +28,7 @@ const heartRightSlot = (
   </Link>
 );
 
-export function WishlistPageClient({ wishlists: initial, theaterId, userId }: Props) {
+export function WishlistPageClient({ wishlists: initial, theaterId: _theaterId, userId: _userId }: Props) {
   const [wishlists, setWishlists] = useState(initial);
   const [showModal, setShowModal] = useState(false);
 

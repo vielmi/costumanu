@@ -361,7 +361,7 @@ function emptyForm() {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, currentUserName, costumeType, taxonomy, editCostume }: Props) {
+export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _currentUserId, currentUserName: _currentUserName, costumeType, taxonomy, editCostume }: Props) {
   const router = useRouter();
   const supabase = createClient();
   const mainRef = useRef<HTMLDivElement>(null);

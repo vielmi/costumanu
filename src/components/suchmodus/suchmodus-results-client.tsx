@@ -107,11 +107,11 @@ export function SuchmodusResultsClient({
   const supabase = createClient();
 
   useEffect(() => {
-    if (!toastMsg) {
+    if (!toastMsg) return;
+    const timer = setTimeout(() => {
+      setToastMsg(null);
       setAutoBookmark(null);
-      return;
-    }
-    const timer = setTimeout(() => setToastMsg(null), 3000);
+    }, 3000);
     return () => clearTimeout(timer);
   }, [toastMsg]);
 

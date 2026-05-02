@@ -70,13 +70,14 @@ function WebScanner({ onDetected, onClose }: BarcodeScannerProps) {
     }
 
     start();
+    const video = videoRef.current;
     return () => {
       stopped = true;
       controls?.stop();
       // Release camera stream so browser tab indicator disappears
-      if (videoRef.current?.srcObject) {
-        (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop());
-        videoRef.current.srcObject = null;
+      if (video?.srcObject) {
+        (video.srcObject as MediaStream).getTracks().forEach(t => t.stop());
+        video.srcObject = null;
       }
     };
   }, [onDetected]);
@@ -97,6 +98,7 @@ function WebScanner({ onDetected, onClose }: BarcodeScannerProps) {
           display: "flex", alignItems: "center", justifyContent: "center",
         }}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/icons/icon-close-small.svg" alt="Schliessen" width={20} height={20} style={{ filter: "invert(1)" }} />
       </button>
 
@@ -166,6 +168,7 @@ export function BarcodeScanner({ onDetected, onClose }: BarcodeScannerProps) {
             display: "flex", alignItems: "center", justifyContent: "center",
           }}
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icons/icon-close-small.svg" alt="Schliessen" width={20} height={20} style={{ filter: "invert(1)" }} />
         </button>
       </div>

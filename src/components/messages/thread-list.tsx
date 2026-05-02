@@ -196,6 +196,7 @@ export function ThreadList({ initialThreads, userId }: ThreadListProps) {
                 <CardContent className="flex items-center gap-3">
                   {/* Avatar */}
                   {thread.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={thread.avatarUrl}
                       alt={thread.displayName}
