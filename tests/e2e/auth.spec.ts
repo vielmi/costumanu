@@ -11,7 +11,7 @@ const PASSWORD = process.env.TEST_USER_PASSWORD || ''
 test.describe('Login Flow', () => {
   test('Login-Seite ist erreichbar', async ({ page }) => {
     await page.goto('/login')
-    await expect(page).toHaveTitle(/kostüm\+/i)
+    await expect(page).toHaveTitle(/palco\+/i)
   })
 
   test('Login mit falschen Credentials zeigt Fehlermeldung', async ({ page }) => {
