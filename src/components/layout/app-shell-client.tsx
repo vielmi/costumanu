@@ -22,9 +22,10 @@ interface Props {
   userRole: string;
   unreadMessages: number;
   pendingRentals: number;
+  topBar?: React.ReactNode;
 }
 
-export function AppShellClient({ children, userRole, unreadMessages, pendingRentals }: Props) {
+export function AppShellClient({ children, userRole, unreadMessages, pendingRentals, topBar }: Props) {
   const navItems = isAdmin(userRole) ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
   const badges = { messages: unreadMessages, rentals: pendingRentals };
 
@@ -49,6 +50,7 @@ export function AppShellClient({ children, userRole, unreadMessages, pendingRent
         {/* Content */}
         <div style={{ flex: 1, borderRadius: "var(--radius-panel) var(--radius-panel) 0 0", overflow: "hidden", marginTop: 20 }}>
           <main style={{ height: "100%", overflowY: "auto", background: "var(--neutral-white)" }}>
+            {topBar}
             {children}
           </main>
         </div>
