@@ -6,115 +6,86 @@
   flex-direction: column;
 }
 
-/* ─── Header ─────────────────────────────────────────────────────────────── */
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: var(--neutral-white);
-  box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.10);
-  padding: 0 16px;
+
+/* ─── Filter bar — same style as cockpit hero filter bar ─────────────────── */
+.filterBar {
   display: flex;
-  flex-direction: column;
-  gap: 0;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px;
 }
 
-.headerTop {
-  height: 64px;
+.filterPill {
+  flex: 1;
+  height: 60px;
+  padding: 0 24px;
+  background: var(--primary-900);
+  border-radius: 61px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.filterCircle {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  background: var(--neutral-white);
+  border: 1px solid var(--primary-900);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.filterCircleIcon {
+  filter: var(--filter-primary-900);
+}
+
+/* ─── Title section ───────────────────────────────────────────────────────── */
+.titleSection {
+  padding: 0 16px 16px;
+}
+
+.titleRow {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-bottom: 4px;
 }
 
-.backButton {
-  width: 40px;
-  height: 40px;
-  background: none;
-  border: none;
-  cursor: pointer;
+.backBtn {
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  padding: 0;
+  text-decoration: none;
+  border-radius: var(--radius-xs);
+  transition: opacity 120ms ease;
 }
+.backBtn:hover { opacity: 0.6; }
 
-.titleGroup {
-  flex: 1;
-  min-width: 0;
-}
-
-.titleText {
+.pageTitle {
   font-family: var(--font-family-base);
   font-size: var(--font-size-500);
   font-weight: var(--font-weight-500);
   color: var(--neutral-black);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: var(--line-height-140);
   margin: 0;
-  line-height: 1.2;
+  letter-spacing: 0.005em;
 }
 
-.countText {
+.pageCount {
   font-family: var(--font-family-base);
   font-size: var(--font-size-200);
   font-weight: var(--font-weight-400);
-  color: var(--neutral-grey-400);
-  margin: 0;
-}
-
-.headerControls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.viewToggle {
-  display: flex;
-  align-items: center;
-  gap: 0;
-}
-
-.viewDivider {
-  width: 1px;
-  height: 28px;
-  background: rgba(0, 0, 0, 0.15);
-  margin: 0 8px;
-}
-
-.viewIconBtn {
-  width: 34px;
-  height: 34px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border-radius: 6px;
-}
-
-.viewIconBtn.active {
-  background: rgba(0, 0, 0, 0.08);
-}
-
-.filterBtn {
-  height: 34px;
-  padding: 0 12px;
-  background: none;
-  border: 1px solid rgba(0, 0, 0, 0.20);
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-150);
-  font-weight: var(--font-weight-500);
   color: var(--neutral-black);
+  margin: 0;
+  line-height: var(--line-height-150);
 }
 
 /* ─── Grid ───────────────────────────────────────────────────────────────── */
@@ -123,7 +94,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 13px;
-  padding: 16px;
+  padding: 0 16px 32px;
 }
 
 /* ─── Card ───────────────────────────────────────────────────────────────── */
@@ -131,8 +102,6 @@
   display: flex;
   flex-direction: column;
   text-decoration: none;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
   background: var(--neutral-white);
 }
 
@@ -142,7 +111,7 @@
   aspect-ratio: 0.688;
   background: var(--neutral-grey-200);
   flex-shrink: 0;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border-radius: var(--radius-xs);
   overflow: hidden;
 }
 
@@ -155,16 +124,13 @@
 .cardImagePlaceholder {
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--neutral-grey-200) 0%, #D0D0D0 100%);
+  background: linear-gradient(135deg, var(--neutral-grey-200) 0%, var(--neutral-grey-300) 100%);
 }
 
 .bookmarkBtn {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 6px;
+  right: 6px;
   width: 40px;
   height: 40px;
   background: var(--neutral-white);
@@ -174,25 +140,114 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+  transition: background 120ms ease;
+}
+
+.bookmarkBtnActive {
+  background: var(--neutral-black);
+}
+
+.bookmarkBtnActive img {
+  filter: brightness(0) invert(1);
+}
+
+/* ─── Bottom notification container (toast + optionaler Verschieben-Button) */
+.bottomNotification {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px 28px;
+  pointer-events: none;
+  animation: slideUp 200ms ease;
+}
+.bottomNotification > * {
+  pointer-events: auto;
+}
+
+/* ─── Toast ──────────────────────────────────────────────────────────────── */
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #34C759;
+  border-radius: var(--radius-full);
+  padding: 0 20px 0 8px;
+  height: 52px;
+  white-space: nowrap;
+  box-shadow: var(--shadow-100);
+}
+
+/* ─── Verschieben-Button ─────────────────────────────────────────────────── */
+.moveBtn {
+  width: 100%;
+  height: 57px;
+  background: var(--neutral-white);
+  border: 2px solid var(--primary-900);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-350);
+  font-weight: var(--font-weight-500);
+  color: var(--primary-900);
+  box-shadow: var(--shadow-100);
+  transition: opacity 120ms ease;
+}
+.moveBtn:hover { opacity: 0.8; }
+
+.toastIcon {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
+.toastIcon img {
+  filter: brightness(0) invert(1);
+}
+
+.toastText {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-200);
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-white);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Card info ──────────────────────────────────────────────────────────── */
 .cardInfo {
   padding: 8px 0 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 10px;
 }
 
 .cardClothingType {
   font-family: var(--font-family-base);
   font-size: var(--font-size-100);
   font-weight: var(--font-weight-500);
-  color: var(--neutral-grey-400);
+  color: var(--neutral-black);
   margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+  line-height: var(--line-height-150);
+}
+
+.cardNameBlock {
+  display: flex;
+  flex-direction: column;
 }
 
 .cardName {
@@ -205,33 +260,31 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  line-height: 1.3;
+  line-height: var(--line-height-150);
 }
 
 .cardProvenance {
   font-family: var(--font-family-base);
   font-size: var(--font-size-200);
   font-weight: var(--font-weight-400);
-  color: var(--neutral-grey-400);
+  color: var(--neutral-black);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  line-height: 1.3;
-  margin-top: 2px;
+  line-height: var(--line-height-150);
 }
 
 .cardAvailability {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 6px;
+  gap: 8px;
 }
 
 .availDot {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   flex-shrink: 0;
   display: flex;
@@ -245,14 +298,14 @@
 
 .availDot.onRequest {
   background: transparent;
-  border: 1.5px solid var(--neutral-grey-400);
+  border: 1.25px solid var(--neutral-grey-400);
 }
 
 .cardTheater {
   font-family: var(--font-family-base);
-  font-size: var(--font-size-75);
+  font-size: var(--font-size-150);
   font-weight: var(--font-weight-500);
-  color: var(--neutral-grey-400);
+  color: var(--neutral-grey-600);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -281,7 +334,24 @@
 
 /* ─── Mobile (< 744px) ───────────────────────────────────────────────────── */
 @media (max-width: 743px) {
-  .titleText {
+  .pageTitle {
     font-size: var(--font-size-500-s);
+  }
+}
+
+/* ─── Desktop (≥ 744px) ──────────────────────────────────────────────────── */
+@media (min-width: 744px) {
+  .filterBar {
+    padding: 24px 32px;
+  }
+
+  .titleSection {
+    padding: 0 32px 20px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 0 32px 40px;
   }
 }

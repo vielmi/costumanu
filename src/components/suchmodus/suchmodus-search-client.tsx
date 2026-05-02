@@ -39,18 +39,54 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
     queryFn: async (): Promise<Suggestion[]> => {
       if (!debouncedQuery) return [];
 
-      const { data, error } = await supabase
-        .from("costumes")
-        .select("id, name, costume_provenance(production_title, year), costume_media(storage_path, sort_order)")
-        .textSearch("fts_doc", debouncedQuery, { type: "websearch" })
-        .limit(8);
+      const FIELDS = "id, name, costume_provenance(production_title, year), costume_media(storage_path, sort_order)";
 
-      if (error) {
-        console.error("[SuchmodusSearch] query error:", error);
-        return [];
+      // 1) FTS on name + description
+      // 2) Taxonomy term match (colors, materials, epochs, etc.)
+      const [ftsResult, termResult] = await Promise.all([
+        supabase
+          .from("costumes")
+          .select(FIELDS)
+          .textSearch("fts_doc", debouncedQuery, { type: "websearch" })
+          .limit(8),
+        supabase
+          .from("taxonomy_terms")
+          .select("id")
+          .ilike("label_de", `%${debouncedQuery}%`),
+      ]);
+
+      if (ftsResult.error) console.error("[SuchmodusSearch] fts error:", ftsResult.error);
+
+      const ftsData = (ftsResult.data ?? []) as Suggestion[];
+
+      // Fetch costumes matching the taxonomy terms
+      let taxonomyData: Suggestion[] = [];
+      const termIds = (termResult.data ?? []).map((t) => t.id);
+      if (termIds.length > 0) {
+        const { data: ctRows } = await supabase
+          .from("costume_taxonomy")
+          .select("costume_id")
+          .in("term_id", termIds)
+          .limit(20);
+
+        const costumeIds = [...new Set((ctRows ?? []).map((r) => r.costume_id))];
+        if (costumeIds.length > 0) {
+          const { data } = await supabase
+            .from("costumes")
+            .select(FIELDS)
+            .in("id", costumeIds)
+            .limit(8);
+          taxonomyData = (data ?? []) as Suggestion[];
+        }
       }
 
-      return (data ?? []) as Suggestion[];
+      // Merge and deduplicate (FTS results first)
+      const seen = new Set<string>();
+      return [...ftsData, ...taxonomyData].filter((c) => {
+        if (seen.has(c.id)) return false;
+        seen.add(c.id);
+        return true;
+      }).slice(0, 8);
     },
     enabled: debouncedQuery.length > 0,
     staleTime: 30 * 1000,

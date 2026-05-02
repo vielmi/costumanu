@@ -60,7 +60,7 @@
   padding: 0 8px;
   border-radius: var(--radius-full);
   border: 1px solid var(--neutral-grey-300);
-  background: transparent;
+  background-color: transparent;
   cursor: pointer;
   font-family: var(--font-family-base);
   font-size: var(--font-size-100);
@@ -451,10 +451,10 @@
 
 .filterChip {
   height: 34px;
-  padding: 0 12px;
+  padding: 0 32px 0 12px;
   border-radius: var(--radius-full);
   border: 1px solid var(--neutral-grey-300);
-  background: var(--neutral-white);
+  background-color: var(--neutral-white);
   cursor: pointer;
   font-family: var(--font-family-base);
   font-size: var(--font-size-100);
@@ -465,7 +465,7 @@
 
 .filterChipActive {
   border-color: var(--secondary-700);
-  background: var(--secondary-500);
+  background-color: var(--secondary-500);
   color: var(--secondary-900);
 }
 
@@ -477,13 +477,12 @@
 
 .filterChipArrow {
   display: inline-block;
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 5px solid currentColor;
-  opacity: 0.5;
   flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  background-color: currentColor;
+  -webkit-mask: url('/icons/icon-arrow-dropdown-down.svg') no-repeat center / contain;
+  mask: url('/icons/icon-arrow-dropdown-down.svg') no-repeat center / contain;
 }
 
 .statusFilterWrap {

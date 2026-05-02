@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "kostüm+ | Kostüm-Finder für Film & Theater",
+  title: "palco+ | Kostüm-Finder für Film & Theater",
   description:
     "Der Kostüm-Finder für die Film- & Theaterbranche. Kostüme suchen, leihen und verwalten.",
 };

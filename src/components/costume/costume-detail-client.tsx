@@ -63,13 +63,14 @@ export function CostumeDetailClient({
       {/* Header row: Breadcrumbs + 3-dot menu */}
       <div className="flex items-start justify-between px-4 pt-4">
         <div>
-          <Link
-            href="/fundus"
-            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground bg-transparent border-none cursor-pointer p-0"
           >
             <ArrowLeft className="h-4 w-4" />
             {t("costume.back")}
-          </Link>
+          </button>
           <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
             {costume.gender_term && (
               <>

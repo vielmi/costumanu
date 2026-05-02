@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { AppLogo } from "@/components/layout/app-logo";
 import { CameraCapture } from "@/components/camera/camera-capture";
 import { BarcodeScanner } from "@/components/barcode/barcode-scanner";
+import { getMusterIcon } from "@/lib/constants/icons";
 import styles from "./kostueme-neu.module.css";
 
 interface TaxTerm { id: string; label_de: string; parent_id?: string | null; }
@@ -23,23 +24,6 @@ interface Taxonomy {
   washingTypes: TaxTerm[];
   dryings: TaxTerm[];
   ironings: TaxTerm[];
-}
-
-// Muster icon mapping
-const MUSTER_ICON: Record<string, string> = {
-  uni:       "icon-material-solid",
-  kariert:   "icon-material-squared",
-  gestreift: "icon-material-stripe",
-  gepunktet: "icon-material-pointed",
-  floral:    "icon-material-floral",
-  gemustert: "icon-material-batik",
-  verlauf:   "icon-material-gradient",
-  abstrakt:  "icon-material-gradient",
-  anderes:   "icon-material-divers",
-};
-
-function getMusterIcon(label: string): string {
-  return MUSTER_ICON[label.toLowerCase()] ?? "icon-material-divers";
 }
 
 // Color hex map for swatches
@@ -65,11 +49,10 @@ interface Props {
 const NAV_SECTIONS = [
   { id: "kategorie",   label: "Kategorie",   icon: "icon-category"  },
   { id: "material",    label: "Material",    icon: "icon-material"  },
-  { id: "bilder",      label: "Bilder",      icon: "icon-image-filled" },
+  { id: "bilder",      label: "Bilder",      icon: "icon-images" },
   { id: "masse",       label: "Masse",       icon: "icon-measuring" },
   { id: "lagerort",    label: "Lagerort",    icon: "icon-location"  },
   { id: "infos",       label: "ID & Infos",  icon: "icon-list"      },
-  { id: "nachrichten", label: "Kommentar",   icon: "icon-chat"      },
 ];
 
 const GENDER_CARDS = [
@@ -82,7 +65,6 @@ const GENDER_CARDS = [
 ];
 
 const KONFEKTIONS_SIZES_INT = ["XS", "S", "M", "L", "XL", "XXL"];
-const KONFEKTIONS_SIZES_EU = ["≤ 32", "34", "36", "38", "40", "42", "44", "46", "48", "50", "52", "≥ 54"];
 
 const NAV_W = 209;
 
@@ -330,7 +312,6 @@ function buildFormFromCostume(c: import("@/lib/types/costume").Costume): ReturnT
     dryingIds: termsByVocab["drying"] ?? [],
     ironingIds: termsByVocab["ironing"] ?? [],
     keineReinigung: false,
-    nichtBuegeln: false,
     colorNote: "",
     materialNotes: "",
     sizeLabel: item?.size_label ?? "",
@@ -366,7 +347,7 @@ function emptyForm() {
     materialSearch: "", materialIds: [] as string[], musterIds: [] as string[],
     colorIds: [] as string[], spartanIds: [] as string[], temperatureIds: [] as string[],
     washingTypeIds: [] as string[], dryingIds: [] as string[], ironingIds: [] as string[],
-    keineReinigung: false, nichtBuegeln: false,
+    keineReinigung: false,
     colorNote: "", materialNotes: "",
     sizeLabel: "", sizeNotes: "",
     locationFloor: "", locationRack: "", locationSector: "",
@@ -384,14 +365,14 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
   const router = useRouter();
   const supabase = createClient();
   const mainRef = useRef<HTMLDivElement>(null);
+  const lastScrollYRef = useRef(0);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const [activeSection, setActiveSection] = useState("kategorie");
+  const [headerHidden, setHeaderHidden] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showCloseSheet, setShowCloseSheet] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
-  const [pendingComments, setPendingComments] = useState<{ body: string; author_name: string; created_at: string }[]>([]);
-  const [commentDraft, setCommentDraft] = useState("");
 
   const [showDeleteSheet, setShowDeleteSheet] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
@@ -401,7 +382,25 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
 
   const imageInputRef = useRef<HTMLInputElement>(null);
   const cameraCaptureRef = useRef<HTMLInputElement>(null);
-  const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
+
+  type ImageEntry =
+    | { kind: "existing"; mediaId: string; storagePath: string; url: string }
+    | { kind: "new"; file: File; url: string };
+
+  const [allImages, setAllImages] = useState<ImageEntry[]>(() => {
+    if (!editCostume?.costume_media?.length) return [];
+    const sb = createClient();
+    return [...editCostume.costume_media]
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map(m => ({
+        kind: "existing" as const,
+        mediaId: m.id,
+        storagePath: m.storage_path,
+        url: sb.storage.from("costume-images").getPublicUrl(m.storage_path).data.publicUrl,
+      }));
+  });
+  const [deletedMediaIds, setDeletedMediaIds] = useState<string[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const [form, setForm] = useState(() => editCostume ? buildFormFromCostume(editCostume) : emptyForm());
 
@@ -424,6 +423,13 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
   const handleScroll = useCallback(() => {
     const el = mainRef.current;
     if (!el) return;
+    const y = el.scrollTop;
+    if (y > lastScrollYRef.current && y > 40) {
+      setHeaderHidden(true);
+    } else if (y < lastScrollYRef.current) {
+      setHeaderHidden(false);
+    }
+    lastScrollYRef.current = y;
     const containerTop = el.getBoundingClientRect().top;
     let current = NAV_SECTIONS[0].id;
     for (const sec of NAV_SECTIONS) {
@@ -455,12 +461,22 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
 
   function handleImageAdd(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
-    setImages((prev) => [...prev, ...files.map((f) => ({ file: f, preview: URL.createObjectURL(f) }))]);
+    setAllImages(prev => [
+      ...prev,
+      ...files.map(f => ({ kind: "new" as const, file: f, url: URL.createObjectURL(f) })),
+    ]);
     e.target.value = "";
   }
 
   function removeImage(idx: number) {
-    setImages((prev) => prev.filter((_, i) => i !== idx));
+    setAllImages(prev => {
+      const entry = prev[idx];
+      if (entry.kind === "existing") {
+        setDeletedMediaIds(d => [...d, entry.mediaId]);
+      }
+      return prev.filter((_, i) => i !== idx);
+    });
+    setLightboxIndex(null);
   }
 
   const genderTermId = taxonomy.genders.find(
@@ -536,13 +552,23 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
           });
         }
 
-        const existingCount = editCostume.costume_media?.length ?? 0;
-        for (let i = 0; i < images.length; i++) {
-          const img = images[i];
+        // Gelöschte Bilder entfernen
+        if (deletedMediaIds.length > 0) {
+          const toDelete = (editCostume.costume_media ?? []).filter(m => deletedMediaIds.includes(m.id));
+          await Promise.all([
+            supabase.from("costume_media").delete().in("id", deletedMediaIds),
+            supabase.storage.from("costume-images").remove(toDelete.map(m => m.storage_path)),
+          ]);
+        }
+        // Neue Bilder hochladen
+        const newImages = allImages.filter(img => img.kind === "new") as { kind: "new"; file: File; url: string }[];
+        const remainingCount = (editCostume.costume_media?.length ?? 0) - deletedMediaIds.length;
+        for (let i = 0; i < newImages.length; i++) {
+          const img = newImages[i];
           const ext = img.file.name.split(".").pop() ?? "jpg";
-          const path = `${theaterId}/${editCostume.id}/${existingCount + i}.${ext}`;
+          const path = `${theaterId}/${editCostume.id}/${Date.now()}_${i}.${ext}`;
           await supabase.storage.from("costume-images").upload(path, img.file);
-          await supabase.from("costume_media").insert({ costume_id: editCostume.id, storage_path: path, sort_order: existingCount + i });
+          await supabase.from("costume_media").insert({ costume_id: editCostume.id, storage_path: path, sort_order: remainingCount + i });
         }
 
         router.push(`/costume/${editCostume.id}`);
@@ -589,21 +615,13 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
           });
         }
 
-        for (let i = 0; i < images.length; i++) {
-          const img = images[i];
+        const newImagesForCreate = allImages.filter(img => img.kind === "new") as { kind: "new"; file: File; url: string }[];
+        for (let i = 0; i < newImagesForCreate.length; i++) {
+          const img = newImagesForCreate[i];
           const ext = img.file.name.split(".").pop() ?? "jpg";
           const path = `${theaterId}/${costume.id}/${i}.${ext}`;
           await supabase.storage.from("costume-images").upload(path, img.file);
           await supabase.from("costume_media").insert({ costume_id: costume.id, storage_path: path, sort_order: i });
-        }
-
-        if (pendingComments.length > 0) {
-          await supabase.from("costume_comments").insert(
-            pendingComments.map((c) => ({
-              costume_id: costume.id, user_id: currentUserId,
-              body: c.body, parent_id: null,
-            }))
-          );
         }
 
         router.push(`/costume/${costume.id}`);
@@ -639,6 +657,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
     <div className={styles.root}>
 
       {/* ═══ Header ═══ */}
+      <div className={`${styles.headerWrap} ${headerHidden ? styles.headerWrapHidden : ""}`}>
       <div className={styles.header} style={{ height: 72 }}>
         <div className={styles.headerLogo} style={{ width: NAV_W }}>
           <AppLogo />
@@ -655,18 +674,6 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
             <Image src="/icons/icon-camera-filled.svg" alt="Bilder" width={23} height={23} style={{ filter: "invert(1)" }} />
           </button>
 
-          {/* Löschen — nur im Edit-Mode, auf Desktop im Header */}
-          {editCostume && (
-            <button
-              type="button"
-              onClick={() => setShowDeleteSheet(true)}
-              className={`btn-secondary ${styles.deleteBtnDesktop}`}
-              style={{ whiteSpace: "nowrap", flexShrink: 0 }}
-            >
-              Löschen
-            </button>
-          )}
-
           {/* Speichern */}
           <button
             type="button"
@@ -680,9 +687,10 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
 
           {/* Close */}
           <button type="button" onClick={() => setShowCloseSheet(true)} className={styles.closeBtn}>
-            <Image src="/icons/icon-close-medium.svg" alt="Schliessen" width={22} height={22} />
+            <Image src="/icons/icon-close-small.svg" alt="Schliessen" width={32} height={32} />
           </button>
         </div>
+      </div>
       </div>
 
       {/* ═══ Body ═══ */}
@@ -966,9 +974,19 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                 {/* Reinigung */}
                 <div>
                   <div className={styles.subHeading}>Reinigung</div>
-                  <div className={styles.careCard}>
+                  <div className={styles.toggleRow}>
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, keineReinigung: !f.keineReinigung }))}
+                      className={`${styles.toggleBtn} ${form.keineReinigung ? styles.toggleBtnOn : ""}`}
+                    >
+                      <div className={styles.toggleThumb} style={{ left: form.keineReinigung ? 34 : 3 }} />
+                    </button>
+                    <span className={styles.toggleLabel}>Keine Reinigung möglich</span>
+                  </div>
+                  {!form.keineReinigung && <div className={styles.careCard}>
                     <div className={styles.careHeader}>
-                      <Image src="/icons/icon-wasch.svg" alt="" width={28} height={28} />
+                      <span className={styles.careIcon} style={{ WebkitMaskImage: "url('/icons/icon-wasch.svg')", maskImage: "url('/icons/icon-wasch.svg')" }} />
                       <span className={styles.careTitle}>Temperatur &amp; Reinigungsart</span>
                     </div>
                     <div className={styles.careBody}>
@@ -1006,25 +1024,14 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                         })}
                       </div>
                     </div>
-                    <div className={styles.toggleRow}>
-                      <button
-                        type="button"
-                        onClick={() => setForm((f) => ({ ...f, keineReinigung: !f.keineReinigung }))}
-                        className={`${styles.toggleBtn} ${form.keineReinigung ? styles.toggleBtnOn : ""}`}
-                      >
-                        {/* thumb position is dynamic */}
-                        <div className={styles.toggleThumb} style={{ left: form.keineReinigung ? 34 : 3 }} />
-                      </button>
-                      <span className={styles.toggleLabel}>Keine Reinigung möglich</span>
-                    </div>
-                  </div>
+                  </div>}
                 </div>
 
                 {/* Trocknen + Bügeln */}
-                <div className={styles.careGrid}>
+                {!form.keineReinigung && <div className={styles.careGrid}>
                   <div className={styles.careCard}>
                     <div className={styles.careHeader}>
-                      <Image src="/icons/icon-tumbler.svg" alt="" width={28} height={28} />
+                      <span className={styles.careIcon} style={{ WebkitMaskImage: "url('/icons/icon-tumbler.svg')", maskImage: "url('/icons/icon-tumbler.svg')" }} />
                       <span className={styles.careTitle}>Trocknen</span>
                     </div>
                     <div className={styles.checkboxList}>
@@ -1049,7 +1056,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
 
                   <div className={styles.careCard}>
                     <div className={styles.careHeader}>
-                      <Image src="/icons/icon-steam.svg" alt="" width={28} height={28} />
+                      <span className={styles.careIcon} style={{ WebkitMaskImage: "url('/icons/icon-steam.svg')", maskImage: "url('/icons/icon-steam.svg')" }} />
                       <span className={styles.careTitle}>Bügeln</span>
                     </div>
                     <div className={styles.checkboxList} style={{ marginBottom: 16 }}>
@@ -1070,21 +1077,11 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                         );
                       })}
                     </div>
-                    <div className={`${styles.toggleRow} ${styles.toggleRowBuegeln}`}>
-                      <button
-                        type="button"
-                        onClick={() => setForm((f) => ({ ...f, nichtBuegeln: !f.nichtBuegeln }))}
-                        className={`${styles.toggleBtn} ${form.nichtBuegeln ? styles.toggleBtnOn : ""}`}
-                      >
-                        <div className={styles.toggleThumb} style={{ left: form.nichtBuegeln ? 34 : 3 }} />
-                      </button>
-                      <span className={styles.toggleLabel}>Nicht bügeln</span>
-                    </div>
                   </div>
-                </div>
+                </div>}
 
                 {/* Zusätzliche Waschinfos */}
-                <div>
+                {!form.keineReinigung && <div>
                   <div className={styles.subHeading}>Zusätzliche Waschinfos</div>
                   <textarea
                     value={form.materialNotes}
@@ -1092,7 +1089,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                     rows={3}
                     className={styles.textarea}
                   />
-                </div>
+                </div>}
               </div>
             </section>
 
@@ -1110,17 +1107,22 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
               <div className={styles.uploadContainer}>
                 <div className={styles.dropZoneWrap}>
                   <div className={styles.dropZone}>
-                    {images.length === 0 ? (
+                    {allImages.length === 0 ? (
                       <>
                         <Image src="/icons/icon-images.svg" alt="" width={48} height={48} style={{ opacity: 0.3 }} />
                         <span className={styles.dropZoneHint}><strong>Bilder</strong> hochladen oder aufnehmen</span>
                       </>
                     ) : (
                       <div className={styles.imageThumbs}>
-                        {images.map((img, idx) => (
+                        {allImages.map((img, idx) => (
                           <div key={idx} className={styles.imageThumbWrap}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={img.preview} alt="" className={styles.imageThumb} />
+                            <img
+                              src={img.url}
+                              alt=""
+                              className={styles.imageThumb}
+                              onClick={() => setLightboxIndex(idx)}
+                            />
                             <button type="button" onClick={() => removeImage(idx)} className={styles.imageRemoveBtn}>
                               <Image src="/icons/icon-close-small.svg" alt="" width={12} height={12} style={{ filter: "invert(1)" }} />
                             </button>
@@ -1173,22 +1175,6 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                   <div className={styles.sizeSubLabel}>International</div>
                   <div className={styles.sizeGrid}>
                     {KONFEKTIONS_SIZES_INT.map((s) => {
-                      const isActive = form.sizeLabel === s;
-                      return (
-                        <button
-                          key={s}
-                          type="button"
-                          onClick={() => setField("sizeLabel", form.sizeLabel === s ? "" : s)}
-                          className={`${styles.sizeBtn} ${isActive ? styles.sizeBtnActive : ""}`}
-                        >
-                          {s}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <div className={styles.sizeSubLabel}>EU</div>
-                  <div className={styles.sizeGrid}>
-                    {KONFEKTIONS_SIZES_EU.map((s) => {
                       const isActive = form.sizeLabel === s;
                       return (
                         <button
@@ -1258,7 +1244,6 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                                 <option key={v} value={v}>{v}</option>
                               ))}
                             </select>
-                            <Image src="/icons/icon-dropdown.svg" alt="" width={16} height={16} className={styles.selectChevron} />
                           </div>
                         </div>
                       ))}
@@ -1301,7 +1286,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                     >
                       <div className={styles.statusDot} style={{ background: selectedStatus.color }} />
                       <span style={{ flex: 1, textAlign: "left" }}>{selectedStatus.label}</span>
-                      <Image src="/icons/icon-dropdown.svg" alt="" width={16} height={16} />
+                      <span className="dropdown-arrow" />
                     </button>
                     {showStatusDropdown && (
                       <>
@@ -1434,97 +1419,33 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
               </div>
             </section>
 
-            {/* ─── Kommentar ─── */}
-            <section
-              id="nachrichten"
-              ref={(el) => { sectionRefs.current["nachrichten"] = el; }}
-              className={styles.sectionCard}
-            >
-              <div className={styles.sectionHeading}>
-                <Image src="/icons/icon-chat.svg" alt="" width={30} height={30} />
-                <h2 className={styles.sectionHeadingTitle}>Kommentar</h2>
-              </div>
-
-              <div className={styles.commentList}>
-                {pendingComments.map((c, i) => (
-                  <div key={i} className={styles.commentItem}>
-                    <div className={styles.commentHeader}>
-                      <div className={styles.commentAvatar}>
-                        {currentUserName.split(" ").map((p: string) => p[0]).join("").toUpperCase().slice(0, 2)}
-                      </div>
-                      <span className={styles.commentAuthor}>{currentUserName}</span>
-                      <button
-                        type="button"
-                        onClick={() => setPendingComments((prev) => prev.filter((_, idx) => idx !== i))}
-                        className={styles.commentDeleteBtn}
-                      >✕</button>
-                    </div>
-                    <p className={styles.commentBody}>{c.body}</p>
-                  </div>
-                ))}
-
-                <div className={styles.commentInput}>
-                  <div className={styles.commentInputBody}>
-                    <div className={styles.commentAvatar}>
-                      {currentUserName.split(" ").map((p: string) => p[0]).join("").toUpperCase().slice(0, 2)}
-                    </div>
-                    <textarea
-                      value={commentDraft}
-                      onChange={(e) => setCommentDraft(e.target.value)}
-                      placeholder="Kommentar schreiben…"
-                      rows={3}
-                      className={styles.commentTextarea}
-                    />
-                  </div>
-                  <div className={styles.commentFooter}>
-                    <button
-                      type="button"
-                      disabled={!commentDraft.trim()}
-                      onClick={() => {
-                        if (!commentDraft.trim()) return;
-                        setPendingComments((prev) => [...prev, {
-                          body: commentDraft.trim(),
-                          author_name: currentUserName,
-                          created_at: new Date().toISOString(),
-                        }]);
-                        setCommentDraft("");
-                      }}
-                      className={`${styles.commentSubmitBtn} ${commentDraft.trim() ? styles.commentSubmitBtnActive : ""}`}
-                    >
-                      Hinzufügen
-                    </button>
-                  </div>
-                </div>
-
-                <p className={styles.commentHint}>Kommentare werden beim Speichern des Kostüms übernommen.</p>
-              </div>
-            </section>
-
-            {/* Löschen — Mobile only, am Ende des Formulars */}
-            {editCostume && (
-              <div className={styles.deleteBtnMobileWrap}>
-                <button
-                  type="button"
-                  onClick={() => setShowDeleteSheet(true)}
-                  className="btn-secondary"
-                  style={{ width: "100%" }}
-                >
-                  Kostüm löschen
-                </button>
-              </div>
-            )}
 
             <div className={styles.bottomSpacer} />
           </div>
         </div>
       </div>
 
+      {/* Löschen-Bar — fixiert am unteren Rand, nur im Edit-Mode */}
+      {editCostume && (
+        <div className={styles.deleteBar}>
+          <div className={styles.deleteBarInner} style={{ paddingLeft: NAV_W + "px" }}>
+            <button
+              type="button"
+              onClick={() => setShowDeleteSheet(true)}
+              className={styles.deleteBarBtn}
+            >
+              <Image src="/icons/icon-delete.svg" alt="" width={24} height={24} />
+              Kostüm löschen
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Camera overlay — Kostümbilder */}
       {showCamera && (
         <CameraCapture
           onCapture={(file) => {
-            const preview = URL.createObjectURL(file);
-            setImages((prev) => [...prev, { file, preview }]);
+            setAllImages(prev => [...prev, { kind: "new", file, url: URL.createObjectURL(file) }]);
             setShowCamera(false);
           }}
           onClose={() => setShowCamera(false)}
@@ -1551,6 +1472,52 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
           }}
           onClose={() => setShowScanner(null)}
         />
+      )}
+
+      {/* Lightbox */}
+      {lightboxIndex !== null && (
+        <div className={styles.lightbox} onClick={() => setLightboxIndex(null)}>
+          <button type="button" className={styles.lightboxClose} onClick={() => setLightboxIndex(null)}>
+            <Image src="/icons/icon-close-medium.svg" alt="Schliessen" width={22} height={22} style={{ filter: "invert(1)" }} />
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={allImages[lightboxIndex].url}
+            alt=""
+            className={styles.lightboxImg}
+            onClick={e => e.stopPropagation()}
+          />
+          {allImages.length > 1 && (
+            <>
+              <button
+                type="button"
+                className={`${styles.lightboxNav} ${styles.lightboxNavPrev}`}
+                onClick={e => { e.stopPropagation(); setLightboxIndex(i => i !== null ? (i - 1 + allImages.length) % allImages.length : 0); }}
+              >
+                <Image src="/icons/icon-arrow-left.svg" alt="Zurück" width={24} height={24} style={{ filter: "invert(1)" }} />
+              </button>
+              <button
+                type="button"
+                className={`${styles.lightboxNav} ${styles.lightboxNavNext}`}
+                onClick={e => { e.stopPropagation(); setLightboxIndex(i => i !== null ? (i + 1) % allImages.length : 0); }}
+              >
+                <Image src="/icons/icon-arrow-right-2.svg" alt="Weiter" width={24} height={24} style={{ filter: "invert(1)" }} />
+              </button>
+            </>
+          )}
+          <div className={styles.lightboxThumbs} onClick={e => e.stopPropagation()}>
+            {allImages.map((img, idx) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={idx}
+                src={img.url}
+                alt=""
+                className={`${styles.lightboxThumb} ${idx === lightboxIndex ? styles.lightboxThumbActive : ""}`}
+                onClick={() => setLightboxIndex(idx)}
+              />
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Delete sheet */}

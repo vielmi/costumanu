@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import styles from "./suchmodus-filter.module.css";
-import { getGenderIcon, MUSTER_ICON } from "@/lib/constants/icons";
+import { getGenderIcon, getMusterIcon } from "@/lib/constants/icons";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -14,6 +14,7 @@ export type SuchmodusFilterProps = {
   genderTerms: Term[];
   clothingTypes: Term[];
   segmentTerms: Term[];
+  epocheTerms: Term[];
   materialTerms: Term[];
   farbeTerms: Term[];
   musterTerms: Term[];
@@ -62,6 +63,7 @@ export function SuchmodusFilterClient({
   genderTerms,
   clothingTypes,
   segmentTerms,
+  epocheTerms,
   materialTerms,
   farbeTerms,
   musterTerms,
@@ -75,12 +77,12 @@ export function SuchmodusFilterClient({
   const [selectedMaterials,     setSelectedMaterials]     = useState<Set<string>>(new Set());
   const [selectedFarben,        setSelectedFarben]        = useState<Set<string>>(new Set());
   const [selectedMuster,        setSelectedMuster]        = useState<Set<string>>(new Set());
+  const [selectedEpochen,       setSelectedEpochen]       = useState<Set<string>>(new Set());
   const [selectedIntSizes,      setSelectedIntSizes]      = useState<Set<string>>(new Set());
   const [selectedEuSizes,       setSelectedEuSizes]       = useState<Set<string>>(new Set());
 
   // Free-text
   const [clothingSearch, setClothingSearch] = useState("");
-  const [epochSearch,    setEpochSearch]    = useState("");
   const [titleSearch,    setTitleSearch]    = useState("");
   const [actorSearch,    setActorSearch]    = useState("");
   const [roleSearch,     setRoleSearch]     = useState("");
@@ -93,13 +95,13 @@ export function SuchmodusFilterClient({
     setSelectedGenders(new Set());
     setSelectedClothingTypes(new Set());
     setSelectedSegments(new Set());
+    setSelectedEpochen(new Set());
     setSelectedMaterials(new Set());
     setSelectedFarben(new Set());
     setSelectedMuster(new Set());
     setSelectedIntSizes(new Set());
     setSelectedEuSizes(new Set());
     setClothingSearch("");
-    setEpochSearch("");
     setTitleSearch("");
     setActorSearch("");
     setRoleSearch("");
@@ -118,9 +120,9 @@ export function SuchmodusFilterClient({
     if (selectedMaterials.size > 0)       params.set("material",      [...selectedMaterials].join(","));
     if (selectedFarben.size > 0)          params.set("farbe",         [...selectedFarben].join(","));
     if (selectedMuster.size > 0)          params.set("muster",        [...selectedMuster].join(","));
+    if (selectedEpochen.size > 0)         params.set("epoche",        [...selectedEpochen].join(","));
     if (selectedIntSizes.size > 0)        params.set("size_int",      [...selectedIntSizes].join(","));
     if (selectedEuSizes.size > 0)         params.set("size_eu",       [...selectedEuSizes].join(","));
-    if (epochSearch.trim())               params.set("epoche",        epochSearch.trim());
     if (titleSearch.trim())               params.set("title",         titleSearch.trim());
     if (actorSearch.trim())               params.set("actor",         actorSearch.trim());
     if (roleSearch.trim())                params.set("role",          roleSearch.trim());
@@ -144,10 +146,12 @@ export function SuchmodusFilterClient({
 
       {/* ═══ Header ═══ */}
       <header className={styles.header}>
-        <Image src="/icons/icon-filter.svg" alt="" width={21} height={21} />
+        <button type="button" className={styles.resetBtn} onClick={reset}>
+          Zurücksetzen
+        </button>
         <h1 className={styles.headerTitle}>Kostümfilter</h1>
-        <button type="button" className={styles.closeBtn} onClick={() => router.back()} aria-label="Schliessen">
-          <Image src="/icons/icon-close-medium.svg" alt="" width={20} height={20} />
+        <button type="button" className={styles.applyBtn} onClick={apply}>
+          Anwenden
         </button>
       </header>
 
@@ -224,11 +228,29 @@ export function SuchmodusFilterClient({
           </section>
         )}
 
+        {/* ── Epoche ── */}
+        {epocheTerms.length > 0 && (
+          <section className={styles.section}>
+            <span className={styles.sectionBadge}>Epoche</span>
+            <div className={styles.chipGrid}>
+              {epocheTerms.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  className={`${styles.chip} ${selectedEpochen.has(t.id) ? styles.selected : ""}`}
+                  onClick={() => setSelectedEpochen((s) => toggle(s, t.id))}
+                >
+                  {t.label_de}
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* ── Aufführung ── */}
         <section className={styles.section}>
           <span className={styles.sectionBadge}>Aufführung</span>
           {[
-            { label: "Epoche",     value: epochSearch,    setter: setEpochSearch    },
             { label: "Stücktitel", value: titleSearch,    setter: setTitleSearch    },
             { label: "Darsteller", value: actorSearch,    setter: setActorSearch    },
             { label: "Rolle",      value: roleSearch,     setter: setRoleSearch     },
@@ -332,7 +354,7 @@ export function SuchmodusFilterClient({
               <p className={styles.subSectionLabel} style={{ marginTop: 8 }}>Muster</p>
               <div className={styles.musterGrid}>
                 {musterTerms.map((t) => {
-                  const iconName = MUSTER_ICON[t.label_de.toLowerCase()] ?? "icon-material-solid";
+                  const iconName = getMusterIcon(t.label_de);
                   return (
                     <button
                       key={t.id}
@@ -380,15 +402,6 @@ export function SuchmodusFilterClient({
 
       </div>
 
-      {/* ═══ Sticky footer ═══ */}
-      <div className={styles.footer}>
-        <button type="button" className="btn-secondary" onClick={reset}>
-          Zurücksetzen
-        </button>
-        <button type="button" className="btn-primary" style={{ flex: 1 }} onClick={apply}>
-          Filter anwenden
-        </button>
-      </div>
 
     </div>
   );

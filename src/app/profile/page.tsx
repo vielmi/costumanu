@@ -1,16 +1,14 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/layout/app-shell";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Pencil, Building2, Phone, Mail } from "lucide-react";
-import { t } from "@/lib/i18n";
+import { AppMobileHeader } from "@/components/layout/app-mobile-header";
+import styles from "./profile.module.css";
 
 export default async function ProfilPage() {
   const supabase = await createClient();
 
-  // Auth guard
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -19,30 +17,19 @@ export default async function ProfilPage() {
     redirect("/login");
   }
 
-  // Fetch profile data
   const { data: profile } = await supabase
     .from("profiles")
     .select("display_name, professional_title, avatar_url, phone")
     .eq("id", user.id)
     .single();
 
-  // Fetch theater memberships with theater details
   const { data: memberships } = await supabase
     .from("theater_members")
-    .select(
-      `
-      role,
-      theaters (
-        id,
-        name,
-        slug
-      )
-    `
-    )
+    .select(`role, theaters ( id, name, slug )`)
     .eq("user_id", user.id);
 
   const displayName =
-    profile?.display_name ?? user.user_metadata?.full_name ?? t("messages.unknown");
+    profile?.display_name ?? user.user_metadata?.full_name ?? "Unbekannt";
   const professionalTitle = profile?.professional_title ?? null;
   const avatarUrl = profile?.avatar_url ?? null;
   const phone = profile?.phone ?? null;
@@ -50,143 +37,102 @@ export default async function ProfilPage() {
 
   const theaterList = (memberships ?? []).map((m) => {
     const theater = m.theaters as unknown as { id: string; name: string; slug: string };
-    return {
-      id: theater.id,
-      name: theater.name,
-      slug: theater.slug,
-      role: m.role as string,
-    };
+    return { id: theater.id, name: theater.name, slug: theater.slug, role: m.role as string };
   });
 
   function getInitials(name: string): string {
-    return name
-      .split(" ")
-      .map((part) => part.charAt(0))
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(" ").map((p) => p.charAt(0)).join("").toUpperCase().slice(0, 2);
   }
 
   return (
     <AppShell>
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="mb-6 text-2xl font-bold">{t("profile.title")}</h1>
+      <div className={styles.page}>
+        <AppMobileHeader />
 
-        {/* Profile card */}
-        <Card className="mb-6">
-          <CardContent className="flex flex-col items-center gap-4 pt-6 sm:flex-row sm:items-start">
-            {/* Avatar */}
+        {/* Hero */}
+        <div className={styles.hero}>
+          <div className={styles.avatar}>
             {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt={displayName}
-                className="h-20 w-20 shrink-0 rounded-full object-cover"
-              />
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarUrl} alt={displayName} className={styles.avatarImg} />
             ) : (
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-primary text-xl font-semibold text-primary-foreground">
-                {getInitials(displayName)}
-              </div>
+              <span className={styles.avatarInitials}>{getInitials(displayName)}</span>
             )}
+          </div>
+          <h1 className={styles.heroName}>{displayName}</h1>
+          {professionalTitle && <p className={styles.heroTitle}>{professionalTitle}</p>}
+        </div>
 
-            {/* Name and title */}
-            <div className="flex flex-1 flex-col items-center gap-1 sm:items-start">
-              <h2 className="text-xl font-semibold">{displayName}</h2>
-              {professionalTitle && (
-                <p className="text-sm text-muted-foreground">
-                  {professionalTitle}
-                </p>
-              )}
-              {theaterList.length > 0 && (
-                <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-                  <Building2 className="h-3.5 w-3.5" />
-                  <span>{theaterList.map((th) => th.name).join(", ")}</span>
-                </div>
-              )}
+        <div className={styles.divider} />
+
+        {/* Kontaktdaten */}
+        <section className={styles.section}>
+          <p className={styles.sectionTitle}>Kontakt</p>
+          {phone && (
+            <div className={styles.row}>
+              <div className={styles.rowIcon}>
+                <Image src="/icons/icon-phone.svg" alt="" width={18} height={18} />
+              </div>
+              <div className={styles.rowBody}>
+                <p className={styles.rowLabel}>Telefon</p>
+                <p className={styles.rowValue}>{phone}</p>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Contact details */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-base">{t("profile.contactDetails")}</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-3">
-            {phone && (
-              <div className="flex items-center gap-3">
-                <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    {t("profile.phone")}
-                  </p>
-                  <p className="text-sm">{phone}</p>
-                </div>
+          )}
+          {email && (
+            <div className={styles.row}>
+              <div className={styles.rowIcon}>
+                <Image src="/icons/icon-mail.svg" alt="" width={18} height={18} />
               </div>
-            )}
-            {email && (
-              <div className="flex items-center gap-3">
-                <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    {t("profile.email")}
-                  </p>
-                  <p className="text-sm">{email}</p>
-                </div>
+              <div className={styles.rowBody}>
+                <p className={styles.rowLabel}>E-Mail</p>
+                <p className={styles.rowValue}>{email}</p>
               </div>
-            )}
-            {!phone && !email && (
-              <p className="text-sm text-muted-foreground">
-                {t("profile.noContactDetails")}
+            </div>
+          )}
+          {!phone && !email && (
+            <div className={styles.row}>
+              <p className={styles.rowValue} style={{ color: "var(--neutral-grey-400)" }}>
+                Keine Kontaktdaten hinterlegt.
               </p>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          )}
+        </section>
 
-        {/* Theater memberships */}
+        <div className={styles.divider} />
+
+        {/* Theater */}
         {theaterList.length > 0 && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="text-base">{t("profile.theaters")}</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3">
+          <>
+            <section className={styles.section}>
+              <p className={styles.sectionTitle}>Theater</p>
               {theaterList.map((theater) => (
-                <div
-                  key={theater.id}
-                  className="flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted text-xs font-medium">
-                      {theater.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{theater.name}</p>
-                      <p className="text-xs capitalize text-muted-foreground">
-                        {theater.role}
-                      </p>
-                    </div>
+                <div key={theater.id} className={styles.row}>
+                  <div className={styles.theaterBadge}>
+                    {theater.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className={styles.rowBody}>
+                    <p className={styles.rowValue}>{theater.name}</p>
+                    <p className={styles.theaterRole}>{theater.role}</p>
                   </div>
                 </div>
               ))}
-            </CardContent>
-          </Card>
+            </section>
+            <div className={styles.divider} />
+          </>
         )}
 
-        {/* Action buttons */}
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button variant="outline" className="gap-2" asChild>
-            <Link href="/profile/edit">
-              <Pencil className="h-4 w-4" />
-              {t("profile.editProfile")}
-            </Link>
-          </Button>
-          <Button variant="outline" className="gap-2" asChild>
-            <Link href="/profile/theaters">
-              <Building2 className="h-4 w-4" />
-              {t("profile.manageTheaters")}
-            </Link>
-          </Button>
+        {/* Actions */}
+        <div className={styles.actions}>
+          <Link href="/profile/edit" className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}>
+            <Image src="/icons/icon-edit.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
+            Profil bearbeiten
+          </Link>
+          <Link href="/profile/theaters" className={`${styles.actionBtn} ${styles.actionBtnSecondary}`}>
+            Theater verwalten
+          </Link>
         </div>
-      </main>
+      </div>
     </AppShell>
   );
 }

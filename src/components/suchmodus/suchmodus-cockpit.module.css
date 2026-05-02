@@ -4,32 +4,6 @@
   min-height: 100vh;
 }
 
-/* ─── Header ─────────────────────────────────────────────────────────────── */
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  height: 80px;
-  background: var(--neutral-white);
-  box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.20);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-}
-.headerIcons {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.headerIcon {
-  width: 45px;
-  height: 45px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-}
 
 /* ─── Hero ───────────────────────────────────────────────────────────────── */
 .hero {
@@ -124,6 +98,14 @@
   color: var(--secondary-900);
 }
 
+.genderCardIcon {
+  filter: brightness(0) saturate(100%) invert(10%) sepia(25%) saturate(1100%) hue-rotate(128deg) brightness(85%);
+}
+
+.heroCircleIcon {
+  filter: var(--filter-primary-900);
+}
+
 /* ─── Category tile rows ─────────────────────────────────────────────────── */
 .tileRow {
   display: flex;
@@ -185,15 +167,11 @@
 
 /* ─── Mobile (< 744px) ───────────────────────────────────────────────────── */
 @media (max-width: 743px) {
-  .header {
-    height: 70px;
-  }
-
   .sectionPadded {
     padding: 40px 16px;
   }
   .sectionPaddedBottom {
-    padding: 0 0 40px;
+    padding: 0 16px 40px;
   }
   .sectionTitleWrap {
     padding: 0 16px;
@@ -227,7 +205,7 @@
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    padding: 0 16px;
+    padding: 0;
     gap: 12px;
     scrollbar-width: none;
     -ms-overflow-style: none;

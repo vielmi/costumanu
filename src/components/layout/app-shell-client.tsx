@@ -10,7 +10,7 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 const ADMIN_NAV_ITEM: NavItem = {
-  label: "Konfiguration", href: "/einstellungen/konfiguration", icon: "icon-setting",
+  label: "Einstellungen", href: "/einstellungen/konfiguration", icon: "icon-setting",
 };
 
 function isAdmin(userRole: string): boolean {

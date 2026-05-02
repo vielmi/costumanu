@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
   createTheaterAction,
   updateTheaterAction,
+  deleteTheaterAction,
   createUserAction,
   updateUserAction,
   deleteUserAction,
@@ -28,6 +29,7 @@ interface Member {
   isSelf: boolean;
   theaterName: string;
   theaterId: string;
+  isPlatformAdmin: boolean;
 }
 
 interface Theater {
@@ -99,7 +101,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid var(--neutral-grey-300)",
   padding: "0 14px", fontFamily: "var(--font-family-base)",
   fontSize: "var(--font-size-200)", color: "var(--neutral-black)",
-  background: "var(--neutral-white)", outline: "none", boxSizing: "border-box",
+  backgroundColor: "var(--neutral-white)", outline: "none", boxSizing: "border-box",
 };
 
 const labelStyle: React.CSSProperties = {
@@ -215,7 +217,7 @@ function TaxonomyTab({
   }
 
   return (
-    <div style={{ display: "flex", gap: 20, flex: 1, overflow: "hidden" }}>
+    <div style={{ display: "flex", gap: 20, flex: 1, overflow: "hidden", paddingTop: 24, paddingLeft: 48 }}>
       {/* Sidebar */}
       <nav style={{ width: 220, flexShrink: 0, display: "flex", flexDirection: "column", gap: 4 }}>
         {isPlatformAdmin && (
@@ -264,8 +266,8 @@ function TaxonomyTab({
       </nav>
 
       {/* Main panel */}
-      <div style={panelStyle}>
-        <div style={{ flex: 1, overflowY: "auto", padding: "40px 48px" }}>
+      <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "0 48px 40px" }}>
           <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-black)", margin: "0 0 8px" }}>
             {VOCABULARIES.find((v) => v.key === activeVocab)?.label}
           </h2>
@@ -322,16 +324,23 @@ function TaxonomyTab({
                   )}
 
                   {canEdit && (
-                    <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                    <div style={{ display: "flex", gap: 0, alignItems: "center", flexShrink: 0 }}>
                       {isEditing ? (
                         <>
                           <button type="button" onClick={() => saveEdit(term.id)} disabled={saving} style={btnPrimary}>Speichern</button>
-                          <button type="button" onClick={() => setEditingId(null)} style={btnSecondary}>Abbrechen</button>
+                          <button type="button" onClick={() => setEditingId(null)} style={{ ...btnSecondary, marginLeft: 8 }}>Abbrechen</button>
                         </>
                       ) : (
                         <>
-                          <button type="button" onClick={(e) => { e.stopPropagation(); setEditingId(term.id); setEditLabel(term.label_de); }} style={btnSecondary}>Bearbeiten</button>
-                          <button type="button" onClick={(e) => { e.stopPropagation(); deleteTerm(term.id); }} disabled={saving} className="btn-danger btn-danger--sm">Löschen</button>
+                          <button type="button" onClick={(e) => { e.stopPropagation(); deleteTerm(term.id); }} disabled={saving}
+                            style={{ background: "none", border: "none", cursor: "pointer", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 6, flexShrink: 0 }}>
+                            <span style={{ display: "inline-block", width: 20, height: 20, background: "var(--neutral-grey-600)", WebkitMaskImage: "url(/icons/icon-delete.svg)", maskImage: "url(/icons/icon-delete.svg)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }} />
+                          </button>
+                          <div style={{ width: 1, height: 18, background: "var(--neutral-grey-300)", flexShrink: 0 }} />
+                          <button type="button" onClick={(e) => { e.stopPropagation(); setEditingId(term.id); setEditLabel(term.label_de); }}
+                            style={{ background: "none", border: "none", cursor: "pointer", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 6, flexShrink: 0 }}>
+                            <span style={{ display: "inline-block", width: 20, height: 20, background: "var(--neutral-grey-600)", WebkitMaskImage: "url(/icons/icon-edit.svg)", maskImage: "url(/icons/icon-edit.svg)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }} />
+                          </button>
                         </>
                       )}
                     </div>
@@ -374,6 +383,7 @@ function TheaterTab({ initialTheaters }: { initialTheaters: Theater[] }) {
   const [theaters, setTheaters] = useState<Theater[]>(initialTheaters);
   const [mode, setMode] = useState<"list" | "create" | "edit">("list");
   const [editTarget, setEditTarget] = useState<Theater | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Theater | null>(null);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -415,9 +425,8 @@ function TheaterTab({ initialTheaters }: { initialTheaters: Theater[] }) {
 
   if (mode === "create" || mode === "edit") {
     return (
-      <div style={{ flex: 1, display: "flex" }}>
-        <div style={panelStyle}>
-          <div style={{ flex: 1, overflowY: "auto", padding: "40px 48px" }}>
+      <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "24px 48px 40px" }}>
             <button type="button" onClick={() => setMode("list")} style={{ ...btnSecondary, marginBottom: 24 }}>← Zurück</button>
             <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-black)", margin: "0 0 32px" }}>
               {mode === "create" ? "Neues Theater anlegen" : "Theater bearbeiten"}
@@ -443,14 +452,13 @@ function TheaterTab({ initialTheaters }: { initialTheaters: Theater[] }) {
             </div>
           </div>
         </div>
-      </div>
     );
   }
 
   return (
-    <div style={{ flex: 1, display: "flex" }}>
-      <div style={panelStyle}>
-        <div style={{ flex: 1, overflowY: "auto", padding: "40px 48px" }}>
+    <>
+    <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "24px 48px 40px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
             <div>
               <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-black)", margin: "0 0 4px" }}>Theater</h2>
@@ -462,7 +470,7 @@ function TheaterTab({ initialTheaters }: { initialTheaters: Theater[] }) {
           </div>
 
           {/* Table header */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 200px 140px", gap: 12, padding: "0 16px", marginBottom: 8 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 200px 48px", gap: 12, padding: "0 16px", marginBottom: 8 }}>
             {["Name", "Slug", ""].map((h) => (
               <span key={h} style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-100)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-grey-500)", letterSpacing: "0.06em", textTransform: "uppercase" }}>{h}</span>
             ))}
@@ -470,11 +478,19 @@ function TheaterTab({ initialTheaters }: { initialTheaters: Theater[] }) {
 
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {theaters.map((t) => (
-              <div key={t.id} style={{ display: "grid", gridTemplateColumns: "1fr 200px 140px", gap: 12, alignItems: "center", height: 60, padding: "0 16px", borderRadius: 12, background: "var(--secondary-500)", border: "1px solid var(--neutral-grey-200)" }}>
+              <div key={t.id} style={{ display: "grid", gridTemplateColumns: "1fr 200px 88px", gap: 12, alignItems: "center", height: 60, padding: "0 16px", borderRadius: 12, background: "var(--secondary-500)", border: "1px solid var(--neutral-grey-200)" }}>
                 <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: "var(--font-weight-500)", color: "var(--neutral-grey-700)" }}>{t.name}</span>
                 <span style={{ fontFamily: "monospace", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-500)" }}>{t.slug}</span>
-                <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                  <button type="button" onClick={() => openEdit(t)} style={{ ...btnSecondary, height: 34 }}>Bearbeiten</button>
+                <div style={{ display: "flex", gap: 0, justifyContent: "flex-end", alignItems: "center" }}>
+                  <button type="button" onClick={() => setDeleteTarget(t)}
+                    style={{ background: "none", border: "none", cursor: "pointer", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 6, flexShrink: 0 }}>
+                    <span style={{ display: "inline-block", width: 20, height: 20, background: "var(--neutral-grey-600)", WebkitMaskImage: "url(/icons/icon-delete.svg)", maskImage: "url(/icons/icon-delete.svg)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }} />
+                  </button>
+                  <div style={{ width: 1, height: 18, background: "var(--neutral-grey-300)", flexShrink: 0 }} />
+                  <button type="button" onClick={() => openEdit(t)}
+                    style={{ background: "none", border: "none", cursor: "pointer", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 6, flexShrink: 0 }}>
+                    <span style={{ display: "inline-block", width: 20, height: 20, background: "var(--neutral-grey-600)", WebkitMaskImage: "url(/icons/icon-edit.svg)", maskImage: "url(/icons/icon-edit.svg)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }} />
+                  </button>
                 </div>
               </div>
             ))}
@@ -485,8 +501,38 @@ function TheaterTab({ initialTheaters }: { initialTheaters: Theater[] }) {
             )}
           </div>
         </div>
-      </div>
     </div>
+
+      {deleteTarget && (
+        <>
+          <div onClick={() => setDeleteTarget(null)} style={{ position: "fixed", inset: 0, zIndex: 2000, background: "var(--overlay-medium)" }} />
+          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 2001, background: "var(--neutral-white)", borderRadius: "24px 24px 0 0", padding: "28px 20px 40px", display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: "var(--neutral-grey-200)", alignSelf: "center", marginBottom: 8 }} />
+            <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-325)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-grey-600)", marginBottom: 4 }}>
+              Theater löschen?
+            </p>
+            <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-400)", marginBottom: 8 }}>
+              «{deleteTarget.name}» wird unwiderruflich gelöscht — inkl. aller Mitglieder und Kostüme.
+            </p>
+            <button type="button"
+              onClick={async () => {
+                try { await deleteTheaterAction(deleteTarget.id); setTheaters((prev) => prev.filter((t) => t.id !== deleteTarget.id)); }
+                catch (e) { alert(e instanceof Error ? e.message : "Fehler"); }
+                setDeleteTarget(null);
+              }}
+              style={{ height: "var(--button-height-md)", borderRadius: "var(--radius-md)", background: "none", border: "1.5px solid var(--primary-900)", color: "var(--primary-900)", fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-250)", fontWeight: "var(--font-weight-500)", cursor: "pointer" }}
+            >
+              Endgültig löschen
+            </button>
+            <button type="button" onClick={() => setDeleteTarget(null)}
+              style={{ height: "var(--button-height-md)", borderRadius: "var(--radius-md)", background: "var(--secondary-900)", border: "none", color: "var(--neutral-white)", fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-250)", fontWeight: "var(--font-weight-500)", cursor: "pointer" }}
+            >
+              Abbrechen
+            </button>
+          </div>
+        </>
+      )}
+    </>
   );
 }
 
@@ -499,19 +545,26 @@ interface UserFormState {
   password: string;
   role: string;
   theaterId: string;
+  platformAdmin: boolean;
 }
 
-function UserForm({ initial, onSave, onCancel, isEdit, saving, allTheaters, showTheaterPicker }: {
+function UserForm({ initial, onSave, onCancel, onChange, isEdit, saving, allTheaters, showTheaterPicker, showPlatformAdminToggle }: {
   initial: UserFormState;
   onSave: (f: UserFormState) => void;
   onCancel: () => void;
+  onChange?: (f: UserFormState) => void;
   isEdit: boolean;
   saving: boolean;
   allTheaters: Theater[];
   showTheaterPicker: boolean;
+  showPlatformAdminToggle: boolean;
 }) {
   const [f, setF] = useState<UserFormState>(initial);
-  const set = (k: keyof UserFormState, v: string) => setF((prev) => ({ ...prev, [k]: v }));
+  const set = <K extends keyof UserFormState>(k: K, v: UserFormState[K]) => setF((prev) => {
+    const next = { ...prev, [k]: v };
+    onChange?.(next);
+    return next;
+  });
   const valid = f.firstName.trim() && f.email.trim() && (isEdit || f.password.trim()) && (!showTheaterPicker || f.theaterId);
 
   return (
@@ -547,10 +600,25 @@ function UserForm({ initial, onSave, onCancel, isEdit, saving, allTheaters, show
       )}
       <div>
         <label style={labelStyle}>Rolle *</label>
-        <select value={f.role} onChange={(e) => set("role", e.target.value)} style={{ ...inputStyle, width: 200 }}>
+        <select value={f.role} onChange={(e) => set("role", e.target.value)}
+          disabled={f.platformAdmin}
+          style={{ ...inputStyle, width: 200, opacity: f.platformAdmin ? 0.4 : 1 }}>
           {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
         </select>
       </div>
+      {showPlatformAdminToggle && (
+        <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", userSelect: "none" }}>
+          <input
+            type="checkbox"
+            checked={f.platformAdmin}
+            onChange={(e) => set("platformAdmin", e.target.checked)}
+            style={{ width: 18, height: 18, accentColor: "var(--primary-900)", cursor: "pointer" }}
+          />
+          <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-700)" }}>
+            Platform Admin
+          </span>
+        </label>
+      )}
       <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
         <button type="button" onClick={() => onSave(f)} disabled={saving || !valid}
           style={{ ...btnPrimary, opacity: valid ? 1 : 0.4 }}>
@@ -569,23 +637,30 @@ function UsersTab({
   isPlatformAdmin,
   allTheaters,
   defaultTheaterId,
+  mode,
+  setMode,
+  editTarget,
+  setEditTarget,
+  formDraft,
+  setFormDraft,
+  emptyForm,
 }: {
   initialMembers: Member[];
   isPlatformAdmin: boolean;
   allTheaters: Theater[];
   defaultTheaterId: string;
+  mode: "list" | "create" | "edit";
+  setMode: (m: "list" | "create" | "edit") => void;
+  editTarget: Member | null;
+  setEditTarget: (t: Member | null) => void;
+  formDraft: UserFormState;
+  setFormDraft: (f: UserFormState) => void;
+  emptyForm: UserFormState;
 }) {
   const [members, setMembers] = useState<Member[]>(initialMembers);
-  const [mode, setMode] = useState<"list" | "create" | "edit">("list");
-  const [editTarget, setEditTarget] = useState<Member | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Member | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-
-  const emptyForm: UserFormState = {
-    firstName: "", lastName: "", email: "", password: "", role: "viewer",
-    theaterId: defaultTheaterId,
-  };
 
   const roleLabel = (r: string) => ROLES.find((x) => x.value === r)?.label ?? r;
 
@@ -598,6 +673,7 @@ function UsersTab({
           firstName: f.firstName, lastName: f.lastName,
           role: f.role,
           theaterId: isPlatformAdmin ? f.theaterId : undefined,
+          platformAdmin: f.platformAdmin,
         });
         const theaterName = allTheaters.find((t) => t.id === f.theaterId)?.name ?? "";
         setMembers((prev) => [...prev, {
@@ -605,7 +681,9 @@ function UsersTab({
           email: f.email, firstName: f.firstName, lastName: f.lastName,
           role: f.role, isSelf: false,
           theaterName, theaterId: f.theaterId,
+          isPlatformAdmin: f.platformAdmin,
         }]);
+        setFormDraft(emptyForm);
         setMode("list");
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Fehler");
@@ -626,13 +704,14 @@ function UsersTab({
           lastName: f.lastName,
           role: f.role,
           theaterId: editTarget.theaterId,
+          platformAdmin: f.platformAdmin,
         });
         setMembers((prev) => prev.map((m) =>
           m.userId === editTarget.userId
-            ? { ...m, email: f.email, firstName: f.firstName, lastName: f.lastName, role: f.role }
+            ? { ...m, email: f.email, firstName: f.firstName, lastName: f.lastName, role: f.role, isPlatformAdmin: f.platformAdmin }
             : m
         ));
-        setMode("list"); setEditTarget(null);
+        setMode("list"); setEditTarget(null); setFormDraft(emptyForm);
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Fehler");
       }
@@ -654,9 +733,8 @@ function UsersTab({
   if (mode === "create" || mode === "edit") {
     const target = editTarget;
     return (
-      <div style={{ flex: 1, display: "flex" }}>
-        <div style={panelStyle}>
-          <div style={{ flex: 1, overflowY: "auto", padding: "40px 48px" }}>
+      <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "24px 48px 40px" }}>
             <button type="button" onClick={() => { setMode("list"); setEditTarget(null); setError(null); }}
               style={{ ...btnSecondary, marginBottom: 24 }}>← Zurück</button>
             <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-black)", margin: "0 0 32px" }}>
@@ -665,34 +743,34 @@ function UsersTab({
             {error && <ErrorBox message={error} />}
             <UserForm
               initial={target
-                ? { firstName: target.firstName, lastName: target.lastName, email: target.email, password: "", role: target.role, theaterId: target.theaterId }
-                : emptyForm}
+                ? { firstName: target.firstName, lastName: target.lastName, email: target.email, password: "", role: target.role, theaterId: target.theaterId, platformAdmin: target.isPlatformAdmin }
+                : formDraft}
+              onChange={mode === "create" ? setFormDraft : undefined}
               onSave={mode === "create" ? handleCreate : handleEdit}
-              onCancel={() => { setMode("list"); setEditTarget(null); setError(null); }}
+              onCancel={() => { setMode("list"); setEditTarget(null); setFormDraft(emptyForm); setError(null); }}
               isEdit={mode === "edit"}
               saving={isPending}
               allTheaters={allTheaters}
               showTheaterPicker={isPlatformAdmin}
+              showPlatformAdminToggle={isPlatformAdmin}
             />
           </div>
         </div>
-      </div>
     );
   }
 
   const showTheaterCol = isPlatformAdmin;
   const gridCols = showTheaterCol
-    ? "1fr 1fr 1fr 120px 160px"
-    : "1fr 1fr 120px 160px";
+    ? "1fr 1fr 1fr 120px 88px"
+    : "1fr 1fr 120px 88px";
   const headers = showTheaterCol
     ? ["Name", "E-Mail", "Theater", "Rolle", ""]
     : ["Name", "E-Mail", "Rolle", ""];
 
   return (
-    <div style={{ flex: 1, display: "flex" }}>
-      <div style={panelStyle}>
-        <div style={{ flex: 1, overflowY: "auto", padding: "40px 48px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
+    <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "24px 48px 40px" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 32 }}>
             <div>
               <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-600)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-black)", margin: "0 0 4px" }}>
                 Benutzerverwaltung
@@ -725,14 +803,25 @@ function UsersTab({
                 {showTheaterCol && (
                   <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-600)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.theaterName}</span>
                 )}
-                <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-100)", fontWeight: "var(--font-weight-700)", color: "var(--secondary-800)", background: "var(--secondary-600)", borderRadius: 99, padding: "3px 10px", textAlign: "center", width: "fit-content" }}>
-                  {roleLabel(m.role)}
+                <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-100)", fontWeight: "var(--font-weight-700)", borderRadius: 99, padding: "3px 10px", textAlign: "center", width: "fit-content",
+                  color: m.isPlatformAdmin ? "var(--primary-900)" : "var(--secondary-800)",
+                  background: m.isPlatformAdmin ? "rgba(181,155,58,0.12)" : "var(--secondary-600)" }}>
+                  {m.isPlatformAdmin ? "Platform Admin" : roleLabel(m.role)}
                 </span>
-                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                  <button type="button" onClick={() => { setEditTarget(m); setMode("edit"); setError(null); }} style={{ ...btnSecondary, height: 34 }}>Bearbeiten</button>
+                <div style={{ display: "flex", gap: 0, justifyContent: "flex-end", alignItems: "center" }}>
                   {!m.isSelf && (
-                    <button type="button" onClick={() => setDeleteTarget(m)} disabled={isPending} className="btn-danger btn-danger--sm">Löschen</button>
+                    <>
+                      <button type="button" onClick={() => setDeleteTarget(m)} disabled={isPending}
+                        style={{ background: "none", border: "none", cursor: "pointer", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 6, flexShrink: 0 }}>
+                        <span style={{ display: "inline-block", width: 20, height: 20, background: "var(--neutral-grey-600)", WebkitMaskImage: "url(/icons/icon-delete.svg)", maskImage: "url(/icons/icon-delete.svg)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }} />
+                      </button>
+                      <div style={{ width: 1, height: 18, background: "var(--neutral-grey-300)", flexShrink: 0 }} />
+                    </>
                   )}
+                  <button type="button" onClick={() => { setEditTarget(m); setMode("edit"); setError(null); }}
+                    style={{ background: "none", border: "none", cursor: "pointer", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 6, flexShrink: 0 }}>
+                    <span style={{ display: "inline-block", width: 20, height: 20, background: "var(--neutral-grey-600)", WebkitMaskImage: "url(/icons/icon-edit.svg)", maskImage: "url(/icons/icon-edit.svg)", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }} />
+                  </button>
                 </div>
               </div>
             ))}
@@ -743,7 +832,6 @@ function UsersTab({
             )}
           </div>
         </div>
-      </div>
 
       {deleteTarget && (
         <>
@@ -805,76 +893,100 @@ export function KonfigurationClient({
   allMembers,
 }: Props) {
   type TabKey = "theater" | "merkmale" | "benutzer";
-  const [activeTab, setActiveTab] = useState<TabKey>(isPlatformAdmin ? "theater" : "merkmale");
+  const [activeTab, setActiveTab] = useState<TabKey>(isPlatformAdmin ? "theater" : "benutzer");
+
+  const defaultTheaterId = isPlatformAdmin ? (allTheaters[0]?.id ?? "") : theaterId;
+  const emptyUserForm: UserFormState = { firstName: "", lastName: "", email: "", password: "", role: "viewer", theaterId: defaultTheaterId, platformAdmin: false };
+  const [userMode, setUserMode] = useState<"list" | "create" | "edit">("list");
+  const [userEditTarget, setUserEditTarget] = useState<Member | null>(null);
+  const [userFormDraft, setUserFormDraft] = useState<UserFormState>(emptyUserForm);
 
   const tabs = isPlatformAdmin
     ? [
         { key: "theater"  as TabKey, label: "Theater"         },
-        { key: "merkmale" as TabKey, label: "Kostüm-Merkmale" },
         { key: "benutzer" as TabKey, label: "Benutzer"        },
+        { key: "merkmale" as TabKey, label: "Kostüm-Merkmale" },
       ]
     : [
-        { key: "merkmale" as TabKey, label: "Kostüm-Merkmale" },
         { key: "benutzer" as TabKey, label: "Benutzer"        },
+        { key: "merkmale" as TabKey, label: "Kostüm-Merkmale" },
       ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
 
-      {/* Title + Tabs */}
-      <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 24, padding: "24px 40px 0" }}>
-        <h1 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-500)", fontWeight: "var(--font-weight-700)", color: "var(--neutral-grey-700)", margin: 0 }}>
-          Konfiguration
-        </h1>
+      {/* Badge */}
+      <div style={{ flexShrink: 0, display: "flex", justifyContent: "flex-end", padding: "16px 40px 0" }}>
         <span style={{
           fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)",
-          color: isPlatformAdmin ? "var(--primary-900)" : "var(--neutral-grey-500)",
-          background: isPlatformAdmin ? "rgba(181,155,58,0.12)" : "var(--neutral-grey-200)",
-          borderRadius: 99, padding: "2px 10px",
-          fontWeight: isPlatformAdmin ? "var(--font-weight-700)" : "var(--font-weight-500)",
+          color: "var(--primary-900)", background: "rgba(181,155,58,0.12)",
+          borderRadius: 99, padding: "2px 10px", fontWeight: "var(--font-weight-700)",
         }}>
           {isPlatformAdmin ? "Platform Admin" : "Admin"}
         </span>
-        <div style={{ display: "flex", gap: 4, marginLeft: 16 }}>
-          {tabs.map((t) => (
-            <button key={t.key} type="button" onClick={() => setActiveTab(t.key)}
-              style={{
-                height: 40, padding: "0 20px", borderRadius: 10, border: "none",
-                background: activeTab === t.key ? "var(--page-bg)" : "transparent",
-                fontFamily: "var(--font-family-base)",
-                fontSize: "var(--font-size-200)",
-                fontWeight: activeTab === t.key ? "var(--font-weight-700)" : "var(--font-weight-500)",
-                color: activeTab === t.key ? "var(--neutral-grey-700)" : "var(--neutral-grey-500)",
-                cursor: "pointer",
-                boxShadow: activeTab === t.key ? "var(--shadow-100)" : "none",
-              }}>
-              {t.label}
-            </button>
-          ))}
-        </div>
       </div>
 
-      {/* Body */}
-      <div style={{ flex: 1, display: "flex", overflow: "hidden", padding: "0 24px 24px" }}>
-        {activeTab === "theater" && isPlatformAdmin && (
-          <TheaterTab initialTheaters={allTheaters} />
-        )}
-        {activeTab === "merkmale" && (
-          <TaxonomyTab
-            theaterId={theaterId}
-            initialTerms={terms}
-            isPlatformAdmin={isPlatformAdmin}
-            allTheaters={allTheaters}
-          />
-        )}
-        {activeTab === "benutzer" && (
-          <UsersTab
-            initialMembers={isPlatformAdmin ? allMembers : members}
-            isPlatformAdmin={isPlatformAdmin}
-            allTheaters={allTheaters}
-            defaultTheaterId={isPlatformAdmin ? (allTheaters[0]?.id ?? "") : theaterId}
-          />
-        )}
+      {/* Body — one white panel */}
+      <div style={{ flex: 1, display: "flex", overflow: "hidden", padding: "12px 24px 24px" }}>
+        <div style={panelStyle}>
+
+          {/* ── Underline tabs ── */}
+          <div style={{ flexShrink: 0, display: "flex", borderBottom: "1px solid var(--neutral-grey-200)", padding: "0 40px" }}>
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setActiveTab(tab.key)}
+                  style={{
+                    height: 52, padding: "0 20px",
+                    border: "none", borderBottom: isActive ? "2px solid var(--neutral-black)" : "2px solid transparent",
+                    background: "none", cursor: "pointer", marginBottom: -1,
+                    fontFamily: "var(--font-family-base)",
+                    fontSize: "var(--font-size-200)",
+                    fontWeight: isActive ? "var(--font-weight-700)" : "var(--font-weight-400)",
+                    color: isActive ? "var(--neutral-black)" : "var(--neutral-grey-500)",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* ── Tab content ── */}
+          <div style={{ flex: 1, overflow: "hidden", display: "flex" }}>
+            {activeTab === "theater" && isPlatformAdmin && (
+              <TheaterTab initialTheaters={allTheaters} />
+            )}
+            {activeTab === "merkmale" && (
+              <TaxonomyTab
+                theaterId={theaterId}
+                initialTerms={terms}
+                isPlatformAdmin={isPlatformAdmin}
+                allTheaters={allTheaters}
+              />
+            )}
+            {activeTab === "benutzer" && (
+              <UsersTab
+                initialMembers={isPlatformAdmin ? allMembers : members}
+                isPlatformAdmin={isPlatformAdmin}
+                allTheaters={allTheaters}
+                defaultTheaterId={defaultTheaterId}
+                mode={userMode}
+                setMode={setUserMode}
+                editTarget={userEditTarget}
+                setEditTarget={setUserEditTarget}
+                formDraft={userFormDraft}
+                setFormDraft={setUserFormDraft}
+                emptyForm={emptyUserForm}
+              />
+            )}
+          </div>
+
+        </div>
       </div>
     </div>
   );
