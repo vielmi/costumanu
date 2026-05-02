@@ -59,7 +59,7 @@ export function CockpitSidebar() {
               whiteSpace: "nowrap",
             }}
           >
-            kostüm+
+            palco+
           </Link>
         )}
         <button

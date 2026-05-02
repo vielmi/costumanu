@@ -19,8 +19,8 @@ export default async function KonfigurationPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // Check platform admin
-  const { data: profile } = await supabase
+  // Check platform admin — use admin client to bypass RLS
+  const { data: profile } = await admin
     .from("profiles")
     .select("platform_role")
     .eq("id", user.id)
@@ -45,7 +45,7 @@ export default async function KonfigurationPage() {
     ] = await Promise.all([
       admin.from("theaters").select("id, name, slug").order("name"),
       admin.from("theater_members").select("user_id, theater_id, role"),
-      admin.from("profiles").select("id, display_name"),
+      admin.from("profiles").select("id, display_name, platform_role"),
       admin.auth.admin.listUsers(),
     ]);
 
@@ -54,7 +54,7 @@ export default async function KonfigurationPage() {
     const allMemberList = (allMembers ?? []).map((m) => {
       const p = allProfiles?.find((x) => x.id === m.user_id);
       const au = authUsers?.find((x) => x.id === m.user_id);
-      const displayName = p?.display_name ?? "";
+      const displayName = p?.display_name || au?.user_metadata?.full_name || au?.user_metadata?.name || "";
       const parts = displayName.split(" ");
       return {
         userId: m.user_id,
@@ -65,6 +65,7 @@ export default async function KonfigurationPage() {
         isSelf: m.user_id === user.id,
         theaterName: theaterMap.get(m.theater_id) ?? "",
         theaterId: m.theater_id,
+        isPlatformAdmin: p?.platform_role === "platform_admin",
       };
     });
 
@@ -103,7 +104,7 @@ export default async function KonfigurationPage() {
 
   const { data: profiles } = await supabase
     .from("profiles")
-    .select("id, display_name")
+    .select("id, display_name, platform_role")
     .in("id", (members ?? []).map((m) => m.user_id));
 
   const { data: { users: authUsers } } = await admin.auth.admin.listUsers();
@@ -112,7 +113,7 @@ export default async function KonfigurationPage() {
   const memberList = (members ?? []).map((m) => {
     const p = profiles?.find((x) => x.id === m.user_id);
     const au = authUsers?.find((x) => x.id === m.user_id);
-    const displayName = p?.display_name ?? "";
+    const displayName = p?.display_name || au?.user_metadata?.full_name || au?.user_metadata?.name || "";
     const parts = displayName.split(" ");
     return {
       userId: m.user_id,
@@ -123,6 +124,7 @@ export default async function KonfigurationPage() {
       isSelf: m.user_id === user.id,
       theaterName: "",
       theaterId,
+      isPlatformAdmin: p?.platform_role === "platform_admin",
     };
   }).filter((m) => theaterUserIds.has(m.userId));
 

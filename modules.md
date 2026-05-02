@@ -1,4 +1,4 @@
-# modules.md — kostüm+ Modul-Dokumentation
+﻿# modules.md — palco+ Modul-Dokumentation
 > Dieses Dokument beschreibt die einzelnen App-Module als Kompositionen der Design-System-Komponenten.
 > Basis: `design-system.md` — alle Tokens, Farben, Icons und Basis-Komponenten sind dort dokumentiert.
 > Projekt: **costumanu** — `C:\Users\vielm\Repos\costumanu`
@@ -772,7 +772,7 @@ Gleiche Optik wie Level 1, mit "Zurück"-Link oben (14px, `neutral-grey-300`, un
 | Hintergrund | `#000000` |
 | Border-radius | `30px 30px 0 0` |
 | Padding | 24px 33px |
-| Logo | `kostüm+` Wordmark, `primary-900` (#B59B3A) |
+| Logo | `palco+` Wordmark, `primary-900` (#B59B3A) |
 | Links | H4-regular, 26px, `#FFFFFF`, mit `icon-arrow-right` |
 | Copyright | Subtitle-1-regular, 16px, `rgba(255,255,255,0.5)` |
 
@@ -997,7 +997,7 @@ Slide-Up Panel, `border-radius: 20px 20px 0 0`, `box-shadow: 0px -2px 20px rgba(
 
 ---
 
-*Stand: Mobile-Screens vollständig dokumentiert — kostüm+ / costumanu*
+*Stand: Mobile-Screens vollständig dokumentiert — palco+ / costumanu*
 
 ---
 
@@ -2322,4 +2322,5 @@ Identisch mit Modul 20:
 
 ---
 
-*Stand: Alle Module dokumentiert (Suchmodus vollständig) — kostüm+ / costumanu*
+*Stand: Alle Module dokumentiert (Suchmodus vollständig) — palco+ / costumanu*
+

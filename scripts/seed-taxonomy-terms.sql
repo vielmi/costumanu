@@ -93,7 +93,6 @@ VALUES
   ('washing_type', 'Handwäsche',       1, NULL),
   ('washing_type', 'Maschinenwäsche',  2, NULL),
   ('washing_type', 'Chemische Reinigung', 3, NULL),
-  ('washing_type', 'Nicht waschen',    4, NULL),
 
   -- ── Trocknen ────────────────────────────────────────────────────────────────
   ('drying', 'Liegend trocknen',   1, NULL),

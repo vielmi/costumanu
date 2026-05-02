@@ -1,9 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import { AppLogo } from "@/components/layout/app-logo";
+import { SuchmodusHeader } from "@/components/suchmodus/suchmodus-header";
 import { SuchmodusFooter } from "@/components/suchmodus/suchmodus-footer";
 import { StandortSheet } from "@/components/suchmodus/standort-sheet";
-import { MobileMenuDrawer } from "@/components/suchmodus/mobile-menu-drawer";
 import { getGenderIcon } from "@/lib/constants/icons";
 import styles from "./suchmodus-cockpit.module.css";
 
@@ -21,38 +20,36 @@ export type GenderTerm = {
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
-// Gender cards are built dynamically from DB terms — see genderTerms prop
+// Image hints for cockpit tiles — display label → image path
+const CLOTHING_IMAGE: Record<string, string> = {
+  "Kleider": "/images/suchmodus-20er.jpg",
+  "Anzüge":  "/images/suchmodus-anzuege.jpg",
+  "Hosen":   "/images/suchmodus-80er.jpg",
+};
 
-const BEKLEIDUNGSART_TILES = [
-  { label: "Kleider",            image: "/images/suchmodus-20er.jpg",      href: "/results?type=kleider"  },
-  { label: "Anzüge",             image: "/images/suchmodus-anzuege.jpg",   href: "/results?type=anzuege"  },
-  { label: "Jumpsuit / Overall", image: "/images/suchmodus-jumpsuit.jpg",  href: "/results?type=jumpsuit" },
-];
+const EPOCH_IMAGE: Record<string, string> = {
+  "Barock":      "/images/suchmodus-barock.jpg",
+  "20-er Jahre": "/images/suchmodus-20er.jpg",
+  "80-er Jahre": "/images/suchmodus-80er.jpg",
+};
 
-const EPOCHE_TILES = [
-  { label: "Barock",      image: "/images/suchmodus-barock.jpg",   href: "/results?epoch=barock" },
-  { label: "20-er Jahre", image: "/images/suchmodus-20er.jpg",     href: "/results?epoch=1920"   },
-  { label: "80-er Jahre", image: "/images/suchmodus-80er.jpg",     href: "/results?epoch=1980"   },
-];
+const SPARTE_IMAGE: Record<string, string> = {
+  "Tanz":       "/images/suchmodus-tanz.jpg",
+  "Schauspiel": "/images/suchmodus-schauspiel.jpg",
+  "Oper":       "/images/suchmodus-oper.jpg",
+};
 
-const SPARTE_TILES = [
-  { label: "Tanz",       image: "/images/suchmodus-tanz.jpg",       href: "/results?sparte=tanz"       },
-  { label: "Schauspiel", image: "/images/suchmodus-feuerwehr.jpg",  href: "/results?sparte=schauspiel" },
-  { label: "Oper",       image: "/images/suchmodus-oper.jpg",       href: "/results?sparte=oper"       },
-];
+// Display label → DB label_de (DB may use singular/short forms)
+const CLOTHING_DB_LABEL: Record<string, string> = {
+  "Kleider": "Kleid",
+  "Anzüge":  "Anzug",
+  "Hosen":   "Hose",
+};
 
-const BEKLEIDUNGSART2_TILES = [
-  { label: "Polizei",   image: "/images/suchmodus-polizei.jpg",    href: "/results?type=polizei"   },
-  { label: "Reinigung", image: "/images/suchmodus-reinigung.jpg",  href: "/results?type=reinigung" },
-  { label: "Feuerwehr", image: "/images/suchmodus-schauspiel.jpg", href: "/results?type=feuerwehr" },
-];
+const FEATURED_CLOTHING = ["Kleider", "Anzüge", "Hosen"];
+const FEATURED_EPOCHS   = ["Barock", "20-er Jahre", "80-er Jahre"];
+const FEATURED_SPARTE   = ["Tanz", "Schauspiel", "Oper"];
 
-const HEADER_ICONS = [
-  { icon: "icon-user",         href: "/profile",  label: "Profil"      },
-  { icon: "icon-chat",         href: "/messages", label: "Nachrichten" },
-  { icon: "icon-heart",        href: "/wishlist", label: "Merkliste"   },
-  { icon: "icon-shopping-bag", href: "/rental",   label: "Ausleihe"    },
-] as const;
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -87,7 +84,7 @@ function CategoryTile({ label, image, href }: { label: string; image?: string; h
 function GenderCard({ label, icon, href }: { label: string; icon: string; href: string }) {
   return (
     <Link href={href} className={styles.genderCard}>
-      <Image src={`/icons/${icon}.svg`} alt={label} width={44} height={44} />
+      <Image src={`/icons/${icon}.svg`} alt={label} width={44} height={44} className={styles.genderCardIcon} />
       <span className={styles.genderCardLabel}>{label}</span>
     </Link>
   );
@@ -111,26 +108,47 @@ export function SuchmodusCockpit({
   networkTheaters = [],
   theaters = [],
   genderTerms = [],
+  clothingTypeTerms = [],
+  epocheTerms = [],
+  sparteTerms = [],
 }: {
   networkTheaters?: NetworkTheater[];
   theaters?: NetworkTheater[];
   genderTerms?: GenderTerm[];
+  clothingTypeTerms?: GenderTerm[];
+  epocheTerms?: GenderTerm[];
+  sparteTerms?: GenderTerm[];
 }) {
+  const clothingTiles = FEATURED_CLOTHING
+    .map((label) => {
+      const dbLabel = CLOTHING_DB_LABEL[label] ?? label;
+      const term = clothingTypeTerms.find((t) => t.label_de === dbLabel);
+      if (!term) return null;
+      return { label, image: CLOTHING_IMAGE[label], href: `/suchmodus/results?clothing_type=${term.id}` };
+    })
+    .filter(Boolean) as { label: string; image: string; href: string }[];
+
+  const epochTiles = FEATURED_EPOCHS
+    .map((label) => {
+      const term = epocheTerms.find((t) => t.label_de === label);
+      if (!term) return null;
+      return { label, image: EPOCH_IMAGE[label], href: `/suchmodus/results?epoche=${term.id}` };
+    })
+    .filter(Boolean) as { label: string; image: string; href: string }[];
+
+  const sparteTiles = FEATURED_SPARTE
+    .map((label) => {
+      const term = sparteTerms.find((t) => t.label_de === label);
+      if (!term) return null;
+      return { label, image: SPARTE_IMAGE[label], href: `/suchmodus/results?sparte=${term.id}` };
+    })
+    .filter(Boolean) as { label: string; image: string; href: string }[];
+
   return (
     <div className={styles.page}>
 
       {/* ═══ Header ═══ */}
-      <header className={styles.header}>
-        <MobileMenuDrawer genderTerms={genderTerms} />
-        <AppLogo />
-        <div className={styles.headerIcons}>
-          {HEADER_ICONS.map(({ icon, href, label }) => (
-            <Link key={href} href={href} className={styles.headerIcon}>
-              <Image src={`/icons/${icon}.svg`} alt={label} width={24} height={24} />
-            </Link>
-          ))}
-        </div>
-      </header>
+      <SuchmodusHeader genderTerms={genderTerms} />
 
       {/* ═══ Hero ═══ */}
       <div className={styles.hero}>
@@ -152,7 +170,7 @@ export function SuchmodusCockpit({
           </Link>
           <StandortSheet theaters={theaters} />
           <Link href="/suchmodus/search" className={styles.heroFilterCircle}>
-            <Image src="/icons/icon-search.svg" alt="Suche" width={24} height={24} />
+            <Image src="/icons/icon-search.svg" alt="Suche" width={24} height={24} className={styles.heroCircleIcon} />
           </Link>
         </div>
 
@@ -184,12 +202,14 @@ export function SuchmodusCockpit({
       </div>
 
       {/* ═══ Bekleidungsart ═══ */}
-      <div className={styles.sectionPadded} style={{ background: "var(--accent-01)" }}>
-        <SectionTitle>Bekleidungsart</SectionTitle>
-        <TileRow>
-          {BEKLEIDUNGSART_TILES.map((t) => <CategoryTile key={t.label} {...t} />)}
-        </TileRow>
-      </div>
+      {clothingTiles.length > 0 && (
+        <div className={styles.sectionPadded} style={{ background: "var(--accent-01)" }}>
+          <SectionTitle>Bekleidungsart</SectionTitle>
+          <TileRow>
+            {clothingTiles.map((t) => <CategoryTile key={t.label} {...t} />)}
+          </TileRow>
+        </div>
+      )}
 
       {/* ═══ CTA Event Card ═══ */}
       <div className={styles.sectionPadded}>
@@ -232,28 +252,24 @@ export function SuchmodusCockpit({
       </div>
 
       {/* ═══ Epoche ═══ */}
-      <div className={styles.sectionPaddedBottom}>
-        <SectionTitle>Epoche</SectionTitle>
-        <TileRow>
-          {EPOCHE_TILES.map((t) => <CategoryTile key={t.label} {...t} />)}
-        </TileRow>
-      </div>
+      {epochTiles.length > 0 && (
+        <div className={styles.sectionPaddedBottom}>
+          <SectionTitle>Epoche</SectionTitle>
+          <TileRow>
+            {epochTiles.map((t) => <CategoryTile key={t.label} {...t} />)}
+          </TileRow>
+        </div>
+      )}
 
       {/* ═══ Sparte ═══ */}
-      <div className={styles.sectionPaddedBottom}>
-        <SectionTitle>Sparte</SectionTitle>
-        <TileRow>
-          {SPARTE_TILES.map((t) => <CategoryTile key={t.label} {...t} />)}
-        </TileRow>
-      </div>
-
-      {/* ═══ Arbeitsuniformen ═══ */}
-      <div className={styles.sectionPaddedBottom}>
-        <SectionTitle>Arbeitsuniformen</SectionTitle>
-        <TileRow>
-          {BEKLEIDUNGSART2_TILES.map((t) => <CategoryTile key={t.label} {...t} />)}
-        </TileRow>
-      </div>
+      {sparteTiles.length > 0 && (
+        <div className={styles.sectionPaddedBottom}>
+          <SectionTitle>Sparte</SectionTitle>
+          <TileRow>
+            {sparteTiles.map((t) => <CategoryTile key={t.label} {...t} />)}
+          </TileRow>
+        </div>
+      )}
 
       {/* ═══ Kostüm Netzwerk ═══ */}
       <div className={styles.sectionPadded}>

@@ -18,6 +18,7 @@ export default async function SuchmodusFilterPage() {
       genderTerms={byVocab("gender")}
       clothingTypes={byVocab("clothing_type")}
       segmentTerms={byVocab("segment")}
+      epocheTerms={byVocab("epoche")}
       materialTerms={byVocab("material")}
       farbeTerms={byVocab("farbe")}
       musterTerms={byVocab("muster")}

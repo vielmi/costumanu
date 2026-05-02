@@ -40,7 +40,6 @@ export function FundusClient({
   initialCostumes,
   theaterId,
   theaterIds,
-  showAddButton: _showAddButton = true,
   clothingOptions = [],
 }: FundusClientProps) {
   const supabase = createClient();

@@ -96,6 +96,16 @@ export async function updateTheaterAction(formData: {
   revalidatePath("/einstellungen/konfiguration");
 }
 
+export async function deleteTheaterAction(theaterId: string) {
+  const { isPlatformAdmin } = await assertAdmin();
+  if (!isPlatformAdmin) throw new Error("Keine Berechtigung");
+  const admin = getAdminClient();
+
+  const { error } = await admin.from("theaters").delete().eq("id", theaterId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/einstellungen/konfiguration");
+}
+
 // ─── User actions ─────────────────────────────────────────────────────────────
 
 export async function createUserAction(formData: {
@@ -104,7 +114,8 @@ export async function createUserAction(formData: {
   firstName: string;
   lastName: string;
   role: string;
-  theaterId?: string; // platform admin can specify target theater
+  theaterId?: string;
+  platformAdmin?: boolean;
 }) {
   const { theaterId: adminTheaterId, isPlatformAdmin } = await assertAdmin();
   const admin = getAdminClient();
@@ -126,6 +137,7 @@ export async function createUserAction(formData: {
   const { error: profileErr } = await admin.from("profiles").upsert({
     id: uid,
     display_name: `${formData.firstName} ${formData.lastName}`.trim(),
+    platform_role: formData.platformAdmin ? "platform_admin" : null,
   });
   if (profileErr) throw new Error("Profil konnte nicht erstellt werden: " + profileErr.message);
 
@@ -146,7 +158,8 @@ export async function updateUserAction(formData: {
   firstName: string;
   lastName: string;
   role: string;
-  theaterId: string; // which theater's membership to update
+  theaterId: string;
+  platformAdmin?: boolean;
 }) {
   await assertAdmin();
   const admin = getAdminClient();
@@ -161,6 +174,7 @@ export async function updateUserAction(formData: {
   await admin.from("profiles").upsert({
     id: formData.userId,
     display_name: `${formData.firstName} ${formData.lastName}`.trim(),
+    platform_role: formData.platformAdmin ? "platform_admin" : null,
     updated_at: new Date().toISOString(),
   });
 

@@ -1,4 +1,4 @@
-# kostüm+ — Architektur-Risiken & Mitigationen
+﻿# palco+ — Architektur-Risiken & Mitigationen
 
 | Priorität | Kategorie | Risiko | Mitigation | Verantwortlich | Zeitraum | Wiederholung | Hinweis | Status |
 |---|---|---|---|---|---|---|---|---|
@@ -34,3 +34,4 @@
 | Vollständiger DB-Dump (Exit-Strategie) | Supabase Dashboard → Backups oder `pg_dump` | Monatlich | Als Absicherung gegen Konto-Sperre oder Provider-Wechsel |
 | RLS-Policy-Tests | `pg_tap` (noch aufzusetzen) | Bei jeder neuen Migration | Sicherstellen dass Cross-Tenant-Zugriff ausgeschlossen ist |
 | Audit-Log Review | Supabase SQL Editor → `SELECT * FROM platform_audit_log ORDER BY created_at DESC` | Monatlich (oder bei Verdacht) | Platform-Admin-Aktionen prüfen |
+

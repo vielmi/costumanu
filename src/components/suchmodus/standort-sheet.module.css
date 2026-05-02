@@ -14,6 +14,9 @@
 }
 .triggerBtn:hover { background: var(--secondary-500); }
 .triggerBtn:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 2px; }
+.triggerBtn img {
+  filter: var(--filter-primary-900);
+}
 
 /* ─── Backdrop ───────────────────────────────────────────────────────────── */
 .backdrop {

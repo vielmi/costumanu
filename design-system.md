@@ -1,4 +1,4 @@
-# design-system.md — HCID Fundus Design System Rules
+﻿# design-system.md — HCID Fundus Design System Rules
 > Auto-generated from Figma file: **HCID-Fundus-Layout-01**
 > Use this file to guide all Figma-to-code integration via MCP.
 
@@ -376,16 +376,16 @@ src/assets/logos/
 
 ---
 
-### kostüm+ Wordmark
+### palco+ Wordmark
 
 | Filename       | Size     | Description                        |
 |----------------|----------|------------------------------------|
-| `Union.svg`    | 443×86px | **kostüm+** wordmark, dark (`#1D1D1B`), no partner |
+| `Union.svg`    | 443×86px | **palco+** wordmark, dark (`#1D1D1B`), no partner |
 
 ---
 
-### kostüm+ Brand Lockups (with partner)
-Full horizontal lockup: partner icon left + "kostüm+" text right.
+### palco+ Brand Lockups (with partner)
+Full horizontal lockup: partner icon left + "palco+" text right.
 
 | Filename       | Partner          | Size     | Partner colour |
 |----------------|------------------|----------|----------------|
@@ -1065,7 +1065,7 @@ Sondervariante Masse (Brustumfang, Hüftumfang etc.):
 | Border | `1px solid neutral-grey-600` (#242727) |
 | Font | Inter Medium, 18px, line-height 150% |
 | Token | `font-size-350` weight 500 |
-| Icon | `icon-arrow-down` (rechts) |
+| Pfeil-Icon | `icon-dropdown.svg` — **immer** via `.dropdown-arrow` (nie als `<Image>`) |
 
 ```css
 .dropdown {
@@ -1078,6 +1078,35 @@ Sondervariante Masse (Brustumfang, Hüftumfang etc.):
   line-height: 1.5;
 }
 ```
+
+#### Dropdown-Pfeil — Standard `.dropdown-arrow`
+
+Alle Dropdown-Trigger verwenden `<span className="dropdown-arrow" />` statt `<Image src="/icons/icon-dropdown.svg">`.  
+Die Klasse ist in `globals.css` definiert und erbt via `currentColor` automatisch die Text- und Randfarbe des Elternelements.
+
+```css
+/* globals.css */
+.dropdown-arrow {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  background-color: currentColor;
+  -webkit-mask: url('/icons/icon-dropdown.svg') no-repeat center / contain;
+  mask: url('/icons/icon-dropdown.svg') no-repeat center / contain;
+}
+```
+
+**Verwendung:**
+```tsx
+<button className={styles.statusTrigger}>
+  <span className={styles.statusDot} style={{ background: color }} />
+  Verfügbar
+  <span className="dropdown-arrow" />   {/* ← immer so */}
+</button>
+```
+
+> ⚠️ Nie `<Image src="/icons/icon-dropdown.svg" width={...} height={...} />` verwenden — diese Variante ignoriert `color` und sieht immer schwarz aus.
 
 ---
 
@@ -1617,7 +1646,7 @@ Alle App-Seiten verwenden den Token `--page-bg` als Root-Hintergrundfarbe.
 
 #### `AppLogo` — Brand Logo Komponente
 
-Wiederverwendbare Logo-Komponente: schwarzes K-Icon-Box + „kostüm+" Schriftzug, verlinkt auf `/`.
+Wiederverwendbare Logo-Komponente: schwarzes K-Icon-Box + „palco+" Schriftzug, verlinkt auf `/`.
 
 **Pfad:** `src/components/layout/app-logo.tsx`
 
@@ -1630,14 +1659,14 @@ import { AppLogo } from "@/components/layout/app-logo";
 
 | Property | Typ | Default | Beschreibung |
 |---|---|---|---|
-| `showText` | `boolean` | `true` | Blendet den „kostüm+" Schriftzug ein/aus |
+| `showText` | `boolean` | `true` | Blendet den „palco+" Schriftzug ein/aus |
 
 **Specs:**
 | Element | Wert |
 |---|---|
 | Icon-Box | 38×38px, `background: #0D0D0D`, `border-radius: 8px` |
 | Icon-Buchstabe „K" | 18px, `font-weight: 700`, `color: #F5C842` |
-| Schriftzug „kostüm+" | `font-size-350` (18px), `font-weight: 700`, `color: neutral-grey-700` |
+| Schriftzug „palco+" | `font-size-350` (18px), `font-weight: 700`, `color: neutral-grey-700` |
 | Gap Icon–Text | 8px |
 
 **Verwendet in:** `cockpit-shell.tsx`, `kostueme-neu-client.tsx`
@@ -1851,7 +1880,7 @@ Zwei Schriftskalen ("Tablet" / "Mobile") implizieren zwei Breakpoints. Empfohlen
 
 ---
 
-*Generiert aus Figma Design System HCID-Fundus-Layout-01 — kostüm+ / costumanu*
+*Generiert aus Figma Design System HCID-Fundus-Layout-01 — palco+ / costumanu*
 
 ---
 
@@ -2026,7 +2055,7 @@ Erscheint am unteren Bildschirmrand, zeigt eingeloggten Nutzer.
 | Hintergrund | `#000000` |
 | Border-radius | `30px 30px 0 0` |
 | Padding | `24px 33px` |
-| Logo | `kostüm+` Wordmark (`Union.svg`), `primary-900` (#B59B3A), zentriert |
+| Logo | `palco+` Wordmark (`Union.svg`), `primary-900` (#B59B3A), zentriert |
 | Links | H4-regular, 26px, `#FFFFFF`, mit `icon-arrow-right` (27×27px) rechts |
 | Copyright-Zeile | Subtitle-1-regular, 16px, `rgba(255,255,255,0.5)`, zentriert |
 | Copyright-BG | `rgba(255,255,255,0.05)`, `padding: 16px 0` |
@@ -2355,4 +2384,5 @@ Horizontal scrollbare Zeile mit Grössen als Pill-Tags.
 
 ---
 
-*Generiert aus Figma Design System HCID-Fundus-Layout-01 — kostüm+ / costumanu*
+*Generiert aus Figma Design System HCID-Fundus-Layout-01 — palco+ / costumanu*
+

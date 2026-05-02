@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { SuchmodusResultsClient, type ResultCostume } from "@/components/suchmodus/suchmodus-results-client";
+import type { NetworkTheater, GenderTerm } from "@/components/suchmodus/suchmodus-cockpit";
 
 type SearchParams = Promise<{
   gender?: string;
@@ -13,6 +14,7 @@ type SearchParams = Promise<{
   size_int?: string;
   size_eu?: string;
   epoche?: string;
+  sparte?: string;
   title?: string;
   actor?: string;
   role?: string;
@@ -28,6 +30,11 @@ export default async function SuchmodusResultsPage({
 }) {
   const params = await searchParams;
   const supabase = await createClient();
+
+  const [{ data: allTheatersData }, { data: genderData }] = await Promise.all([
+    supabase.from("theaters").select("id, name, slug, settings").order("name"),
+    supabase.from("taxonomy_terms").select("id, label_de").eq("vocabulary", "gender").order("sort_order"),
+  ]);
 
   // Resolve single gender (from drawer) or first of multi (from filter)
   const genderId = params.gender ?? (params.genders ? params.genders.split(",")[0] : undefined);
@@ -86,12 +93,43 @@ export default async function SuchmodusResultsPage({
     if (theaterIds.length > 0) query = query.in("theater_id", theaterIds);
   }
 
+  // Epoch / Sparte — filter via costume_taxonomy join
+  let epochCostumeIds: string[] | null = null;
+  if (params.epoche) {
+    const epochIds = params.epoche.split(",").filter(Boolean);
+    const { data: ctRows } = await supabase
+      .from("costume_taxonomy")
+      .select("costume_id")
+      .in("term_id", epochIds);
+    epochCostumeIds = [...new Set((ctRows ?? []).map((r) => r.costume_id))];
+  }
+
+  let sparteCostumeIds: string[] | null = null;
+  if (params.sparte) {
+    const sparteIds = params.sparte.split(",").filter(Boolean);
+    const { data: ctRows } = await supabase
+      .from("costume_taxonomy")
+      .select("costume_id")
+      .in("term_id", sparteIds);
+    sparteCostumeIds = [...new Set((ctRows ?? []).map((r) => r.costume_id))];
+  }
+
   const { data: rows, error: queryError } = await query;
   if (queryError) console.error("[suchmodus/results] costume query error:", queryError);
 
   // ── Post-filter: free-text fields (provenance, size) ─────────────────────
   // These can't be done in the main query without joins — filter in JS
   let filtered = rows ?? [];
+
+  if (epochCostumeIds !== null) {
+    const idSet = new Set(epochCostumeIds);
+    filtered = filtered.filter((r) => idSet.has(r.id));
+  }
+
+  if (sparteCostumeIds !== null) {
+    const idSet = new Set(sparteCostumeIds);
+    filtered = filtered.filter((r) => idSet.has(r.id));
+  }
 
   if (params.title) {
     const q = params.title.toLowerCase();
@@ -175,6 +213,8 @@ export default async function SuchmodusResultsPage({
       title={title}
       count={costumes.length}
       costumes={costumes}
+      theaters={(allTheatersData ?? []) as NetworkTheater[]}
+      genderTerms={(genderData ?? []) as GenderTerm[]}
     />
   );
 }

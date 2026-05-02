@@ -144,7 +144,7 @@ export function NavigationMenu({ open, onClose }: NavigationMenuProps) {
             {level === "clothing_types" ? t("nav.overview") : t("nav.clothingType")}
           </Button>
         ) : (
-          <span className="text-lg font-bold tracking-tight">kostüm+</span>
+          <span className="text-lg font-bold tracking-tight">palco+</span>
         )}
         <Button
           variant="ghost"

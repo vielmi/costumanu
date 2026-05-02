@@ -72,17 +72,18 @@ export function MerklisteClient({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("wishlists")
-        .select("id, name, is_archived, created_at, item_count")
+        .select("id, name, is_archived, created_at, wishlist_items(id)")
         .eq("owner_id", userId)
         .eq("is_archived", false)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       return (data ?? []).map((w) => ({
-        ...w,
-        item_count: (w as Record<string, unknown>).item_count
-          ? Number((w as Record<string, unknown>).item_count)
-          : 0,
+        id: w.id,
+        name: w.name,
+        is_archived: w.is_archived,
+        created_at: w.created_at,
+        item_count: Array.isArray(w.wishlist_items) ? w.wishlist_items.length : 0,
       })) as Wishlist[];
     },
     initialData: initialWishlists,

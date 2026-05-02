@@ -17,6 +17,8 @@ interface ContextMenuProps {
   disabled?: boolean;
   /** "left" öffnet das Dropdown nach rechts-unten, "right" nach links-unten */
   align?: "left" | "right";
+  /** Ersetzt den Standard-3-Punkte-Button durch ein beliebiges Element */
+  customTrigger?: React.ReactNode;
 }
 
 /**
@@ -30,6 +32,7 @@ export function ContextMenu({
   onClose,
   disabled = false,
   align = "right",
+  customTrigger,
 }: ContextMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -45,27 +48,36 @@ export function ContextMenu({
 
   return (
     <div ref={ref} style={{ position: "relative" }}>
-      <button
-        type="button"
-        onClick={onToggle}
-        disabled={disabled}
-        style={{
-          background: "transparent",
-          border: "none",
-          cursor: disabled ? "not-allowed" : "pointer",
-          padding: 6,
-          borderRadius: "var(--radius-xs)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "var(--neutral-grey-500)",
-          opacity: disabled ? 0.4 : 1,
-        }}
-        aria-label="Mehr Optionen"
-        aria-expanded={isOpen}
-      >
-        <MoreVertical size={18} />
-      </button>
+      {customTrigger ? (
+        <div
+          onClick={disabled ? undefined : onToggle}
+          style={{ cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.4 : 1 }}
+        >
+          {customTrigger}
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={onToggle}
+          disabled={disabled}
+          style={{
+            background: "transparent",
+            border: "none",
+            cursor: disabled ? "not-allowed" : "pointer",
+            padding: 6,
+            borderRadius: "var(--radius-xs)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "var(--neutral-grey-500)",
+            opacity: disabled ? 0.4 : 1,
+          }}
+          aria-label="Mehr Optionen"
+          aria-expanded={isOpen}
+        >
+          <MoreVertical size={18} />
+        </button>
+      )}
 
       {isOpen && (
         <div

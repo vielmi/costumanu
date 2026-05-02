@@ -1,0 +1,319 @@
+/* ─── Backdrop ───────────────────────────────────────────────────────────── */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* ─── Card ───────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--neutral-white);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 440px;
+  padding: 24px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.title {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-300);
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-black);
+  margin: 0;
+  text-align: center;
+}
+
+.closeBtn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+}
+.closeBtn:hover { opacity: 1; }
+
+/* ─── Wishlist list (Fall 2) ─────────────────────────────────────────────── */
+.listWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.wishlistRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 0;
+  border: none;
+  border-bottom: 1px solid var(--neutral-grey-200);
+  background: none;
+  cursor: pointer;
+  gap: 12px;
+}
+.wishlistRow:first-child {
+  border-top: 1px solid var(--neutral-grey-200);
+}
+.wishlistRow:hover { background: var(--secondary-500); }
+.wishlistRow:disabled { opacity: 0.5; pointer-events: none; }
+
+.wishlistRowName {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-300);
+  font-weight: var(--font-weight-400);
+  color: var(--neutral-black);
+  text-align: left;
+  flex: 1;
+}
+
+.newListLink {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-200);
+  font-weight: var(--font-weight-500);
+  color: var(--primary-900);
+  padding: 8px 0 0;
+  text-align: left;
+}
+.newListLink:hover { opacity: 0.8; }
+
+/* ─── Create form ────────────────────────────────────────────────────────── */
+.inputWrap {
+  padding: 24px 0 8px;
+  border-bottom: 1.5px solid var(--neutral-black);
+}
+
+.input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: none;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-350);
+  font-weight: var(--font-weight-400);
+  color: var(--neutral-black);
+  line-height: 1.4;
+}
+.input::placeholder {
+  color: var(--neutral-grey-500);
+}
+
+/* ─── Save button ────────────────────────────────────────────────────────── */
+.saveBtn {
+  width: 100%;
+  height: 62px;
+  border: none;
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-300);
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-white);
+  background: var(--neutral-grey-300);
+  transition: background 150ms ease;
+}
+.saveBtn:disabled { cursor: default; }
+
+.saveBtnActive {
+  background: var(--primary-900);
+}
+.saveBtnActive:hover { opacity: 0.9; }
+
+/* ─── Loading ────────────────────────────────────────────────────────────── */
+.loadingWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.loadingDot {
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid var(--neutral-grey-300);
+  border-top-color: var(--primary-900);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Error ──────────────────────────────────────────────────────────────── */
+.errorMsg {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-200);
+  color: #C0392B;
+  text-align: center;
+  margin: 0;
+  padding: 0 24px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Bottom Sheet (Fall 2 — mind. 1 Merkliste vorhanden)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.sheetBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(36, 39, 39, 0.80);
+}
+
+.sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(100dvh - 42px);
+  background: var(--neutral-white);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ─── Sheet header ───────────────────────────────────────────────────────── */
+.sheetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 24px 24px 16px;
+  flex-shrink: 0;
+}
+
+/* ─── Scrollable list ────────────────────────────────────────────────────── */
+.sheetList {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--neutral-grey-600) transparent;
+}
+
+.sheetList::-webkit-scrollbar {
+  width: 3px;
+}
+.sheetList::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sheetList::-webkit-scrollbar-thumb {
+  background: var(--neutral-grey-600);
+  border-radius: 45px;
+}
+
+/* ─── List row ───────────────────────────────────────────────────────────── */
+.sheetRow {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  padding: 10px 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+.sheetRow:disabled { opacity: 0.5; pointer-events: none; }
+
+.sheetRowThumb {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--neutral-grey-200);
+}
+
+.sheetRowThumbImg {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+}
+
+.sheetRowThumbPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: var(--neutral-grey-200);
+}
+
+.sheetRowName {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-350);
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-black);
+}
+
+/* ─── Bottom bar ─────────────────────────────────────────────────────────── */
+.sheetBottom {
+  flex-shrink: 0;
+  height: 91px;
+  display: flex;
+  align-items: center;
+  padding: 0 27px;
+  background: var(--neutral-white);
+  box-shadow: 0px -2px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* ─── "Neue Merkliste erstellen" secondary button ────────────────────────── */
+.newListSecondaryBtn {
+  width: 100%;
+  height: 57px;
+  background: transparent;
+  border: 2px solid var(--primary-900);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-350);
+  font-weight: var(--font-weight-500);
+  color: var(--primary-900);
+  transition: opacity 120ms ease;
+}
+.newListSecondaryBtn:hover { opacity: 0.8; }
+.newListSecondaryBtn:disabled { opacity: 0.4; pointer-events: none; }
+
+/* ─── Create form body inside sheet ─────────────────────────────────────── */
+.sheetCreateBody {
+  flex: 1;
+  padding: 8px 24px;
+}
+
+/* ─── Saving overlay (covers the whole sheet) ────────────────────────────── */
+.sheetSavingOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 20px 20px 0 0;
+}

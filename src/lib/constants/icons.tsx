@@ -20,24 +20,30 @@ export const GENDER_ICON: Record<string, string> = {
   Herren: "male",
   Damen: "female",
   Unisex: "unisex",
-  Kinder: "child",
+  Kinder: "children",
   Tier: "animal",
   Fantasy: "fantasy",
 };
 
 export const MUSTER_ICON: Record<string, string> = {
-  uni: "icon-material-solid",
-  kariert: "icon-material-squared",
-  gestreift: "icon-material-striped",
-  gepunktet: "icon-material-dotted",
-  gemustert: "icon-material-pattern",
-  blumig: "icon-material-floral",
-  abstrakt: "icon-material-abstract",
-  animalprint: "icon-material-animal",
-  paisley: "icon-material-paisley",
+  uni:       "icon-material-solid",
+  kariert:   "icon-material-squared",
+  gestreift: "icon-material-stripe",
+  gepunktet: "icon-material-pointed",
+  floral:    "icon-material-floral",
+  gemustert: "icon-material-batik",
+  verlauf:   "icon-material-gradient",
+  abstrakt:  "icon-material-gradient",
+  tierprint: "icon-animal",
+  anderes:   "icon-material-divers",
 };
 
 /** Gibt den Icon-Dateinamen für ein Gender-Label zurück, Fallback "unisex". */
 export function getGenderIcon(labelDe: string | null | undefined): string {
   return GENDER_ICON[labelDe ?? ""] ?? "unisex";
+}
+
+/** Gibt den Icon-Dateinamen für ein Muster-Label zurück, Fallback "icon-material-divers". */
+export function getMusterIcon(labelDe: string | null | undefined): string {
+  return MUSTER_ICON[(labelDe ?? "").toLowerCase()] ?? "icon-material-divers";
 }

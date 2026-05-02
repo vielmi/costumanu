@@ -28,11 +28,6 @@
   flex-direction: column;
 }
 
-/* ─── Mobile header (hidden on desktop) ─────────────────────────────────── */
-.mobileHeader {
-  display: none;
-}
-
 /* ─── Content ────────────────────────────────────────────────────────────── */
 .imageCards {
   display: flex;
@@ -209,35 +204,6 @@
 
   .sidebarWrap {
     display: none;
-  }
-
-  .mobileHeader {
-    display: flex;
-    align-items: center;
-    padding: 0 8px 0 4px;
-    height: 80px;
-    flex-shrink: 0;
-    gap: 0;
-    /* Logo fills remaining space, pushing icons to the right */
-  }
-
-  .mobileHeaderIcons {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .mobileHeaderIconBtn {
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    flex-shrink: 0;
   }
 
   .desktopTopBar {

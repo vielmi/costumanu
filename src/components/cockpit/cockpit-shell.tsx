@@ -2,13 +2,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { CockpitContent } from "@/components/cockpit/cockpit-client";
 import { Sidebar } from "@/components/layout/sidebar";
-import { AppLogo } from "@/components/layout/app-logo";
-import { CockpitMobileDrawer } from "@/components/cockpit/cockpit-mobile-drawer";
+import { AppMobileHeader } from "@/components/layout/app-mobile-header";
 import { COCKPIT } from "@/lib/constants/layout";
 import styles from "./cockpit.module.css";
 import type { NavItem } from "@/components/layout/sidebar";
@@ -31,7 +29,7 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 const ADMIN_NAV_ITEM: NavItem = {
-  label: "Konfiguration", href: "/einstellungen/konfiguration", icon: "icon-setting",
+  label: "Einstellungen", href: "/einstellungen/konfiguration", icon: "icon-setting",
 };
 
 function isAdmin(userRole: string): boolean {
@@ -50,21 +48,8 @@ export function CockpitShell({
 
   return (
     <div className={styles.shell}>
-      {/* ── Mobile header (burger + logo + icons) ── */}
-      <div className={styles.mobileHeader}>
-        <CockpitMobileDrawer navItems={navItems} />
-        <div style={{ flex: 1 }}>
-          <AppLogo />
-        </div>
-        <div className={styles.mobileHeaderIcons}>
-          <Link href="/search" className={styles.mobileHeaderIconBtn} aria-label="Suche">
-            <Image src="/icons/icon-search.svg" alt="" width={22} height={22} />
-          </Link>
-          <Link href="/kostueme/neu" className={styles.mobileHeaderIconBtn} aria-label="Kostüm erfassen">
-            <Image src="/icons/icon-plus-m.svg" alt="" width={22} height={22} />
-          </Link>
-        </div>
-      </div>
+      {/* ── Mobile header ── */}
+      <AppMobileHeader navItems={navItems} />
 
       <div className={styles.shellInner}>
         {/* Sidebar — desktop only */}

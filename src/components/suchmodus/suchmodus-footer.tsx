@@ -11,7 +11,7 @@ const FOOTER_LINKS = [
 export function SuchmodusFooter() {
   return (
     <footer className={styles.footer}>
-      <span className={styles.logo}>kostüm+</span>
+      <span className={styles.logo}>palco+</span>
       <nav className={styles.links}>
         {FOOTER_LINKS.map((link) => (
           <Link key={link.label} href={link.href} className={styles.link}>

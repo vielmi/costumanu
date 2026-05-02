@@ -94,7 +94,7 @@ export function RentalWizard({
   const [isSuccess, setIsSuccess] = useState(false);
 
   // Cart items via React Query
-  const { data: cartItems } = useQuery({
+  const { data: _cartItems } = useQuery({
     queryKey: ["cart-items", userId],
     queryFn: async () => {
       const { data, error } = await supabase

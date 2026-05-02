@@ -1,0 +1,155 @@
+/* ─── Page ───────────────────────────────────────────────────────────────── */
+.page {
+  min-height: 100dvh;
+  background: var(--neutral-white);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Header heart icon ──────────────────────────────────────────────────── */
+.headerHeart {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: var(--radius-xs);
+}
+
+/* ─── Page title ─────────────────────────────────────────────────────────── */
+.pageTitle {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-300);
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-black);
+  text-align: center;
+  margin: 0;
+  padding: 16px 24px 0;
+}
+
+/* ─── Body ───────────────────────────────────────────────────────────────── */
+.body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+}
+
+.bodyFilled {
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 8px 24px 0;
+}
+
+/* ─── Empty state ────────────────────────────────────────────────────────── */
+.emptyText {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-600);
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-black);
+  text-align: center;
+  line-height: 1.4;
+  white-space: pre-line;
+  margin: 0;
+  max-width: 300px;
+}
+
+/* ─── List (filled state) ────────────────────────────────────────────────── */
+.list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-self: flex-start;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--neutral-grey-200);
+  gap: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.listItem:first-child {
+  border-top: 1px solid var(--neutral-grey-200);
+}
+
+.listItemThumb {
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--neutral-grey-100);
+}
+
+.listItemThumbImg {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.listItemThumbPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: var(--neutral-grey-200);
+}
+
+.listItemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.listItemName {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-300);
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-black);
+}
+
+.listItemCount {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-200);
+  font-weight: var(--font-weight-400);
+  color: var(--neutral-grey-500);
+}
+
+/* ─── Bottom action ──────────────────────────────────────────────────────── */
+.bottomAction {
+  padding: 16px 24px 32px;
+  flex-shrink: 0;
+}
+
+.bottomActionFilled {
+  background: var(--neutral-white);
+  box-shadow: 0px -2px 20px rgba(0, 0, 0, 0.2);
+  height: 98px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.createBtn {
+  width: 100%;
+  height: 63px;
+  background: var(--primary-900);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-350);
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-white);
+  transition: opacity 120ms ease;
+}
+.createBtn:hover { opacity: 0.9; }

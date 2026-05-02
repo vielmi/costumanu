@@ -67,6 +67,7 @@ export function CameraCapture({ onCapture, onClose }: CameraCaptureProps) {
           display: "flex", alignItems: "center", justifyContent: "center",
         }}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/icons/icon-close-small.svg" alt="Schliessen" width={20} height={20} style={{ filter: "invert(1)" }} />
       </button>
 
