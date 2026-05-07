@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppMobileHeader } from "@/components/layout/app-mobile-header";
 import { MerklisteAddModal } from "@/components/suchmodus/merkliste-add-modal";
 import styles from "./wishlist-page-client.module.css";
@@ -29,6 +30,7 @@ const heartRightSlot = (
 );
 
 export function WishlistPageClient({ wishlists: initial, theaterId: _theaterId, userId: _userId }: Props) {
+  const router = useRouter();
   const [wishlists, setWishlists] = useState(initial);
   const [showModal, setShowModal] = useState(false);
 
@@ -50,6 +52,23 @@ export function WishlistPageClient({ wishlists: initial, theaterId: _theaterId, 
   return (
     <div className={styles.page}>
       <AppMobileHeader rightSlot={heartRightSlot} />
+
+      {/* ── Back ── */}
+      <div style={{ padding: "12px 16px 0" }}>
+        <button
+          type="button"
+          onClick={() => router.back()}
+          style={{
+            display: "flex", alignItems: "center", gap: 6,
+            background: "none", border: "none", cursor: "pointer", padding: 0,
+            fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)",
+            color: "var(--neutral-grey-600)",
+          }}
+        >
+          <Image src="/icons/icon-arrow-left.svg" alt="" width={14} height={14} />
+          Zurück
+        </button>
+      </div>
 
       {/* ── Page title ── */}
       <p className={styles.pageTitle}>Meine Merklisten</p>

@@ -13,6 +13,7 @@ export type NavItem = {
   href: string;
   icon: string;
   badgeKey?: string;
+  beta?: boolean;
 };
 
 interface SidebarProps {
@@ -123,7 +124,7 @@ export function Sidebar({ navItems, badges, onWidthChange }: SidebarProps) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                width: collapsed ? undefined : 166,
+                width: collapsed ? undefined : "100%",
                 height: 50,
                 padding: "0 12px",
                 gap: 10,
@@ -156,6 +157,25 @@ export function Sidebar({ navItems, badges, onWidthChange }: SidebarProps) {
                   >
                     {item.label}
                   </span>
+                  {item.beta && (
+                    <span
+                      style={{
+                        fontFamily: "var(--font-family-base)",
+                        fontSize: "var(--font-size-50)",
+                        fontWeight: "var(--font-weight-600)" as React.CSSProperties["fontWeight"],
+                        color: "var(--tertiary-900)",
+                        border: "1px solid var(--tertiary-900)",
+                        background: "rgba(92, 119, 136, 0.10)",
+                        borderRadius: "var(--radius-full)",
+                        padding: "1px 6px",
+                        letterSpacing: "0.04em",
+                        flexShrink: 0,
+                        lineHeight: "16px",
+                      }}
+                    >
+                      Beta
+                    </span>
+                  )}
                   {badge > 0 && (
                     <span
                       style={{

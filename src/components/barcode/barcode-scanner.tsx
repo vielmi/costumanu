@@ -119,7 +119,7 @@ function WebScanner({ onDetected, onClose }: BarcodeScannerProps) {
               position: "absolute", inset: 0,
               border: "3px solid var(--primary-900)",
               borderRadius: 16,
-              boxShadow: "0 0 0 9999px rgba(0,0,0,0.5)",
+              boxShadow: `0 0 0 9999px var(--overlay-scrim)`,
             }} />
           </div>
 

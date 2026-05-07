@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/layout/app-shell";
+import { FundusTopBar } from "@/components/fundus/fundus-top-bar";
 import { CostumeDetailClient } from "@/components/costume/costume-detail-client";
 import type { Costume, TaxonomyTerm } from "@/lib/types/costume";
 
@@ -25,7 +26,7 @@ export default async function CostumeDetailPage({
       clothing_type:taxonomy_terms!clothing_type_id(id, vocabulary, label_de, parent_id, sort_order),
       costume_media(id, costume_id, storage_path, sort_order, created_at),
       costume_provenance(id, costume_id, production_title, year, actor_name, role_name, director_name, costume_designer, costume_assistant, is_original_production),
-      costume_items(id, costume_id, theater_id, barcode_id, rfid_id, size_label, size_data, condition_grade, current_status, storage_location_path, is_public_for_rent, updated_at),
+      costume_items(id, costume_id, theater_id, barcode_id, rfid_id, size_label, size_data, size_notes, condition_grade, current_status, storage_location_path, is_public_for_rent, updated_at),
       costume_taxonomy(term_id, taxonomy_term:taxonomy_terms(id, vocabulary, label_de, parent_id, sort_order)),
       theater:theaters!theater_id(id, name, slug, address_info)
     `
@@ -84,7 +85,7 @@ export default async function CostumeDetailPage({
   }
 
   return (
-    <AppShell>
+    <AppShell topBar={<FundusTopBar theaterId={costume.theater_id} />}>
       <CostumeDetailClient
         costume={costume as unknown as Costume}
         taxonomyByVocabulary={taxonomyByVocabulary}

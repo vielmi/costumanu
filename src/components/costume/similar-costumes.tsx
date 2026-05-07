@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { t } from "@/lib/i18n";
 import type { Costume } from "@/lib/types/costume";
 
@@ -11,14 +12,21 @@ type SimilarCostumesProps = {
 };
 
 export function SimilarCostumes({ costumes }: SimilarCostumesProps) {
+  const isMobile = useIsMobile();
+  const pad = isMobile ? "0 16px 32px" : "0 32px 32px";
+
   return (
-    <section className="py-2">
-      <h2 className="mb-3 px-4 text-lg font-bold">{t("costume.similarCostumes")}</h2>
+    <section style={{ padding: pad }}>
+      <div style={isMobile ? {} : { maxWidth: 560, margin: "0 auto" }}>
+        <h2 className="mb-3 text-lg font-bold">{t("costume.similarCostumes")}</h2>
+      </div>
       <ScrollArea className="w-full">
-        <div className="flex gap-3 px-4 pb-4">
-          {costumes.map((costume) => (
-            <SimilarCostumeCard key={costume.id} costume={costume} />
-          ))}
+        <div style={isMobile ? {} : { maxWidth: 560, margin: "0 auto" }}>
+          <div className="flex gap-3 pb-4">
+            {costumes.map((costume) => (
+              <SimilarCostumeCard key={costume.id} costume={costume} />
+            ))}
+          </div>
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>

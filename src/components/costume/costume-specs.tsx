@@ -1,13 +1,16 @@
-"use client";
+﻿"use client";
 
+import { useState } from "react";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import Image from "next/image";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
 import { t } from "@/lib/i18n";
+import { COLOR_SWATCHES } from "@/lib/constants/color-swatches";
 import type { Costume, CostumeItem, CostumeProvenance, TaxonomyTerm } from "@/lib/types/costume";
 
 type CostumeSpecsProps = {
@@ -18,197 +21,150 @@ type CostumeSpecsProps = {
 };
 
 const sizeDataLabels: Record<string, string> = {
-  chest: t("costume.chest"),
-  waist: t("costume.waist"),
-  back_length: t("costume.backLength"),
+  chest:          t("costume.chest"),
+  waist:          t("costume.waist"),
+  hip:            t("costume.hip"),
+  back_length:    t("costume.backLength"),
   shoulder_width: t("costume.shoulderWidth"),
-  hip: t("costume.hip"),
-  inseam: t("costume.inseam"),
-  thigh: t("costume.thigh"),
-  waistband: t("costume.waistband"),
-  skirt_length: t("costume.skirtLength"),
+  leg_length:     t("costume.legLength"),
 };
 
-const colorMap: Record<string, string> = {
-  Beige: "#d2b48c",
-  Rosa: "#f4a6c1",
-  Braun: "#8b4513",
-  Schwarz: "#1a1a1a",
-  Blau: "#2563eb",
-  Rot: "#dc2626",
-  Grau: "#9ca3af",
-  Gold: "#d4a017",
-  Weiss: "#f5f5f5",
-  Grün: "#16a34a",
-  Gelb: "#eab308",
-  Orange: "#ea580c",
-  Lila: "#9333ea",
-  Silber: "#c0c0c0",
-  Türkis: "#06b6d4",
-  Bordeaux: "#722f37",
+
+const statusLabel: Record<string, string> = {
+  available: t("costume.statusAvailable"),
+  rented:    t("costume.statusRented"),
+  cleaning:  t("costume.statusCleaning"),
+  repair:    t("costume.statusRepair"),
+  lost:      t("costume.statusLost"),
 };
 
-export function CostumeSpecs({
-  costume,
-  taxonomyByVocabulary,
-  firstItem,
-  firstProvenance,
-}: CostumeSpecsProps) {
-  const materials = taxonomyByVocabulary["material"] ?? [];
-  const materialoptik = taxonomyByVocabulary["materialoptik"] ?? [];
-  const muster = taxonomyByVocabulary["muster"] ?? [];
-  const colors = taxonomyByVocabulary["color"] ?? [];
-  const washing = taxonomyByVocabulary["washing_instruction"] ?? [];
-  const sparten = taxonomyByVocabulary["sparte"] ?? [];
-  const epochs = taxonomyByVocabulary["epoche"] ?? [];
+export function CostumeSpecs({ costume, taxonomyByVocabulary, firstItem, firstProvenance }: CostumeSpecsProps) {
+  const isMobile = useIsMobile();
+  const materials    = taxonomyByVocabulary["material"]            ?? [];
+  const materialoptik = taxonomyByVocabulary["materialoptik"]      ?? [];
+  const muster       = taxonomyByVocabulary["muster"]              ?? [];
+  const colors       = taxonomyByVocabulary["color"]               ?? [];
+  const washing = [
+    ...(taxonomyByVocabulary["temperature"]  ?? []),
+    ...(taxonomyByVocabulary["washing_type"] ?? []),
+    ...(taxonomyByVocabulary["drying"]       ?? []),
+    ...(taxonomyByVocabulary["ironing"]      ?? []),
+  ];
+  const sparten      = taxonomyByVocabulary["sparte"]              ?? [];
+  const epochs       = taxonomyByVocabulary["epoche"]              ?? [];
+  const subtypes     = taxonomyByVocabulary["clothing_subtype"]    ?? [];
 
-  const hasKategorisierung =
-    costume.gender_term || costume.clothing_type || epochs.length > 0 || sparten.length > 0;
-  const hasAuffuehrung = !!firstProvenance;
-  const hasMaterial =
-    materials.length > 0 || materialoptik.length > 0 || muster.length > 0 || colors.length > 0;
-  const hasMasse =
-    firstItem?.size_label || (firstItem?.size_data && Object.keys(firstItem.size_data).length > 0);
+  const sizeDataEntries = Object.entries(firstItem?.size_data ?? {}).filter(([, v]) => v !== null && v !== undefined && String(v) !== "");
+  const hasMasse   = !!(firstItem?.size_label || sizeDataEntries.length > 0 || firstItem?.size_notes);
+  const hasDetails = !!(costume.gender_term || costume.clothing_type || epochs.length > 0 || sparten.length > 0 || subtypes.length > 0);
+  const hasMaterial = materials.length > 0 || materialoptik.length > 0 || muster.length > 0 || colors.length > 0;
+  const hasLocation = !!(costume.theater || firstItem?.storage_location_path || firstItem?.current_status);
 
-  if (!hasKategorisierung && !hasAuffuehrung && !hasMaterial && !hasMasse && washing.length === 0) {
-    return null;
-  }
+  const address = costume.theater?.address_info as Record<string, string> | null | undefined;
+  const locationParts = firstItem?.storage_location_path?.split(".") ?? [];
 
   return (
-    <section className="px-4">
-      <h2 className="mb-3 text-lg font-bold">{t("costume.specifications")}</h2>
-      <Accordion type="multiple" defaultValue={["kategorisierung"]}>
-        {/* Kategorisierung */}
-        {hasKategorisierung && (
-          <AccordionItem value="kategorisierung">
-            <AccordionTrigger>{t("costume.categorization")}</AccordionTrigger>
+    <section style={{ padding: isMobile ? "0 16px 32px" : "0 32px 32px" }}>
+      <div style={isMobile ? {} : { maxWidth: 560, margin: "0 auto" }}>
+      <Accordion type="multiple" defaultValue={[]}>
+
+        {/* 1 — Masse */}
+        {hasMasse && firstItem && (
+          <AccordionItem value="masse">
+            <AccordionTrigger>{t("costume.measurements")}</AccordionTrigger>
             <AccordionContent>
-              <div className="flex flex-col gap-2">
-                {costume.gender_term && (
-                  <SpecRow
-                    label={t("costume.gender")}
-                    value={costume.gender_term.label_de}
+              <div className="flex flex-col gap-3">
+                {firstItem.size_label && (
+                  <InlineRow label={t("costume.sizeLabel")} value={firstItem.size_label} />
+                )}
+                {(sizeDataEntries.length > 0 || firstItem.size_notes) && (
+                  <InlineRow
+                    label={t("costume.additionalMeasurements")}
+                    value={[
+                      sizeDataEntries.map(([key, val]) => `${sizeDataLabels[key] ?? key}: ${val} cm`).join(", "),
+                      firstItem.size_notes ?? "",
+                    ].filter(Boolean).join(", ")}
                   />
                 )}
-                {costume.clothing_type && (
-                  <SpecRow
-                    label={t("costume.clothingType")}
-                    value={costume.clothing_type.label_de}
-                  />
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {/* 2 — Kostümdetails */}
+        {hasDetails && (
+          <AccordionItem value="details">
+            <AccordionTrigger>{t("costume.costumeDetails")}</AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-col gap-3">
+                {costume.gender_term && (
+                  <InlineRow label={t("costume.genderAndType")} value={costume.gender_term.label_de} />
                 )}
                 {epochs.length > 0 && (
-                  <SpecRow
-                    label={t("costume.epoch")}
-                    value={epochs.map((e) => e.label_de).join(", ")}
-                  />
+                  <InlineRow label={t("costume.epoch")} value={epochs.map((e) => e.label_de).join(", ")} />
                 )}
                 {sparten.length > 0 && (
-                  <SpecRow
-                    label={t("costume.division")}
-                    value={sparten.map((s) => s.label_de).join(", ")}
-                  />
+                  <InlineRow label={t("costume.division")} value={sparten.map((s) => s.label_de).join(", ")} />
+                )}
+                {costume.clothing_type && (
+                  <InlineRow label={t("costume.clothingType")} value={costume.clothing_type.label_de} />
+                )}
+                {subtypes.length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-700)", margin: 0 }}>
+                      <span style={{ fontWeight: "var(--font-weight-600)" as React.CSSProperties["fontWeight"] }}>{t("costume.clothingSubType")}:</span>
+                    </p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                      {subtypes.map((s) => (
+                        <span key={s.id} style={{
+                          fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-300)", fontWeight: 500,
+                          color: "var(--secondary-700)",
+                          background: "var(--neutral-grey-50)",
+                          border: "1px solid var(--secondary-800)",
+                          borderRadius: 44, padding: "4px 14px",
+                          whiteSpace: "nowrap",
+                        }}>
+                          {s.label_de}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
             </AccordionContent>
           </AccordionItem>
         )}
 
-        {/* Aufführung */}
-        {hasAuffuehrung && firstProvenance && (
-          <AccordionItem value="auffuehrung">
-            <AccordionTrigger>{t("costume.performance")}</AccordionTrigger>
-            <AccordionContent>
-              <div className="flex flex-col gap-2">
-                <SpecRow
-                  label={t("costume.productionTitle")}
-                  value={firstProvenance.production_title}
-                />
-                {firstProvenance.year && (
-                  <SpecRow label={t("costume.year")} value={String(firstProvenance.year)} />
-                )}
-                {firstProvenance.actor_name && (
-                  <SpecRow
-                    label={t("costume.actor")}
-                    value={firstProvenance.actor_name}
-                  />
-                )}
-                {firstProvenance.role_name && (
-                  <SpecRow label={t("costume.role")} value={firstProvenance.role_name} />
-                )}
-                {firstProvenance.director_name && (
-                  <SpecRow label={t("costume.director")} value={firstProvenance.director_name} />
-                )}
-                {firstProvenance.costume_designer && (
-                  <SpecRow
-                    label={t("costume.costumeDesigner")}
-                    value={firstProvenance.costume_designer}
-                  />
-                )}
-                {firstProvenance.costume_assistant && (
-                  <SpecRow
-                    label={t("costume.costumeAssistant")}
-                    value={firstProvenance.costume_assistant}
-                  />
-                )}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        )}
-
-        {/* Material & Farbe */}
+        {/* 3 — Material & Farbe */}
         {hasMaterial && (
           <AccordionItem value="material">
             <AccordionTrigger>{t("costume.materialAndColor")}</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col gap-3">
                 {materials.length > 0 && (
-                  <div>
-                    <span className="text-xs text-muted-foreground">
-                      {t("costume.material")}
-                    </span>
-                    <div className="mt-1 flex flex-wrap gap-1.5">
-                      {materials.map((m) => (
-                        <Badge key={m.id} variant="secondary">
-                          {m.label_de}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
+                  <InlineRow label={t("costume.material")} value={materials.map((m) => m.label_de).join(", ")} />
                 )}
                 {materialoptik.length > 0 && (
-                  <SpecRow
-                    label={t("costume.materialAppearance")}
-                    value={materialoptik.map((m) => m.label_de).join(", ")}
-                  />
+                  <InlineRow label={t("costume.materialAppearance")} value={materialoptik.map((m) => m.label_de).join(", ")} />
                 )}
                 {muster.length > 0 && (
-                  <SpecRow
-                    label={t("costume.pattern")}
-                    value={muster.map((m) => m.label_de).join(", ")}
-                  />
+                  <InlineRow label={t("costume.pattern")} value={muster.map((m) => m.label_de).join(", ")} />
                 )}
                 {colors.length > 0 && (
-                  <div>
-                    <span className="text-xs text-muted-foreground">
-                      {t("costume.colorDirection")}
+                  <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                    <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", fontWeight: "var(--font-weight-600)" as React.CSSProperties["fontWeight"], color: "var(--neutral-grey-700)", flexShrink: 0 }}>
+                      {t("costume.colors")}:
                     </span>
-                    <div className="mt-1 flex flex-wrap gap-2">
-                      {colors.map((c) => (
-                        <div
-                          key={c.id}
-                          className="flex items-center gap-1.5"
-                        >
-                          <span
-                            className="inline-block h-4 w-4 rounded-full border"
-                            style={{
-                              backgroundColor:
-                                colorMap[c.label_de] ?? "#ccc",
-                            }}
-                          />
-                          <span className="text-xs">{c.label_de}</span>
-                        </div>
-                      ))}
-                    </div>
+                    {colors.map((c) => (
+                      <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{
+                          width: 20, height: 20, borderRadius: "50%",
+                          background: COLOR_SWATCHES[c.label_de] ?? "#ccc",
+                          border: "1px solid rgba(0,0,0,0.1)", flexShrink: 0,
+                        }} />
+                        <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-700)" }}>{c.label_de}</span>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -216,56 +172,201 @@ export function CostumeSpecs({
           </AccordionItem>
         )}
 
-        {/* Masse */}
-        {hasMasse && firstItem && (
-          <AccordionItem value="masse">
-            <AccordionTrigger>{t("costume.measurements")}</AccordionTrigger>
+        {/* 4 — Pflege */}
+        {washing.length > 0 && (
+          <AccordionItem value="pflege">
+            <AccordionTrigger>{t("costume.care")}</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col gap-2">
-                {firstItem.size_label && (
-                  <SpecRow
-                    label={t("costume.sizeLabel")}
-                    value={firstItem.size_label}
-                  />
-                )}
-                {firstItem.size_data &&
-                  Object.entries(firstItem.size_data).map(([key, val]) => (
-                    <SpecRow
-                      key={key}
-                      label={sizeDataLabels[key] ?? key}
-                      value={`${val} cm`}
-                    />
-                  ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        )}
-
-        {/* Waschanleitung */}
-        {washing.length > 0 && (
-          <AccordionItem value="waschanleitung">
-            <AccordionTrigger>{t("costume.washingInstructions")}</AccordionTrigger>
-            <AccordionContent>
-              <div className="flex flex-wrap gap-1.5">
                 {washing.map((w) => (
-                  <Badge key={w.id} variant="secondary">
-                    {w.label_de}
-                  </Badge>
+                  <div key={w.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{
+                      fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)",
+                      color: "var(--neutral-grey-700)",
+                    }}>
+                      {w.label_de}
+                    </span>
+                  </div>
                 ))}
               </div>
             </AccordionContent>
           </AccordionItem>
         )}
+
+        {/* 5 — Produktion */}
+        {firstProvenance && (
+          <AccordionItem value="produktion">
+            <AccordionTrigger>{t("costume.production")}</AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-col gap-3">
+                <SpecRow label={t("costume.productionTitle")} value={firstProvenance.production_title} />
+                {firstProvenance.year && (
+                  <SpecRow label={t("costume.seasonYear")} value={String(firstProvenance.year)} />
+                )}
+                {firstProvenance.director_name && (
+                  <SpecRow label={t("costume.director")} value={firstProvenance.director_name} />
+                )}
+                {firstProvenance.costume_designer && (
+                  <SpecRow label={t("costume.costumeDesigner")} value={firstProvenance.costume_designer} />
+                )}
+                {firstProvenance.role_name && (
+                  <SpecRow label={t("costume.role")} value={firstProvenance.role_name} />
+                )}
+                {firstProvenance.actor_name && (
+                  <SpecRow label={t("costume.actor")} value={firstProvenance.actor_name} />
+                )}
+                {firstProvenance.costume_assistant && (
+                  <SpecRow label={t("costume.costumeAssistant")} value={firstProvenance.costume_assistant} />
+                )}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {/* 6 — Standort & Verfügbarkeit */}
+        {hasLocation && (
+          <AccordionItem value="standort">
+            <AccordionTrigger>{t("costume.locationAndAvailability")}</AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-col gap-4">
+                {costume.theater && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", fontWeight: 700, color: "var(--neutral-grey-700)", margin: 0 }}>
+                      {costume.theater.name}:
+                    </p>
+                    {address?.venue && (
+                      <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-700)", margin: 0 }}>{address.venue}</p>
+                    )}
+                    {address?.street && (
+                      <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-700)", margin: 0 }}>{address.street}</p>
+                    )}
+                    {(address?.zip || address?.city) && (
+                      <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-700)", margin: 0 }}>
+                        {[address.zip, address.city].filter(Boolean).join(" ")}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {locationParts.length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", fontWeight: 700, color: "var(--neutral-grey-700)", margin: 0 }}>
+                      {t("costume.placement")}:
+                    </p>
+                    {locationParts[0] && (
+                      <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-700)", margin: 0 }}>Stockwerk: {locationParts[0]}</p>
+                    )}
+                    {locationParts[1] && (
+                      <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-700)", margin: 0 }}>Regal Nr.: {locationParts[1]}</p>
+                    )}
+                    {locationParts[2] && (
+                      <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-700)", margin: 0 }}>Sektor: {locationParts[2]}</p>
+                    )}
+                  </div>
+                )}
+
+                {firstItem?.current_status && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", fontWeight: 700, color: "var(--neutral-grey-700)", margin: 0 }}>
+                      {t("costume.availability")}:
+                    </p>
+                    <AvailabilityIndicator status={firstItem.current_status} />
+                  </div>
+                )}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {/* 7 — ID & Infos */}
+        {firstItem && (
+          <AccordionItem value="id">
+            <AccordionTrigger>{t("costume.idAndInfo")}</AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-col gap-2">
+                <IdRow label="ID" value={firstItem.barcode_id} />
+                {firstItem.rfid_id && (
+                  <IdRow label="Etikett" value={firstItem.rfid_id} />
+                )}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
       </Accordion>
+      </div>
     </section>
   );
 }
 
+// ─── Helper components ────────────────────────────────────────────────────────
+
 function SpecRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between text-sm">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium">{value}</span>
+    <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+      <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", fontWeight: 500, color: "var(--neutral-grey-500)", flexShrink: 0 }}>
+        {label}
+      </span>
+      <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-700)", textAlign: "right" }}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function InlineRow({ label, value }: { label: string; value: string }) {
+  return (
+    <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-700)", margin: 0 }}>
+      <span style={{ fontWeight: "var(--font-weight-600)" as React.CSSProperties["fontWeight"] }}>{label}:</span>{" "}{value}
+    </p>
+  );
+}
+
+function AvailabilityIndicator({ status }: { status: string }) {
+  const isAvailable = status === "available";
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <span style={{
+        width: 20, height: 20, borderRadius: "50%", flexShrink: 0,
+        background: isAvailable ? "var(--color-status-available)" : "var(--neutral-grey-400)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}>
+        <Image src="/icons/icon-check.svg" alt="" width={10} height={10} style={{ filter: "invert(1)" }} />
+      </span>
+      <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-700)" }}>
+        {statusLabel[status] ?? status}
+      </span>
+    </div>
+  );
+}
+
+function IdRow({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+      <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-700)", margin: 0 }}>
+        <span style={{ fontWeight: "var(--font-weight-600)" as React.CSSProperties["fontWeight"] }}>{label}:</span>{" "}{value}
+      </p>
+      <button
+        type="button"
+        onClick={handleCopy}
+        style={{ background: "none", border: "none", cursor: "pointer", padding: 6, opacity: copied ? 1 : 0.5 }}
+        title="Kopieren"
+      >
+        <Image
+          src={copied ? "/icons/icon-check.svg" : "/icons/icon-copy.svg"}
+          alt={copied ? "Kopiert" : "Kopieren"}
+          width={16}
+          height={16}
+        />
+      </button>
     </div>
   );
 }

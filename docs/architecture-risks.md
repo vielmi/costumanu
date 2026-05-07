@@ -1,4 +1,4 @@
-﻿# palco+ — Architektur-Risiken & Mitigationen
+﻿# kostüm+ — Architektur-Risiken & Mitigationen
 
 | Priorität | Kategorie | Risiko | Mitigation | Verantwortlich | Zeitraum | Wiederholung | Hinweis | Status |
 |---|---|---|---|---|---|---|---|---|

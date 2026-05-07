@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { t } from "@/lib/i18n";
+import { APP_NAME } from "@/lib/constants/app";
 
 const footerNavLinks = [
-  { label: "palco+ Website", href: "https://costumanu.com" },
+  { label: `${APP_NAME} Website`, href: "https://costumanu.com" },
   { label: t("footer.supportAndContact"), href: "/support" },
 ];
 
@@ -12,7 +13,7 @@ export function SiteFooter() {
     <footer className="bg-surface-dark text-surface-dark-foreground">
       <div style={{ padding: "28px 20px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-          <span className="text-xl font-bold tracking-tight">palco+</span>
+          <span className="text-xl font-bold tracking-tight">{APP_NAME}</span>
           <nav style={{ display: "flex", gap: 24 }}>
             {footerNavLinks.map((link) => (
               <Link
@@ -28,7 +29,7 @@ export function SiteFooter() {
         </div>
 
         <p className="text-xs text-surface-dark-foreground/50">
-          &copy; palco+ |{" "}
+          &copy; {APP_NAME} |{" "}
           <Link href="/impressum" className="hover:text-surface-dark-foreground/70">
             {t("footer.imprint")}
           </Link>{" "}

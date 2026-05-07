@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { APP_NAME } from "@/lib/constants/app";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -144,7 +145,7 @@ export function NavigationMenu({ open, onClose }: NavigationMenuProps) {
             {level === "clothing_types" ? t("nav.overview") : t("nav.clothingType")}
           </Button>
         ) : (
-          <span className="text-lg font-bold tracking-tight">palco+</span>
+          <span className="text-lg font-bold tracking-tight">{APP_NAME}</span>
         )}
         <Button
           variant="ghost"

@@ -19,6 +19,7 @@ export interface CostumeProvenance {
   costume_id: string;
   production_title: string;
   year: number | null;
+  season: string | null;
   actor_name: string | null;
   role_name: string | null;
   director_name: string | null;
@@ -35,6 +36,7 @@ export interface CostumeItem {
   rfid_id: string | null;
   size_label: string | null;
   size_data: Record<string, number> | null;
+  size_notes: string | null;
   condition_grade: number | null;
   current_status: string;
   storage_location_path: string | null;

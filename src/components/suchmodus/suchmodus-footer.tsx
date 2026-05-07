@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./suchmodus-footer.module.css";
+import { APP_NAME } from "@/lib/constants/app";
 
 const FOOTER_LINKS = [
   { label: "Häufige Fragen",      href: "/support" },
@@ -11,7 +12,7 @@ const FOOTER_LINKS = [
 export function SuchmodusFooter() {
   return (
     <footer className={styles.footer}>
-      <span className={styles.logo}>palco+</span>
+      <span className={styles.logo}>{APP_NAME}</span>
       <nav className={styles.links}>
         {FOOTER_LINKS.map((link) => (
           <Link key={link.label} href={link.href} className={styles.link}>
