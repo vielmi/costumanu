@@ -6,15 +6,16 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SuchmodusFooter } from "@/components/suchmodus/suchmodus-footer";
 import styles from "./suchmodus-costume-detail.module.css";
+import { COLOR_SWATCHES } from "@/lib/constants/color-swatches";
 import type { TaxonomyTerm } from "@/lib/types/costume";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type MediaItem    = { id: string; url: string };
 type TheaterInfo  = { id: string; name: string; slug: string; address_info?: Record<string, unknown> | null };
-type ItemInfo     = { barcode_id: string; rfid_id?: string | null; size_label?: string | null; current_status: string; storage_location_path?: string | null };
+type ItemInfo     = { barcode_id: string; rfid_id?: string | null; size_label?: string | null; size_data?: Record<string, string | number | null> | null; size_notes?: string | null; current_status: string; storage_location_path?: string | null };
 type ProvenanceInfo = { id: string; production_title: string; year?: number | null; actor_name?: string | null; role_name?: string | null; director_name?: string | null; costume_designer?: string | null; costume_assistant?: string | null };
-type SimilarCostume = { id: string; name: string; imageUrl: string | null; clothingTypeLabel: string | null; provenance: string | null };
+type SimilarCostume = { id: string; name: string; imageUrl: string | null; clothingTypeLabel: string | null; provenance: string | null; status: string | null; theaterName: string | null };
 
 export type SuchmodusCostumeDetailProps = {
   id: string;
@@ -51,12 +52,35 @@ function Accordion({ title, defaultOpen = false, children }: { title: string; de
   );
 }
 
-function SpecRow({ label, value }: { label: string; value: string | null | undefined }) {
-  if (!value) return null;
+
+function InlineRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className={styles.specRow}>
-      <p className={styles.specLabel}>{label}</p>
-      <p className={styles.specValue}>{value}</p>
+    <p className={styles.specInline}>
+      <span style={{ fontWeight: 700 }}>{label}:</span>{" "}{value}
+    </p>
+  );
+}
+
+function CopyRow({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false);
+  function handleCopy() {
+    navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+  return (
+    <div className={styles.copyRow}>
+      <p className={styles.specInline} style={{ margin: 0, border: "none", padding: 0 }}>
+        <span style={{ fontWeight: 700 }}>{label}:</span>{" "}{value}
+      </p>
+      <button type="button" onClick={handleCopy} className={styles.copyBtn} title="Kopieren">
+        <Image
+          src={copied ? "/icons/icon-check.svg" : "/icons/icon-copy.svg"}
+          alt={copied ? "Kopiert" : "Kopieren"}
+          width={18}
+          height={18}
+        />
+      </button>
     </div>
   );
 }
@@ -84,14 +108,20 @@ export function SuchmodusCostumeDetailClient({
 
   const isAvailable = firstItem?.current_status === "available";
   const address = theater?.address_info;
-  const addressStr = address
-    ? [address.street, address.postal_code, address.city].filter(Boolean).join(" ")
-    : null;
 
-  const epochTerms  = (taxonomyByVocabulary["epoche"]   ?? []).map((t) => t.label_de).join(", ");
-  const segmentTerms = (taxonomyByVocabulary["segment"] ?? []).map((t) => t.label_de).join(", ");
-  const materialTerms = (taxonomyByVocabulary["material"] ?? []).map((t) => t.label_de).join(", ");
-  const colorTerms  = (taxonomyByVocabulary["farbe"]    ?? []).map((t) => t.label_de).join(", ");
+  const epochTerms    = (taxonomyByVocabulary["epoche"]           ?? []).map((t) => t.label_de).join(", ");
+  const sparteTerms   = (taxonomyByVocabulary["sparte"]           ?? []).map((t) => t.label_de).join(", ");
+  const subtypeTerms  = (taxonomyByVocabulary["clothing_subtype"] ?? []);
+  const materialTerms      = (taxonomyByVocabulary["material"]            ?? []).map((t) => t.label_de).join(", ");
+  const materialoptikTerms = (taxonomyByVocabulary["materialoptik"]      ?? []).map((t) => t.label_de).join(", ");
+  const musterTerms        = (taxonomyByVocabulary["muster"]             ?? []).map((t) => t.label_de).join(", ");
+  const colorItems         = (taxonomyByVocabulary["color"]              ?? []);
+  const washingItems = [
+    ...(taxonomyByVocabulary["temperature"]   ?? []),
+    ...(taxonomyByVocabulary["washing_type"]  ?? []),
+    ...(taxonomyByVocabulary["drying"]        ?? []),
+    ...(taxonomyByVocabulary["ironing"]       ?? []),
+  ];
 
   return (
     <div className={styles.page}>
@@ -218,62 +248,136 @@ export function SuchmodusCostumeDetailClient({
       <div className={styles.specsSection}>
         <h2 className={styles.specsTitle}>Kostümspezifikationen</h2>
 
-        <Accordion title="Kategorie" defaultOpen>
-          <SpecRow label="Gender / Typ"    value={genderTerm?.label_de} />
-          <SpecRow label="Epoche"          value={epochTerms || null} />
-          <SpecRow label="Segment"         value={segmentTerms || null} />
-          <SpecRow label="Bekleidungsart"  value={clothingType?.label_de} />
+        <Accordion title="Kostümdetails" defaultOpen>
+          {genderTerm && <InlineRow label="Gender / Typ"   value={genderTerm.label_de} />}
+          {epochTerms  && <InlineRow label="Epoche"        value={epochTerms} />}
+          {sparteTerms && <InlineRow label="Sparte"        value={sparteTerms} />}
+          {clothingType && <InlineRow label="Bekleidungsart" value={clothingType.label_de} />}
+          {subtypeTerms.length > 0 && (
+            <div className={styles.specInlinePills}>
+              <p className={styles.specInlinePillLabel}>Bekleidungstyp:</p>
+              <div className={styles.pillsRow}>
+                {subtypeTerms.map((s) => (
+                  <span key={s.id} className={styles.pill}>{s.label_de}</span>
+                ))}
+              </div>
+            </div>
+          )}
         </Accordion>
 
         {firstProvenance && (
-          <Accordion title="Aufführung">
-            <SpecRow label="Stücktitel"       value={firstProvenance.production_title} />
-            <SpecRow label="Darsteller"       value={firstProvenance.actor_name} />
-            <SpecRow label="Rolle"            value={firstProvenance.role_name} />
-            <SpecRow label="Regie"            value={firstProvenance.director_name} />
-            <SpecRow label="Kostümbildner"    value={firstProvenance.costume_designer} />
-            <SpecRow label="Kostümassistenz"  value={firstProvenance.costume_assistant} />
+          <Accordion title="Produktion">
+            <InlineRow label="Stücktitel"      value={firstProvenance.production_title} />
+            {firstProvenance.year      && <InlineRow label="Spielsaison"    value={String(firstProvenance.year)} />}
+            {firstProvenance.director_name     && <InlineRow label="Regie"          value={firstProvenance.director_name} />}
+            {firstProvenance.costume_designer  && <InlineRow label="Kostümbildner"  value={firstProvenance.costume_designer} />}
+            {firstProvenance.role_name         && <InlineRow label="Rolle"          value={firstProvenance.role_name} />}
+            {firstProvenance.actor_name        && <InlineRow label="Darsteller"     value={firstProvenance.actor_name} />}
+            {firstProvenance.costume_assistant && <InlineRow label="Kostümassistenz" value={firstProvenance.costume_assistant} />}
           </Accordion>
         )}
 
-        {firstItem && (
+        {firstItem && (firstItem.size_label || firstItem.size_data || firstItem.size_notes) && (
           <Accordion title="Masse">
-            <SpecRow label="Konfektionsgrösse" value={firstItem.size_label} />
-            {/* size_data fields if available */}
+            {firstItem.size_label && (
+              <InlineRow label="Konfektionsgrösse" value={firstItem.size_label} />
+            )}
+            {(() => {
+              const sizeDataLabels: Record<string, string> = {
+                chest: "Brustweite", waist: "Taillenweite", hip: "Hüftweite",
+                back_length: "Rückenlänge", shoulder_width: "Schulterbreite", leg_length: "Beinlänge",
+              };
+              const entries = Object.entries(firstItem.size_data ?? {})
+                .filter(([, v]) => v !== null && v !== undefined && v !== "");
+              const parts = [
+                entries.map(([k, v]) => `${sizeDataLabels[k] ?? k}: ${v} cm`).join(", "),
+                firstItem.size_notes ?? "",
+              ].filter(Boolean).join(", ");
+              return parts ? <InlineRow label="Zusatzinfos" value={parts} /> : null;
+            })()}
           </Accordion>
         )}
 
-        {(theater || firstItem?.storage_location_path) && (
-          <Accordion title="Standort">
+        {(theater || firstItem?.storage_location_path || firstItem?.current_status) && (
+          <Accordion title="Standort & Verfügbarkeit">
             {theater && (
-              <div className={styles.specRow}>
-                <p className={styles.specLabel}>{theater.name}</p>
-                {addressStr && <p className={styles.specValue}>{addressStr}</p>}
+              <div className={styles.locationBlock}>
+                <p className={styles.locationHeading}>{theater.name}:</p>
+                {(() => {
+                  const addr = theater.address_info as Record<string, string> | null | undefined;
+                  return <>
+                    {addr?.venue  && <p className={styles.locationLine}>{addr.venue}</p>}
+                    {addr?.street && <p className={styles.locationLine}>{addr.street}</p>}
+                    {(addr?.zip || addr?.city) && (
+                      <p className={styles.locationLine}>{[addr.zip, addr.city].filter(Boolean).join(" ")}</p>
+                    )}
+                  </>;
+                })()}
               </div>
             )}
-            {firstItem?.storage_location_path && (
-              <SpecRow
-                label="Platzierung"
-                value={firstItem.storage_location_path.replace(/\./g, " › ")}
-              />
-            )}
-            {firstItem && (
-              <SpecRow label="Status" value={STATUS_LABELS[firstItem.current_status] ?? firstItem.current_status} />
+            {firstItem?.storage_location_path && (() => {
+              const parts = firstItem.storage_location_path!.split(".");
+              return (
+                <div className={styles.locationBlock}>
+                  <p className={styles.locationHeading}>Platzierung:</p>
+                  {parts[0] && <p className={styles.locationLine}>Stockwerk: {parts[0]}</p>}
+                  {parts[1] && <p className={styles.locationLine}>Regal Nr.: {parts[1]}</p>}
+                  {parts[2] && <p className={styles.locationLine}>Sektor: {parts[2]}</p>}
+                </div>
+              );
+            })()}
+            {firstItem?.current_status && (
+              <div className={styles.locationBlock}>
+                <p className={styles.locationHeading}>Verfügbarkeit:</p>
+                <div className={styles.availRow2}>
+                  <span className={`${styles.availDot} ${firstItem.current_status === "available" ? styles.available : styles.onRequest}`}>
+                    {firstItem.current_status === "available" && (
+                      <Image src="/icons/icon-check.svg" alt="" width={10} height={10} />
+                    )}
+                  </span>
+                  <span className={styles.availLabel}>
+                    {firstItem.current_status === "available" ? "verfügbar" : (STATUS_LABELS[firstItem.current_status] ?? firstItem.current_status)}
+                  </span>
+                </div>
+              </div>
             )}
           </Accordion>
         )}
 
         {firstItem && (
           <Accordion title="ID & Infos">
-            <SpecRow label="Barcode ID" value={firstItem.barcode_id} />
-            {firstItem.rfid_id && <SpecRow label="RFID" value={firstItem.rfid_id} />}
+            <CopyRow label="ID"      value={firstItem.barcode_id} />
+            {firstItem.rfid_id && <CopyRow label="Etikett" value={firstItem.rfid_id} />}
           </Accordion>
         )}
 
-        {(materialTerms || colorTerms) && (
+        {washingItems.length > 0 && (
+          <Accordion title="Pflege">
+            {washingItems.map((w) => (
+              <div key={w.id} className={styles.careRow}>
+                <span className={styles.careIconSlot} />
+                <span className={styles.careLabel}>{w.label_de}</span>
+              </div>
+            ))}
+          </Accordion>
+        )}
+
+        {(materialTerms || materialoptikTerms || musterTerms || colorItems.length > 0) && (
           <Accordion title="Material & Farbe">
-            <SpecRow label="Material"  value={materialTerms || null} />
-            <SpecRow label="Farbe"     value={colorTerms || null} />
+            {materialTerms      && <InlineRow label="Materialart"   value={materialTerms} />}
+            {materialoptikTerms && <InlineRow label="Materialoptik" value={materialoptikTerms} />}
+            {musterTerms        && <InlineRow label="Muster"        value={musterTerms} />}
+            {colorItems.length > 0 && (
+              <div className={styles.specInlineColors}>
+                <span className={styles.specInlineColorLabel}>Farben:</span>
+                {colorItems.map((c) => (
+                  <span key={c.id} className={styles.colorItem}>
+                    <span className={styles.colorDot} style={{ background: COLOR_SWATCHES[c.label_de] ?? "#ccc" }} />
+                    <span className={styles.colorName}>{c.label_de}</span>
+                  </span>
+                ))}
+              </div>
+            )}
           </Accordion>
         )}
 
@@ -332,6 +436,19 @@ export function SuchmodusCostumeDetailClient({
                   {c.clothingTypeLabel && <p className={styles.similarCardType}>{c.clothingTypeLabel}</p>}
                   <p className={styles.similarCardName}>{c.name}</p>
                   {c.provenance && <p className={styles.similarCardProv}>{c.provenance}</p>}
+                  {(c.status || c.theaterName) && (
+                    <div className={styles.similarCardStatus}>
+                      <span
+                        className={styles.similarStatusDot}
+                        style={{ background: c.status === "available" ? "var(--accent-01)" : "var(--neutral-grey-300)" }}
+                      >
+                        {c.status === "available" && (
+                          <Image src="/icons/icon-check.svg" alt="" width={8} height={8} style={{ filter: "invert(1)" }} />
+                        )}
+                      </span>
+                      {c.theaterName && <span className={styles.similarCardTheater}>{c.theaterName}</span>}
+                    </div>
+                  )}
                 </div>
               </Link>
             ))}

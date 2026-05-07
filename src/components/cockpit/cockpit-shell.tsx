@@ -25,7 +25,7 @@ interface CockpitShellProps {
 const NAV_ITEMS: NavItem[] = [
   { label: "Home",          href: "/",             icon: "icon-home-menu"       },
   { label: "Kostüme",       href: "/fundus",        icon: "icon-shirt"           },
-  { label: "Aufführungen",  href: "/auffuehrungen", icon: "icon-production-menu" },
+  { label: "Produktionen",  href: "/produktionen",  icon: "icon-production-menu", beta: true },
 ];
 
 const ADMIN_NAV_ITEM: NavItem = {

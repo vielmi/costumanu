@@ -63,6 +63,25 @@ export function CockpitMobileDrawer({ navItems }: CockpitMobileDrawerProps) {
                     style={{ filter: "invert(1)", flexShrink: 0 }}
                   />
                   <span className={styles.navLabel}>{item.label}</span>
+                  {item.beta && (
+                    <span
+                      style={{
+                        fontFamily: "var(--font-family-base)",
+                        fontSize: "var(--font-size-50)",
+                        fontWeight: "var(--font-weight-600)" as React.CSSProperties["fontWeight"],
+                        color: "rgba(255,255,255,0.75)",
+                        border: "1px solid rgba(255,255,255,0.4)",
+                        background: "rgba(255,255,255,0.10)",
+                        borderRadius: "var(--radius-full)",
+                        padding: "1px 6px",
+                        letterSpacing: "0.04em",
+                        flexShrink: 0,
+                        lineHeight: "16px",
+                      }}
+                    >
+                      Beta
+                    </span>
+                  )}
                   <Image src="/icons/icon-arrow-s.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
                 </Link>
               ))}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,7 @@ import { AppLogo } from "@/components/layout/app-logo";
 import { CameraCapture } from "@/components/camera/camera-capture";
 import { BarcodeScanner } from "@/components/barcode/barcode-scanner";
 import { getMusterIcon } from "@/lib/constants/icons";
+import { COLOR_SWATCHES } from "@/lib/constants/color-swatches";
 import styles from "./kostueme-neu.module.css";
 
 interface TaxTerm { id: string; label_de: string; parent_id?: string | null; }
@@ -26,15 +27,20 @@ interface Taxonomy {
   ironings: TaxTerm[];
 }
 
-// Color hex map for swatches
-const COLOR_HEX: Record<string, string> = {
-  beige: "#D4C5A9", blau: "#4A90D9", bordeaux: "#7B1C35", braun: "#8B5E3C",
-  gelb: "#F5D800", gold: "#C8A84B", grau: "#9B9B9B", grün: "#3CB34A",
-  orange: "#F57C00", rosa: "#F48FB1", rot: "#E53935", schwarz: "#000000",
-  silber: "#B0B8BE", türkis: "#00BCD4", violett: "#9B59B6", weiss: "#FFFFFF",
-  transparent: "transparent",
-  multicolor: "multicolor",
-};
+function getWashIcon(label: string): string | null {
+  const l = label.toLowerCase();
+  if (l.includes("20")) return "/icons/icon-wash-20.svg";
+  if (l.includes("30")) return "/icons/icon-wash-30.svg";
+  if (l.includes("40")) return "/icons/icon-wash-40.svg";
+  if (l.includes("50")) return "/icons/icon-wash-50.svg";
+  if (l.includes("60")) return "/icons/icon-wash-60.svg";
+  if (l.includes("kalt") || l === "0°") return "/icons/icon-wash-O.svg";
+  if (l.includes("hand")) return "/icons/icon-wash.svg";
+  if (l.includes("chemisch") || l.includes("trocken")) return "/icons/icon-wash-dry-clean.svg";
+  if (l.includes("ozon")) return "/icons/icon-wash-O.svg";
+  return null;
+}
+
 
 interface Props {
   theaterId: string;
@@ -311,11 +317,12 @@ function buildFormFromCostume(c: import("@/lib/types/costume").Costume): ReturnT
     washingTypeIds: termsByVocab["washing_type"] ?? [],
     dryingIds: termsByVocab["drying"] ?? [],
     ironingIds: termsByVocab["ironing"] ?? [],
+    subtypeIds: termsByVocab["clothing_subtype"] ?? [],
     keineReinigung: false,
     colorNote: "",
     materialNotes: "",
     sizeLabel: item?.size_label ?? "",
-    sizeNotes: "",
+    sizeNotes: item?.size_notes ?? "",
     locationFloor: storageParts[0] ?? "",
     locationRack: storageParts[1] ?? "",
     locationSector: storageParts[2] ?? "",
@@ -334,6 +341,7 @@ function buildFormFromCostume(c: import("@/lib/types/costume").Costume): ReturnT
     conditionGrade: item?.condition_grade ? String(item.condition_grade) : "3",
     productionTitle: prov?.production_title ?? "",
     productionYear: prov?.year ? String(prov.year) : "",
+    spielsaison: prov?.season ?? "",
     actorName: prov?.actor_name ?? "",
     roleName: prov?.role_name ?? "",
     notes: "",
@@ -347,6 +355,7 @@ function emptyForm() {
     materialSearch: "", materialIds: [] as string[], musterIds: [] as string[],
     colorIds: [] as string[], spartanIds: [] as string[], temperatureIds: [] as string[],
     washingTypeIds: [] as string[], dryingIds: [] as string[], ironingIds: [] as string[],
+    subtypeIds: [] as string[],
     keineReinigung: false,
     colorNote: "", materialNotes: "",
     sizeLabel: "", sizeNotes: "",
@@ -355,13 +364,67 @@ function emptyForm() {
     chest: "", waist: "", hip: "", backLength: "", shoulderWidth: "", legLength: "",
     storageLocation: "", barcodeId: "", rfidId: "", qrCodeId: "",
     conditionGrade: "3",
-    productionTitle: "", productionYear: "", actorName: "", roleName: "",
+    productionTitle: "", productionYear: "", spielsaison: "", actorName: "", roleName: "",
     notes: "",
   };
 }
 
+// ─── Free-text card (same visual as CreatableSearchCard, no autocomplete) ────
+function FreeTextCard({ label, value, onChange, placeholder = "eingeben" }: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <div style={{
+      background: "var(--secondary-500)",
+      borderRadius: "var(--radius-md)",
+      padding: "13px 13px 16px",
+      flex: 1,
+    }}>
+      <div style={{
+        fontFamily: "var(--font-family-base)",
+        fontSize: "var(--font-size-350)",
+        fontWeight: "var(--font-weight-500)",
+        color: "var(--neutral-black)",
+        marginBottom: 10,
+      }}>
+        {label}
+      </div>
+      <div style={{
+        border: "1px solid var(--neutral-black)",
+        borderRadius: 47,
+        height: 60,
+        display: "flex",
+        alignItems: "center",
+        padding: "0 16px",
+        background: "var(--secondary-500)",
+      }}>
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          style={{
+            flex: 1,
+            border: "none",
+            background: "transparent",
+            fontFamily: "var(--font-family-base)",
+            fontSize: "var(--font-size-200)",
+            fontWeight: "var(--font-weight-400)",
+            color: "var(--neutral-grey-600)",
+            letterSpacing: "0.002em",
+            outline: "none",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
-export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _currentUserId, currentUserName: _currentUserName, costumeType, taxonomy, editCostume }: Props) {
+export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, currentUserName, costumeType, taxonomy, editCostume }: Props) {
   const router = useRouter();
   const supabase = createClient();
   const mainRef = useRef<HTMLDivElement>(null);
@@ -370,6 +433,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
   const [activeSection, setActiveSection] = useState("kategorie");
   const [headerHidden, setHeaderHidden] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [showCloseSheet, setShowCloseSheet] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
@@ -413,7 +477,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
       return next;
     });
   }
-  function toggleArr(key: "materialIds" | "musterIds" | "colorIds" | "spartanIds" | "temperatureIds" | "washingTypeIds" | "dryingIds" | "ironingIds", id: string) {
+  function toggleArr(key: "materialIds" | "musterIds" | "colorIds" | "spartanIds" | "temperatureIds" | "washingTypeIds" | "dryingIds" | "ironingIds" | "subtypeIds", id: string) {
     setForm((f) => {
       const arr = f[key] as string[];
       return { ...f, [key]: arr.includes(id) ? arr.filter((x) => x !== id) : [...arr, id] };
@@ -504,7 +568,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
       const taxTermIds = [
         ...form.materialIds, ...form.musterIds, ...form.colorIds,
         ...form.spartanIds, ...form.temperatureIds, ...form.washingTypeIds,
-        ...form.dryingIds, ...form.ironingIds,
+        ...form.dryingIds, ...form.ironingIds, ...form.subtypeIds,
       ];
       const sizeData = {
         chest: form.chest || null, waist: form.waist || null, hip: form.hip || null,
@@ -534,6 +598,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
             barcode_id: form.barcodeId || null,
             size_label: form.sizeLabel || null,
             size_data: sizeData,
+            size_notes: form.sizeNotes || null,
             condition_grade: form.conditionGrade ? Number(form.conditionGrade) : null,
             current_status: form.currentStatus,
             storage_location_path: storagePath,
@@ -547,6 +612,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
             costume_id: editCostume.id,
             production_title: form.productionTitle,
             year: form.productionYear ? Number(form.productionYear) : null,
+            season: form.spielsaison || null,
             actor_name: form.actorName || null,
             role_name: form.roleName || null,
           });
@@ -566,10 +632,22 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
         for (let i = 0; i < newImages.length; i++) {
           const img = newImages[i];
           const ext = img.file.name.split(".").pop() ?? "jpg";
+          const contentType = img.file.type || ({ jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", gif: "image/gif", heic: "image/heic", heif: "image/heif", avif: "image/avif" } as Record<string, string>)[ext] || "image/jpeg";
           const path = `${theaterId}/${editCostume.id}/${Date.now()}_${i}.${ext}`;
-          await supabase.storage.from("costume-images").upload(path, img.file);
+          const { error: uploadErr } = await supabase.storage.from("costume-images").upload(path, img.file, { contentType });
+          if (uploadErr) throw new Error(`Bild-Upload fehlgeschlagen: ${uploadErr.message}`);
           await supabase.from("costume_media").insert({ costume_id: editCostume.id, storage_path: path, sort_order: remainingCount + i });
         }
+
+        await supabase.from("costume_activity_log").insert({
+          costume_id: editCostume.id,
+          action_type: "edited",
+          changed_by_id: currentUserId,
+          changed_by_name: currentUserName,
+          production_title: form.productionTitle || null,
+          season: form.spielsaison || null,
+          role_name: form.roleName || null,
+        });
 
         router.push(`/costume/${editCostume.id}`);
       } else {
@@ -599,6 +677,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
           barcode_id: form.barcodeId || null,
           size_label: form.sizeLabel || null,
           size_data: sizeData,
+          size_notes: form.sizeNotes || null,
           condition_grade: form.conditionGrade ? Number(form.conditionGrade) : null,
           current_status: form.currentStatus,
           storage_location_path: storagePath,
@@ -610,6 +689,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
             costume_id: costume.id,
             production_title: form.productionTitle,
             year: form.productionYear ? Number(form.productionYear) : null,
+            season: form.spielsaison || null,
             actor_name: form.actorName || null,
             role_name: form.roleName || null,
           });
@@ -619,14 +699,27 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
         for (let i = 0; i < newImagesForCreate.length; i++) {
           const img = newImagesForCreate[i];
           const ext = img.file.name.split(".").pop() ?? "jpg";
+          const contentType = img.file.type || ({ jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", gif: "image/gif", heic: "image/heic", heif: "image/heif", avif: "image/avif" } as Record<string, string>)[ext] || "image/jpeg";
           const path = `${theaterId}/${costume.id}/${i}.${ext}`;
-          await supabase.storage.from("costume-images").upload(path, img.file);
+          const { error: uploadErr } = await supabase.storage.from("costume-images").upload(path, img.file, { contentType });
+          if (uploadErr) throw new Error(`Bild-Upload fehlgeschlagen: ${uploadErr.message}`);
           await supabase.from("costume_media").insert({ costume_id: costume.id, storage_path: path, sort_order: i });
         }
 
+        await supabase.from("costume_activity_log").insert({
+          costume_id: costume.id,
+          action_type: "created",
+          changed_by_id: currentUserId,
+          changed_by_name: currentUserName,
+          production_title: form.productionTitle || null,
+          season: form.spielsaison || null,
+          role_name: form.roleName || null,
+        });
+
         router.push(`/costume/${costume.id}`);
       }
-    } catch {
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Speichern fehlgeschlagen");
       setSaving(false);
     }
   }
@@ -675,15 +768,22 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
           </button>
 
           {/* Speichern */}
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving || !(form.name.trim() && form.genderId && form.clothingTypeLabel && form.colorIds.length > 0)}
-            className="btn-primary"
-            style={{ whiteSpace: "nowrap", flexShrink: 0 }}
-          >
-            {saving ? "Speichert..." : "Speichern"}
-          </button>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
+            <button
+              type="button"
+              onClick={() => { setSaveError(null); handleSave(); }}
+              disabled={saving || !(form.name.trim() && form.genderId && form.clothingTypeLabel && form.colorIds.length > 0)}
+              className="btn-primary"
+              style={{ whiteSpace: "nowrap" }}
+            >
+              {saving ? "Speichert..." : "Speichern"}
+            </button>
+            {saveError && (
+              <span style={{ fontSize: "var(--font-size-100)", color: "var(--color-error)", fontFamily: "var(--font-family-base)", maxWidth: 240, textAlign: "right" }}>
+                {saveError}
+              </span>
+            )}
+          </div>
 
           {/* Close */}
           <button type="button" onClick={() => setShowCloseSheet(true)} className={styles.closeBtn}>
@@ -717,8 +817,8 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
         {/* Scrollable content */}
         <div className={styles.contentClip}>
           <div ref={mainRef} className={styles.contentScroll}>
-            <input ref={imageInputRef} type="file" accept="image/*" multiple className={styles.hiddenInput} onChange={handleImageAdd} />
-            <input id="camera-capture-input" ref={cameraCaptureRef} type="file" accept="image/*" capture="environment" className={styles.hiddenInput} onChange={handleImageAdd} />
+            <input ref={imageInputRef} type="file" accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/heic,image/heif,image/avif,image/bmp" multiple className={styles.hiddenInput} onChange={handleImageAdd} />
+            <input id="camera-capture-input" ref={cameraCaptureRef} type="file" accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/heic,image/heif,image/avif,image/bmp" capture="environment" className={styles.hiddenInput} onChange={handleImageAdd} />
 
             {/* ─── Kategorie ─── */}
             <section
@@ -796,6 +896,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
                     <CreatableSearchCard label="Stücktitel" value={form.productionTitle} onChange={(v) => setField("productionTitle", v)} dbColumn="production_title" />
                     <CreatableSearchCard label="Darsteller" value={form.actorName}       onChange={(v) => setField("actorName", v)}        dbColumn="actor_name" />
                     <CreatableSearchCard label="Rolle"      value={form.roleName}        onChange={(v) => setField("roleName", v)}         dbColumn="role_name" />
+                    <FreeTextCard       label="Spielsaison" value={form.spielsaison}    onChange={(v) => setField("spielsaison", v)}      placeholder="z.B. 2024/25" />
                   </div>
                 </div>
 
@@ -839,13 +940,8 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
                             <Pill
                               key={t.id}
                               label={t.label_de}
-                              active={form.clothingTypeSuggestions.includes(t.id)}
-                              onClick={() => setForm((f) => ({
-                                ...f,
-                                clothingTypeSuggestions: f.clothingTypeSuggestions.includes(t.id)
-                                  ? f.clothingTypeSuggestions.filter((x) => x !== t.id)
-                                  : [...f.clothingTypeSuggestions, t.id],
-                              }))}
+                              active={form.subtypeIds.includes(t.id)}
+                              onClick={() => toggleArr("subtypeIds", t.id)}
                             />
                           ))}
                         </div>
@@ -926,11 +1022,10 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
                   <div className={styles.colorGrid}>
                     {colorOptions.map((o) => {
                       const isActive = form.colorIds.includes(o.id);
-                      const labelLower = o.label.toLowerCase();
-                      const isMulticolor = labelLower === "multicolor";
-                      const isTransparent = labelLower === "transparent";
-                      const isLight = labelLower === "weiss" || labelLower === "beige" || labelLower === "silber" || isTransparent;
-                      const hex = COLOR_HEX[labelLower] ?? "#CCCCCC";
+                      const isMulticolor = o.label === "Multicolor";
+                      const isTransparent = o.label === "Transparent";
+                      const isLight = o.label === "Weiss" || o.label === "Beige" || o.label === "Silber" || isTransparent;
+                      const hex = COLOR_SWATCHES[o.label] ?? "#CCCCCC";
                       return (
                         <button
                           key={o.id}
@@ -974,61 +1069,50 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
                 {/* Reinigung */}
                 <div>
                   <div className={styles.subHeading}>Reinigung</div>
-                  <div className={styles.toggleRow}>
-                    <button
-                      type="button"
-                      onClick={() => setForm((f) => ({ ...f, keineReinigung: !f.keineReinigung }))}
-                      className={`${styles.toggleBtn} ${form.keineReinigung ? styles.toggleBtnOn : ""}`}
-                    >
-                      <div className={styles.toggleThumb} style={{ left: form.keineReinigung ? 34 : 3 }} />
-                    </button>
-                    <span className={styles.toggleLabel}>Keine Reinigung möglich</span>
-                  </div>
-                  {!form.keineReinigung && <div className={styles.careCard}>
+                  <div className={styles.careCard}>
                     <div className={styles.careHeader}>
-                      <span className={styles.careIcon} style={{ WebkitMaskImage: "url('/icons/icon-wasch.svg')", maskImage: "url('/icons/icon-wasch.svg')" }} />
-                      <span className={styles.careTitle}>Temperatur &amp; Reinigungsart</span>
+                      <span className={styles.careIcon} style={{ WebkitMaskImage: "url('/icons/icon-wash-basin.svg')", maskImage: "url('/icons/icon-wash-basin.svg')" }} />
+                      <span className={styles.careTitle}>Waschen</span>
                     </div>
-                    <div className={styles.careBody}>
-                      <div className={styles.tempGrid}>
-                        {temperatureOptions.map((o) => {
-                          const isActive = form.temperatureIds.includes(o.id);
-                          return (
-                            <button
-                              key={o.id}
-                              type="button"
-                              onClick={() => toggleArr("temperatureIds", o.id)}
-                              className={`${styles.tempBtn} ${isActive ? styles.tempBtnActive : ""}`}
-                            >
-                              {o.label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      <div className={styles.checkboxList}>
-                        {washingTypeOptions.map((o) => {
-                          const isActive = form.washingTypeIds.includes(o.id);
-                          return (
-                            <button
-                              key={o.id}
-                              type="button"
-                              onClick={() => toggleArr("washingTypeIds", o.id)}
-                              className={`${styles.checkboxBtn} ${isActive ? styles.checkboxBtnActive : ""}`}
-                            >
-                              <div className={styles.checkbox}>
-                                {isActive && <div className={styles.checkboxDot} />}
-                              </div>
-                              <span className={styles.checkboxLabel}>{o.label}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
+                    <div className={styles.washTileGrid}>
+                      {temperatureOptions.map((o) => {
+                        const isActive = form.temperatureIds.includes(o.id);
+                        const iconSrc = getWashIcon(o.label);
+                        return (
+                          <button
+                            key={o.id}
+                            type="button"
+                            onClick={() => toggleArr("temperatureIds", o.id)}
+                            className={`${styles.washTile} ${isActive ? styles.washTileActive : ""}`}
+                          >
+                            {iconSrc
+                              ? <img src={iconSrc} alt={o.label} width={50} height={50} className={isActive ? styles.washTileIconActive : ""} />
+                              : <span className={`${styles.washTileLabel} ${isActive ? styles.washTileLabelActive : ""}`}>{o.label}</span>
+                            }
+                          </button>
+                        );
+                      })}
+                      {washingTypeOptions.map((o) => {
+                        const isActive = form.washingTypeIds.includes(o.id);
+                        const iconSrc = getWashIcon(o.label);
+                        return (
+                          <button
+                            key={o.id}
+                            type="button"
+                            onClick={() => toggleArr("washingTypeIds", o.id)}
+                            className={`${styles.washTile} ${styles.washTileType} ${isActive ? styles.washTileActive : ""}`}
+                          >
+                            {iconSrc && <img src={iconSrc} alt="" width={50} height={50} className={isActive ? styles.washTileIconActive : ""} />}
+                            <span className={`${styles.washTileLabel} ${isActive ? styles.washTileLabelActive : ""}`}>{o.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
-                  </div>}
+                  </div>
                 </div>
 
                 {/* Trocknen + Bügeln */}
-                {!form.keineReinigung && <div className={styles.careGrid}>
+                <div className={styles.careGrid}>
                   <div className={styles.careCard}>
                     <div className={styles.careHeader}>
                       <span className={styles.careIcon} style={{ WebkitMaskImage: "url('/icons/icon-tumbler.svg')", maskImage: "url('/icons/icon-tumbler.svg')" }} />
@@ -1078,10 +1162,10 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
                       })}
                     </div>
                   </div>
-                </div>}
+                </div>
 
                 {/* Zusätzliche Waschinfos */}
-                {!form.keineReinigung && <div>
+                <div>
                   <div className={styles.subHeading}>Zusätzliche Waschinfos</div>
                   <textarea
                     value={form.materialNotes}
@@ -1089,7 +1173,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId: _curr
                     rows={3}
                     className={styles.textarea}
                   />
-                </div>}
+                </div>
               </div>
             </section>
 

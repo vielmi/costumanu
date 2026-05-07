@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -182,6 +182,23 @@ export function WishlistDetailClient({ wishlistId, wishlistName: initialName, co
   return (
     <div className={styles.page}>
       <AppMobileHeader rightSlot={rightSlot} />
+
+      {/* ── Back ── */}
+      <div style={{ padding: "12px 16px 0" }}>
+        <button
+          type="button"
+          onClick={() => router.back()}
+          style={{
+            display: "flex", alignItems: "center", gap: 6,
+            background: "none", border: "none", cursor: "pointer", padding: 0,
+            fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)",
+            color: "var(--neutral-grey-600)",
+          }}
+        >
+          <Image src="/icons/icon-arrow-left.svg" alt="" width={14} height={14} />
+          Zurück
+        </button>
+      </div>
 
       {/* ── Titel + 3-Punkte-Menü / Fertig ── */}
       <div className={styles.titleBar}>

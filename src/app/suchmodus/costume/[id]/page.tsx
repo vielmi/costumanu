@@ -18,7 +18,7 @@ export default async function SuchmodusCostumeDetailPage({ params }: { params: P
       clothing_type:taxonomy_terms!clothing_type_id(id, vocabulary, label_de, parent_id, sort_order),
       costume_media(id, costume_id, storage_path, sort_order, created_at),
       costume_provenance(id, costume_id, production_title, year, actor_name, role_name, director_name, costume_designer, costume_assistant, is_original_production),
-      costume_items(id, costume_id, theater_id, barcode_id, rfid_id, size_label, size_data, condition_grade, current_status, storage_location_path, is_public_for_rent, updated_at),
+      costume_items(id, costume_id, theater_id, barcode_id, rfid_id, size_label, size_data, size_notes, condition_grade, current_status, storage_location_path, is_public_for_rent, updated_at),
       costume_taxonomy(term_id, taxonomy_term:taxonomy_terms(id, vocabulary, label_de, parent_id, sort_order)),
       theater:theaters(id, name, slug, address_info)
     `)
@@ -28,7 +28,7 @@ export default async function SuchmodusCostumeDetailPage({ params }: { params: P
   if (error || !costume) notFound();
 
   // Similar costumes
-  let similarCostumes: { id: string; name: string; imageUrl: string | null; clothingTypeLabel: string | null; provenance: string | null }[] = [];
+  let similarCostumes: { id: string; name: string; imageUrl: string | null; clothingTypeLabel: string | null; provenance: string | null; status: string | null; theaterName: string | null }[] = [];
   if (costume.clothing_type_id) {
     const { data: simRows } = await supabase
       .from("costumes")
@@ -36,7 +36,9 @@ export default async function SuchmodusCostumeDetailPage({ params }: { params: P
         id, name,
         clothing_type:taxonomy_terms!clothing_type_id(id, label_de),
         costume_media(storage_path, sort_order),
-        costume_provenance(production_title, year)
+        costume_provenance(production_title, year),
+        costume_items(current_status),
+        theater:theaters!theater_id(name)
       `)
       .eq("clothing_type_id", costume.clothing_type_id)
       .neq("id", id)
@@ -51,12 +53,19 @@ export default async function SuchmodusCostumeDetailPage({ params }: { params: P
       const ct = (r as any).clothing_type;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const prov = (r as any).costume_provenance?.[0];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const item = (r as any).costume_items?.[0];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const theater = (r as any).theater;
+      const theaterName = Array.isArray(theater) ? theater[0]?.name : theater?.name;
       return {
         id: r.id,
         name: r.name,
         imageUrl,
         clothingTypeLabel: ct?.label_de ?? null,
         provenance: prov ? [prov.production_title, prov.year].filter(Boolean).join(", ") : null,
+        status: item?.current_status ?? null,
+        theaterName: theaterName ?? null,
       };
     });
   }

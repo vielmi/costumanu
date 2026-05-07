@@ -28,8 +28,8 @@ const IMAGE_CARDS = [
     image: "/images/cockpit-kostueme.jpg",
   },
   {
-    title: "Aktuelle- & vergangene Aufführungen",
-    href: "/auffuehrungen",
+    title: "Aktuelle- & vergangene Produktionen",
+    href: "/produktionen",
     overlayOpacity: 0.5,
     bg: "var(--secondary-900)",
     image: "/images/cockpit-auffuehrungen.jpg",
@@ -62,14 +62,22 @@ function StatusDot({ status }: { status: CostumeStatus }) {
   return (
     <span
       style={{
-        width: 10,
-        height: 10,
+        width: 20,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        marginLeft: "auto",
+      }}
+    >
+      <span style={{
+        width: 10, height: 10,
         borderRadius: "50%",
         background: colorMap[status],
         flexShrink: 0,
-        display: "inline-block",
-      }}
-    />
+        display: "block",
+      }} />
+    </span>
   );
 }
 

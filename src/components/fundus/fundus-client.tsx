@@ -59,8 +59,9 @@ export function FundusClient({
           clothing_type:taxonomy_terms!clothing_type_id(id, vocabulary, label_de, parent_id, sort_order),
           costume_media(id, costume_id, storage_path, sort_order, created_at),
           costume_provenance(id, costume_id, production_title, year, role_name),
-          costume_items(id, costume_id, theater_id, barcode_id, size_label, condition_grade, current_status),
-          costume_taxonomy(term_id, taxonomy_term:taxonomy_terms(id, vocabulary, label_de))
+          costume_items(id, costume_id, theater_id, barcode_id, size_label, condition_grade, current_status, storage_location_path),
+          costume_taxonomy(term_id, taxonomy_term:taxonomy_terms(id, vocabulary, label_de)),
+          theater:theaters!theater_id(id, name, slug)
         `)
         .in("theater_id", queryIds)
         .order("created_at", { ascending: false });
@@ -77,18 +78,30 @@ export function FundusClient({
     gender: searchParams.get("gender") ?? "",
     clothingType: searchParams.get("clothingType") ?? "",
     epoch: "",
+    theater: "",
+    standort: "",
   });
   const [editMode, setEditMode] = useState(false);
 
   const filterOptions = useMemo(() => {
     const epochs = new Set<string>();
+    const theaters = new Set<string>();
+    const standorte = new Set<string>();
     costumes.forEach((c) => {
       c.costume_taxonomy?.forEach((t) => {
         if (t.taxonomy_term?.vocabulary === "epoch" && t.taxonomy_term.label_de)
           epochs.add(t.taxonomy_term.label_de);
       });
+      const theaterName = (c.theater as { name?: string } | null)?.name;
+      if (theaterName) theaters.add(theaterName);
+      const loc = c.costume_items?.[0]?.storage_location_path;
+      if (loc) standorte.add(loc.split(".")[0]);
     });
-    return { epochs: [...epochs].sort() };
+    return {
+      epochs: [...epochs].sort(),
+      theaters: [...theaters].sort(),
+      standorte: [...standorte].sort(),
+    };
   }, [costumes]);
 
   const filteredCostumes = useMemo(() => {
@@ -108,6 +121,13 @@ export function FundusClient({
         );
         if (!has) return false;
       }
+      if (filters.theater) {
+        if ((c.theater as { name?: string } | null)?.name !== filters.theater) return false;
+      }
+      if (filters.standort) {
+        const loc = c.costume_items?.[0]?.storage_location_path ?? "";
+        if (loc.split(".")[0] !== filters.standort) return false;
+      }
       return true;
     });
   }, [costumes, filters]);
@@ -124,7 +144,7 @@ export function FundusClient({
   }, [filteredCostumes, sort]);
 
   const anyFilterActive = Object.values(filters).some(Boolean);
-  function clearFilters() { setFilters({ status: "", gender: "", clothingType: "", epoch: "" }); }
+  function clearFilters() { setFilters({ status: "", gender: "", clothingType: "", epoch: "", theater: "", standort: "" }); }
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkStatusMenuOpen, setBulkStatusMenuOpen] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
@@ -408,6 +428,32 @@ export function FundusClient({
               <option value="">Epoche</option>
               {filterOptions.epochs.map((e) => (
                 <option key={e} value={e}>{e}</option>
+              ))}
+            </select>
+          )}
+          {/* Theater — nur wenn mehrere Theater vorhanden */}
+          {filterOptions.theaters.length > 1 && (
+            <select
+              className={`${styles.filterChip} ${filters.theater ? styles.filterChipActive : ""}`}
+              value={filters.theater}
+              onChange={(e) => setFilters((f) => ({ ...f, theater: e.target.value }))}
+            >
+              <option value="">Theater</option>
+              {filterOptions.theaters.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          )}
+          {/* Standort — erste Ebene des storage_location_path */}
+          {filterOptions.standorte.length > 0 && (
+            <select
+              className={`${styles.filterChip} ${filters.standort ? styles.filterChipActive : ""}`}
+              value={filters.standort}
+              onChange={(e) => setFilters((f) => ({ ...f, standort: e.target.value }))}
+            >
+              <option value="">Standort</option>
+              {filterOptions.standorte.map((s) => (
+                <option key={s} value={s}>{s}</option>
               ))}
             </select>
           )}

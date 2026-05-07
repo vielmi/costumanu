@@ -537,31 +537,50 @@
 
 .careBody { display: flex; gap: 24px; }
 
-/* Temperatur grid */
-.tempGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 90px);
-  grid-template-rows: repeat(2, 80px);
-  grid-auto-rows: 80px;
-  gap: 8px;
+/* Wash icon tile grid */
+.washTileGrid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 20px 15px;
 }
 
-.tempBtn {
+.washTile {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
+  width: 174px;
+  height: 93px;
+  flex-shrink: 0;
   border: 1px solid var(--secondary-700);
+  border-radius: 12px;
   background: var(--neutral-white);
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-400);
-  font-weight: var(--font-weight-400);
-  color: var(--secondary-800);
+  cursor: pointer;
   transition: background 120ms ease;
 }
-.tempBtnActive { background: var(--secondary-700); font-weight: var(--font-weight-700); color: var(--neutral-white); }
+.washTileActive { background: var(--secondary-800); }
+
+.washTileIconActive { filter: brightness(0) invert(1); }
+
+/* Washing-type tiles: icon at top, label at bottom */
+.washTileType {
+  justify-content: space-between;
+  padding-top: 5px;
+  padding-bottom: 11px;
+}
+
+.washTileLabel {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-350);
+  font-weight: var(--font-weight-500);
+  color: var(--secondary-800);
+  text-align: center;
+  line-height: 150%;
+}
+.washTileLabelActive { color: var(--neutral-white); }
 
 /* Washing / Drying / Ironing checkbox list */
 .checkboxList {
@@ -589,7 +608,7 @@
 .checkbox {
   width: 30px;
   height: 30px;
-  border-radius: var(--radius-sm);
+  border-radius: 50%;
   flex-shrink: 0;
   border: 2px solid var(--secondary-700);
   background: transparent;
@@ -601,7 +620,7 @@
 .checkboxDot {
   width: 16px;
   height: 16px;
-  border-radius: 4px;
+  border-radius: 50%;
   background: var(--secondary-700);
 }
 
@@ -1625,6 +1644,7 @@
 
   .careBody { flex-direction: column; }
   .careGrid { grid-template-columns: 1fr; }
+  .washTile { width: calc(50% - 8px); }
 
   /* ── Bilder ── */
   .dropZoneWrap { padding: var(--spacing-16) var(--spacing-16) 0; }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { APP_NAME } from "@/lib/constants/app";
 import "./globals.css";
 
 const inter = Inter({
@@ -16,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "palco+ | Kostüm-Finder für Film & Theater",
+  title: `${APP_NAME} | Kostüm-Finder für Film & Theater`,
   description:
     "Der Kostüm-Finder für die Film- & Theaterbranche. Kostüme suchen, leihen und verwalten.",
 };

@@ -64,8 +64,9 @@ export default async function FundusPage() {
           clothing_type:taxonomy_terms!clothing_type_id(id, vocabulary, label_de, parent_id, sort_order),
           costume_media(id, costume_id, storage_path, sort_order, created_at),
           costume_provenance(id, costume_id, production_title, year, role_name),
-          costume_items(id, costume_id, theater_id, barcode_id, size_label, condition_grade, current_status),
-          costume_taxonomy(term_id, taxonomy_term:taxonomy_terms(id, vocabulary, label_de))
+          costume_items(id, costume_id, theater_id, barcode_id, size_label, condition_grade, current_status, storage_location_path),
+          costume_taxonomy(term_id, taxonomy_term:taxonomy_terms(id, vocabulary, label_de)),
+          theater:theaters!theater_id(id, name, slug)
         `)
         .eq("theater_id", theaterId)
         .order("created_at", { ascending: false }),

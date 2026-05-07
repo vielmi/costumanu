@@ -1,4 +1,4 @@
-﻿# CLAUDE.md — palco+ Projektkonventionen
+﻿# CLAUDE.md — kostüm+ Projektkonventionen
 
 > Dieses File ist der primäre Einstiegspunkt für Claude Code.
 > Lies zuerst **dieses File**, dann `design-system.md`, dann `modules.md`.
@@ -19,7 +19,7 @@
 
 ## Projekt-Übersicht
 
-**App:** palco+ — Kostümverwaltung für Theater
+**App:** kostüm+ — Kostümverwaltung für Theater
 **Repo:** `C:\Users\vielm\Repos\costumanu`
 **Branch:** `main`
 
@@ -187,5 +187,5 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
 ---
 
-*Projekt: palco+ / costumanu — HCID-Fundus-Layout-01*
+*Projekt: kostüm+ / costumanu — HCID-Fundus-Layout-01*
 

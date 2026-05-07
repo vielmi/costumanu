@@ -42,7 +42,7 @@ function parseMentions(body: string) {
   return parts.map((part, i) =>
     part.startsWith("@") ? (
       <span key={i} style={{
-        background: "#DFEFF7", borderRadius: 4,
+        background: "var(--color-mention-bg)", borderRadius: 4,
         padding: "1px 5px", marginRight: 2,
         fontFamily: "var(--font-family-base)", fontSize: "inherit",
       }}>{part}</span>

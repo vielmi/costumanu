@@ -126,10 +126,12 @@
   --accent-02: #F5E4E4;
 
   /* ─── Feedback Colors ─── */
-  --color-error:       #FF525A;
-  --color-error-light: #fee2e2;
-  --color-warning:     #FEA800;
-  --color-success:     #85CAA0;
+  --color-error:            #FF525A;
+  --color-error-light:      #fee2e2;
+  --color-warning:          #FEA800;
+  --color-success:          #85CAA0;
+  --color-status-available: #22c55e;
+  --color-mention-bg:       #DFEFF7;
 
   /* ─── Page Background ─── */
   --page-bg: #ECF1EE; /* secondary-500 — Standard-Hintergrund für alle App-Seiten */
@@ -146,6 +148,7 @@
   --overlay-light:  rgba(0, 0, 0, 0.30); /* leichte Verdunklung, z.B. Bild-Overlay */
   --overlay-medium: rgba(0, 0, 0, 0.40); /* Standard Modal-/Drawer-Backdrop          */
   --overlay-heavy:  rgba(0, 0, 0, 0.60); /* starke Verdunklung, z.B. Hero-Bild       */
+  --overlay-scrim:  rgba(0, 0, 0, 0.50); /* Modal-/Fullscreen-Backdrop               */
 
   /* ─── Font Sizes: Tablet ─── */
   --font-size-1000: 36px;
@@ -179,8 +182,10 @@
   --font-size-100-s:  12px;
 
   /* ─── Font Weights ─── */
+  --font-weight-300: 300;
   --font-weight-400: 400;
   --font-weight-500: 500;
+  --font-weight-600: 600;
   --font-weight-700: 700;
 
   /* ─── Button Heights ─── */

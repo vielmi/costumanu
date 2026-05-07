@@ -11,7 +11,7 @@ import styles from "./app-mobile-header.module.css";
 const DEFAULT_NAV_ITEMS: NavItem[] = [
   { label: "Home",          href: "/",             icon: "icon-home-menu"       },
   { label: "Kostüme",       href: "/fundus",        icon: "icon-shirt"           },
-  { label: "Aufführungen",  href: "/auffuehrungen", icon: "icon-production-menu" },
+  { label: "Produktionen",  href: "/produktionen",  icon: "icon-production-menu", beta: true },
 ];
 
 export function AppMobileHeader({
@@ -29,9 +29,14 @@ export function AppMobileHeader({
       </div>
       <div className={styles.right}>
         {rightSlot ?? (
-          <Link href="/profile" className={styles.iconBtn} aria-label="Profil">
-            <Image src="/icons/icon-user.svg" alt="" width={22} height={22} />
-          </Link>
+          <>
+            <Link href="/wishlist" className={styles.iconBtn} aria-label="Merkliste">
+              <Image src="/icons/icon-heart.svg" alt="" width={22} height={22} />
+            </Link>
+            <Link href="/profile" className={styles.iconBtn} aria-label="Profil">
+              <Image src="/icons/icon-user.svg" alt="" width={22} height={22} />
+            </Link>
+          </>
         )}
       </div>
     </header>

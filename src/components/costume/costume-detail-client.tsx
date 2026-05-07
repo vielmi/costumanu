@@ -1,20 +1,34 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Share2, Heart, ShoppingBag, MapPin, Copy, Check } from "lucide-react";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { useState, useEffect, useRef } from "react";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { ImageCarousel } from "@/components/costume/image-carousel";
 import { CostumeSpecs } from "@/components/costume/costume-specs";
 import { SimilarCostumes } from "@/components/costume/similar-costumes";
 import { ContextMenu } from "@/components/ui/context-menu";
 import { DeleteConfirmationSheet } from "@/components/ui/delete-confirmation-sheet";
+import { MerklisteAddModal } from "@/components/suchmodus/merkliste-add-modal";
+import { CostumeActivityLog } from "@/components/costume/costume-activity-log";
 import { createClient } from "@/lib/supabase/client";
 import { deleteCostume } from "@/lib/services/costume-service";
+import { getGenderIcon } from "@/lib/constants/icons";
 import { t } from "@/lib/i18n";
 import type { Costume, TaxonomyTerm } from "@/lib/types/costume";
+
+const STATUS_OPTIONS: { value: string; label: string; color: string }[] = [
+  { value: "available",   label: "Verfügbar",   color: "var(--accent-01)"      },
+  { value: "cleaning",    label: "Reinigung",   color: "var(--color-warning)"  },
+  { value: "in_progress", label: "In Arbeit",   color: "var(--color-error)"    },
+  { value: "rented",      label: "Ausgeliehen", color: "var(--color-error)"    },
+  { value: "reserved",    label: "Reserviert",  color: "var(--color-error)"    },
+  { value: "stage",       label: "Bühne",       color: "var(--color-error)"    },
+  { value: "rehearsal",   label: "Probebühne",  color: "var(--color-error)"    },
+  { value: "sorted_out",  label: "Aussortiert", color: "var(--color-error)"    },
+  { value: "sold",        label: "Verkauft",    color: "var(--color-error)"    },
+];
 
 type CostumeDetailClientProps = {
   costume: Costume;
@@ -36,8 +50,30 @@ export function CostumeDetailClient({
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDeleteSheet, setShowDeleteSheet] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const isMobile = useIsMobile();
+
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [showBookmarkModal, setShowBookmarkModal] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [autoBookmark, setAutoBookmark] = useState<{ wishlistId: string } | null>(null);
+  const [moveTarget, setMoveTarget] = useState<{ wishlistId: string } | null>(null);
+  const lastUsedWishlist = useRef<{ id: string; name: string } | null>(null);
+  const bookmarkWishlistEntry = useRef<{ id: string; name: string } | null>(null);
+
+  useEffect(() => {
+    if (!toastMsg) return;
+    const timer = setTimeout(() => {
+      setToastMsg(null);
+      setAutoBookmark(null);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [toastMsg]);
+
+  const isAvailable = firstItem?.current_status === "available";
+  const statusOption = STATUS_OPTIONS.find(o => o.value === firstItem?.current_status);
 
   async function handleDelete() {
     setDeleting(true);
@@ -52,322 +88,391 @@ export function CostumeDetailClient({
     }
   }
 
+  async function handleBookmark() {
+    if (isBookmarked) {
+      const entry = bookmarkWishlistEntry.current;
+      if (!entry) return;
+      setIsBookmarked(false);
+      bookmarkWishlistEntry.current = null;
+      setAutoBookmark(null);
+      setToastMsg(`Von ${entry.name} entfernt`);
+      await supabase.from("wishlist_items").delete()
+        .eq("wishlist_id", entry.id).eq("costume_id", costume.id);
+      return;
+    }
+    if (lastUsedWishlist.current) {
+      const target = lastUsedWishlist.current;
+      setIsBookmarked(true);
+      bookmarkWishlistEntry.current = target;
+      setAutoBookmark({ wishlistId: target.id });
+      setToastMsg(`Zu ${target.name} hinzugefügt`);
+      await supabase.from("wishlist_items").insert({ wishlist_id: target.id, costume_id: costume.id });
+      return;
+    }
+    setShowBookmarkModal(true);
+  }
+
+  function handleModalSuccess(wishlistName: string, wishlistId: string) {
+    setIsBookmarked(true);
+    bookmarkWishlistEntry.current = { id: wishlistId, name: wishlistName };
+    lastUsedWishlist.current = { id: wishlistId, name: wishlistName };
+    setShowBookmarkModal(false);
+    setToastMsg(`Zu ${wishlistName} hinzugefügt`);
+  }
+
+  function handleMoveClick() {
+    if (!autoBookmark) return;
+    setMoveTarget(autoBookmark);
+    setToastMsg(null);
+  }
+
+  function handleMoveSuccess(wishlistName: string, wishlistId: string) {
+    bookmarkWishlistEntry.current = { id: wishlistId, name: wishlistName };
+    setMoveTarget(null);
+    lastUsedWishlist.current = { id: wishlistId, name: wishlistName };
+    setToastMsg(`Zu ${wishlistName} verschoben`);
+  }
+
   const menuItems = [
-    { label: "Bearbeiten", action: () => { setMenuOpen(false); router.push(`/kostueme/neu?edit=${costume.id}`); } },
-    { label: "Löschen",    action: () => { setMenuOpen(false); setShowDeleteSheet(true); }, danger: true },
+    { label: t("common.edit"),   action: () => { setMenuOpen(false); router.push(`/kostueme/neu?edit=${costume.id}`); } },
+    { label: "Änderungshistorie", action: () => { setMenuOpen(false); setShowHistory(true); } },
+    { label: t("common.delete"), action: () => { setMenuOpen(false); setShowDeleteSheet(true); }, danger: true },
   ];
 
   return (
     <>
-    <div className="flex flex-col gap-6 pb-8">
-      {/* Header row: Breadcrumbs + 3-dot menu */}
-      <div className="flex items-start justify-between px-4 pt-4">
-        <div>
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground bg-transparent border-none cursor-pointer p-0"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {t("costume.back")}
-          </button>
-          <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+      <div style={{ display: "flex", flexDirection: "column", paddingBottom: 48 }}>
+
+        {/* Breadcrumb bar */}
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "20px 32px 16px",
+        }}>
+          <nav style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <button
+              type="button"
+              onClick={() => router.back()}
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                background: "none", border: "none", cursor: "pointer", padding: 0,
+                fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)",
+                color: "var(--neutral-grey-600)",
+              }}
+            >
+              <Image src="/icons/icon-arrow-left.svg" alt="" width={14} height={14} />
+              {t("costume.back")}
+            </button>
+            <span style={{ color: "var(--neutral-grey-300)", fontSize: "var(--font-size-300)" }}>|</span>
             {costume.gender_term && (
               <>
-                <Link href={`/fundus?gender=${encodeURIComponent(costume.gender_term.label_de)}`} className="hover:underline">
+                <Link href={`/fundus?gender=${encodeURIComponent(costume.gender_term.label_de)}`}
+                  style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-500)", textDecoration: "none" }}>
                   {costume.gender_term.label_de}
                 </Link>
-                <span>&rsaquo;</span>
+                <span style={{ color: "var(--neutral-grey-400)", fontSize: "var(--font-size-150)" }}>›</span>
               </>
             )}
             {costume.clothing_type && (
               <>
-                <Link href={`/fundus?clothingType=${encodeURIComponent(costume.clothing_type.label_de)}`} className="hover:underline">
+                <Link href={`/fundus?clothingType=${encodeURIComponent(costume.clothing_type.label_de)}`}
+                  style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-500)", textDecoration: "none" }}>
                   {costume.clothing_type.label_de}
                 </Link>
-                <span>&rsaquo;</span>
+                <span style={{ color: "var(--neutral-grey-400)", fontSize: "var(--font-size-150)" }}>›</span>
               </>
             )}
-            <span className="text-foreground">{costume.name}</span>
+            <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--neutral-grey-700)", fontWeight: 500 }}>
+              {costume.name}
+            </span>
+          </nav>
+
+          <ContextMenu
+            items={menuItems}
+            isOpen={menuOpen}
+            onToggle={() => setMenuOpen((o) => !o)}
+            onClose={() => setMenuOpen(false)}
+          />
+        </div>
+
+        {/* Error banner */}
+        {actionError && (
+          <div style={{
+            margin: "0 32px 12px", padding: "8px 12px",
+            background: "var(--color-error-light)", borderRadius: "var(--radius-xs)",
+            fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", color: "var(--color-error)",
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+          }}>
+            {actionError}
+            <button type="button" onClick={() => setActionError(null)}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: "0 4px", color: "var(--color-error)" }}>
+              ✕
+            </button>
           </div>
-        </div>
+        )}
 
-        <ContextMenu
-          items={menuItems}
-          isOpen={menuOpen}
-          onToggle={() => setMenuOpen((o) => !o)}
-          onClose={() => setMenuOpen(false)}
-        />
-      </div>
-
-      {/* Inline error banner */}
-      {actionError && (
-        <div
-          style={{
-            margin: "0 16px",
-            padding: "8px 12px",
-            background: "var(--color-error-light)",
-            borderRadius: "var(--radius-xs)",
-            fontFamily: "var(--font-family-base)",
-            fontSize: "var(--font-size-200)",
-            color: "var(--color-error)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          {actionError}
-          <button
-            type="button"
-            onClick={() => setActionError(null)}
-            style={{ background: "none", border: "none", cursor: "pointer", padding: "0 4px", color: "var(--color-error)" }}
-          >
-            ✕
-          </button>
-        </div>
-      )}
-
-      {/* Two-column: Image left | Info right */}
-      <div className="flex flex-col gap-6 px-4" style={{ alignItems: "flex-start" }}
-        data-layout="costume-hero"
-      >
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start", width: "100%" }}
-          className="max-[743px]:block max-[743px]:space-y-6"
-        >
-          {/* Left: Image */}
+        {/* Hero: Image left | Info right (desktop) / stacked (mobile) */}
+        <div style={isMobile ? {
+          display: "flex", flexDirection: "column",
+          padding: "0 0 32px",
+        } : {
+          display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10,
+          padding: "0 32px 131px", alignItems: "stretch",
+        }}>
+          {/* Image carousel */}
           <ImageCarousel
             media={costume.costume_media ?? []}
             name={costume.name}
-            height="480px"
+            height={isMobile ? "320px" : "480px"}
             objectFit="contain"
             className=""
           />
 
-          {/* Right: Info panel */}
-          <div className="flex flex-col gap-4">
-            {/* Title Block */}
-            <div>
+          {/* Info panel */}
+          <div style={isMobile ? {
+            display: "flex", flexDirection: "column", gap: 16,
+            padding: "16px 16px 0",
+          } : {
+            display: "flex", flexDirection: "column",
+          }}>
+
+            {/* Category label + title */}
+            <div style={{ marginBottom: isMobile ? 0 : 16 }}>
               {costume.clothing_type && (
-                <Badge variant="secondary" className="mb-2">
+                <p style={{
+                  fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)",
+                  color: "var(--neutral-grey-500)", margin: "0 0 6px",
+                }}>
                   {costume.clothing_type.label_de}
-                </Badge>
-              )}
-              <h1 className="text-2xl font-bold">{costume.name}</h1>
-              {firstItem?.size_label && (
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {t("costume.size", { size: firstItem.size_label })}
                 </p>
               )}
+              <h1 style={{
+                fontFamily: "var(--font-family-base)",
+                fontSize: "var(--font-size-600)", fontWeight: 400,
+                color: "var(--neutral-grey-700)", margin: 0, lineHeight: 1.2,
+              }}>
+                {costume.name}
+              </h1>
             </div>
 
-            {/* Description */}
-            {costume.description && (
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {costume.description}
-              </p>
-            )}
+            {/* Spacer — desktop only */}
+            {!isMobile && <div style={{ flex: 1 }} />}
 
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2">
-              {costume.gender_term && (
-                <Badge variant="outline">{costume.gender_term.label_de}</Badge>
-              )}
-              {costume.is_ensemble && <Badge variant="outline">{t("costume.multiPart")}</Badge>}
-              {costume.is_ensemble && <Badge variant="outline">{t("costume.series")}</Badge>}
-              {(taxonomyByVocabulary["epoche"] ?? []).map((t) => (
-                <Badge key={t.id} variant="outline">
-                  {t.label_de}
-                </Badge>
-              ))}
-            </div>
+            {/* Bottom section: icons, status, buttons */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-            {/* Theater Badge */}
-            {costume.theater && (
-              <div className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 self-start">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">{costume.theater.name}</span>
+            {/* Gender | shirt | size row */}
+            {(costume.gender_term || firstItem?.size_label) && (
+              <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                {costume.gender_term && (
+                  <>
+                    <GoldIcon src={`/icons/icon-${getGenderIcon(costume.gender_term.label_de)}.svg`} size={20} />
+                    <Divider />
+                  </>
+                )}
+                <GoldIcon src="/icons/icon-shirt.svg" size={20} />
+                {intlSize(firstItem?.size_label) && (
+                  <>
+                    <Divider />
+                    <span style={{
+                      fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)",
+                      color: "var(--primary-900)", fontWeight: 500,
+                    }}>
+                      {intlSize(firstItem?.size_label)}
+                    </span>
+                  </>
+                )}
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <Button className="flex-1" style={{ background: "var(--primary-900)", color: "var(--neutral-white)" }}>
-                <ShoppingBag className="mr-2 h-4 w-4" />
-                {t("costume.rent")}
-              </Button>
-              <Button variant="outline" size="icon">
-                <Share2 className="h-4 w-4" />
-                <span className="sr-only">{t("costume.share")}</span>
-              </Button>
-              <Button variant="outline" size="icon">
-                <Heart className="h-4 w-4" />
-                <span className="sr-only">{t("costume.bookmark")}</span>
-              </Button>
+            {/* Availability */}
+            {firstItem && (
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{
+                  width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
+                  background: statusOption?.color ?? "var(--neutral-grey-400)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  {isAvailable && (
+                    <Image src="/icons/icon-check.svg" alt="" width={10} height={10} style={{ filter: "invert(1)" }} />
+                  )}
+                </span>
+                <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", color: "var(--neutral-grey-700)" }}>
+                  {costume.theater ? `${costume.theater.name}, ` : ""}
+                  {statusOption?.label ?? firstItem.current_status}
+                </span>
+              </div>
+            )}
+
+            {/* Actions: Teilen + Merken */}
+            <div style={{ display: "flex", gap: 12 }}>
+              <button style={{
+                flex: 1, height: 52, borderRadius: "var(--radius-md)",
+                background: "transparent", color: "var(--primary-900)",
+                border: "1.5px solid var(--primary-900)", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-300)",
+                fontWeight: 500,
+              }}>
+                {t("costume.share")}
+                <GoldIcon src="/icons/icon-share.svg" size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={handleBookmark}
+                style={{
+                  flex: 1, height: 52, borderRadius: "var(--radius-md)",
+                  background: isBookmarked ? "var(--primary-900)" : "transparent",
+                  color: isBookmarked ? "var(--neutral-white)" : "var(--primary-900)",
+                  border: "1.5px solid var(--primary-900)", cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-300)",
+                  fontWeight: 500,
+                }}
+              >
+                {t("costume.bookmark")}
+                {isBookmarked
+                  ? <Image src="/icons/icon-heart-1.svg" alt="" width={18} height={18} style={{ filter: "invert(1)" }} />
+                  : <GoldIcon src="/icons/icon-heart.svg" size={18} />
+                }
+              </button>
             </div>
+
+            </div>{/* end bottom section */}
           </div>
         </div>
+
+        {/* Accordion specs — all closed by default */}
+        <CostumeSpecs
+          costume={costume}
+          taxonomyByVocabulary={taxonomyByVocabulary}
+          firstItem={firstItem ?? null}
+          firstProvenance={firstProvenance ?? null}
+        />
+
+        {/* Ensemble children */}
+        {ensembleChildren.length > 0 && (
+          <section style={{ padding: "0 32px 24px" }}>
+            <h2 style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-400)", fontWeight: 700, marginBottom: 12 }}>
+              {t("costume.costumeParts")}
+            </h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {ensembleChildren.map((child) => (
+                <Link key={child.id} href={`/costume/${child.id}`}
+                  style={{
+                    padding: "10px 14px", borderRadius: "var(--radius-sm)",
+                    border: "1px solid var(--neutral-grey-200)",
+                    fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)", fontWeight: 500,
+                    color: "var(--neutral-grey-700)", textDecoration: "none",
+                  }}>
+                  {child.name}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Similar costumes */}
+        {similarCostumes.length > 0 && (
+          <SimilarCostumes costumes={similarCostumes} />
+        )}
       </div>
 
-      {/* Costume Specifications */}
-      <CostumeSpecs
-        costume={costume}
-        taxonomyByVocabulary={taxonomyByVocabulary}
-        firstItem={firstItem ?? null}
-        firstProvenance={firstProvenance ?? null}
-      />
+      {showDeleteSheet && (
+        <DeleteConfirmationSheet
+          itemName={costume.name}
+          isDeleting={deleting}
+          onConfirm={handleDelete}
+          onCancel={() => setShowDeleteSheet(false)}
+        />
+      )}
 
-      {/* Standort */}
-      {(costume.theater || firstItem?.storage_location_path) && (
-        <section className="px-4">
-          <h2 className="mb-3 text-lg font-bold">{t("costume.location")}</h2>
-          {costume.theater && (
-            <p className="text-sm font-medium">{costume.theater.name}</p>
+      {showBookmarkModal && (
+        <MerklisteAddModal
+          costumeId={costume.id}
+          onClose={() => setShowBookmarkModal(false)}
+          onSuccess={handleModalSuccess}
+        />
+      )}
+
+      {moveTarget && (
+        <MerklisteAddModal
+          costumeId={costume.id}
+          moveFromWishlistId={moveTarget.wishlistId}
+          onClose={() => setMoveTarget(null)}
+          onSuccess={handleMoveSuccess}
+        />
+      )}
+
+      {showHistory && (
+        <CostumeActivityLog
+          costumeId={costume.id}
+          onClose={() => setShowHistory(false)}
+        />
+      )}
+
+      {toastMsg && (
+        <div style={{
+          position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)",
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+          zIndex: 1000,
+        }}>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8,
+            background: "var(--secondary-900)", color: "var(--neutral-white)",
+            borderRadius: "var(--radius-full)", padding: "10px 20px",
+            fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: 500,
+            boxShadow: "var(--shadow-300)",
+          }}>
+            <Image src="/icons/icon-checkmark.svg" alt="" width={16} height={16} />
+            <span>{toastMsg}</span>
+          </div>
+          {autoBookmark && (
+            <button
+              type="button"
+              onClick={handleMoveClick}
+              style={{
+                background: "var(--neutral-white)", color: "var(--secondary-900)",
+                border: "1.5px solid var(--secondary-900)", borderRadius: "var(--radius-full)",
+                padding: "8px 20px", cursor: "pointer",
+                fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-200)", fontWeight: 500,
+                boxShadow: "var(--shadow-100)",
+              }}
+            >
+              Verschieben nach...
+            </button>
           )}
-          {firstItem?.storage_location_path && (
-            <p className="mt-1 text-sm text-muted-foreground">
-              {t("costume.placement")}: {firstItem.storage_location_path.replace(/\./g, " › ")}
-            </p>
-          )}
-        </section>
+        </div>
       )}
-
-      {/* Status */}
-      {firstItem && (
-        <section className="px-4">
-          <h2 className="mb-3 text-lg font-bold">{t("costume.status")}</h2>
-          <StatusBadge status={firstItem.current_status} />
-        </section>
-      )}
-
-      {/* ID & Infos */}
-      {firstItem && (
-        <section className="px-4">
-          <h2 className="mb-3 text-lg font-bold">{t("costume.idAndInfo")}</h2>
-          <div className="flex flex-col gap-2">
-            <IdRow label="Barcode ID" value={firstItem.barcode_id} />
-            {firstItem.rfid_id && (
-              <IdRow label="RFID" value={firstItem.rfid_id} />
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* Kostümteile (Ensemble children) */}
-      {ensembleChildren.length > 0 && (
-        <section className="px-4">
-          <h2 className="mb-3 text-lg font-bold">{t("costume.costumeParts")}</h2>
-          <div className="flex flex-col gap-2">
-            {ensembleChildren.map((child) => (
-              <Link
-                key={child.id}
-                href={`/costume/${child.id}`}
-                className="rounded-lg border p-3 transition-colors hover:bg-accent"
-              >
-                <span className="text-sm font-medium">{child.name}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Similar Costumes */}
-      {similarCostumes.length > 0 && (
-        <SimilarCostumes costumes={similarCostumes} />
-      )}
-
-      {/* Historie */}
-      {(costume.costume_provenance?.length ?? 0) > 0 && (
-        <section className="px-4">
-          <h2 className="mb-3 text-lg font-bold">{t("costume.history")}</h2>
-          <div className="relative border-l-2 border-muted pl-4">
-            {costume.costume_provenance!.map((prov) => (
-              <div key={prov.id} className="relative mb-4 last:mb-0">
-                <div className="absolute -left-[calc(1rem+5px)] top-1.5 h-2 w-2 rounded-full" style={{ background: "var(--primary-900)" }} />
-                <p className="text-sm font-medium">
-                  {prov.production_title}
-                  {prov.year ? ` (${prov.year})` : ""}
-                </p>
-                {prov.role_name && (
-                  <p className="text-xs text-muted-foreground">
-                    {t("costume.role")}: {prov.role_name}
-                  </p>
-                )}
-                {prov.actor_name && (
-                  <p className="text-xs text-muted-foreground">
-                    {t("costume.actor")}: {prov.actor_name}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-    </div>
-
-    {showDeleteSheet && (
-      <DeleteConfirmationSheet
-        itemName={costume.name}
-        isDeleting={deleting}
-        onConfirm={handleDelete}
-        onCancel={() => setShowDeleteSheet(false)}
-      />
-    )}
     </>
   );
 }
 
-// ─── Helper components ──────────────────────────────────────────────
+/** Gibt die internationale Grösse zurück (Teil vor "/"). "M / 38" → "M", "XL" → "XL" */
+function intlSize(sizeLabel: string | null | undefined): string | null {
+  if (!sizeLabel) return null;
+  const part = sizeLabel.split("/")[0].trim();
+  return part || null;
+}
 
-function StatusBadge({ status }: { status: string }) {
-  const labels: Record<string, string> = {
-    available: t("costume.statusAvailable"),
-    rented: t("costume.statusRented"),
-    cleaning: t("costume.statusCleaning"),
-    repair: t("costume.statusRepair"),
-    lost: t("costume.statusLost"),
-  };
-  const colors: Record<string, string> = {
-    available: "bg-green-100 text-green-800",
-    rented: "bg-yellow-100 text-yellow-800",
-    cleaning: "bg-blue-100 text-blue-800",
-    repair: "bg-orange-100 text-orange-800",
-    lost: "bg-red-100 text-red-800",
-  };
+/** SVG-Icon eingefärbt in var(--primary-900) via CSS mask-image */
+function GoldIcon({ src, size = 20 }: { src: string; size?: number }) {
   return (
-    <span
-      className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${colors[status] ?? "bg-muted text-muted-foreground"}`}
-    >
-      {labels[status] ?? status}
-    </span>
+    <span style={{
+      display: "inline-block", flexShrink: 0,
+      width: size, height: size,
+      background: "var(--primary-900)",
+      WebkitMaskImage: `url('${src}')`,
+      maskImage: `url('${src}')`,
+      WebkitMaskSize: "contain",
+      maskSize: "contain",
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat",
+      WebkitMaskPosition: "center",
+      maskPosition: "center",
+    }} />
   );
 }
 
-function IdRow({ label, value }: { label: string; value: string }) {
-  const [copied, setCopied] = useState(false);
-
-  function handleCopy() {
-    navigator.clipboard.writeText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  return (
-    <div className="flex items-center justify-between rounded-lg border px-3 py-2">
-      <div>
-        <span className="text-xs text-muted-foreground">{label}</span>
-        <p className="font-mono text-sm">{value}</p>
-      </div>
-      <button
-        type="button"
-        onClick={handleCopy}
-        className="text-muted-foreground hover:text-foreground"
-      >
-        {copied ? (
-          <Check className="h-4 w-4 text-green-600" />
-        ) : (
-          <Copy className="h-4 w-4" />
-        )}
-      </button>
-    </div>
-  );
+function Divider() {
+  return <span style={{ width: 1, height: 20, background: "var(--neutral-grey-300)", flexShrink: 0 }} />;
 }

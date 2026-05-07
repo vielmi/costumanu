@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import styles from "./suchmodus-filter.module.css";
 import { getGenderIcon, getMusterIcon } from "@/lib/constants/icons";
+import { COLOR_SWATCHES } from "@/lib/constants/color-swatches";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -20,29 +21,6 @@ export type SuchmodusFilterProps = {
   musterTerms: Term[];
 };
 
-// ─── Color hex map ────────────────────────────────────────────────────────────
-// Maps DB label_de to a display hex color. Falls back to a neutral grey.
-
-const COLOR_HEX: Record<string, string> = {
-  Gelb:          "#F5E642",
-  Blau:          "#4287F5",
-  Rot:           "#E53535",
-  Grün:          "#3DB84A",
-  Weiss:         "#FFFFFF",
-  Schwarz:       "#000000",
-  Orange:        "#F5832C",
-  Pink:          "#F542C8",
-  Lila:          "#9B42F5",
-  Braun:         "#8B5E3C",
-  Grau:          "#A0A0A0",
-  Beige:         "#E8D5B0",
-  Türkis:        "#2DCFCF",
-  Bordeaux:      "#7B1A2E",
-  Transparent:   "linear-gradient(135deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%), linear-gradient(135deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%)",
-  Multicolor:    "conic-gradient(#F5E642, #F5832C, #E53535, #9B42F5, #4287F5, #3DB84A, #F5E642)",
-  Gold:          "#B59B3A",
-  Silber:        "#C0C0C0",
-};
 
 // ─── EU sizes ────────────────────────────────────────────────────────────────
 
@@ -378,7 +356,7 @@ export function SuchmodusFilterClient({
             <span className={styles.sectionBadge}>Farbe</span>
             <div className={styles.colorGrid}>
               {farbeTerms.map((t) => {
-                const hex = COLOR_HEX[t.label_de] ?? "#A0A0A0";
+                const hex = COLOR_SWATCHES[t.label_de] ?? "#A0A0A0";
                 const isGradient = hex.startsWith("linear") || hex.startsWith("conic");
                 return (
                   <button

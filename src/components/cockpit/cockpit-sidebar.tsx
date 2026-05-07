@@ -4,11 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { APP_NAME } from "@/lib/constants/app";
 
 const NAV_ITEMS = [
   { label: "Home",          href: "/",               icon: "icon-home-menu"       },
   { label: "Kostüme",       href: "/fundus",          icon: "icon-shirt"           },
-  { label: "Aufführungen",  href: "/auffuehrungen",   icon: "icon-production-menu" },
+  { label: "Produktionen",  href: "/produktionen",    icon: "icon-production-menu" },
   { label: "Darsteller",    href: "/darsteller",      icon: "icon-artist-menu"     },
   { label: "Termine",       href: "/termine",         icon: "icon-calendar-menu"   },
   { label: "Kontakte",      href: "/kontakte",        icon: "icon-contact-book"    },
@@ -59,7 +60,7 @@ export function CockpitSidebar() {
               whiteSpace: "nowrap",
             }}
           >
-            palco+
+            {APP_NAME}
           </Link>
         )}
         <button
