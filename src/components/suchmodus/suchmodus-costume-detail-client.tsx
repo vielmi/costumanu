@@ -52,15 +52,6 @@ function Accordion({ title, defaultOpen = false, children }: { title: string; de
   );
 }
 
-function SpecRow({ label, value }: { label: string; value: string | null | undefined }) {
-  if (!value) return null;
-  return (
-    <div className={styles.specRow}>
-      <p className={styles.specLabel}>{label}</p>
-      <p className={styles.specValue}>{value}</p>
-    </div>
-  );
-}
 
 function InlineRow({ label, value }: { label: string; value: string }) {
   return (
@@ -117,9 +108,6 @@ export function SuchmodusCostumeDetailClient({
 
   const isAvailable = firstItem?.current_status === "available";
   const address = theater?.address_info;
-  const addressStr = address
-    ? [address.street, address.postal_code, address.city].filter(Boolean).join(" ")
-    : null;
 
   const epochTerms    = (taxonomyByVocabulary["epoche"]           ?? []).map((t) => t.label_de).join(", ");
   const sparteTerms   = (taxonomyByVocabulary["sparte"]           ?? []).map((t) => t.label_de).join(", ");

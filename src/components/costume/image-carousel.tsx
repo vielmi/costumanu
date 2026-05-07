@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/client";
 import { t } from "@/lib/i18n";
 import type { CostumeMedia } from "@/lib/types/costume";
 
+const supabase = createClient();
+
 type ImageCarouselProps = {
   media: CostumeMedia[];
   name: string;
@@ -18,7 +20,6 @@ export function ImageCarousel({ media, name, height = "260px", objectFit = "cove
   const [failedUrls, setFailedUrls] = useState<Set<string>>(new Set());
   const [hovered, setHovered] = useState(false);
   const touchStartX = useRef<number | null>(null);
-  const supabase = useRef(createClient()).current;
 
   const sorted = useMemo(
     () => [...media].sort((a, b) => a.sort_order - b.sort_order),
@@ -27,7 +28,7 @@ export function ImageCarousel({ media, name, height = "260px", objectFit = "cove
 
   const publicUrls = useMemo(
     () => sorted.map((m) => supabase.storage.from("costume-images").getPublicUrl(m.storage_path).data.publicUrl),
-    [sorted, supabase]
+    [sorted]
   );
 
   const prev = () => setCurrentIndex((i) => (i === 0 ? sorted.length - 1 : i - 1));
@@ -66,7 +67,7 @@ export function ImageCarousel({ media, name, height = "260px", objectFit = "cove
         onTouchEnd={(e) => {
           if (touchStartX.current === null || !multi) return;
           const dx = e.changedTouches[0].clientX - touchStartX.current;
-          if (Math.abs(dx) > 40) dx < 0 ? next() : prev();
+          if (Math.abs(dx) > 40) { if (dx < 0) next(); else prev(); }
           touchStartX.current = null;
         }}
       >
