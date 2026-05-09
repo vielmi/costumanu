@@ -285,10 +285,12 @@ export function CostumeComments({ costumeId, theaterId, currentUserId, currentUs
 
     if (data) {
       setMembers(
-        (data as unknown as { user_id: string; profiles: { display_name: string } | null }[]).map((m) => ({
-          user_id: m.user_id,
-          display_name: m.profiles?.display_name ?? "Unbekannt",
-        }))
+        (data as unknown as { user_id: string; profiles: { display_name: string } | null }[]).map(
+          (m) => ({
+            user_id: m.user_id,
+            display_name: m.profiles?.display_name ?? "Unbekannt",
+          })
+        )
       );
     }
   }
