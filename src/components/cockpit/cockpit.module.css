@@ -283,9 +283,10 @@
   }
 
   .imageCardTitle {
-    font-size: var(--font-size-400);
-    right: 36px;
-    bottom: 12px;
+    font-size: var(--font-size-350);
+    bottom: unset;
+    top: 16px;
+    right: 12px;
   }
 
   /* Suchmodus CTA: show between image cards and list */
