@@ -24,8 +24,9 @@
 .DS_Store
 *.pem
 
-# claude code
-.claude/
+# claude code – nur Runtime-Output, nicht Konfiguration
+.claude/last-review-findings.md
+.claude/scheduled-runs/
 
 # debug
 npm-debug.log*

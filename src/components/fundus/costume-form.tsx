@@ -61,12 +61,8 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   // Separate top-level and sub-type clothing types
-  const topLevelClothingTypes = initialTaxonomy.clothingTypes.filter(
-    (t) => !t.parent_id
-  );
-  const subClothingTypes = initialTaxonomy.clothingTypes.filter(
-    (t) => t.parent_id
-  );
+  const topLevelClothingTypes = initialTaxonomy.clothingTypes.filter((t) => !t.parent_id);
+  const subClothingTypes = initialTaxonomy.clothingTypes.filter((t) => t.parent_id);
 
   const createCostume = useMutation({
     mutationFn: async (data: CostumeFormData) => {
@@ -87,14 +83,12 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
       const costumeId = costume.id;
 
       // Step 2: INSERT costume_item
-      const { error: itemError } = await supabase
-        .from("costume_items")
-        .insert({
-          costume_id: costumeId,
-          theater_id: theaterId,
-          barcode_id: generateBarcodeId(),
-          size_label: data.size_label || null,
-        });
+      const { error: itemError } = await supabase.from("costume_items").insert({
+        costume_id: costumeId,
+        theater_id: theaterId,
+        barcode_id: generateBarcodeId(),
+        size_label: data.size_label || null,
+      });
 
       if (itemError) throw itemError;
 
@@ -106,23 +100,19 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
       ];
 
       if (taxonomyRows.length > 0) {
-        const { error: taxError } = await supabase
-          .from("costume_taxonomy")
-          .insert(taxonomyRows);
+        const { error: taxError } = await supabase.from("costume_taxonomy").insert(taxonomyRows);
 
         if (taxError) throw taxError;
       }
 
       // Step 4: INSERT costume_provenance (if provided)
       if (data.production_title.trim()) {
-        const { error: provError } = await supabase
-          .from("costume_provenance")
-          .insert({
-            costume_id: costumeId,
-            production_title: data.production_title.trim(),
-            year: data.production_year ? parseInt(data.production_year) : null,
-            role_name: data.role_name.trim() || null,
-          });
+        const { error: provError } = await supabase.from("costume_provenance").insert({
+          costume_id: costumeId,
+          production_title: data.production_title.trim(),
+          year: data.production_year ? parseInt(data.production_year) : null,
+          role_name: data.role_name.trim() || null,
+        });
 
         if (provError) throw provError;
       }
@@ -138,13 +128,11 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
 
         if (uploadError) throw uploadError;
 
-        const { error: mediaError } = await supabase
-          .from("costume_media")
-          .insert({
-            costume_id: costumeId,
-            storage_path: storagePath,
-            sort_order: 0,
-          });
+        const { error: mediaError } = await supabase.from("costume_media").insert({
+          costume_id: costumeId,
+          storage_path: storagePath,
+          sort_order: 0,
+        });
 
         if (mediaError) throw mediaError;
       }
@@ -182,10 +170,7 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  function toggleTerm(
-    field: "material_ids" | "color_ids" | "epoch_ids",
-    termId: string
-  ) {
+  function toggleTerm(field: "material_ids" | "color_ids" | "epoch_ids", termId: string) {
     setForm((prev) => ({
       ...prev,
       [field]: prev[field].includes(termId)
@@ -267,9 +252,7 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
               </SelectTrigger>
               <SelectContent>
                 {topLevelClothingTypes.map((parent) => {
-                  const children = subClothingTypes.filter(
-                    (c) => c.parent_id === parent.id
-                  );
+                  const children = subClothingTypes.filter((c) => c.parent_id === parent.id);
                   if (children.length === 0) {
                     return (
                       <SelectItem key={parent.id} value={parent.id}>
@@ -424,7 +407,7 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
               type="button"
               variant="destructive"
               size="icon"
-              className="absolute -right-2 -top-2 h-6 w-6"
+              className="absolute -top-2 -right-2 h-6 w-6"
               onClick={removePhoto}
             >
               <X className="h-3 w-3" />
@@ -434,7 +417,7 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex h-32 w-full max-w-xs cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-muted-foreground/25 text-muted-foreground transition-colors hover:border-muted-foreground/50"
+            className="border-muted-foreground/25 text-muted-foreground hover:border-muted-foreground/50 flex h-32 w-full max-w-xs cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed transition-colors"
           >
             <Upload className="h-6 w-6" />
             <span className="text-sm">{t("costumeForm.uploadPhoto")}</span>
@@ -462,7 +445,7 @@ export function CostumeForm({ theaterId, initialTaxonomy }: CostumeFormProps) {
       </div>
 
       {createCostume.isError && (
-        <p className="text-sm text-destructive">
+        <p className="text-destructive text-sm">
           {t("common.error")}: {(createCostume.error as Error).message}
         </p>
       )}

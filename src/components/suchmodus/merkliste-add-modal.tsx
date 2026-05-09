@@ -10,8 +10,8 @@ type Wishlist = { id: string; name: string; coverUrl: string | null };
 type Status = "loading" | "create" | "select" | "saving" | "error";
 
 type Props = {
-  costumeId?: string;           // optional — wenn undefined nur Merkliste erstellen, kein Item hinzufügen
-  moveFromWishlistId?: string;  // wenn gesetzt: Kostüm von dieser Liste verschieben (statt nur hinzufügen)
+  costumeId?: string; // optional — wenn undefined nur Merkliste erstellen, kein Item hinzufügen
+  moveFromWishlistId?: string; // wenn gesetzt: Kostüm von dieser Liste verschieben (statt nur hinzufügen)
   onClose: () => void;
   onSuccess: (wishlistName: string, wishlistId: string) => void;
 };
@@ -27,7 +27,9 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
 
   useEffect(() => {
     async function init() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         onClose();
         router.push("/login");
@@ -35,12 +37,14 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
       }
       const { data, error } = await supabase
         .from("wishlists")
-        .select(`
+        .select(
+          `
           id, name,
           wishlist_items(
             costumes(costume_media(storage_path, sort_order))
           )
-        `)
+        `
+        )
         .eq("owner_id", user.id)
         .eq("is_archived", false)
         .order("created_at", { ascending: false });
@@ -73,7 +77,7 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
       }
     }
     init();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function getOrBootstrapTheaterId(userId: string): Promise<string | null> {
@@ -100,7 +104,9 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
     setStatus("saving");
     // Bei "Verschieben": zuerst von alter Liste entfernen
     if (moveFromWishlistId && costumeId) {
-      await supabase.from("wishlist_items").delete()
+      await supabase
+        .from("wishlist_items")
+        .delete()
         .eq("wishlist_id", moveFromWishlistId)
         .eq("costume_id", costumeId);
     }
@@ -122,8 +128,14 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
     if (!trimmed || status === "saving") return;
     setStatus("saving");
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { onClose(); router.push("/login"); return; }
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      onClose();
+      router.push("/login");
+      return;
+    }
 
     const theaterId = await getOrBootstrapTheaterId(user.id);
     if (!theaterId) {
@@ -147,7 +159,9 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
     if (costumeId) {
       // Bei "Verschieben": zuerst von alter Liste entfernen
       if (moveFromWishlistId) {
-        await supabase.from("wishlist_items").delete()
+        await supabase
+          .from("wishlist_items")
+          .delete()
           .eq("wishlist_id", moveFromWishlistId)
           .eq("costume_id", costumeId);
       }
@@ -169,7 +183,6 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
     return (
       <div className={styles.sheetBackdrop} onClick={onClose}>
         <div className={styles.sheet} onClick={(e) => e.stopPropagation()}>
-
           {/* Header */}
           <div className={styles.sheetHeader}>
             <h2 className={styles.title}>
@@ -179,7 +192,12 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
                   ? "Neue Merkliste erstellen"
                   : "Zur Merkliste hinzufügen"}
             </h2>
-            <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Schliessen">
+            <button
+              type="button"
+              className={styles.closeBtn}
+              onClick={onClose}
+              aria-label="Schliessen"
+            >
               <Image src="/icons/icon-close-medium.svg" alt="" width={20} height={20} />
             </button>
           </div>
@@ -188,37 +206,39 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
           {!showCreateInSelect && (
             <>
               <div className={styles.sheetList}>
-                {wishlists.filter(w => w.id !== moveFromWishlistId).map((w) => (
-                  <button
-                    key={w.id}
-                    type="button"
-                    className={styles.sheetRow}
-                    onClick={() => handleAddToExisting(w)}
-                    disabled={isSaving}
-                  >
-                    <div className={styles.sheetRowThumb}>
-                      {w.coverUrl ? (
-                        <Image
-                          src={w.coverUrl}
-                          alt=""
-                          width={80}
-                          height={80}
-                          className={styles.sheetRowThumbImg}
-                          unoptimized
-                        />
-                      ) : (
-                        <Image
-                          src="/images/wishlist-default.svg"
-                          alt=""
-                          width={80}
-                          height={80}
-                          className={styles.sheetRowThumbImg}
-                        />
-                      )}
-                    </div>
-                    <span className={styles.sheetRowName}>{w.name}</span>
-                  </button>
-                ))}
+                {wishlists
+                  .filter((w) => w.id !== moveFromWishlistId)
+                  .map((w) => (
+                    <button
+                      key={w.id}
+                      type="button"
+                      className={styles.sheetRow}
+                      onClick={() => handleAddToExisting(w)}
+                      disabled={isSaving}
+                    >
+                      <div className={styles.sheetRowThumb}>
+                        {w.coverUrl ? (
+                          <Image
+                            src={w.coverUrl}
+                            alt=""
+                            width={80}
+                            height={80}
+                            className={styles.sheetRowThumbImg}
+                            unoptimized
+                          />
+                        ) : (
+                          <Image
+                            src="/images/wishlist-default.svg"
+                            alt=""
+                            width={80}
+                            height={80}
+                            className={styles.sheetRowThumbImg}
+                          />
+                        )}
+                      </div>
+                      <span className={styles.sheetRowName}>{w.name}</span>
+                    </button>
+                  ))}
               </div>
               <div className={styles.sheetBottom}>
                 <button
@@ -245,7 +265,9 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     autoFocus
-                    onKeyDown={(e) => { if (e.key === "Enter") handleCreate(); }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleCreate();
+                    }}
                   />
                 </div>
               </div>
@@ -271,9 +293,7 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
 
           {/* Error */}
           {status === "error" && (
-            <p className={styles.errorMsg}>
-              Etwas ist schiefgelaufen. Bitte versuche es nochmals.
-            </p>
+            <p className={styles.errorMsg}>Etwas ist schiefgelaufen. Bitte versuche es nochmals.</p>
           )}
         </div>
       </div>
@@ -284,10 +304,14 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
   return (
     <div className={styles.backdrop} onClick={onClose}>
       <div className={styles.card} onClick={(e) => e.stopPropagation()}>
-
         <div className={styles.cardHeader}>
           <h2 className={styles.title}>Neue Merkliste erstellen</h2>
-          <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Schliessen">
+          <button
+            type="button"
+            className={styles.closeBtn}
+            onClick={onClose}
+            aria-label="Schliessen"
+          >
             <Image src="/icons/icon-close-medium.svg" alt="" width={24} height={24} />
           </button>
         </div>
@@ -308,7 +332,9 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus
-                onKeyDown={(e) => { if (e.key === "Enter") handleCreate(); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleCreate();
+                }}
               />
             </div>
             <button

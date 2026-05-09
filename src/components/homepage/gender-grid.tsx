@@ -1,13 +1,6 @@
 import Link from "next/link";
 import type { TaxonomyTerm } from "@/lib/types/costume";
-import {
-  User,
-  Users,
-  Baby,
-  Dog,
-  Sparkles,
-  PersonStanding,
-} from "lucide-react";
+import { User, Users, Baby, Dog, Sparkles, PersonStanding } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 const genderIcons: Record<string, LucideIcon> = {
@@ -33,7 +26,7 @@ export function GenderGrid({ genders }: GenderGridProps) {
             <Link
               key={gender.id}
               href={`/results?gender=${gender.id}`}
-              className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 text-card-foreground transition-colors hover:bg-accent"
+              className="bg-card text-card-foreground hover:bg-accent flex flex-col items-center gap-2 rounded-xl border p-4 transition-colors"
             >
               <Icon className="h-7 w-7" />
               <span className="text-sm font-medium">{gender.label_de}</span>

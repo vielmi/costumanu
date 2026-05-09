@@ -16,10 +16,10 @@ type Level = "main" | "gender";
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const NETZWERK_ITEMS = [
-  { label: "Nachrichten",    href: "/messages", icon: "icon-chat"            },
-  { label: "Kostümanfragen", href: "/rental",   icon: "icon-shopping-bag"    },
-  { label: "Netzwerk",       href: "/netzwerk", icon: "icon-production-menu" },
-  { label: "Support",        href: "/support",  icon: "icon-contact-menu"    },
+  { label: "Nachrichten", href: "/messages", icon: "icon-chat" },
+  { label: "Kostümanfragen", href: "/rental", icon: "icon-shopping-bag" },
+  { label: "Netzwerk", href: "/netzwerk", icon: "icon-production-menu" },
+  { label: "Support", href: "/support", icon: "icon-contact-menu" },
 ] as const;
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -102,7 +102,13 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
             className={styles.closeButton}
             aria-label="Menü schliessen"
           >
-            <Image src="/icons/icon-close-medium.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
+            <Image
+              src="/icons/icon-close-medium.svg"
+              alt=""
+              width={20}
+              height={20}
+              style={{ filter: "invert(1)" }}
+            />
           </button>
 
           {/* ── Level 1: Hauptmenü ── */}
@@ -119,7 +125,13 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
                       className={styles.navItemButton}
                     >
                       <span className={styles.navLabel}>{term.label_de}</span>
-                      <Image src="/icons/icon-arrow-s.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
+                      <Image
+                        src="/icons/icon-arrow-s.svg"
+                        alt=""
+                        width={20}
+                        height={20}
+                        style={{ filter: "invert(1)" }}
+                      />
                     </button>
                   ))}
                 </nav>
@@ -129,7 +141,12 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
                 <p className={styles.sectionLabel}>Netzwerk &amp; Support</p>
                 <nav>
                   {NETZWERK_ITEMS.map((item) => (
-                    <Link key={item.href} href={item.href} onClick={close} className={styles.navItem}>
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={close}
+                      className={styles.navItem}
+                    >
                       <Image
                         src={`/icons/${item.icon}.svg`}
                         alt=""
@@ -138,7 +155,13 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
                         style={{ filter: "invert(1)", flexShrink: 0 }}
                       />
                       <span className={styles.navLabel}>{item.label}</span>
-                      <Image src="/icons/icon-arrow-s.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
+                      <Image
+                        src="/icons/icon-arrow-s.svg"
+                        alt=""
+                        width={20}
+                        height={20}
+                        style={{ filter: "invert(1)" }}
+                      />
                     </Link>
                   ))}
                 </nav>
@@ -146,10 +169,22 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
 
               <Link href="/profile" onClick={close} className={styles.profileFooter}>
                 <div className={styles.avatarCircle}>
-                  <Image src="/icons/icon-avatar.svg" alt="" width={32} height={32} style={{ filter: "invert(1)" }} />
+                  <Image
+                    src="/icons/icon-avatar.svg"
+                    alt=""
+                    width={32}
+                    height={32}
+                    style={{ filter: "invert(1)" }}
+                  />
                 </div>
                 <span className={styles.profileLabel}>Mein Profil</span>
-                <Image src="/icons/icon-arrow-s.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
+                <Image
+                  src="/icons/icon-arrow-s.svg"
+                  alt=""
+                  width={20}
+                  height={20}
+                  style={{ filter: "invert(1)" }}
+                />
               </Link>
             </>
           )}
@@ -159,7 +194,13 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
             <div className={styles.content}>
               {/* ← Übersicht */}
               <button type="button" onClick={goBack} className={styles.backButton}>
-                <Image src="/icons/icon-arrow-left.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
+                <Image
+                  src="/icons/icon-arrow-left.svg"
+                  alt=""
+                  width={20}
+                  height={20}
+                  style={{ filter: "invert(1)" }}
+                />
                 <span className={styles.backLabel}>Übersicht</span>
               </button>
 
@@ -180,7 +221,13 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
                     className={styles.navItem}
                   >
                     <span className={styles.navLabel}>Alles entdecken</span>
-                    <Image src="/icons/icon-arrow-s.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
+                    <Image
+                      src="/icons/icon-arrow-s.svg"
+                      alt=""
+                      width={20}
+                      height={20}
+                      style={{ filter: "invert(1)" }}
+                    />
                   </Link>
                   {clothingTypes.map((ct) => (
                     <Link
@@ -190,7 +237,13 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
                       className={styles.navItem}
                     >
                       <span className={styles.navLabel}>{ct.label_de}</span>
-                      <Image src="/icons/icon-arrow-s.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
+                      <Image
+                        src="/icons/icon-arrow-s.svg"
+                        alt=""
+                        width={20}
+                        height={20}
+                        style={{ filter: "invert(1)" }}
+                      />
                     </Link>
                   ))}
                 </nav>

@@ -25,10 +25,7 @@ export async function getProfile(
   return data ?? null;
 }
 
-export async function getProfiles(
-  supabase: SupabaseClient,
-  userIds: string[]
-): Promise<Profile[]> {
+export async function getProfiles(supabase: SupabaseClient, userIds: string[]): Promise<Profile[]> {
   if (userIds.length === 0) return [];
 
   const { data, error } = await supabase
@@ -46,12 +43,17 @@ export async function resolveUserContext(
   userId: string
 ): Promise<{ userRole: string; theaterId: string | null }> {
   const [{ data: membership }, { data: profile }] = await Promise.all([
-    supabase.from("theater_members").select("theater_id, role").eq("user_id", userId).limit(1).single(),
+    supabase
+      .from("theater_members")
+      .select("theater_id, role")
+      .eq("user_id", userId)
+      .limit(1)
+      .single(),
     supabase.from("profiles").select("platform_role").eq("id", userId).single(),
   ]);
 
   const isPlatformAdmin = profile?.platform_role === "platform_admin";
-  const userRole = isPlatformAdmin ? "platform_admin" : (membership?.role ?? "member");
+  const userRole = isPlatformAdmin ? "platform_admin" : (membership?.role ?? "viewer");
   const theaterId = membership?.theater_id ?? null;
 
   return { userRole, theaterId };

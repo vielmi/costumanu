@@ -7,11 +7,18 @@ export default async function SuchmodusFilterPage() {
   const { data: terms } = await supabase
     .from("taxonomy_terms")
     .select("id, vocabulary, label_de, sort_order")
-    .in("vocabulary", ["gender", "clothing_type", "segment", "epoche", "material", "farbe", "muster"])
+    .in("vocabulary", [
+      "gender",
+      "clothing_type",
+      "segment",
+      "epoche",
+      "material",
+      "farbe",
+      "muster",
+    ])
     .order("sort_order");
 
-  const byVocab = (vocab: string) =>
-    (terms ?? []).filter((t) => t.vocabulary === vocab);
+  const byVocab = (vocab: string) => (terms ?? []).filter((t) => t.vocabulary === vocab);
 
   return (
     <SuchmodusFilterClient

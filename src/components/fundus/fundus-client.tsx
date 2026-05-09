@@ -25,15 +25,15 @@ interface FundusClientProps {
 }
 
 const STATUS_OPTIONS = [
-  { value: "available",  label: "Verfügbar",    color: "var(--accent-01)" },
-  { value: "rented",     label: "Ausgeliehen",  color: "var(--color-error)" },
-  { value: "cleaning",   label: "Reinigung",    color: "var(--color-warning)" },
-  { value: "in_repair",  label: "In Reparatur", color: "var(--color-error)" },
-  { value: "reserved",   label: "Reserviert",   color: "var(--color-error)" },
-  { value: "stage",      label: "Bühne",        color: "var(--color-error)" },
-  { value: "rehearsal",  label: "Probebühne",   color: "var(--color-error)" },
-  { value: "sorted_out", label: "Aussortiert",  color: "var(--color-error)" },
-  { value: "sold",       label: "Verkauft",     color: "var(--color-error)" },
+  { value: "available", label: "Verfügbar", color: "var(--accent-01)" },
+  { value: "rented", label: "Ausgeliehen", color: "var(--color-error)" },
+  { value: "cleaning", label: "Reinigung", color: "var(--color-warning)" },
+  { value: "in_repair", label: "In Reparatur", color: "var(--color-error)" },
+  { value: "reserved", label: "Reserviert", color: "var(--color-error)" },
+  { value: "stage", label: "Bühne", color: "var(--color-error)" },
+  { value: "rehearsal", label: "Probebühne", color: "var(--color-error)" },
+  { value: "sorted_out", label: "Aussortiert", color: "var(--color-error)" },
+  { value: "sold", label: "Verkauft", color: "var(--color-error)" },
 ];
 
 export function FundusClient({
@@ -53,7 +53,8 @@ export function FundusClient({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("costumes")
-        .select(`
+        .select(
+          `
           id, name, description, gender_term_id, clothing_type_id, created_at, theater_id,
           gender_term:taxonomy_terms!gender_term_id(id, vocabulary, label_de, parent_id, sort_order),
           clothing_type:taxonomy_terms!clothing_type_id(id, vocabulary, label_de, parent_id, sort_order),
@@ -62,7 +63,8 @@ export function FundusClient({
           costume_items(id, costume_id, theater_id, barcode_id, size_label, condition_grade, current_status, storage_location_path),
           costume_taxonomy(term_id, taxonomy_term:taxonomy_terms(id, vocabulary, label_de)),
           theater:theaters!theater_id(id, name, slug)
-        `)
+        `
+        )
         .in("theater_id", queryIds)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -117,7 +119,8 @@ export function FundusClient({
       }
       if (filters.epoch) {
         const has = c.costume_taxonomy?.some(
-          (t) => t.taxonomy_term?.vocabulary === "epoch" && t.taxonomy_term.label_de === filters.epoch
+          (t) =>
+            t.taxonomy_term?.vocabulary === "epoch" && t.taxonomy_term.label_de === filters.epoch
         );
         if (!has) return false;
       }
@@ -135,16 +138,22 @@ export function FundusClient({
   const sortedCostumes = useMemo(() => {
     return [...filteredCostumes].sort((a, b) => {
       switch (sort) {
-        case "name_asc":  return a.name.localeCompare(b.name, "de");
-        case "name_desc": return b.name.localeCompare(a.name, "de");
-        case "newest":    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        case "oldest":    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case "name_asc":
+          return a.name.localeCompare(b.name, "de");
+        case "name_desc":
+          return b.name.localeCompare(a.name, "de");
+        case "newest":
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case "oldest":
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       }
     });
   }, [filteredCostumes, sort]);
 
   const anyFilterActive = Object.values(filters).some(Boolean);
-  function clearFilters() { setFilters({ status: "", gender: "", clothingType: "", epoch: "", theater: "", standort: "" }); }
+  function clearFilters() {
+    setFilters({ status: "", gender: "", clothingType: "", epoch: "", theater: "", standort: "" });
+  }
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkStatusMenuOpen, setBulkStatusMenuOpen] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
@@ -343,10 +352,10 @@ export function FundusClient({
                 aria-label="Bildansicht"
               >
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                  <rect x="2" y="2" width="7" height="7" rx="1" fill="currentColor"/>
-                  <rect x="11" y="2" width="7" height="7" rx="1" fill="currentColor"/>
-                  <rect x="2" y="11" width="7" height="7" rx="1" fill="currentColor"/>
-                  <rect x="11" y="11" width="7" height="7" rx="1" fill="currentColor"/>
+                  <rect x="2" y="2" width="7" height="7" rx="1" fill="currentColor" />
+                  <rect x="11" y="2" width="7" height="7" rx="1" fill="currentColor" />
+                  <rect x="2" y="11" width="7" height="7" rx="1" fill="currentColor" />
+                  <rect x="11" y="11" width="7" height="7" rx="1" fill="currentColor" />
                 </svg>
               </button>
               <div className={styles.viewDivider} />
@@ -363,11 +372,7 @@ export function FundusClient({
               </select>
             </div>
           </div>
-          <button
-            type="button"
-            className={styles.listEdit}
-            onClick={() => setEditMode(true)}
-          >
+          <button type="button" className={styles.listEdit} onClick={() => setEditMode(true)}>
             Liste bearbeiten
           </button>
         </div>
@@ -402,7 +407,9 @@ export function FundusClient({
           >
             <option value="">Kategorie</option>
             {GENDER_OPTIONS.map((g) => (
-              <option key={g} value={g}>{g}</option>
+              <option key={g} value={g}>
+                {g}
+              </option>
             ))}
           </select>
           {/* Bekleidungsart — full taxonomy list from server */}
@@ -414,7 +421,9 @@ export function FundusClient({
             >
               <option value="">Bekleidungsart</option>
               {clothingOptions.map((t) => (
-                <option key={t} value={t}>{t}</option>
+                <option key={t} value={t}>
+                  {t}
+                </option>
               ))}
             </select>
           )}
@@ -427,7 +436,9 @@ export function FundusClient({
             >
               <option value="">Epoche</option>
               {filterOptions.epochs.map((e) => (
-                <option key={e} value={e}>{e}</option>
+                <option key={e} value={e}>
+                  {e}
+                </option>
               ))}
             </select>
           )}
@@ -440,7 +451,9 @@ export function FundusClient({
             >
               <option value="">Theater</option>
               {filterOptions.theaters.map((t) => (
-                <option key={t} value={t}>{t}</option>
+                <option key={t} value={t}>
+                  {t}
+                </option>
               ))}
             </select>
           )}
@@ -453,7 +466,9 @@ export function FundusClient({
             >
               <option value="">Standort</option>
               {filterOptions.standorte.map((s) => (
-                <option key={s} value={s}>{s}</option>
+                <option key={s} value={s}>
+                  {s}
+                </option>
               ))}
             </select>
           )}
@@ -473,7 +488,9 @@ export function FundusClient({
       {costumes.length === 0 ? (
         <div className={styles.empty}>
           <p className={styles.emptyText}>Noch keine Kostüme erfasst.</p>
-          <Link href="/kostueme/neu" className="btn-primary">Kostüm erfassen</Link>
+          <Link href="/kostueme/neu" className="btn-primary">
+            Kostüm erfassen
+          </Link>
         </div>
       ) : view === "grid" ? (
         <div className={styles.grid}>
@@ -541,9 +558,15 @@ function StatusFilterChip({ value, onChange }: { value: string; onChange: (v: st
             <button
               type="button"
               className={styles.statusOption}
-              onClick={() => { onChange(""); setOpen(false); }}
+              onClick={() => {
+                onChange("");
+                setOpen(false);
+              }}
             >
-              <span className={styles.statusDot} style={{ background: "var(--neutral-grey-300)" }} />
+              <span
+                className={styles.statusDot}
+                style={{ background: "var(--neutral-grey-300)" }}
+              />
               Alle
             </button>
             {STATUS_OPTIONS.map((o) => (
@@ -551,7 +574,10 @@ function StatusFilterChip({ value, onChange }: { value: string; onChange: (v: st
                 key={o.value}
                 type="button"
                 className={`${styles.statusOption} ${o.value === value ? styles.statusOptionActive : ""}`}
-                onClick={() => { onChange(o.value); setOpen(false); }}
+                onClick={() => {
+                  onChange(o.value);
+                  setOpen(false);
+                }}
               >
                 <span className={styles.statusDot} style={{ background: o.color }} />
                 {o.label}
@@ -656,12 +682,18 @@ function CostumeCard({
   const moreItems = [
     {
       label: "Bearbeiten",
-      action: () => { setMenuOpen(false); router.push(`/kostueme/neu?edit=${costume.id}`); },
+      action: () => {
+        setMenuOpen(false);
+        router.push(`/kostueme/neu?edit=${costume.id}`);
+      },
     },
     { label: "Duplizieren", action: handleDuplicate },
     {
       label: "Löschen",
-      action: () => { setMenuOpen(false); setShowDeleteSheet(true); },
+      action: () => {
+        setMenuOpen(false);
+        setShowDeleteSheet(true);
+      },
       danger: true,
     },
   ];
@@ -696,7 +728,7 @@ function CostumeCard({
       <div
         role="article"
         className={`${styles.card} ${isSelected ? styles.cardSelected : ""}`}
-        style={{ zIndex: (statusMenuOpen || menuOpen) ? 10 : undefined }}
+        style={{ zIndex: statusMenuOpen || menuOpen ? 10 : undefined }}
       >
         {/* Image */}
         {editMode ? (
@@ -705,7 +737,10 @@ function CostumeCard({
             <button
               type="button"
               className={`${styles.cardCheckbox} ${isSelected ? styles.cardCheckboxChecked : ""}`}
-              onClick={(e) => { e.stopPropagation(); onToggleSelect(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleSelect();
+              }}
               aria-label={isSelected ? "Abwählen" : "Auswählen"}
             >
               {isSelected && <span className={styles.cardCheckboxInner} />}
@@ -728,7 +763,11 @@ function CostumeCard({
             {subtitle && <p className={styles.cardSubtitle}>{subtitle}</p>}
           </div>
         ) : (
-          <Link href={`/costume/${costume.id}`} className={styles.cardBody} style={{ textDecoration: "none" }}>
+          <Link
+            href={`/costume/${costume.id}`}
+            className={styles.cardBody}
+            style={{ textDecoration: "none" }}
+          >
             <p className={styles.cardName}>{costume.name}</p>
             {subtitle && <p className={styles.cardSubtitle}>{subtitle}</p>}
           </Link>
@@ -885,9 +924,22 @@ function CostumeListRow({
   }
 
   const moreItems = [
-    { label: "Bearbeiten", action: () => { setMenuOpen(false); router.push(`/kostueme/neu?edit=${costume.id}`); } },
+    {
+      label: "Bearbeiten",
+      action: () => {
+        setMenuOpen(false);
+        router.push(`/kostueme/neu?edit=${costume.id}`);
+      },
+    },
     { label: "Duplizieren", action: handleDuplicate },
-    { label: "Löschen", action: () => { setMenuOpen(false); setShowDeleteSheet(true); }, danger: true },
+    {
+      label: "Löschen",
+      action: () => {
+        setMenuOpen(false);
+        setShowDeleteSheet(true);
+      },
+      danger: true,
+    },
   ];
 
   return (
@@ -895,16 +947,24 @@ function CostumeListRow({
       {actionError && (
         <div className={styles.cardError}>
           {actionError}
-          <button type="button" onClick={() => setActionError(null)} className={styles.cardErrorClose}>✕</button>
+          <button
+            type="button"
+            onClick={() => setActionError(null)}
+            className={styles.cardErrorClose}
+          >
+            ✕
+          </button>
         </div>
       )}
       <div
         role="article"
         className={`${styles.listRow} ${isSelected ? styles.cardSelected : ""}`}
-        style={{ zIndex: (statusMenuOpen || menuOpen) ? 10 : undefined }}
+        style={{ zIndex: statusMenuOpen || menuOpen ? 10 : undefined }}
       >
         {/* Left: checkbox (edit mode) or 3-dot menu */}
-        <div style={{ display: "flex", alignItems: "center", padding: "0 4px 0 12px", flexShrink: 0 }}>
+        <div
+          style={{ display: "flex", alignItems: "center", padding: "0 4px 0 12px", flexShrink: 0 }}
+        >
           {editMode ? (
             <button
               type="button"
@@ -929,37 +989,132 @@ function CostumeListRow({
         {/* Thumbnail + Name — clickable in edit mode */}
         {editMode ? (
           <div
-            style={{ flex: 1, display: "flex", alignItems: "center", gap: 12, padding: "0 8px", cursor: "pointer" }}
+            style={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              padding: "0 8px",
+              cursor: "pointer",
+            }}
             onClick={onToggleSelect}
           >
-            <div style={{ width: 46, height: 46, borderRadius: "100px", overflow: "hidden", flexShrink: 0, background: "var(--neutral-grey-300)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              {imageUrl
-                ? <img src={imageUrl} alt={costume.name} style={{ objectFit: "cover", width: "100%", height: "100%" }} /> // eslint-disable-line @next/next/no-img-element
-                : <Image src="/icons/icon-shirt.svg" alt="" width={24} height={24} style={{ opacity: 0.4 }} />
-              }
+            <div
+              style={{
+                width: 46,
+                height: 46,
+                borderRadius: "100px",
+                overflow: "hidden",
+                flexShrink: 0,
+                background: "var(--neutral-grey-300)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt={costume.name}
+                  style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                /> // eslint-disable-line @next/next/no-img-element
+              ) : (
+                <Image
+                  src="/icons/icon-shirt.svg"
+                  alt=""
+                  width={24}
+                  height={24}
+                  style={{ opacity: 0.4 }}
+                />
+              )}
             </div>
             <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
-              <span style={{ fontSize: "var(--font-size-50)", color: "var(--neutral-grey-500)", fontFamily: "var(--font-family-base)" }}>
+              <span
+                style={{
+                  fontSize: "var(--font-size-50)",
+                  color: "var(--neutral-grey-500)",
+                  fontFamily: "var(--font-family-base)",
+                }}
+              >
                 ID-{costume.id.slice(0, 9).toUpperCase()}
               </span>
-              <span style={{ fontSize: "var(--font-size-200)", fontWeight: "var(--font-weight-500)", color: "var(--neutral-black)", fontFamily: "var(--font-family-base)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <span
+                style={{
+                  fontSize: "var(--font-size-200)",
+                  fontWeight: "var(--font-weight-500)",
+                  color: "var(--neutral-black)",
+                  fontFamily: "var(--font-family-base)",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
                 {costume.name}
               </span>
             </div>
           </div>
         ) : (
-          <Link href={`/costume/${costume.id}`} style={{ flex: 1, display: "flex", alignItems: "center", gap: 12, padding: "0 8px", textDecoration: "none" }}>
-            <div style={{ width: 46, height: 46, borderRadius: "100px", overflow: "hidden", flexShrink: 0, background: "var(--neutral-grey-300)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              {imageUrl
-                ? <img src={imageUrl} alt={costume.name} style={{ objectFit: "cover", width: "100%", height: "100%" }} /> // eslint-disable-line @next/next/no-img-element
-                : <Image src="/icons/icon-shirt.svg" alt="" width={24} height={24} style={{ opacity: 0.4 }} />
-              }
+          <Link
+            href={`/costume/${costume.id}`}
+            style={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              padding: "0 8px",
+              textDecoration: "none",
+            }}
+          >
+            <div
+              style={{
+                width: 46,
+                height: 46,
+                borderRadius: "100px",
+                overflow: "hidden",
+                flexShrink: 0,
+                background: "var(--neutral-grey-300)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt={costume.name}
+                  style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                /> // eslint-disable-line @next/next/no-img-element
+              ) : (
+                <Image
+                  src="/icons/icon-shirt.svg"
+                  alt=""
+                  width={24}
+                  height={24}
+                  style={{ opacity: 0.4 }}
+                />
+              )}
             </div>
             <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
-              <span style={{ fontSize: "var(--font-size-50)", color: "var(--neutral-grey-500)", fontFamily: "var(--font-family-base)" }}>
+              <span
+                style={{
+                  fontSize: "var(--font-size-50)",
+                  color: "var(--neutral-grey-500)",
+                  fontFamily: "var(--font-family-base)",
+                }}
+              >
                 ID-{costume.id.slice(0, 9).toUpperCase()}
               </span>
-              <span style={{ fontSize: "var(--font-size-200)", fontWeight: "var(--font-weight-500)", color: "var(--neutral-black)", fontFamily: "var(--font-family-base)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <span
+                style={{
+                  fontSize: "var(--font-size-200)",
+                  fontWeight: "var(--font-weight-500)",
+                  color: "var(--neutral-black)",
+                  fontFamily: "var(--font-family-base)",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
                 {costume.name}
               </span>
             </div>
@@ -971,14 +1126,23 @@ function CostumeListRow({
 
         {/* Gender + shirt badge */}
         <div className={styles.listGenderBadge}>
-          <Image src={`/icons/icon-${genderIcon}.svg`} alt={costume.gender_term?.label_de ?? ""} width={16} height={16} />
+          <Image
+            src={`/icons/icon-${genderIcon}.svg`}
+            alt={costume.gender_term?.label_de ?? ""}
+            width={16}
+            height={16}
+          />
           <div style={{ width: "0.8px", height: 20, background: "var(--neutral-grey-300)" }} />
           <Image src="/icons/icon-shirt.svg" alt="" width={16} height={16} />
         </div>
 
         {/* Status dropdown */}
         <div className={styles.statusWrap} style={{ marginRight: 16 }}>
-          <button type="button" className={styles.statusTrigger} onClick={() => setStatusMenuOpen((v) => !v)}>
+          <button
+            type="button"
+            className={styles.statusTrigger}
+            onClick={() => setStatusMenuOpen((v) => !v)}
+          >
             <span className={styles.statusDot} style={{ background: selectedStatus.color }} />
             <span>{selectedStatus.label}</span>
             <span className="dropdown-arrow" />

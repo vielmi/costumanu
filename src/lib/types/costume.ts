@@ -61,7 +61,13 @@ export interface Costume {
   costume_provenance?: CostumeProvenance[];
   costume_items?: CostumeItem[];
   costume_taxonomy?: { term_id: string; taxonomy_term?: TaxonomyTerm }[];
-  theater?: { id: string; name: string; slug: string; address_info?: Record<string, unknown> | null } | null;
+  theater?: {
+    id: string;
+    name: string;
+    slug: string;
+    address_info?: Record<string, unknown> | null;
+  } | null;
+  custom_fields?: Record<string, unknown> | null;
   // For ensemble children
   children?: Costume[];
 }

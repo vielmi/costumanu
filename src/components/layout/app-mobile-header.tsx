@@ -9,9 +9,9 @@ import type { NavItem } from "@/components/layout/sidebar";
 import styles from "./app-mobile-header.module.css";
 
 const DEFAULT_NAV_ITEMS: NavItem[] = [
-  { label: "Home",          href: "/",             icon: "icon-home-menu"       },
-  { label: "Kostüme",       href: "/fundus",        icon: "icon-shirt"           },
-  { label: "Produktionen",  href: "/produktionen",  icon: "icon-production-menu", beta: true },
+  { label: "Home", href: "/", icon: "icon-home-menu" },
+  { label: "Kostüme", href: "/fundus", icon: "icon-shirt" },
+  { label: "Produktionen", href: "/produktionen", icon: "icon-production-menu", beta: true },
 ];
 
 export function AppMobileHeader({

@@ -77,7 +77,9 @@ export default async function AusleiheNeuPage() {
           theaterId={theaterId}
           theaterName={theater?.name ?? ""}
           profile={profile ?? { display_name: "", professional_title: null, phone: null }}
-          initialCartItems={(cartItems ?? []) as unknown as Parameters<typeof RentalWizard>[0]["initialCartItems"]}
+          initialCartItems={
+            (cartItems ?? []) as unknown as Parameters<typeof RentalWizard>[0]["initialCartItems"]
+          }
         />
       </main>
 

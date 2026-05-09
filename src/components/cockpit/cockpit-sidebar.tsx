@@ -7,15 +7,15 @@ import { useState } from "react";
 import { APP_NAME } from "@/lib/constants/app";
 
 const NAV_ITEMS = [
-  { label: "Home",          href: "/",               icon: "icon-home-menu"       },
-  { label: "Kostüme",       href: "/fundus",          icon: "icon-shirt"           },
-  { label: "Produktionen",  href: "/produktionen",    icon: "icon-production-menu" },
-  { label: "Darsteller",    href: "/darsteller",      icon: "icon-artist-menu"     },
-  { label: "Termine",       href: "/termine",         icon: "icon-calendar-menu"   },
-  { label: "Kontakte",      href: "/kontakte",        icon: "icon-contact-book"    },
-  { label: "Einstellungen", href: "/einstellungen",   icon: "icon-setting"         },
-  { label: "Nachrichten",   href: "/messages",        icon: "icon-chat",     badge: 22 },
-  { label: "Ausleihen",     href: "/rental",          icon: "icon-shopping-bag", badge: 3 },
+  { label: "Home", href: "/", icon: "icon-home-menu" },
+  { label: "Kostüme", href: "/fundus", icon: "icon-shirt" },
+  { label: "Produktionen", href: "/produktionen", icon: "icon-production-menu" },
+  { label: "Darsteller", href: "/darsteller", icon: "icon-artist-menu" },
+  { label: "Termine", href: "/termine", icon: "icon-calendar-menu" },
+  { label: "Kontakte", href: "/kontakte", icon: "icon-contact-book" },
+  { label: "Einstellungen", href: "/einstellungen", icon: "icon-setting" },
+  { label: "Nachrichten", href: "/messages", icon: "icon-chat", badge: 22 },
+  { label: "Ausleihen", href: "/rental", icon: "icon-shopping-bag", badge: 3 },
 ];
 
 export function CockpitSidebar() {

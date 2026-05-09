@@ -1,14 +1,12 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Accordion as AccordionPrimitive } from "radix-ui"
+import * as React from "react";
+import { Accordion as AccordionPrimitive } from "radix-ui";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-function Accordion({
-  ...props
-}: React.ComponentProps<typeof AccordionPrimitive.Root>) {
-  return <AccordionPrimitive.Root data-slot="accordion" {...props} />
+function Accordion({ ...props }: React.ComponentProps<typeof AccordionPrimitive.Root>) {
+  return <AccordionPrimitive.Root data-slot="accordion" {...props} />;
 }
 
 function AccordionItem({
@@ -21,7 +19,7 @@ function AccordionItem({
       className={cn("border-b last:border-b-0", className)}
       {...props}
     />
-  )
+  );
 }
 
 function AccordionTrigger({
@@ -40,11 +38,15 @@ function AccordionTrigger({
         {...props}
       >
         {children}
-        <span className="text-muted-foreground pointer-events-none shrink-0 text-xl font-light leading-none group-data-[state=open]:hidden">+</span>
-        <span className="text-muted-foreground pointer-events-none shrink-0 text-base leading-none group-data-[state=closed]:hidden">×</span>
+        <span className="text-muted-foreground pointer-events-none shrink-0 text-xl leading-none font-light group-data-[state=open]:hidden">
+          +
+        </span>
+        <span className="text-muted-foreground pointer-events-none shrink-0 text-base leading-none group-data-[state=closed]:hidden">
+          ×
+        </span>
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
-  )
+  );
 }
 
 function AccordionContent({
@@ -60,7 +62,7 @@ function AccordionContent({
     >
       <div className={cn("pt-0 pb-4", className)}>{children}</div>
     </AccordionPrimitive.Content>
-  )
+  );
 }
 
-export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent };

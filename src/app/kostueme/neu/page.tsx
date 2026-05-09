@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCostume } from "@/lib/services/costume-service";
+import { getFieldDefinitions, getFieldRequirements } from "@/lib/services/field-service";
 import { KostuemeNeuClient } from "@/components/kostueme/kostueme-neu-client";
 import type { Costume } from "@/lib/types/costume";
 
@@ -22,11 +23,18 @@ export default async function KostuemeNeuPage({
   const costumeType = parseCostumeType(params.type);
   const editId = params.edit ?? null;
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
   const [{ data: membership }, { data: profile }] = await Promise.all([
-    supabase.from("theater_members").select("theater_id, role, theaters(name)").eq("user_id", user.id).limit(1).single(),
+    supabase
+      .from("theater_members")
+      .select("theater_id, role, theaters(name)")
+      .eq("user_id", user.id)
+      .limit(1)
+      .single(),
     supabase.from("profiles").select("display_name").eq("id", user.id).single(),
   ]);
 
@@ -36,17 +44,50 @@ export default async function KostuemeNeuPage({
   const theaterId = membership.theater_id;
   const theaterName = (membership.theaters as unknown as { name: string })?.name ?? "";
 
-  const vocabs = ["gender", "clothing_type", "clothing_subtype", "material", "muster", "color", "sparte", "temperature", "washing_type", "drying", "ironing"];
+  const vocabs = [
+    "gender",
+    "clothing_type",
+    "clothing_subtype",
+    "material",
+    "muster",
+    "color",
+    "sparte",
+    "temperature",
+    "washing_type",
+    "drying",
+    "ironing",
+  ];
   const results = await Promise.all(
     vocabs.map((v) =>
-      supabase.from("taxonomy_terms").select("id, label_de, parent_id").eq("vocabulary", v).order("sort_order")
+      supabase
+        .from("taxonomy_terms")
+        .select("id, label_de, parent_id")
+        .eq("vocabulary", v)
+        .order("sort_order")
     )
   );
-  const [genders, clothingTypes, clothingSubtypes, materials, musters, colors, sparten, temperatures, washingTypes, dryings, ironings] = results;
+  const [
+    genders,
+    clothingTypes,
+    clothingSubtypes,
+    materials,
+    musters,
+    colors,
+    sparten,
+    temperatures,
+    washingTypes,
+    dryings,
+    ironings,
+  ] = results;
 
-  const currentUserName = (profile as unknown as { display_name: string } | null)?.display_name ?? "Unbekannt";
+  const currentUserName =
+    (profile as unknown as { display_name: string } | null)?.display_name ?? "Unbekannt";
 
-  const editCostume: Costume | null = editId ? await getCostume(supabase, editId) : null;
+  const [editCostume, fieldDefinitions, fieldRequirements] = await Promise.all([
+    editId ? getCostume(supabase, editId) : Promise.resolve(null),
+    getFieldDefinitions(supabase, theaterId),
+    getFieldRequirements(supabase, theaterId),
+  ]);
 
   return (
     <KostuemeNeuClient
@@ -55,7 +96,9 @@ export default async function KostuemeNeuPage({
       currentUserId={user.id}
       currentUserName={currentUserName}
       costumeType={costumeType}
-      editCostume={editCostume ?? undefined}
+      editCostume={(editCostume as Costume) ?? undefined}
+      fieldDefinitions={fieldDefinitions}
+      fieldRequirements={fieldRequirements}
       taxonomy={{
         genders: genders.data ?? [],
         clothingTypes: clothingTypes.data ?? [],

@@ -28,8 +28,7 @@ export default async function ProfilPage() {
     .select(`role, theaters ( id, name, slug )`)
     .eq("user_id", user.id);
 
-  const displayName =
-    profile?.display_name ?? user.user_metadata?.full_name ?? "Unbekannt";
+  const displayName = profile?.display_name ?? user.user_metadata?.full_name ?? "Unbekannt";
   const professionalTitle = profile?.professional_title ?? null;
   const avatarUrl = profile?.avatar_url ?? null;
   const phone = profile?.phone ?? null;
@@ -41,7 +40,12 @@ export default async function ProfilPage() {
   });
 
   function getInitials(name: string): string {
-    return name.split(" ").map((p) => p.charAt(0)).join("").toUpperCase().slice(0, 2);
+    return name
+      .split(" ")
+      .map((p) => p.charAt(0))
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   }
 
   return (
@@ -108,9 +112,7 @@ export default async function ProfilPage() {
               <p className={styles.sectionTitle}>Theater</p>
               {theaterList.map((theater) => (
                 <div key={theater.id} className={styles.row}>
-                  <div className={styles.theaterBadge}>
-                    {theater.name.charAt(0).toUpperCase()}
-                  </div>
+                  <div className={styles.theaterBadge}>{theater.name.charAt(0).toUpperCase()}</div>
                   <div className={styles.rowBody}>
                     <p className={styles.rowValue}>{theater.name}</p>
                     <p className={styles.theaterRole}>{theater.role}</p>
@@ -125,10 +127,19 @@ export default async function ProfilPage() {
         {/* Actions */}
         <div className={styles.actions}>
           <Link href="/profile/edit" className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}>
-            <Image src="/icons/icon-edit.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
+            <Image
+              src="/icons/icon-edit.svg"
+              alt=""
+              width={20}
+              height={20}
+              style={{ filter: "invert(1)" }}
+            />
             Profil bearbeiten
           </Link>
-          <Link href="/profile/theaters" className={`${styles.actionBtn} ${styles.actionBtnSecondary}`}>
+          <Link
+            href="/profile/theaters"
+            className={`${styles.actionBtn} ${styles.actionBtnSecondary}`}
+          >
             Theater verwalten
           </Link>
         </div>

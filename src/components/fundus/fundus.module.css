@@ -249,8 +249,12 @@
   color: var(--secondary-800);
   text-align: left;
 }
-.statusOption:hover { background: var(--secondary-500); }
-.statusOptionActive { background: var(--secondary-500); }
+.statusOption:hover {
+  background: var(--secondary-500);
+}
+.statusOptionActive {
+  background: var(--secondary-500);
+}
 
 /* Icon group (gender + shirt) */
 .iconGroup {
@@ -266,7 +270,6 @@
   height: 14px;
   background: var(--neutral-grey-300, #d1d1d1);
 }
-
 
 /* ─── Bulk-edit header ────────────────────────────────────────────────────── */
 .bulkHeader {
@@ -316,7 +319,6 @@
   border-radius: 4px;
   background: var(--secondary-700);
 }
-
 
 /* Bulk action buttons */
 .bulkBtn {
@@ -419,7 +421,6 @@
   background: var(--secondary-700);
 }
 
-
 /* ─── Error banner ────────────────────────────────────────────────────────── */
 .cardError {
   grid-column: 1 / -1;
@@ -481,8 +482,8 @@
   width: 12px;
   height: 12px;
   background-color: currentColor;
-  -webkit-mask: url('/icons/icon-arrow-dropdown-down.svg') no-repeat center / contain;
-  mask: url('/icons/icon-arrow-dropdown-down.svg') no-repeat center / contain;
+  -webkit-mask: url("/icons/icon-arrow-dropdown-down.svg") no-repeat center / contain;
+  mask: url("/icons/icon-arrow-dropdown-down.svg") no-repeat center / contain;
 }
 
 .statusFilterWrap {
@@ -582,10 +583,13 @@
 }
 
 @media (max-width: 743px) {
-  .listProductionLabel { display: none; }
-  .listGenderBadge { display: none; }
+  .listProductionLabel {
+    display: none;
+  }
+  .listGenderBadge {
+    display: none;
+  }
 }
-
 
 /* ─── Empty state ─────────────────────────────────────────────────────────── */
 .empty {

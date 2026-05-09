@@ -7,11 +7,7 @@ import type { Costume, TaxonomyTerm } from "@/lib/types/costume";
 
 type Params = Promise<{ id: string }>;
 
-export default async function CostumeDetailPage({
-  params,
-}: {
-  params: Params;
-}) {
+export default async function CostumeDetailPage({ params }: { params: Params }) {
   const { id } = await params;
   const supabase = await createClient();
 
@@ -76,7 +72,10 @@ export default async function CostumeDetailPage({
   // Group taxonomy terms by vocabulary
   // Supabase returns nested joins as arrays; extract the first element
   const taxonomyByVocabulary: Record<string, TaxonomyTerm[]> = {};
-  for (const ct of (costume.costume_taxonomy as unknown as { term_id: string; taxonomy_term: TaxonomyTerm | TaxonomyTerm[] }[]) ?? []) {
+  for (const ct of (costume.costume_taxonomy as unknown as {
+    term_id: string;
+    taxonomy_term: TaxonomyTerm | TaxonomyTerm[];
+  }[]) ?? []) {
     const term = Array.isArray(ct.taxonomy_term) ? ct.taxonomy_term[0] : ct.taxonomy_term;
     if (!term) continue;
     const vocab = term.vocabulary;

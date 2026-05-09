@@ -8,12 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 type Theater = {
   id: string;
@@ -28,18 +23,9 @@ type LocationFilterProps = {
   onSave: (theaterIds: string[]) => void;
 };
 
-export function LocationFilter({
-  open,
-  onClose,
-  selectedTheaterIds,
-  onSave,
-}: LocationFilterProps) {
-  const [selected, setSelected] = useState<Set<string>>(
-    new Set(selectedTheaterIds)
-  );
-  const [allLocations, setAllLocations] = useState(
-    selectedTheaterIds.length === 0
-  );
+export function LocationFilter({ open, onClose, selectedTheaterIds, onSave }: LocationFilterProps) {
+  const [selected, setSelected] = useState<Set<string>>(new Set(selectedTheaterIds));
+  const [allLocations, setAllLocations] = useState(selectedTheaterIds.length === 0);
 
   const supabase = createClient();
 
@@ -103,10 +89,7 @@ export function LocationFilter({
         <div className="flex-1 overflow-y-auto py-4">
           {/* Alle Standorte toggle */}
           <div className="mb-4 flex items-center justify-between rounded-lg border p-3">
-            <Label
-              htmlFor="all-locations"
-              className="text-sm font-medium"
-            >
+            <Label htmlFor="all-locations" className="text-sm font-medium">
               Alle Standorte durchsuchen
             </Label>
             <Switch
@@ -121,16 +104,14 @@ export function LocationFilter({
             {(theaters ?? []).map((theater) => (
               <label
                 key={theater.id}
-                className="flex cursor-pointer items-center gap-3 rounded-lg p-3 transition-colors hover:bg-accent"
+                className="hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg p-3 transition-colors"
               >
                 <Checkbox
                   checked={selected.has(theater.id)}
                   onCheckedChange={() => toggleTheater(theater.id)}
                   disabled={allLocations}
                 />
-                <span
-                  className={`text-sm ${allLocations ? "text-muted-foreground" : ""}`}
-                >
+                <span className={`text-sm ${allLocations ? "text-muted-foreground" : ""}`}>
                   {theater.name}
                 </span>
               </label>
@@ -142,7 +123,7 @@ export function LocationFilter({
         <div className="border-t pt-4">
           <Button
             onClick={handleSave}
-            className="w-full bg-gold text-gold-foreground hover:bg-gold/90"
+            className="bg-gold text-gold-foreground hover:bg-gold/90 w-full"
           >
             speichern & schliessen
           </Button>

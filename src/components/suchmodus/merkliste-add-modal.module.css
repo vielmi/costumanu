@@ -53,7 +53,9 @@
   justify-content: center;
   opacity: 0.7;
 }
-.closeBtn:hover { opacity: 1; }
+.closeBtn:hover {
+  opacity: 1;
+}
 
 /* ─── Wishlist list (Fall 2) ─────────────────────────────────────────────── */
 .listWrap {
@@ -77,8 +79,13 @@
 .wishlistRow:first-child {
   border-top: 1px solid var(--neutral-grey-200);
 }
-.wishlistRow:hover { background: var(--secondary-500); }
-.wishlistRow:disabled { opacity: 0.5; pointer-events: none; }
+.wishlistRow:hover {
+  background: var(--secondary-500);
+}
+.wishlistRow:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
 
 .wishlistRowName {
   font-family: var(--font-family-base);
@@ -100,7 +107,9 @@
   padding: 8px 0 0;
   text-align: left;
 }
-.newListLink:hover { opacity: 0.8; }
+.newListLink:hover {
+  opacity: 0.8;
+}
 
 /* ─── Create form ────────────────────────────────────────────────────────── */
 .inputWrap {
@@ -137,12 +146,16 @@
   background: var(--neutral-grey-300);
   transition: background 150ms ease;
 }
-.saveBtn:disabled { cursor: default; }
+.saveBtn:disabled {
+  cursor: default;
+}
 
 .saveBtnActive {
   background: var(--primary-900);
 }
-.saveBtnActive:hover { opacity: 0.9; }
+.saveBtnActive:hover {
+  opacity: 0.9;
+}
 
 /* ─── Loading ────────────────────────────────────────────────────────────── */
 .loadingWrap {
@@ -162,14 +175,16 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ─── Error ──────────────────────────────────────────────────────────────── */
 .errorMsg {
   font-family: var(--font-family-base);
   font-size: var(--font-size-200);
-  color: #C0392B;
+  color: #c0392b;
   text-align: center;
   margin: 0;
   padding: 0 24px;
@@ -183,7 +198,7 @@
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: rgba(36, 39, 39, 0.80);
+  background: rgba(36, 39, 39, 0.8);
 }
 
 .sheet {
@@ -243,7 +258,10 @@
   cursor: pointer;
   text-align: left;
 }
-.sheetRow:disabled { opacity: 0.5; pointer-events: none; }
+.sheetRow:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
 
 .sheetRowThumb {
   width: 80px;
@@ -298,8 +316,13 @@
   color: var(--primary-900);
   transition: opacity 120ms ease;
 }
-.newListSecondaryBtn:hover { opacity: 0.8; }
-.newListSecondaryBtn:disabled { opacity: 0.4; pointer-events: none; }
+.newListSecondaryBtn:hover {
+  opacity: 0.8;
+}
+.newListSecondaryBtn:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
 
 /* ─── Create form body inside sheet ─────────────────────────────────────── */
 .sheetCreateBody {

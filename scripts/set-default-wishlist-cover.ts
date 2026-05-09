@@ -13,11 +13,20 @@ const DEFAULT_COVER = "/images/wishlist-default.svg";
 const TEST_EMAIL = "manuela.vielmi@gmail.com";
 
 async function main() {
-  const { data: { users }, error: userErr } = await supabase.auth.admin.listUsers();
-  if (userErr) { console.error("listUsers:", userErr); process.exit(1); }
+  const {
+    data: { users },
+    error: userErr,
+  } = await supabase.auth.admin.listUsers();
+  if (userErr) {
+    console.error("listUsers:", userErr);
+    process.exit(1);
+  }
 
   const user = users.find((u) => u.email === TEST_EMAIL);
-  if (!user) { console.error("User not found:", TEST_EMAIL); process.exit(1); }
+  if (!user) {
+    console.error("User not found:", TEST_EMAIL);
+    process.exit(1);
+  }
 
   const { data, error } = await supabase
     .from("wishlists")
@@ -25,7 +34,10 @@ async function main() {
     .eq("owner_id", user.id)
     .select("id, name");
 
-  if (error) { console.error("update:", error); process.exit(1); }
+  if (error) {
+    console.error("update:", error);
+    process.exit(1);
+  }
 
   console.log(`✓ Default cover set on ${data?.length ?? 0} wishlist(s):`);
   data?.forEach((w) => console.log(`  - ${w.name} (${w.id})`));

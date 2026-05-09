@@ -77,7 +77,8 @@ export function ResultsClient({
       .range(offset, offset + pageSize - 1);
 
     if (searchParams.gender) query = query.eq("gender_term_id", searchParams.gender);
-    if (searchParams.clothing_type) query = query.eq("clothing_type_id", searchParams.clothing_type);
+    if (searchParams.clothing_type)
+      query = query.eq("clothing_type_id", searchParams.clothing_type);
     if (searchParams.theater) query = query.eq("theater_id", searchParams.theater);
     if (searchParams.q) query = query.textSearch("fts_doc", searchParams.q, { type: "websearch" });
 
@@ -86,7 +87,9 @@ export function ResultsClient({
 
     // Post-filter for epoche/sparte
     if (searchParams.epoche || searchParams.sparte) {
-      const requiredTermIds = [searchParams.epoche, searchParams.sparte].filter(Boolean) as string[];
+      const requiredTermIds = [searchParams.epoche, searchParams.sparte].filter(
+        Boolean
+      ) as string[];
       newCostumes = newCostumes.filter((c) => {
         const ids = (c.costume_taxonomy ?? []).map((ct) => ct.term_id);
         return requiredTermIds.every((id) => ids.includes(id));
@@ -109,11 +112,18 @@ export function ResultsClient({
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold">{pageTitle}</h1>
-          <p className="text-sm text-muted-foreground">
-            {totalCount === 1 ? t("results.costumeCount", { count: totalCount.toLocaleString("de-CH") }) : t("results.costumesCount", { count: totalCount.toLocaleString("de-CH") })}
+          <p className="text-muted-foreground text-sm">
+            {totalCount === 1
+              ? t("results.costumeCount", { count: totalCount.toLocaleString("de-CH") })
+              : t("results.costumesCount", { count: totalCount.toLocaleString("de-CH") })}
           </p>
         </div>
-        <Button variant="outline" size="sm" className="shrink-0" onClick={() => setFilterOpen(true)}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="shrink-0"
+          onClick={() => setFilterOpen(true)}
+        >
           <SlidersHorizontal className="mr-2 h-4 w-4" />
           {t("results.costumeFilter")}
         </Button>
@@ -140,9 +150,7 @@ export function ResultsClient({
       {costumes.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-16 text-center">
           <p className="text-lg font-medium">{t("results.noCostumesFound")}</p>
-          <p className="text-sm text-muted-foreground">
-            {t("results.tryDifferentFilters")}
-          </p>
+          <p className="text-muted-foreground text-sm">{t("results.tryDifferentFilters")}</p>
         </div>
       ) : (
         <>
@@ -155,11 +163,7 @@ export function ResultsClient({
           {/* Load more */}
           {hasMore && (
             <div className="flex justify-center pt-4">
-              <Button
-                variant="outline"
-                onClick={loadMore}
-                disabled={loading}
-              >
+              <Button variant="outline" onClick={loadMore} disabled={loading}>
                 {loading ? t("common.loading") : t("common.loadMore")}
               </Button>
             </div>

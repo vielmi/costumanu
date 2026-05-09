@@ -4,7 +4,6 @@
   min-height: 100vh;
 }
 
-
 /* ─── Hero ───────────────────────────────────────────────────────────────── */
 .hero {
   width: 100%;
@@ -89,8 +88,13 @@
   cursor: pointer;
   transition: background 120ms ease;
 }
-.genderCard:hover { background: var(--secondary-500); }
-.genderCard:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 2px; }
+.genderCard:hover {
+  background: var(--secondary-500);
+}
+.genderCard:focus-visible {
+  outline: 2px solid var(--primary-900);
+  outline-offset: 2px;
+}
 .genderCardLabel {
   font-family: var(--font-family-base);
   font-size: var(--font-size-300);
@@ -99,7 +103,8 @@
 }
 
 .genderCardIcon {
-  filter: brightness(0) saturate(100%) invert(10%) sepia(25%) saturate(1100%) hue-rotate(128deg) brightness(85%);
+  filter: brightness(0) saturate(100%) invert(10%) sepia(25%) saturate(1100%) hue-rotate(128deg)
+    brightness(85%);
 }
 
 .heroCircleIcon {
@@ -122,8 +127,13 @@
   text-decoration: none;
   transition: opacity 120ms ease;
 }
-.categoryTile:hover { opacity: 0.88; }
-.categoryTile:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 2px; }
+.categoryTile:hover {
+  opacity: 0.88;
+}
+.categoryTile:focus-visible {
+  outline: 2px solid var(--primary-900);
+  outline-offset: 2px;
+}
 .tileLabelRow {
   position: absolute;
   bottom: 24px;
@@ -162,8 +172,13 @@
   position: relative;
   transition: opacity 120ms ease;
 }
-.networkOval:hover { opacity: 0.85; }
-.networkOval:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 4px; }
+.networkOval:hover {
+  opacity: 0.85;
+}
+.networkOval:focus-visible {
+  outline: 2px solid var(--primary-900);
+  outline-offset: 4px;
+}
 
 /* ─── Mobile (< 744px) ───────────────────────────────────────────────────── */
 @media (max-width: 743px) {

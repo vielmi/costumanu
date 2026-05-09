@@ -45,10 +45,7 @@ interface RentalOverviewProps {
 
 // ─── Component ───────────────────────────────────────────────────────
 
-export function RentalOverview({
-  initialCartItems,
-  userId,
-}: RentalOverviewProps) {
+export function RentalOverview({ initialCartItems, userId }: RentalOverviewProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const supabase = createClient();
@@ -87,10 +84,7 @@ export function RentalOverview({
   // Delete cart item mutation
   const deleteMutation = useMutation({
     mutationFn: async (cartItemId: string) => {
-      const { error } = await supabase
-        .from("cart_items")
-        .delete()
-        .eq("id", cartItemId);
+      const { error } = await supabase.from("cart_items").delete().eq("id", cartItemId);
 
       if (error) throw error;
     },
@@ -108,9 +102,7 @@ export function RentalOverview({
         <h1 className="text-2xl font-bold">
           {t("rental.title")}
           {itemCount > 0 && (
-            <span className="ml-2 text-lg font-normal text-muted-foreground">
-              ({itemCount})
-            </span>
+            <span className="text-muted-foreground ml-2 text-lg font-normal">({itemCount})</span>
           )}
         </h1>
       </div>
@@ -133,7 +125,7 @@ export function RentalOverview({
 
           {/* Gold CTA button */}
           <Button
-            className="w-full bg-gold text-gold-foreground hover:bg-gold/90"
+            className="bg-gold text-gold-foreground hover:bg-gold/90 w-full"
             size="lg"
             onClick={() => router.push("/rental/new")}
           >
@@ -144,7 +136,7 @@ export function RentalOverview({
       )}
 
       {deleteMutation.isError && (
-        <p className="text-sm text-destructive">
+        <p className="text-destructive text-sm">
           {t("common.error")}: {(deleteMutation.error as Error).message}
         </p>
       )}
@@ -177,16 +169,12 @@ function CartItemCard({
     <Card className="py-3">
       <CardContent className="flex items-center gap-4">
         {/* Thumbnail */}
-        <div className="h-16 w-12 shrink-0 overflow-hidden rounded-md bg-muted">
+        <div className="bg-muted h-16 w-12 shrink-0 overflow-hidden rounded-md">
           {imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={imageUrl}
-              alt={costume.name}
-              className="h-full w-full object-cover"
-            />
+            <img src={imageUrl} alt={costume.name} className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted-foreground/10 text-[10px] text-muted-foreground">
+            <div className="from-muted to-muted-foreground/10 text-muted-foreground flex h-full w-full items-center justify-center bg-gradient-to-br text-[10px]">
               {t("results.noPhoto")}
             </div>
           )}
@@ -195,13 +183,11 @@ function CartItemCard({
         {/* Info */}
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           {firstItem && (
-            <span className="font-mono text-xs text-muted-foreground">
-              {firstItem.barcode_id}
-            </span>
+            <span className="text-muted-foreground font-mono text-xs">{firstItem.barcode_id}</span>
           )}
           <h3 className="truncate text-sm font-semibold">{costume.name}</h3>
           {firstProvenance && (
-            <p className="truncate text-xs text-muted-foreground">
+            <p className="text-muted-foreground truncate text-xs">
               {firstProvenance.production_title}
               {firstProvenance.year ? ` (${firstProvenance.year})` : ""}
             </p>
@@ -236,14 +222,10 @@ function CartItemCard({
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed py-16 text-center">
-      <ShoppingBag className="h-10 w-10 text-muted-foreground/50" />
+      <ShoppingBag className="text-muted-foreground/50 h-10 w-10" />
       <div>
-        <p className="font-medium text-muted-foreground">
-          {t("rental.emptyCart")}
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground/70">
-          {t("rental.emptyCartDescription")}
-        </p>
+        <p className="text-muted-foreground font-medium">{t("rental.emptyCart")}</p>
+        <p className="text-muted-foreground/70 mt-1 text-sm">{t("rental.emptyCartDescription")}</p>
       </div>
     </div>
   );

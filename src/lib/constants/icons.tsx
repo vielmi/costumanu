@@ -26,16 +26,16 @@ export const GENDER_ICON: Record<string, string> = {
 };
 
 export const MUSTER_ICON: Record<string, string> = {
-  uni:       "icon-material-solid",
-  kariert:   "icon-material-squared",
+  uni: "icon-material-solid",
+  kariert: "icon-material-squared",
   gestreift: "icon-material-stripe",
   gepunktet: "icon-material-pointed",
-  floral:    "icon-material-floral",
+  floral: "icon-material-floral",
   gemustert: "icon-material-batik",
-  verlauf:   "icon-material-gradient",
-  abstrakt:  "icon-material-gradient",
+  verlauf: "icon-material-gradient",
+  abstrakt: "icon-material-gradient",
   tierprint: "icon-animal",
-  anderes:   "icon-material-divers",
+  anderes: "icon-material-divers",
 };
 
 /** Gibt den Icon-Dateinamen für ein Gender-Label zurück, Fallback "unisex". */

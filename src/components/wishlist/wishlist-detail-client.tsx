@@ -11,15 +11,15 @@ import type { WishlistCostume } from "@/app/wishlist/[id]/page";
 import styles from "./wishlist-detail.module.css";
 
 const STATUS_OPTIONS = [
-  { value: "available",  label: "Verfügbar",    color: "var(--accent-01)" },
-  { value: "rented",     label: "Ausgeliehen",  color: "var(--color-error)" },
-  { value: "cleaning",   label: "Reinigung",    color: "var(--color-warning)" },
-  { value: "in_repair",  label: "In Reparatur", color: "var(--color-error)" },
-  { value: "reserved",   label: "Reserviert",   color: "var(--color-error)" },
-  { value: "stage",      label: "Bühne",        color: "var(--color-error)" },
-  { value: "rehearsal",  label: "Probebühne",   color: "var(--color-error)" },
-  { value: "sorted_out", label: "Aussortiert",  color: "var(--color-error)" },
-  { value: "sold",       label: "Verkauft",     color: "var(--color-error)" },
+  { value: "available", label: "Verfügbar", color: "var(--accent-01)" },
+  { value: "rented", label: "Ausgeliehen", color: "var(--color-error)" },
+  { value: "cleaning", label: "Reinigung", color: "var(--color-warning)" },
+  { value: "in_repair", label: "In Reparatur", color: "var(--color-error)" },
+  { value: "reserved", label: "Reserviert", color: "var(--color-error)" },
+  { value: "stage", label: "Bühne", color: "var(--color-error)" },
+  { value: "rehearsal", label: "Probebühne", color: "var(--color-error)" },
+  { value: "sorted_out", label: "Aussortiert", color: "var(--color-error)" },
+  { value: "sold", label: "Verkauft", color: "var(--color-error)" },
 ];
 
 type Props = {
@@ -28,7 +28,11 @@ type Props = {
   costumes: WishlistCostume[];
 };
 
-export function WishlistDetailClient({ wishlistId, wishlistName: initialName, costumes: initialCostumes }: Props) {
+export function WishlistDetailClient({
+  wishlistId,
+  wishlistName: initialName,
+  costumes: initialCostumes,
+}: Props) {
   const [showScanner, setShowScanner] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showRename, setShowRename] = useState(false);
@@ -130,9 +134,7 @@ export function WishlistDetailClient({ wishlistId, wishlistName: initialName, co
     }
 
     if (selectedIds.size > 0) {
-      const selectedCostumeIds = items
-        .filter((c) => selectedIds.has(c.itemId))
-        .map((c) => c.id);
+      const selectedCostumeIds = items.filter((c) => selectedIds.has(c.itemId)).map((c) => c.id);
 
       const { error } = await supabase
         .from("costume_items")
@@ -158,8 +160,8 @@ export function WishlistDetailClient({ wishlistId, wishlistName: initialName, co
     isEditing && statusFilter
       ? items.filter((c) => c.status === statusFilter || selectedIds.has(c.itemId))
       : statusFilter
-      ? items.filter((c) => c.status === statusFilter)
-      : items;
+        ? items.filter((c) => c.status === statusFilter)
+        : items;
 
   const selectedFilterOption = STATUS_OPTIONS.find((o) => o.value === statusFilter) ?? null;
 
@@ -189,9 +191,15 @@ export function WishlistDetailClient({ wishlistId, wishlistName: initialName, co
           type="button"
           onClick={() => router.back()}
           style={{
-            display: "flex", alignItems: "center", gap: 6,
-            background: "none", border: "none", cursor: "pointer", padding: 0,
-            fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: 0,
+            fontFamily: "var(--font-family-base)",
+            fontSize: "var(--font-size-150)",
             color: "var(--neutral-grey-600)",
           }}
         >
@@ -205,11 +213,7 @@ export function WishlistDetailClient({ wishlistId, wishlistName: initialName, co
         <h1 className={styles.title}>{wishlistName}</h1>
 
         {isEditing ? (
-          <button
-            type="button"
-            className={styles.fertigBtn}
-            onClick={() => setIsEditing(false)}
-          >
+          <button type="button" className={styles.fertigBtn} onClick={() => setIsEditing(false)}>
             Fertig
           </button>
         ) : (
@@ -349,9 +353,7 @@ export function WishlistDetailClient({ wishlistId, wishlistName: initialName, co
                       onClick={() => toggleSelect(c.itemId)}
                       aria-label={selectedIds.has(c.itemId) ? "Abwählen" : "Auswählen"}
                     >
-                      {selectedIds.has(c.itemId) && (
-                        <span className={styles.itemCheckboxInner} />
-                      )}
+                      {selectedIds.has(c.itemId) && <span className={styles.itemCheckboxInner} />}
                     </button>
                   </div>
                 ) : (
@@ -410,10 +412,7 @@ export function WishlistDetailClient({ wishlistId, wishlistName: initialName, co
           <div className={styles.statusFilterWrap}>
             {filterMenuOpen && (
               <>
-                <div
-                  className={styles.statusBackdrop}
-                  onClick={() => setFilterMenuOpen(false)}
-                />
+                <div className={styles.statusBackdrop} onClick={() => setFilterMenuOpen(false)} />
                 <div className={styles.statusFilterMenu}>
                   <button
                     type="button"
@@ -433,10 +432,7 @@ export function WishlistDetailClient({ wishlistId, wishlistName: initialName, co
                       className={`${styles.statusOption} ${o.value === statusFilter ? styles.statusOptionActive : ""}`}
                       onClick={() => handleStatusSelect(o.value)}
                     >
-                      <span
-                        className={styles.statusDotMenu}
-                        style={{ background: o.color }}
-                      />
+                      <span className={styles.statusDotMenu} style={{ background: o.color }} />
                       {o.label}
                     </button>
                   ))}
@@ -460,30 +456,33 @@ export function WishlistDetailClient({ wishlistId, wishlistName: initialName, co
                 {selectedIds.size > 0
                   ? "Status setzen"
                   : selectedFilterOption
-                  ? selectedFilterOption.label
-                  : "Status"}
+                    ? selectedFilterOption.label
+                    : "Status"}
               </span>
-              <Image
-                src="/icons/icon-arrow-dropdown-down.svg"
-                alt=""
-                width={18}
-                height={18}
-              />
+              <Image src="/icons/icon-arrow-dropdown-down.svg" alt="" width={18} height={18} />
             </button>
           </div>
 
           <div className={styles.editBtnRow}>
-            <button
-              type="button"
-              className={styles.editBtnShare}
-              onClick={handleBulkShare}
-            >
+            <button type="button" className={styles.editBtnShare} onClick={handleBulkShare}>
               <span>Teilen</span>
-              <Image src="/icons/icon-share.svg" alt="" width={18} height={18} className={styles.editIconGold} />
+              <Image
+                src="/icons/icon-share.svg"
+                alt=""
+                width={18}
+                height={18}
+                className={styles.editIconGold}
+              />
             </button>
             <button type="button" className={styles.editBtnAnfragen}>
               <span>Anfragen</span>
-              <Image src="/icons/icon-mail.svg" alt="" width={18} height={18} className={styles.editIconWhite} />
+              <Image
+                src="/icons/icon-mail.svg"
+                alt=""
+                width={18}
+                height={18}
+                className={styles.editIconWhite}
+              />
             </button>
           </div>
         </div>

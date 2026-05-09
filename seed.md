@@ -4,6 +4,7 @@
 > als direkte Erweiterung der bestehenden Seed-Skripte.
 >
 > **Bestehende Skripte:**
+>
 > - `scripts/seed-test-data.ts` — Hauptdaten (Theaters, Costumes, Taxonomy)
 > - `scripts/seed-test-images.ts` — Bilder via Unsplash → Supabase Storage
 > - `scripts/link-user-to-theaters.ts` — Auth-User ↔ Theater verknüpfen
@@ -14,17 +15,24 @@
 
 ### Tabellen-Übersicht
 
-| Tabelle | Beschreibung |
-|---|---|
-| `theaters` | Institutionen (Theater, SRF etc.) |
-| `theater_members` | User ↔ Theater Zuordnung mit Rolle |
-| `taxonomy_terms` | Zentralisierte Lookup-Tabelle für alle Kategorisierungen |
-| `costume_taxonomy` | Many-to-many: Kostüm ↔ Taxonomy-Term |
-| `costumes` | Kostüm-Datensätze (logische Einheit, kann Ensemble sein) |
-| `costume_items` | Physische Stücke (Barcode, Grösse, Status, Lagerort) |
-| `costume_provenance` | Verwendungshistorie (Produktion, Darsteller, Regie) |
-| `costume_media` | Bildreferenzen → Supabase Storage Bucket `costume-images` |
-| `events` | Call-to-Action / Veranstaltungen |
+| Tabelle                      | Beschreibung                                                                 |
+| ---------------------------- | ---------------------------------------------------------------------------- |
+| `theaters`                   | Institutionen (Theater, SRF etc.)                                            |
+| `theater_members`            | User ↔ Theater Zuordnung mit Rolle (owner/admin/member/viewer)               |
+| `profiles`                   | Anzeigename, Avatar, `platform_role`                                         |
+| `subscriptions`              | Subscription-Tier pro Theater (free/starter/standard/pro/premium/enterprise) |
+| `theater_networks`           | Netzwerke zwischen Theatern                                                  |
+| `theater_network_members`    | Theater ↔ Netzwerk mit `network_role` (member/admin)                         |
+| `taxonomy_terms`             | Zentralisierte Lookup-Tabelle für alle Kategorisierungen                     |
+| `costume_taxonomy`           | Many-to-many: Kostüm ↔ Taxonomy-Term                                         |
+| `costumes`                   | Kostüm-Datensätze (logische Einheit, kann Ensemble sein)                     |
+| `costume_items`              | Physische Stücke (Barcode, Grösse, Status, Lagerort)                         |
+| `costume_provenance`         | Verwendungshistorie (Produktion, Darsteller, Regie)                          |
+| `costume_media`              | Bildreferenzen → Supabase Storage Bucket `costume-images`                    |
+| `costume_network_visibility` | Sichtbarkeit + Ausleih-/Kaufbarkeit eines Kostüms in einem Netzwerk          |
+| `field_definitions`          | Theater-eigene Kostüm-Felder (Custom Fields, Standard+-Tier)                 |
+| `field_requirements`         | Netzwerk-vorgeschriebene Pflichtfelder für Mitglieder                        |
+| `events`                     | Call-to-Action / Veranstaltungen                                             |
 
 ---
 
@@ -37,25 +45,34 @@
 ### `taxonomy_terms`
 
 ```typescript
-{ id, vocabulary, label_de }
+{
+  (id, vocabulary, label_de);
+}
 ```
 
 **Vocabularies und ihre Labels:**
 
-| vocabulary | labels |
-|---|---|
-| `gender` | Damen, Herren, Kinder, Unisex |
-| `clothing_type` | Kleider, Anzüge, Hosen, Mäntel & Jacken, Uniformen, Kopfbedeckungen, Kostüme, Blusen, Röcke, Abendkleider, Ballkleider, Hochzeitskleider |
-| `epoche` | Antike, Renaissance, Barock, Rokoko, Biedermeier, Viktorianisch, Belle Époque, Zwanziger Jahre, Dreissiger Jahre, Vierziger Jahre, Fünfziger Jahre, Sechziger Jahre, Zeitgenössisch, Fantastisch |
-| `material` | Seide, Wolle, Baumwolle, Samt, Leder, Tüll, Brokat, Taft, Organza, Satin, Spitze, Damast |
-| `color` | Schwarz, Weiss, Rot, Blau, Gold, Silber, Grün, Grau, Rosa, Violett, Braun, Creme |
-| `sparte` | Oper, Schauspiel, Musical, Ballett, Film, Fernsehen, Performance, Kindertheater |
-| `muster` | Uni, Floral, Gestreift, Kariert, Ornamental, Abstrakt, Pünktchen, Damast |
+| vocabulary      | labels                                                                                                                                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `gender`        | Damen, Herren, Kinder, Unisex                                                                                                                                                                    |
+| `clothing_type` | Kleider, Anzüge, Hosen, Mäntel & Jacken, Uniformen, Kopfbedeckungen, Kostüme, Blusen, Röcke, Abendkleider, Ballkleider, Hochzeitskleider                                                         |
+| `epoche`        | Antike, Renaissance, Barock, Rokoko, Biedermeier, Viktorianisch, Belle Époque, Zwanziger Jahre, Dreissiger Jahre, Vierziger Jahre, Fünfziger Jahre, Sechziger Jahre, Zeitgenössisch, Fantastisch |
+| `material`      | Seide, Wolle, Baumwolle, Samt, Leder, Tüll, Brokat, Taft, Organza, Satin, Spitze, Damast                                                                                                         |
+| `color`         | Schwarz, Weiss, Rot, Blau, Gold, Silber, Grün, Grau, Rosa, Violett, Braun, Creme                                                                                                                 |
+| `sparte`        | Oper, Schauspiel, Musical, Ballett, Film, Fernsehen, Performance, Kindertheater                                                                                                                  |
+| `muster`        | Uni, Floral, Gestreift, Kariert, Ornamental, Abstrakt, Pünktchen, Damast                                                                                                                         |
 
 ### `costumes`
 
 ```typescript
-{ id, theater_id, name, description, gender_term_id, clothing_type_id, is_ensemble, parent_costume_id }
+{
+  id, theater_id, name, description,
+  gender_term_id, clothing_type_id,
+  is_ensemble, parent_costume_id,
+  custom_fields: Record<string, string | number | boolean> | null,  // Theater-eigene Felder (JSONB), key = field_definitions.label
+  created_at,
+  // fts_doc: tsvector — GENERATED, nie manuell setzen
+}
 ```
 
 ### `costume_items`
@@ -75,13 +92,25 @@
 ### `costume_provenance`
 
 ```typescript
-{ id, costume_id, production_title, year, actor_name, role_name, director_name, costume_designer, costume_assistant }
+{
+  (id,
+    costume_id,
+    production_title,
+    year,
+    actor_name,
+    role_name,
+    director_name,
+    costume_designer,
+    costume_assistant);
+}
 ```
 
 ### `costume_media`
 
 ```typescript
-{ id, costume_id, storage_path, sort_order }
+{
+  (id, costume_id, storage_path, sort_order);
+}
 // storage_path: "{theater_id}/{costume_id}/{index}.jpg"
 // Supabase Storage Bucket: "costume-images"
 ```
@@ -89,7 +118,81 @@
 ### `events`
 
 ```typescript
-{ id, theater_id, title, description, event_date, is_published }
+{
+  (id, theater_id, title, description, event_date, is_published);
+}
+```
+
+### `subscriptions`
+
+```typescript
+{
+  theater_id,  // PK (1:1 mit theaters)
+  tier,        // "free" | "starter" | "standard" | "pro" | "premium" | "enterprise"
+  valid_until, // null = unbegrenzt
+  stripe_subscription_id,
+}
+// Helper: theater_tier(theater_id) → Text, has_feature(theater_id, feature) → Boolean
+// Features: "custom_fields" (Standard+), "network_sharing" (Starter+), "network_admin" (Pro+)
+```
+
+### `theater_networks`
+
+```typescript
+{
+  id, name, slug,
+  description,         // null erlaubt
+  default_visibility,  // "none" | "all"
+}
+```
+
+### `theater_network_members`
+
+```typescript
+{
+  network_id, theater_id,
+  network_role,  // "member" | "admin"
+}
+// network_role = "admin" → Theater kann Netzwerk-Einstellungen bearbeiten
+```
+
+### `costume_network_visibility`
+
+```typescript
+{
+  network_id, costume_id,
+  is_visible,     // ob das Kostüm im Netzwerk sichtbar ist
+  is_lendable,    // ob es ausleihbar ist
+  is_purchasable, // ob es käuflich ist (UI noch nicht gebaut)
+}
+// Helper: costume_visible_to_theater(costume_id, viewer_theater_id) → Boolean
+//         costume_lendable_to_theater(costume_id, viewer_theater_id) → Boolean
+//         costume_purchasable_to_theater(costume_id, viewer_theater_id) → Boolean
+```
+
+### `field_definitions`
+
+```typescript
+{
+  id, theater_id,
+  label,      // eindeutig pro Theater — gleichzeitig Schlüssel in costumes.custom_fields
+  field_type, // "text" | "textarea" | "number" | "boolean" | "select"
+  options,    // JSONB Array nur für field_type = "select": ["Option A", "Option B"]
+  is_required,
+  sort_order,
+}
+// RLS: nur Theater mit Standard+-Tier dürfen INSERT/UPDATE/DELETE (has_feature-Gate)
+```
+
+### `field_requirements`
+
+```typescript
+{
+  id, network_id,
+  label, field_type, options, is_required,
+}
+// Netzwerk schreibt Mitglied-Theatern vor welche Felder ihre Kostüme haben müssen.
+// Validierung erfolgt im Kostüm-Formular (kostueme-neu-client.tsx) beim Speichern.
 ```
 
 ---
@@ -98,9 +201,9 @@
 
 ```typescript
 // Theaters (bestehend)
-THEATER_1 = "aa000000-0000-0000-0000-000000000001"  // Bühne Bern
-THEATER_2 = "aa000000-0000-0000-0000-000000000002"  // Schauspielhaus Zürich
-THEATER_3 = "aa000000-0000-0000-0000-000000000003"  // Theater Basel
+THEATER_1 = "aa000000-0000-0000-0000-000000000001"; // Bühne Bern
+THEATER_2 = "aa000000-0000-0000-0000-000000000002"; // Schauspielhaus Zürich
+THEATER_3 = "aa000000-0000-0000-0000-000000000003"; // Theater Basel
 
 // Costumes bestehend: cc...0001 – cc...0010
 // Ensemble-Teile bestehend: cc...0011 – cc...0013
@@ -118,23 +221,32 @@ const THEATER_4 = "aa000000-0000-0000-0000-000000000004"; // Luzerner Theater
 const THEATER_5 = "aa000000-0000-0000-0000-000000000005"; // SRF
 const THEATER_6 = "aa000000-0000-0000-0000-000000000006"; // Opernhaus Zürich
 
-await supabase.from("theaters").upsert([
-  {
-    id: THEATER_4, name: "Luzerner Theater", slug: "luzerner-theater",
-    address_info: { street: "Theaterstrasse 2", city: "Luzern", zip: "6003" },
-    settings: { allow_external_sharing: true },
-  },
-  {
-    id: THEATER_5, name: "SRF", slug: "srf",
-    address_info: { street: "Fernsehstrasse 1–4", city: "Zürich", zip: "8052" },
-    settings: { allow_external_sharing: false },
-  },
-  {
-    id: THEATER_6, name: "Opernhaus Zürich", slug: "opernhaus-zuerich",
-    address_info: { street: "Falkenstrasse 1", city: "Zürich", zip: "8008" },
-    settings: { allow_external_sharing: true },
-  },
-], { onConflict: "id" });
+await supabase.from("theaters").upsert(
+  [
+    {
+      id: THEATER_4,
+      name: "Luzerner Theater",
+      slug: "luzerner-theater",
+      address_info: { street: "Theaterstrasse 2", city: "Luzern", zip: "6003" },
+      settings: { allow_external_sharing: true },
+    },
+    {
+      id: THEATER_5,
+      name: "SRF",
+      slug: "srf",
+      address_info: { street: "Fernsehstrasse 1–4", city: "Zürich", zip: "8052" },
+      settings: { allow_external_sharing: false },
+    },
+    {
+      id: THEATER_6,
+      name: "Opernhaus Zürich",
+      slug: "opernhaus-zuerich",
+      address_info: { street: "Falkenstrasse 1", city: "Zürich", zip: "8008" },
+      settings: { allow_external_sharing: true },
+    },
+  ],
+  { onConflict: "id" }
+);
 ```
 
 ---
@@ -203,14 +315,14 @@ const THEATER_5 = "aa000000-0000-0000-0000-000000000005"; // SRF
 const THEATER_6 = "aa000000-0000-0000-0000-000000000006"; // Opernhaus Zürich
 
 // Taxonomy helper (nach neuem load von allTerms)
-const genderDamen  = term("gender", "Damen")!;
+const genderDamen = term("gender", "Damen")!;
 const genderUnisex = term("gender", "Unisex")!;
 
-const typeKleider  = term("clothing_type", "Kleider")!;
-const typeMaentel  = term("clothing_type", "Mäntel & Jacken")!;
+const typeKleider = term("clothing_type", "Kleider")!;
+const typeMaentel = term("clothing_type", "Mäntel & Jacken")!;
 const typeKostueme = term("clothing_type", "Kostüme")!;
-const typeBall     = term("clothing_type", "Ballkleider")!;
-const typeAbend    = term("clothing_type", "Abendkleider")!;
+const typeBall = term("clothing_type", "Ballkleider")!;
+const typeAbend = term("clothing_type", "Abendkleider")!;
 const typeHochzeit = term("clothing_type", "Hochzeitskleider")!;
 
 const costumesNew = [
@@ -218,141 +330,201 @@ const costumesNew = [
     id: "cc000000-0000-0000-0000-000000000021",
     theater_id: THEATER_1,
     name: "Romantisches Schichtkleid Blaugrau/Rosa",
-    description: "Zweiteiliges Kostüm: hellblaugrauer Gehrock mit Knopfleiste und Epauletten über einem rosé-weissen Rüschenrock mit Spitzenbesatz. Viktorianisch-romantischer Stil.",
-    gender_term_id: genderDamen, clothing_type_id: typeKleider, is_ensemble: false,
+    description:
+      "Zweiteiliges Kostüm: hellblaugrauer Gehrock mit Knopfleiste und Epauletten über einem rosé-weissen Rüschenrock mit Spitzenbesatz. Viktorianisch-romantischer Stil.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeKleider,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000022",
     theater_id: THEATER_4,
     name: "Barocker Schnürkorsett-Mantel Bronze/Gold",
-    description: "Langer Taillenmantel aus bronzefarbenem Brokat mit goldenen Ornamentmotiven. Schnürung vorne, tailliert, ausgestellte Schösse.",
-    gender_term_id: genderDamen, clothing_type_id: typeMaentel, is_ensemble: false,
+    description:
+      "Langer Taillenmantel aus bronzefarbenem Brokat mit goldenen Ornamentmotiven. Schnürung vorne, tailliert, ausgestellte Schösse.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeMaentel,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000023",
     theater_id: THEATER_4,
     name: "Barockes Hofkleid Gelbgrün/Gold",
-    description: "Grosses Hofkleid aus Damastgewebe in Gelbgrün und Gold mit floralen Brokatmotiven, weissen Spitzenärmeln und goldener Gürtelgarnitur. Für Königinnendarstellungen.",
-    gender_term_id: genderDamen, clothing_type_id: typeBall, is_ensemble: false,
+    description:
+      "Grosses Hofkleid aus Damastgewebe in Gelbgrün und Gold mit floralen Brokatmotiven, weissen Spitzenärmeln und goldener Gürtelgarnitur. Für Königinnendarstellungen.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeBall,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000024",
     theater_id: THEATER_5,
     name: "Fantasy Regenkleid Grün/Weiss",
-    description: "Abstraktes Kostüm in Form eines Regenschauers. Grün-weisses Vichykaro-Kostüm mit aufgesetzten Regentropfen aus Stoff und einer Wolkenskulptur als Schulterpartie.",
-    gender_term_id: genderUnisex, clothing_type_id: typeKostueme, is_ensemble: false,
+    description:
+      "Abstraktes Kostüm in Form eines Regenschauers. Grün-weisses Vichykaro-Kostüm mit aufgesetzten Regentropfen aus Stoff und einer Wolkenskulptur als Schulterpartie.",
+    gender_term_id: genderUnisex,
+    clothing_type_id: typeKostueme,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000025",
     theater_id: THEATER_3,
     name: "Viktorianisches Bolero-Jacket Royalblau",
-    description: "Kurzes Bolero-Jacket aus königsblauem Samt mit Spitzenbesatz an Kragen, Schultern und Manschetten. Weisse Spitzenbluse darunter. Reich verziert mit Perlenschmuck.",
-    gender_term_id: genderDamen, clothing_type_id: typeMaentel, is_ensemble: true,
+    description:
+      "Kurzes Bolero-Jacket aus königsblauem Samt mit Spitzenbesatz an Kragen, Schultern und Manschetten. Weisse Spitzenbluse darunter. Reich verziert mit Perlenschmuck.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeMaentel,
+    is_ensemble: true,
   },
   {
     id: "cc000000-0000-0000-0000-000000000026",
     theater_id: THEATER_4,
     name: "Barocker Gehrock Blau/Gold Brokat",
-    description: "Taillenbetonter langer Gehrock aus blauem und goldfarbenem Brokat mit Blumenmotiven. Grossvolumige Satinschleife am Kragen, Satinbänder an Ärmeln, schwarzer Faltrock.",
-    gender_term_id: genderDamen, clothing_type_id: typeMaentel, is_ensemble: false,
+    description:
+      "Taillenbetonter langer Gehrock aus blauem und goldfarbenem Brokat mit Blumenmotiven. Grossvolumige Satinschleife am Kragen, Satinbänder an Ärmeln, schwarzer Faltrock.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeMaentel,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000027",
     theater_id: THEATER_4,
     name: "Pierrot-Kostüm Rosa Tüll mit Harlekin-Strumpfhose",
-    description: "Grossvolumiges Pierrot-Kostüm aus mehrlagigem rosa Tüll als Schulter-Cape-Kleid. Dazu schwarz-weisse Harlekin-Rauten-Strumpfhose. Für Clown-/Commedia-dell'arte-Darstellungen.",
-    gender_term_id: genderUnisex, clothing_type_id: typeKostueme, is_ensemble: true,
+    description:
+      "Grossvolumiges Pierrot-Kostüm aus mehrlagigem rosa Tüll als Schulter-Cape-Kleid. Dazu schwarz-weisse Harlekin-Rauten-Strumpfhose. Für Clown-/Commedia-dell'arte-Darstellungen.",
+    gender_term_id: genderUnisex,
+    clothing_type_id: typeKostueme,
+    is_ensemble: true,
   },
   {
     id: "cc000000-0000-0000-0000-000000000028",
     theater_id: THEATER_6,
     name: "Rokoko-Ballkleid Gelb/Creme Marie-Antoinette-Stil",
-    description: "Grosses Rokoko-Ballkleid aus gelbem Karostoff mit cremeweissen Rüschenbahnen und Schleifenverzierungen. Mintgrüne Schleife am Ausschnitt.",
-    gender_term_id: genderDamen, clothing_type_id: typeBall, is_ensemble: false,
+    description:
+      "Grosses Rokoko-Ballkleid aus gelbem Karostoff mit cremeweissen Rüschenbahnen und Schleifenverzierungen. Mintgrüne Schleife am Ausschnitt.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeBall,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000029",
     theater_id: THEATER_4,
     name: "Flapper-Kleid Schwarz mit Spitze",
-    description: "Knielanges 1920er Abendkleid aus schwarzem Chiffon mit Spitzen-Oberteil, Pünktchen-Tüll und fein plissierten Lagen. Für Jazz-Age und Weimarer-Republik-Darstellungen.",
-    gender_term_id: genderDamen, clothing_type_id: typeAbend, is_ensemble: false,
+    description:
+      "Knielanges 1920er Abendkleid aus schwarzem Chiffon mit Spitzen-Oberteil, Pünktchen-Tüll und fein plissierten Lagen. Für Jazz-Age und Weimarer-Republik-Darstellungen.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeAbend,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000030",
     theater_id: THEATER_1,
     name: "Ballkleid Blaugrau Taft 50er-Jahre",
-    description: "Tailliertes Abendkleid aus blaugrauem Taft mit weitem Stufenrock. Bootneck-Ausschnitt, Satinschleife am Bund. Typischer New-Look der 1950er Jahre.",
-    gender_term_id: genderDamen, clothing_type_id: typeBall, is_ensemble: false,
+    description:
+      "Tailliertes Abendkleid aus blaugrauem Taft mit weitem Stufenrock. Bootneck-Ausschnitt, Satinschleife am Bund. Typischer New-Look der 1950er Jahre.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeBall,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000031",
     theater_id: THEATER_6,
     name: "Cocktailkleid Weiss mit Perlen- und Kristallstickerei",
-    description: "Kurzes Festkleid aus weissem Tüll mit vollflächiger Perl- und Kristallstickerei am Oberteil und feinem Blumenmuster im Rock.",
-    gender_term_id: genderDamen, clothing_type_id: typeKleider, is_ensemble: false,
+    description:
+      "Kurzes Festkleid aus weissem Tüll mit vollflächiger Perl- und Kristallstickerei am Oberteil und feinem Blumenmuster im Rock.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeKleider,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000032",
     theater_id: THEATER_4,
     name: "Stufenballkleid Mintgrün mit Olivschärpe",
-    description: "Schulterfreies Stufenballkleid aus mintgrünem Taft mit drei Volantlagen. Breite olivgrüne Samtschärpe am Bund. New-Look-Stil der 1950er Jahre.",
-    gender_term_id: genderDamen, clothing_type_id: typeBall, is_ensemble: false,
+    description:
+      "Schulterfreies Stufenballkleid aus mintgrünem Taft mit drei Volantlagen. Breite olivgrüne Samtschärpe am Bund. New-Look-Stil der 1950er Jahre.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeBall,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000033",
     theater_id: THEATER_6,
     name: "Off-Shoulder Cocktailkleid Silberblau",
-    description: "Elegantes Off-Shoulder-Kleid aus silberblauem Dupion-Seidenstoff. Schulterübergreifende Draperie, seitliche Knopfleiste, weit schwingender Rock.",
-    gender_term_id: genderDamen, clothing_type_id: typeKleider, is_ensemble: false,
+    description:
+      "Elegantes Off-Shoulder-Kleid aus silberblauem Dupion-Seidenstoff. Schulterübergreifende Draperie, seitliche Knopfleiste, weit schwingender Rock.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeKleider,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000034",
     theater_id: THEATER_1,
     name: "Abendkleid Creme mit Blumenstickerei",
-    description: "Grosses Abendkleid aus cremefarbenem Satin mit vollflächiger Blumen- und Zweigstickerei in Violett und Grün. Herzausschnitt, tailliert, weit schwingender Rock.",
-    gender_term_id: genderDamen, clothing_type_id: typeAbend, is_ensemble: false,
+    description:
+      "Grosses Abendkleid aus cremefarbenem Satin mit vollflächiger Blumen- und Zweigstickerei in Violett und Grün. Herzausschnitt, tailliert, weit schwingender Rock.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeAbend,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000035",
     theater_id: THEATER_1,
     name: "Brautkleid Weiss Satin Modern",
-    description: "Modernes Brautkleid aus weissem Satin mit tiefem V-Ausschnitt, Wickeloptik im Oberteil und langem Schlepprock. Minimalistisch-elegant, zeitloser Schnitt.",
-    gender_term_id: genderDamen, clothing_type_id: typeHochzeit, is_ensemble: false,
+    description:
+      "Modernes Brautkleid aus weissem Satin mit tiefem V-Ausschnitt, Wickeloptik im Oberteil und langem Schlepprock. Minimalistisch-elegant, zeitloser Schnitt.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeHochzeit,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000036",
     theater_id: THEATER_1,
     name: "Marineblauer Taft Midirock mit Schleife",
-    description: "Tailliertes Midi-Kleid aus marineblauen Taft mit Stehkragen, Schleife und Blütenbrosche. Weiter Schwingrock mit weissem Tüll-Unterkleid. Zeitgenössisch mit 50er-Einfluss.",
-    gender_term_id: genderDamen, clothing_type_id: typeKleider, is_ensemble: false,
+    description:
+      "Tailliertes Midi-Kleid aus marineblauen Taft mit Stehkragen, Schleife und Blütenbrosche. Weiter Schwingrock mit weissem Tüll-Unterkleid. Zeitgenössisch mit 50er-Einfluss.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeKleider,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000037",
     theater_id: THEATER_5,
     name: "Cremefarbenes Tüll-Drapéekleid mit Satinband",
-    description: "Knielang-asymmetrisches Drapéekleid aus mehrlagigem cremefarbenen Tüll. Breites Satinband in Taupe als Bindegürtel. Zeitgenössisch, für Tanzproduktionen geeignet.",
-    gender_term_id: genderDamen, clothing_type_id: typeKleider, is_ensemble: false,
+    description:
+      "Knielang-asymmetrisches Drapéekleid aus mehrlagigem cremefarbenen Tüll. Breites Satinband in Taupe als Bindegürtel. Zeitgenössisch, für Tanzproduktionen geeignet.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeKleider,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000038",
     theater_id: THEATER_5,
     name: "Avant-Garde Rüschen-Ensemble Grau-Silber",
-    description: "Zweiteiliges Avant-Garde-Kostüm aus grau-silbernem Satin: Kurzjacke mit Puffärmeln und langer Rüschenrock aus gerafften Bahnen. Skulpturaler, performativer Charakter.",
-    gender_term_id: genderUnisex, clothing_type_id: typeKostueme, is_ensemble: true,
+    description:
+      "Zweiteiliges Avant-Garde-Kostüm aus grau-silbernem Satin: Kurzjacke mit Puffärmeln und langer Rüschenrock aus gerafften Bahnen. Skulpturaler, performativer Charakter.",
+    gender_term_id: genderUnisex,
+    clothing_type_id: typeKostueme,
+    is_ensemble: true,
   },
   {
     id: "cc000000-0000-0000-0000-000000000039",
     theater_id: THEATER_1,
     name: "Violettes Taft-Kleid mit Blütenbrosche",
-    description: "Tailliertes Midi-Kleid aus violettem Taft mit Stehkragen und Dreiviertelärmel. Hellblaue Blütenbrosche an der Brust. Zeitgenössisch mit 50er-Einfluss.",
-    gender_term_id: genderDamen, clothing_type_id: typeKleider, is_ensemble: false,
+    description:
+      "Tailliertes Midi-Kleid aus violettem Taft mit Stehkragen und Dreiviertelärmel. Hellblaue Blütenbrosche an der Brust. Zeitgenössisch mit 50er-Einfluss.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeKleider,
+    is_ensemble: false,
   },
   {
     id: "cc000000-0000-0000-0000-000000000040",
     theater_id: THEATER_4,
     name: "Barockes Hofkleid Silber-Grau mit Schleppe",
-    description: "Grosses zweiteiliges Hofkleid aus silbergrauem Satin mit Brokatbesatz. Oberteil mit Brokat-Einlage, grosser Schlepprock, schwarze Handschuhe. Für Queen/Gräfinnen-Darstellungen.",
-    gender_term_id: genderDamen, clothing_type_id: typeBall, is_ensemble: false,
+    description:
+      "Grosses zweiteiliges Hofkleid aus silbergrauem Satin mit Brokatbesatz. Oberteil mit Brokat-Einlage, grosser Schlepprock, schwarze Handschuhe. Für Queen/Gräfinnen-Darstellungen.",
+    gender_term_id: genderDamen,
+    clothing_type_id: typeBall,
+    is_ensemble: false,
   },
 ];
 
@@ -365,26 +537,246 @@ await supabase.from("costumes").upsert(costumesNew, { onConflict: "id" });
 
 ```typescript
 const itemsNew = [
-  { id: "bb000000-0000-0000-0000-000000000021", costume_id: "cc000000-0000-0000-0000-000000000021", theater_id: THEATER_1, barcode_id: "KP-LT0021", size_label: "36", size_data: { chest: 84, waist: 68, hip: 92, back_length: 130 }, condition_grade: 4, current_status: "available", storage_location_path: "Bern.Stock1.Regal4.Box12", is_public_for_rent: true },
-  { id: "bb000000-0000-0000-0000-000000000022", costume_id: "cc000000-0000-0000-0000-000000000022", theater_id: THEATER_4, barcode_id: "KP-LT0022", size_label: "38", size_data: { chest: 88, waist: 70, hip: 96, back_length: 110 }, condition_grade: 4, current_status: "rented", storage_location_path: "Luzern.Stock1.Regal2.Box5", is_public_for_rent: true },
-  { id: "bb000000-0000-0000-0000-000000000023", costume_id: "cc000000-0000-0000-0000-000000000023", theater_id: THEATER_4, barcode_id: "KP-LT0023", size_label: "40", size_data: { chest: 92, waist: 74, hip: 98, back_length: 160 }, condition_grade: 5, current_status: "available", storage_location_path: "Luzern.Stock1.Regal1.Box1", is_public_for_rent: true },
-  { id: "bb000000-0000-0000-0000-000000000024", costume_id: "cc000000-0000-0000-0000-000000000024", theater_id: THEATER_5, barcode_id: "KP-SRF001", size_label: "Einheitsgrösse", size_data: { chest: 90, waist: null, hip: null, back_length: 80 }, condition_grade: 5, current_status: "available", storage_location_path: "SRF.Stock2.Regal6.Box3", is_public_for_rent: false },
-  { id: "bb000000-0000-0000-0000-000000000025", costume_id: "cc000000-0000-0000-0000-000000000025", theater_id: THEATER_3, barcode_id: "KP-BS0025", size_label: "36", size_data: { chest: 84, waist: 66, hip: null, back_length: 55 }, condition_grade: 3, current_status: "cleaning", storage_location_path: "Basel.Stock1.Regal3.Box9", is_public_for_rent: true },
-  { id: "bb000000-0000-0000-0000-000000000026", costume_id: "cc000000-0000-0000-0000-000000000026", theater_id: THEATER_4, barcode_id: "KP-LT0026", size_label: "38", size_data: { chest: 88, waist: 72, hip: 94, back_length: 115 }, condition_grade: 5, current_status: "available", storage_location_path: "Luzern.Stock1.Regal2.Box7", is_public_for_rent: true },
-  { id: "bb000000-0000-0000-0000-000000000027", costume_id: "cc000000-0000-0000-0000-000000000027", theater_id: THEATER_4, barcode_id: "KP-LT0027", size_label: "S/M", size_data: { chest: 86, waist: 68, hip: 90, back_length: 90 }, condition_grade: 4, current_status: "available", storage_location_path: "Luzern.Stock2.Regal5.Box2", is_public_for_rent: true },
-  { id: "bb000000-0000-0000-0000-000000000028", costume_id: "cc000000-0000-0000-0000-000000000028", theater_id: THEATER_6, barcode_id: "KP-OHZ001", size_label: "36", size_data: { chest: 84, waist: 64, hip: 90, back_length: 175 }, condition_grade: 5, current_status: "available", storage_location_path: "Zuerich.Stock1.Regal1.Box1", is_public_for_rent: true },
-  { id: "bb000000-0000-0000-0000-000000000029", costume_id: "cc000000-0000-0000-0000-000000000029", theater_id: THEATER_4, barcode_id: "KP-LT0029", size_label: "34", size_data: { chest: 82, waist: 65, hip: 88, back_length: 95 }, condition_grade: 4, current_status: "available", storage_location_path: "Luzern.Stock2.Regal3.Box11", is_public_for_rent: true },
-  { id: "bb000000-0000-0000-0000-000000000030", costume_id: "cc000000-0000-0000-0000-000000000030", theater_id: THEATER_1, barcode_id: "KP-LT0030", size_label: "36", size_data: { chest: 84, waist: 64, hip: 90, back_length: 130 }, condition_grade: 5, current_status: "available", storage_location_path: "Bern.Stock1.Regal4.Box5", is_public_for_rent: true },
-  { id: "bb000000-0000-0000-0000-000000000031", costume_id: "cc000000-0000-0000-0000-000000000031", theater_id: THEATER_6, barcode_id: "KP-OHZ002", size_label: "34", size_data: { chest: 80, waist: 62, hip: 86, back_length: 85 }, condition_grade: 5, current_status: "in_repair", storage_location_path: "Zuerich.Stock1.Regal2.Box4", is_public_for_rent: false },
-  { id: "bb000000-0000-0000-0000-000000000032", costume_id: "cc000000-0000-0000-0000-000000000032", theater_id: THEATER_4, barcode_id: "KP-LT0032", size_label: "38", size_data: { chest: 88, waist: 70, hip: 96, back_length: 100 }, condition_grade: 4, current_status: "available", storage_location_path: "Luzern.Stock1.Regal3.Box6", is_public_for_rent: true },
-  { id: "bb000000-0000-0000-0000-000000000033", costume_id: "cc000000-0000-0000-0000-000000000033", theater_id: THEATER_6, barcode_id: "KP-OHZ003", size_label: "36", size_data: { chest: 84, waist: 66, hip: 90, back_length: 95 }, condition_grade: 5, current_status: "available", storage_location_path: "Zuerich.Stock1.Regal1.Box3", is_public_for_rent: true },
-  { id: "bb000000-0000-0000-0000-000000000034", costume_id: "cc000000-0000-0000-0000-000000000034", theater_id: THEATER_1, barcode_id: "KP-BE0034", size_label: "38", size_data: { chest: 88, waist: 68, hip: 94, back_length: 155 }, condition_grade: 4, current_status: "available", storage_location_path: "Bern.Stock2.Regal1.Box8", is_public_for_rent: true },
-  { id: "bb000000-0000-0000-0000-000000000035", costume_id: "cc000000-0000-0000-0000-000000000035", theater_id: THEATER_1, barcode_id: "KP-BE0035", size_label: "36", size_data: { chest: 84, waist: 66, hip: 90, back_length: 185 }, condition_grade: 5, current_status: "available", storage_location_path: "Bern.Stock1.Regal5.Box2", is_public_for_rent: true },
-  { id: "bb000000-0000-0000-0000-000000000036", costume_id: "cc000000-0000-0000-0000-000000000036", theater_id: THEATER_1, barcode_id: "KP-BE0036", size_label: "44", size_data: { chest: 96, waist: 80, hip: 104, back_length: 120 }, condition_grade: 5, current_status: "available", storage_location_path: "Bern.Stock2.Regal2.Box3", is_public_for_rent: true },
-  { id: "bb000000-0000-0000-0000-000000000037", costume_id: "cc000000-0000-0000-0000-000000000037", theater_id: THEATER_5, barcode_id: "KP-SRF002", size_label: "36", size_data: { chest: 84, waist: 66, hip: 90, back_length: 90 }, condition_grade: 4, current_status: "available", storage_location_path: "SRF.Stock1.Regal4.Box7", is_public_for_rent: false },
-  { id: "bb000000-0000-0000-0000-000000000038", costume_id: "cc000000-0000-0000-0000-000000000038", theater_id: THEATER_5, barcode_id: "KP-SRF003", size_label: "S/M", size_data: { chest: 88, waist: null, hip: null, back_length: 100 }, condition_grade: 4, current_status: "in_repair", storage_location_path: "SRF.Stock1.Regal4.Box8", is_public_for_rent: false },
-  { id: "bb000000-0000-0000-0000-000000000039", costume_id: "cc000000-0000-0000-0000-000000000039", theater_id: THEATER_1, barcode_id: "KP-BE0039", size_label: "46", size_data: { chest: 100, waist: 84, hip: 108, back_length: 118 }, condition_grade: 5, current_status: "available", storage_location_path: "Bern.Stock2.Regal3.Box1", is_public_for_rent: true },
-  { id: "bb000000-0000-0000-0000-000000000040", costume_id: "cc000000-0000-0000-0000-000000000040", theater_id: THEATER_4, barcode_id: "KP-LT0040", size_label: "36", size_data: { chest: 84, waist: 66, hip: 92, back_length: 195 }, condition_grade: 4, current_status: "rented", storage_location_path: "Luzern.Stock1.Regal1.Box2", is_public_for_rent: true },
+  {
+    id: "bb000000-0000-0000-0000-000000000021",
+    costume_id: "cc000000-0000-0000-0000-000000000021",
+    theater_id: THEATER_1,
+    barcode_id: "KP-LT0021",
+    size_label: "36",
+    size_data: { chest: 84, waist: 68, hip: 92, back_length: 130 },
+    condition_grade: 4,
+    current_status: "available",
+    storage_location_path: "Bern.Stock1.Regal4.Box12",
+    is_public_for_rent: true,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000022",
+    costume_id: "cc000000-0000-0000-0000-000000000022",
+    theater_id: THEATER_4,
+    barcode_id: "KP-LT0022",
+    size_label: "38",
+    size_data: { chest: 88, waist: 70, hip: 96, back_length: 110 },
+    condition_grade: 4,
+    current_status: "rented",
+    storage_location_path: "Luzern.Stock1.Regal2.Box5",
+    is_public_for_rent: true,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000023",
+    costume_id: "cc000000-0000-0000-0000-000000000023",
+    theater_id: THEATER_4,
+    barcode_id: "KP-LT0023",
+    size_label: "40",
+    size_data: { chest: 92, waist: 74, hip: 98, back_length: 160 },
+    condition_grade: 5,
+    current_status: "available",
+    storage_location_path: "Luzern.Stock1.Regal1.Box1",
+    is_public_for_rent: true,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000024",
+    costume_id: "cc000000-0000-0000-0000-000000000024",
+    theater_id: THEATER_5,
+    barcode_id: "KP-SRF001",
+    size_label: "Einheitsgrösse",
+    size_data: { chest: 90, waist: null, hip: null, back_length: 80 },
+    condition_grade: 5,
+    current_status: "available",
+    storage_location_path: "SRF.Stock2.Regal6.Box3",
+    is_public_for_rent: false,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000025",
+    costume_id: "cc000000-0000-0000-0000-000000000025",
+    theater_id: THEATER_3,
+    barcode_id: "KP-BS0025",
+    size_label: "36",
+    size_data: { chest: 84, waist: 66, hip: null, back_length: 55 },
+    condition_grade: 3,
+    current_status: "cleaning",
+    storage_location_path: "Basel.Stock1.Regal3.Box9",
+    is_public_for_rent: true,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000026",
+    costume_id: "cc000000-0000-0000-0000-000000000026",
+    theater_id: THEATER_4,
+    barcode_id: "KP-LT0026",
+    size_label: "38",
+    size_data: { chest: 88, waist: 72, hip: 94, back_length: 115 },
+    condition_grade: 5,
+    current_status: "available",
+    storage_location_path: "Luzern.Stock1.Regal2.Box7",
+    is_public_for_rent: true,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000027",
+    costume_id: "cc000000-0000-0000-0000-000000000027",
+    theater_id: THEATER_4,
+    barcode_id: "KP-LT0027",
+    size_label: "S/M",
+    size_data: { chest: 86, waist: 68, hip: 90, back_length: 90 },
+    condition_grade: 4,
+    current_status: "available",
+    storage_location_path: "Luzern.Stock2.Regal5.Box2",
+    is_public_for_rent: true,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000028",
+    costume_id: "cc000000-0000-0000-0000-000000000028",
+    theater_id: THEATER_6,
+    barcode_id: "KP-OHZ001",
+    size_label: "36",
+    size_data: { chest: 84, waist: 64, hip: 90, back_length: 175 },
+    condition_grade: 5,
+    current_status: "available",
+    storage_location_path: "Zuerich.Stock1.Regal1.Box1",
+    is_public_for_rent: true,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000029",
+    costume_id: "cc000000-0000-0000-0000-000000000029",
+    theater_id: THEATER_4,
+    barcode_id: "KP-LT0029",
+    size_label: "34",
+    size_data: { chest: 82, waist: 65, hip: 88, back_length: 95 },
+    condition_grade: 4,
+    current_status: "available",
+    storage_location_path: "Luzern.Stock2.Regal3.Box11",
+    is_public_for_rent: true,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000030",
+    costume_id: "cc000000-0000-0000-0000-000000000030",
+    theater_id: THEATER_1,
+    barcode_id: "KP-LT0030",
+    size_label: "36",
+    size_data: { chest: 84, waist: 64, hip: 90, back_length: 130 },
+    condition_grade: 5,
+    current_status: "available",
+    storage_location_path: "Bern.Stock1.Regal4.Box5",
+    is_public_for_rent: true,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000031",
+    costume_id: "cc000000-0000-0000-0000-000000000031",
+    theater_id: THEATER_6,
+    barcode_id: "KP-OHZ002",
+    size_label: "34",
+    size_data: { chest: 80, waist: 62, hip: 86, back_length: 85 },
+    condition_grade: 5,
+    current_status: "in_repair",
+    storage_location_path: "Zuerich.Stock1.Regal2.Box4",
+    is_public_for_rent: false,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000032",
+    costume_id: "cc000000-0000-0000-0000-000000000032",
+    theater_id: THEATER_4,
+    barcode_id: "KP-LT0032",
+    size_label: "38",
+    size_data: { chest: 88, waist: 70, hip: 96, back_length: 100 },
+    condition_grade: 4,
+    current_status: "available",
+    storage_location_path: "Luzern.Stock1.Regal3.Box6",
+    is_public_for_rent: true,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000033",
+    costume_id: "cc000000-0000-0000-0000-000000000033",
+    theater_id: THEATER_6,
+    barcode_id: "KP-OHZ003",
+    size_label: "36",
+    size_data: { chest: 84, waist: 66, hip: 90, back_length: 95 },
+    condition_grade: 5,
+    current_status: "available",
+    storage_location_path: "Zuerich.Stock1.Regal1.Box3",
+    is_public_for_rent: true,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000034",
+    costume_id: "cc000000-0000-0000-0000-000000000034",
+    theater_id: THEATER_1,
+    barcode_id: "KP-BE0034",
+    size_label: "38",
+    size_data: { chest: 88, waist: 68, hip: 94, back_length: 155 },
+    condition_grade: 4,
+    current_status: "available",
+    storage_location_path: "Bern.Stock2.Regal1.Box8",
+    is_public_for_rent: true,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000035",
+    costume_id: "cc000000-0000-0000-0000-000000000035",
+    theater_id: THEATER_1,
+    barcode_id: "KP-BE0035",
+    size_label: "36",
+    size_data: { chest: 84, waist: 66, hip: 90, back_length: 185 },
+    condition_grade: 5,
+    current_status: "available",
+    storage_location_path: "Bern.Stock1.Regal5.Box2",
+    is_public_for_rent: true,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000036",
+    costume_id: "cc000000-0000-0000-0000-000000000036",
+    theater_id: THEATER_1,
+    barcode_id: "KP-BE0036",
+    size_label: "44",
+    size_data: { chest: 96, waist: 80, hip: 104, back_length: 120 },
+    condition_grade: 5,
+    current_status: "available",
+    storage_location_path: "Bern.Stock2.Regal2.Box3",
+    is_public_for_rent: true,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000037",
+    costume_id: "cc000000-0000-0000-0000-000000000037",
+    theater_id: THEATER_5,
+    barcode_id: "KP-SRF002",
+    size_label: "36",
+    size_data: { chest: 84, waist: 66, hip: 90, back_length: 90 },
+    condition_grade: 4,
+    current_status: "available",
+    storage_location_path: "SRF.Stock1.Regal4.Box7",
+    is_public_for_rent: false,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000038",
+    costume_id: "cc000000-0000-0000-0000-000000000038",
+    theater_id: THEATER_5,
+    barcode_id: "KP-SRF003",
+    size_label: "S/M",
+    size_data: { chest: 88, waist: null, hip: null, back_length: 100 },
+    condition_grade: 4,
+    current_status: "in_repair",
+    storage_location_path: "SRF.Stock1.Regal4.Box8",
+    is_public_for_rent: false,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000039",
+    costume_id: "cc000000-0000-0000-0000-000000000039",
+    theater_id: THEATER_1,
+    barcode_id: "KP-BE0039",
+    size_label: "46",
+    size_data: { chest: 100, waist: 84, hip: 108, back_length: 118 },
+    condition_grade: 5,
+    current_status: "available",
+    storage_location_path: "Bern.Stock2.Regal3.Box1",
+    is_public_for_rent: true,
+  },
+  {
+    id: "bb000000-0000-0000-0000-000000000040",
+    costume_id: "cc000000-0000-0000-0000-000000000040",
+    theater_id: THEATER_4,
+    barcode_id: "KP-LT0040",
+    size_label: "36",
+    size_data: { chest: 84, waist: 66, hip: 92, back_length: 195 },
+    condition_grade: 4,
+    current_status: "rented",
+    storage_location_path: "Luzern.Stock1.Regal1.Box2",
+    is_public_for_rent: true,
+  },
 ];
 
 await supabase.from("costume_items").upsert(itemsNew, { onConflict: "id" });
@@ -395,28 +787,209 @@ await supabase.from("costume_items").upsert(itemsNew, { onConflict: "id" });
 ## Provenance (Verwendungshistorie)
 
 ```typescript
-await supabase.from("costume_provenance").upsert([
-  { id: "dd000000-0000-0000-0000-000000000021", costume_id: "cc000000-0000-0000-0000-000000000021", production_title: "Dornröschen", year: 2024, role_name: "Dornröschen", director_name: "Hans Küng", costume_designer: "Sabine Sieber", costume_assistant: "Peter Hauser" },
-  { id: "dd000000-0000-0000-0000-000000000022", costume_id: "cc000000-0000-0000-0000-000000000022", production_title: "Tosca", year: 2025, actor_name: "Manon Adrianow", role_name: "Tosca", director_name: "Teresa Rotemberg", costume_designer: "Klara Behr", costume_assistant: "Alma Assistentin" },
-  { id: "dd000000-0000-0000-0000-000000000023", costume_id: "cc000000-0000-0000-0000-000000000023", production_title: "Figaro", year: 2024, actor_name: "Elena Richter", role_name: "Gräfin Almaviva", director_name: "Teresa Rotemberg", costume_designer: "Klara Behr", costume_assistant: "Alma Assistentin" },
-  { id: "dd000000-0000-0000-0000-000000000024", costume_id: "cc000000-0000-0000-0000-000000000024", production_title: "Exploration of Energy", year: 2025, role_name: "Regen-Figur", director_name: "Lisa Meier", costume_designer: "Lena Hofmann" },
-  { id: "dd000000-0000-0000-0000-000000000025", costume_id: "cc000000-0000-0000-0000-000000000025", production_title: "Carmen", year: 2023, role_name: "Mercedes", director_name: "Anna Wolf", costume_designer: "Marc Frei" },
-  { id: "dd000000-0000-0000-0000-000000000026", costume_id: "cc000000-0000-0000-0000-000000000026", production_title: "Tosca", year: 2025, actor_name: "Sabine Sieber", role_name: "Marchesa Attavanti", director_name: "Teresa Rotemberg", costume_designer: "Klara Behr" },
-  { id: "dd000000-0000-0000-0000-000000000027", costume_id: "cc000000-0000-0000-0000-000000000027", production_title: "Woyzeck", year: 2024, role_name: "Pierrot", director_name: "Claudia Frey", costume_designer: "Klara Behr" },
-  { id: "dd000000-0000-0000-0000-000000000028", costume_id: "cc000000-0000-0000-0000-000000000028", production_title: "Der Rosenkavalier", year: 2024, actor_name: "Sophie Bauer", role_name: "Marschallin", director_name: "Marc Frei", costume_designer: "Marc Frei" },
-  { id: "dd000000-0000-0000-0000-000000000029", costume_id: "cc000000-0000-0000-0000-000000000029", production_title: "Figaro", year: 2023, role_name: "Barbarina", director_name: "Teresa Rotemberg", costume_designer: "Klara Behr", costume_assistant: "Alma Assistentin" },
-  { id: "dd000000-0000-0000-0000-000000000030", costume_id: "cc000000-0000-0000-0000-000000000030", production_title: "Dornröschen", year: 2024, actor_name: "Manon Adrianow", role_name: "Fee", director_name: "Hans Küng", costume_designer: "Sabine Sieber" },
-  { id: "dd000000-0000-0000-0000-000000000031", costume_id: "cc000000-0000-0000-0000-000000000031", production_title: "Der Rosenkavalier", year: 2024, role_name: "Sophie", director_name: "Marc Frei", costume_designer: "Marc Frei" },
-  { id: "dd000000-0000-0000-0000-000000000032", costume_id: "cc000000-0000-0000-0000-000000000032", production_title: "Figaro", year: 2025, actor_name: "Clara Schmidt", role_name: "Susanna", director_name: "Teresa Rotemberg", costume_designer: "Klara Behr", costume_assistant: "Alma Assistentin" },
-  { id: "dd000000-0000-0000-0000-000000000033", costume_id: "cc000000-0000-0000-0000-000000000033", production_title: "Der Rosenkavalier", year: 2023, actor_name: "Anna Meier", role_name: "Octavian", director_name: "Marc Frei", costume_designer: "Marc Frei" },
-  { id: "dd000000-0000-0000-0000-000000000034", costume_id: "cc000000-0000-0000-0000-000000000034", production_title: "Die Eisbärin", year: 2025, actor_name: "Maria Zimmermann", role_name: "Eisbärin", director_name: "Hans Küng", costume_designer: "Sabine Sieber", costume_assistant: "Peter Hauser" },
-  { id: "dd000000-0000-0000-0000-000000000035", costume_id: "cc000000-0000-0000-0000-000000000035", production_title: "Die Eisbärin", year: 2025, role_name: "Braut", director_name: "Hans Küng", costume_designer: "Sabine Sieber" },
-  { id: "dd000000-0000-0000-0000-000000000036", costume_id: "cc000000-0000-0000-0000-000000000036", production_title: "Die Eisbärin", year: 2025, actor_name: "Lena Fischer", role_name: "Schwester", director_name: "Hans Küng", costume_designer: "Sabine Sieber" },
-  { id: "dd000000-0000-0000-0000-000000000037", costume_id: "cc000000-0000-0000-0000-000000000037", production_title: "Exploration of Energy", year: 2025, role_name: "Luft-Figur", director_name: "Lisa Meier", costume_designer: "Lena Hofmann" },
-  { id: "dd000000-0000-0000-0000-000000000038", costume_id: "cc000000-0000-0000-0000-000000000038", production_title: "Exploration of Energy", year: 2025, role_name: "Metall-Figur", director_name: "Lisa Meier", costume_designer: "Lena Hofmann" },
-  { id: "dd000000-0000-0000-0000-000000000039", costume_id: "cc000000-0000-0000-0000-000000000039", production_title: "Die Eisbärin", year: 2025, actor_name: "Peter Hauser", role_name: "Mutter", director_name: "Hans Küng", costume_designer: "Sabine Sieber" },
-  { id: "dd000000-0000-0000-0000-000000000040", costume_id: "cc000000-0000-0000-0000-000000000040", production_title: "Tosca", year: 2024, actor_name: "Manon Adrianow", role_name: "Königin", director_name: "Teresa Rotemberg", costume_designer: "Klara Behr", costume_assistant: "Alma Assistentin" },
-], { onConflict: "id" });
+await supabase.from("costume_provenance").upsert(
+  [
+    {
+      id: "dd000000-0000-0000-0000-000000000021",
+      costume_id: "cc000000-0000-0000-0000-000000000021",
+      production_title: "Dornröschen",
+      year: 2024,
+      role_name: "Dornröschen",
+      director_name: "Hans Küng",
+      costume_designer: "Sabine Sieber",
+      costume_assistant: "Peter Hauser",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000022",
+      costume_id: "cc000000-0000-0000-0000-000000000022",
+      production_title: "Tosca",
+      year: 2025,
+      actor_name: "Manon Adrianow",
+      role_name: "Tosca",
+      director_name: "Teresa Rotemberg",
+      costume_designer: "Klara Behr",
+      costume_assistant: "Alma Assistentin",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000023",
+      costume_id: "cc000000-0000-0000-0000-000000000023",
+      production_title: "Figaro",
+      year: 2024,
+      actor_name: "Elena Richter",
+      role_name: "Gräfin Almaviva",
+      director_name: "Teresa Rotemberg",
+      costume_designer: "Klara Behr",
+      costume_assistant: "Alma Assistentin",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000024",
+      costume_id: "cc000000-0000-0000-0000-000000000024",
+      production_title: "Exploration of Energy",
+      year: 2025,
+      role_name: "Regen-Figur",
+      director_name: "Lisa Meier",
+      costume_designer: "Lena Hofmann",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000025",
+      costume_id: "cc000000-0000-0000-0000-000000000025",
+      production_title: "Carmen",
+      year: 2023,
+      role_name: "Mercedes",
+      director_name: "Anna Wolf",
+      costume_designer: "Marc Frei",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000026",
+      costume_id: "cc000000-0000-0000-0000-000000000026",
+      production_title: "Tosca",
+      year: 2025,
+      actor_name: "Sabine Sieber",
+      role_name: "Marchesa Attavanti",
+      director_name: "Teresa Rotemberg",
+      costume_designer: "Klara Behr",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000027",
+      costume_id: "cc000000-0000-0000-0000-000000000027",
+      production_title: "Woyzeck",
+      year: 2024,
+      role_name: "Pierrot",
+      director_name: "Claudia Frey",
+      costume_designer: "Klara Behr",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000028",
+      costume_id: "cc000000-0000-0000-0000-000000000028",
+      production_title: "Der Rosenkavalier",
+      year: 2024,
+      actor_name: "Sophie Bauer",
+      role_name: "Marschallin",
+      director_name: "Marc Frei",
+      costume_designer: "Marc Frei",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000029",
+      costume_id: "cc000000-0000-0000-0000-000000000029",
+      production_title: "Figaro",
+      year: 2023,
+      role_name: "Barbarina",
+      director_name: "Teresa Rotemberg",
+      costume_designer: "Klara Behr",
+      costume_assistant: "Alma Assistentin",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000030",
+      costume_id: "cc000000-0000-0000-0000-000000000030",
+      production_title: "Dornröschen",
+      year: 2024,
+      actor_name: "Manon Adrianow",
+      role_name: "Fee",
+      director_name: "Hans Küng",
+      costume_designer: "Sabine Sieber",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000031",
+      costume_id: "cc000000-0000-0000-0000-000000000031",
+      production_title: "Der Rosenkavalier",
+      year: 2024,
+      role_name: "Sophie",
+      director_name: "Marc Frei",
+      costume_designer: "Marc Frei",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000032",
+      costume_id: "cc000000-0000-0000-0000-000000000032",
+      production_title: "Figaro",
+      year: 2025,
+      actor_name: "Clara Schmidt",
+      role_name: "Susanna",
+      director_name: "Teresa Rotemberg",
+      costume_designer: "Klara Behr",
+      costume_assistant: "Alma Assistentin",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000033",
+      costume_id: "cc000000-0000-0000-0000-000000000033",
+      production_title: "Der Rosenkavalier",
+      year: 2023,
+      actor_name: "Anna Meier",
+      role_name: "Octavian",
+      director_name: "Marc Frei",
+      costume_designer: "Marc Frei",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000034",
+      costume_id: "cc000000-0000-0000-0000-000000000034",
+      production_title: "Die Eisbärin",
+      year: 2025,
+      actor_name: "Maria Zimmermann",
+      role_name: "Eisbärin",
+      director_name: "Hans Küng",
+      costume_designer: "Sabine Sieber",
+      costume_assistant: "Peter Hauser",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000035",
+      costume_id: "cc000000-0000-0000-0000-000000000035",
+      production_title: "Die Eisbärin",
+      year: 2025,
+      role_name: "Braut",
+      director_name: "Hans Küng",
+      costume_designer: "Sabine Sieber",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000036",
+      costume_id: "cc000000-0000-0000-0000-000000000036",
+      production_title: "Die Eisbärin",
+      year: 2025,
+      actor_name: "Lena Fischer",
+      role_name: "Schwester",
+      director_name: "Hans Küng",
+      costume_designer: "Sabine Sieber",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000037",
+      costume_id: "cc000000-0000-0000-0000-000000000037",
+      production_title: "Exploration of Energy",
+      year: 2025,
+      role_name: "Luft-Figur",
+      director_name: "Lisa Meier",
+      costume_designer: "Lena Hofmann",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000038",
+      costume_id: "cc000000-0000-0000-0000-000000000038",
+      production_title: "Exploration of Energy",
+      year: 2025,
+      role_name: "Metall-Figur",
+      director_name: "Lisa Meier",
+      costume_designer: "Lena Hofmann",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000039",
+      costume_id: "cc000000-0000-0000-0000-000000000039",
+      production_title: "Die Eisbärin",
+      year: 2025,
+      actor_name: "Peter Hauser",
+      role_name: "Mutter",
+      director_name: "Hans Küng",
+      costume_designer: "Sabine Sieber",
+    },
+    {
+      id: "dd000000-0000-0000-0000-000000000040",
+      costume_id: "cc000000-0000-0000-0000-000000000040",
+      production_title: "Tosca",
+      year: 2024,
+      actor_name: "Manon Adrianow",
+      role_name: "Königin",
+      director_name: "Teresa Rotemberg",
+      costume_designer: "Klara Behr",
+      costume_assistant: "Alma Assistentin",
+    },
+  ],
+  { onConflict: "id" }
+);
 ```
 
 ---
@@ -425,46 +998,46 @@ await supabase.from("costume_provenance").upsert([
 
 ```typescript
 // Lookup nach vollständigem Reload von allTerms:
-const epochViktor  = term("epoche", "Viktorianisch")!;
-const epochBarock  = term("epoche", "Barock")!;
-const epochRokoko  = term("epoche", "Rokoko")!;
-const epoch20er    = term("epoche", "Zwanziger Jahre")!;
-const epoch50er    = term("epoche", "Fünfziger Jahre")!;
+const epochViktor = term("epoche", "Viktorianisch")!;
+const epochBarock = term("epoche", "Barock")!;
+const epochRokoko = term("epoche", "Rokoko")!;
+const epoch20er = term("epoche", "Zwanziger Jahre")!;
+const epoch50er = term("epoche", "Fünfziger Jahre")!;
 const epochZeitgen = term("epoche", "Zeitgenössisch")!;
 const epochFantasy = term("epoche", "Fantastisch")!;
 
-const matSeide  = term("material", "Seide")!;
-const matSamt   = term("material", "Samt")!;
+const matSeide = term("material", "Seide")!;
+const matSamt = term("material", "Samt")!;
 const matBrokat = term("material", "Brokat")!;
-const matTuell  = term("material", "Tüll")!;
-const matTaft   = term("material", "Taft")!;
-const matSatin  = term("material", "Satin")!;
+const matTuell = term("material", "Tüll")!;
+const matTaft = term("material", "Taft")!;
+const matSatin = term("material", "Satin")!;
 const matSpitze = term("material", "Spitze")!;
-const matBaumw  = term("material", "Baumwolle")!;
+const matBaumw = term("material", "Baumwolle")!;
 
 const colorSchwarz = term("color", "Schwarz")!;
-const colorWeiss   = term("color", "Weiss")!;
-const colorGold    = term("color", "Gold")!;
-const colorBlau    = term("color", "Blau")!;
-const colorSilber  = term("color", "Silber")!;
-const colorGruen   = term("color", "Grün")!;
-const colorGrau    = term("color", "Grau")!;
-const colorRosa    = term("color", "Rosa")!;
+const colorWeiss = term("color", "Weiss")!;
+const colorGold = term("color", "Gold")!;
+const colorBlau = term("color", "Blau")!;
+const colorSilber = term("color", "Silber")!;
+const colorGruen = term("color", "Grün")!;
+const colorGrau = term("color", "Grau")!;
+const colorRosa = term("color", "Rosa")!;
 const colorViolett = term("color", "Violett")!;
-const colorCreme   = term("color", "Creme")!;
+const colorCreme = term("color", "Creme")!;
 
-const sparteOper      = term("sparte", "Oper")!;
-const sparteSchauspiel= term("sparte", "Schauspiel")!;
-const sparteBallett   = term("sparte", "Ballett")!;
+const sparteOper = term("sparte", "Oper")!;
+const sparteSchauspiel = term("sparte", "Schauspiel")!;
+const sparteBallett = term("sparte", "Ballett")!;
 const sparteFernsehen = term("sparte", "Fernsehen")!;
-const spartePerform   = term("sparte", "Performance")!;
+const spartePerform = term("sparte", "Performance")!;
 
-const musterUni      = term("muster", "Uni")!;
-const musterFloral   = term("muster", "Floral")!;
-const musterKariert  = term("muster", "Kariert")!;
+const musterUni = term("muster", "Uni")!;
+const musterFloral = term("muster", "Floral")!;
+const musterKariert = term("muster", "Kariert")!;
 const musterOrnament = term("muster", "Ornamental")!;
 const musterAbstrakt = term("muster", "Abstrakt")!;
-const musterDamast   = term("muster", "Damast")!;
+const musterDamast = term("muster", "Damast")!;
 
 const taxonomyLinksNew = [
   // 21 — Schichtkleid Blaugrau/Rosa
@@ -607,7 +1180,9 @@ const taxonomyLinksNew = [
   { costume_id: "cc000000-0000-0000-0000-000000000040", term_id: musterOrnament },
 ].filter((l) => l.term_id);
 
-await supabase.from("costume_taxonomy").upsert(taxonomyLinksNew, { onConflict: "costume_id,term_id" });
+await supabase
+  .from("costume_taxonomy")
+  .upsert(taxonomyLinksNew, { onConflict: "costume_id,term_id" });
 ```
 
 ---
@@ -730,40 +1305,43 @@ await supabase.from("costume_taxonomy").upsert(taxonomyLinksNew, { onConflict: "
 ## Neue Events
 
 ```typescript
-await supabase.from("events").upsert([
-  {
-    id: "ee000000-0000-0000-0000-000000000003",
-    theater_id: THEATER_4,
-    title: "Rampenverkauf Fundus Südpol Luzern",
-    description: "Über 2'000 Kostüme, Accessoires und Requisiten aus dem Fundus des Luzerner Theaters zu günstigen Preisen. Eintritt frei.",
-    event_date: "2026-05-10",
-    is_published: true,
-  },
-  {
-    id: "ee000000-0000-0000-0000-000000000004",
-    theater_id: THEATER_5,
-    title: "Neue Kollektion SRF Kostümabteilung",
-    description: "40 neue Kostüme aus abgeschlossenen SRF-Produktionen nun im Verleih verfügbar.",
-    event_date: "2026-04-15",
-    is_published: true,
-  },
-], { onConflict: "id" });
+await supabase.from("events").upsert(
+  [
+    {
+      id: "ee000000-0000-0000-0000-000000000003",
+      theater_id: THEATER_4,
+      title: "Rampenverkauf Fundus Südpol Luzern",
+      description:
+        "Über 2'000 Kostüme, Accessoires und Requisiten aus dem Fundus des Luzerner Theaters zu günstigen Preisen. Eintritt frei.",
+      event_date: "2026-05-10",
+      is_published: true,
+    },
+    {
+      id: "ee000000-0000-0000-0000-000000000004",
+      theater_id: THEATER_5,
+      title: "Neue Kollektion SRF Kostümabteilung",
+      description: "40 neue Kostüme aus abgeschlossenen SRF-Produktionen nun im Verleih verfügbar.",
+      event_date: "2026-04-15",
+      is_published: true,
+    },
+  ],
+  { onConflict: "id" }
+);
 ```
 
 ---
 
 ## Nicht als Seed befüllen
 
-| Thema | Grund |
-|---|---|
-| Chatnachrichten | Entstehen dynamisch im Betrieb |
-| Anfragen & Details | Entstehen dynamisch im Betrieb |
-| Nachrichten (Inbox) | Entstehen dynamisch im Betrieb |
+| Thema                  | Grund                            |
+| ---------------------- | -------------------------------- |
+| Chatnachrichten        | Entstehen dynamisch im Betrieb   |
+| Anfragen & Details     | Entstehen dynamisch im Betrieb   |
+| Nachrichten (Inbox)    | Entstehen dynamisch im Betrieb   |
 | Konkrete Datumsangaben | Immer relativ zum heutigen Datum |
-| Tastatur-States | Native Mobile-Tastatur |
-| Merklisten-Namen | Benutzerspezifisch |
+| Tastatur-States        | Native Mobile-Tastatur           |
+| Merklisten-Namen       | Benutzerspezifisch               |
 
 ---
 
-*Projekt: kostüm+ / costumanu — Beispieldaten, keine echten Personendaten*
-
+_Projekt: kostüm+ / costumanu — Beispieldaten, keine echten Personendaten_

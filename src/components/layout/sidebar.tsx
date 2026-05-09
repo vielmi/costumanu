@@ -59,7 +59,11 @@ export function Sidebar({ navItems, badges, onWidthChange }: SidebarProps) {
   function isNavItemActive(href: string): boolean {
     if (pathname === href) return true;
     // Kostüme-Sektion ist aktiv bei Kostüm-Subseiten
-    if (href === "/fundus" && (pathname.startsWith("/costume/") || pathname.startsWith("/kostueme/"))) return true;
+    if (
+      href === "/fundus" &&
+      (pathname.startsWith("/costume/") || pathname.startsWith("/kostueme/"))
+    )
+      return true;
     return false;
   }
 
@@ -131,7 +135,8 @@ export function Sidebar({ navItems, badges, onWidthChange }: SidebarProps) {
                 borderRadius: 8,
                 background: isActive ? "var(--secondary-550)" : "transparent",
                 textDecoration: "none",
-                borderBottom: index < navItems.length - 1 ? "1px solid var(--secondary-500)" : "none",
+                borderBottom:
+                  index < navItems.length - 1 ? "1px solid var(--secondary-500)" : "none",
                 justifyContent: collapsed ? "center" : "flex-start",
               }}
             >

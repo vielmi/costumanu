@@ -81,7 +81,11 @@
     "newPasswordLabel": "Neues Passwort",
     "confirmPassword": "Passwort bestätigen",
     "savePassword": "Passwort speichern",
-    "passwordsMismatch": "Die Passwörter stimmen nicht überein."
+    "passwordsMismatch": "Die Passwörter stimmen nicht überein.",
+    "displayName": "Name",
+    "displayNamePlaceholder": "Wie soll man dich nennen?",
+    "confirmationSent": "Bestätigungs-E-Mail wurde an {email} gesendet. Bitte prüfe dein Postfach.",
+    "registerTitle": "Konto erstellen"
   },
   "results": {
     "allCostumes": "Alle Kostüme",

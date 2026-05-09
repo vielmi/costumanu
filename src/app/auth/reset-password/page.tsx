@@ -43,17 +43,41 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--page-bg)" }}>
-      <div style={{ height: 72, flexShrink: 0, display: "flex", alignItems: "center", padding: "0 20px" }}>
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        background: "var(--page-bg)",
+      }}
+    >
+      <div
+        style={{
+          height: 72,
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          padding: "0 20px",
+        }}
+      >
         <AppLogo />
       </div>
 
-      <main style={{ flex: 1, overflowY: "auto", background: "var(--neutral-white)", borderRadius: "var(--radius-panel) var(--radius-panel) 0 0", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 16px" }}>
+      <main
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          background: "var(--neutral-white)",
+          borderRadius: "var(--radius-panel) var(--radius-panel) 0 0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "40px 16px",
+        }}
+      >
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-center text-xl">
-              {t("auth.newPassword")}
-            </CardTitle>
+            <CardTitle className="text-center text-xl">{t("auth.newPassword")}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -88,9 +112,7 @@ export default function ResetPasswordPage() {
                 />
               </div>
 
-              {error && (
-                <p className="text-sm text-destructive">{error}</p>
-              )}
+              {error && <p className="text-destructive text-sm">{error}</p>}
 
               <Button type="submit" disabled={loading}>
                 {loading ? t("common.loading") : t("auth.savePassword")}

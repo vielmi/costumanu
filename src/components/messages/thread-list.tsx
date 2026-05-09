@@ -137,11 +137,7 @@ export function ThreadList({ initialThreads, userId }: ThreadListProps) {
             unreadCount,
           } satisfies ChatThread;
         })
-        .sort(
-          (a, b) =>
-            new Date(b.lastMessageAt).getTime() -
-            new Date(a.lastMessageAt).getTime()
-        );
+        .sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
     },
     initialData: initialThreads,
     refetchInterval: 30_000, // Poll every 30 seconds for new messages
@@ -161,7 +157,7 @@ export function ThreadList({ initialThreads, userId }: ThreadListProps) {
     <div className="flex flex-col gap-4">
       {/* Search bar */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
         <Input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -173,14 +169,12 @@ export function ThreadList({ initialThreads, userId }: ThreadListProps) {
       {/* Thread list */}
       {filteredThreads.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-            <MessageCircle className="h-6 w-6 text-muted-foreground" />
+          <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full">
+            <MessageCircle className="text-muted-foreground h-6 w-6" />
           </div>
           <div>
-            <p className="font-medium text-muted-foreground">
-              {t("messages.noMessages")}
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground/70">
+            <p className="text-muted-foreground font-medium">{t("messages.noMessages")}</p>
+            <p className="text-muted-foreground/70 mt-1 text-sm">
               {t("messages.noMessagesDescription")}
             </p>
           </div>
@@ -191,7 +185,7 @@ export function ThreadList({ initialThreads, userId }: ThreadListProps) {
             {filteredThreads.map((thread) => (
               <Card
                 key={thread.id}
-                className="cursor-pointer py-3 transition-colors hover:bg-accent/50"
+                className="hover:bg-accent/50 cursor-pointer py-3 transition-colors"
               >
                 <CardContent className="flex items-center gap-3">
                   {/* Avatar */}
@@ -203,7 +197,7 @@ export function ThreadList({ initialThreads, userId }: ThreadListProps) {
                       className="h-10 w-10 shrink-0 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
+                    <div className="bg-primary text-primary-foreground flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-medium">
                       {getInitials(thread.displayName)}
                     </div>
                   )}
@@ -213,25 +207,21 @@ export function ThreadList({ initialThreads, userId }: ThreadListProps) {
                     <div className="flex items-center justify-between gap-2">
                       <p
                         className={`truncate text-sm ${
-                          thread.unreadCount > 0
-                            ? "font-semibold"
-                            : "font-medium"
+                          thread.unreadCount > 0 ? "font-semibold" : "font-medium"
                         }`}
                       >
                         {thread.displayName}
                       </p>
-                      <span className="shrink-0 text-xs text-muted-foreground">
+                      <span className="text-muted-foreground shrink-0 text-xs">
                         {formatRelativeTime(thread.lastMessageAt)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-sm text-muted-foreground">
+                      <p className="text-muted-foreground truncate text-sm">
                         {thread.lastMessage ?? ""}
                       </p>
                       {thread.unreadCount > 0 && (
-                        <Badge className="shrink-0 text-[10px]">
-                          {thread.unreadCount}
-                        </Badge>
+                        <Badge className="shrink-0 text-[10px]">{thread.unreadCount}</Badge>
                       )}
                     </div>
                   </div>

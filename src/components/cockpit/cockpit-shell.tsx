@@ -23,13 +23,15 @@ interface CockpitShellProps {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Home",          href: "/",             icon: "icon-home-menu"       },
-  { label: "Kostüme",       href: "/fundus",        icon: "icon-shirt"           },
-  { label: "Produktionen",  href: "/produktionen",  icon: "icon-production-menu", beta: true },
+  { label: "Home", href: "/", icon: "icon-home-menu" },
+  { label: "Kostüme", href: "/fundus", icon: "icon-shirt" },
+  { label: "Produktionen", href: "/produktionen", icon: "icon-production-menu", beta: true },
 ];
 
 const ADMIN_NAV_ITEM: NavItem = {
-  label: "Einstellungen", href: "/einstellungen/konfiguration", icon: "icon-setting",
+  label: "Einstellungen",
+  href: "/einstellungen/konfiguration",
+  icon: "icon-setting",
 };
 
 function isAdmin(userRole: string): boolean {
@@ -58,7 +60,15 @@ export function CockpitShell({
         </div>
 
         {/* Rechte Spalte */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 }}>
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+            minWidth: 0,
+          }}
+        >
           <CockpitTopBar theaterId={theaterId} />
           <main className={styles.mainContent}>
             <CockpitContent recentCostumes={recentCostumes} theaterId={theaterId} />
@@ -115,7 +125,9 @@ function CockpitSearch({ theaterId }: { theaterId: string | null }) {
       }
       const { data } = await supabase
         .from("costumes")
-        .select("id, name, costume_provenance(production_title, year), costume_media(storage_path, sort_order)")
+        .select(
+          "id, name, costume_provenance(production_title, year), costume_media(storage_path, sort_order)"
+        )
         .eq("theater_id", theaterId)
         .ilike("name", `%${query}%`)
         .limit(8);
@@ -136,7 +148,10 @@ function CockpitSearch({ theaterId }: { theaterId: string | null }) {
   }
 
   return (
-    <div ref={containerRef} style={{ flex: 1, maxWidth: COCKPIT.SEARCH_MAX_WIDTH, position: "relative" }}>
+    <div
+      ref={containerRef}
+      style={{ flex: 1, maxWidth: COCKPIT.SEARCH_MAX_WIDTH, position: "relative" }}
+    >
       <div
         style={{
           height: 52,
@@ -149,11 +164,20 @@ function CockpitSearch({ theaterId }: { theaterId: string | null }) {
           padding: "0 16px",
         }}
       >
-        <Image src="/icons/icon-search.svg" alt="" width={20} height={20} style={{ flexShrink: 0 }} />
+        <Image
+          src="/icons/icon-search.svg"
+          alt=""
+          width={20}
+          height={20}
+          style={{ flexShrink: 0 }}
+        />
         <input
           type="text"
           value={query}
-          onChange={(e) => { setQuery(e.target.value); setIsOpen(true); }}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setIsOpen(true);
+          }}
           onFocus={() => setIsOpen(true)}
           placeholder="Kostüme suchen"
           style={{
@@ -172,7 +196,15 @@ function CockpitSearch({ theaterId }: { theaterId: string | null }) {
           <button
             type="button"
             onClick={clearSearch}
-            style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", opacity: 0.5 }}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+              display: "flex",
+              alignItems: "center",
+              opacity: 0.5,
+            }}
           >
             <Image src="/icons/icon-close-medium.svg" alt="Suche löschen" width={16} height={16} />
           </button>
@@ -187,11 +219,16 @@ function CockpitSearch({ theaterId }: { theaterId: string | null }) {
             results.map((costume) => {
               const prov = costume.costume_provenance?.[0];
               const subtitle = prov
-                ? [prov.production_title, prov.year ? String(prov.year) : null].filter(Boolean).join(" | ")
+                ? [prov.production_title, prov.year ? String(prov.year) : null]
+                    .filter(Boolean)
+                    .join(" | ")
                 : null;
-              const sortedMedia = [...(costume.costume_media ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+              const sortedMedia = [...(costume.costume_media ?? [])].sort(
+                (a, b) => a.sort_order - b.sort_order
+              );
               const imageUrl = sortedMedia[0]
-                ? supabase.storage.from("costume-images").getPublicUrl(sortedMedia[0].storage_path).data.publicUrl
+                ? supabase.storage.from("costume-images").getPublicUrl(sortedMedia[0].storage_path)
+                    .data.publicUrl
                 : null;
 
               return (
@@ -206,7 +243,13 @@ function CockpitSearch({ theaterId }: { theaterId: string | null }) {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={imageUrl} alt="" className={styles.searchResultImg} />
                     ) : (
-                      <Image src="/icons/icon-shirt.svg" alt="" width={20} height={20} style={{ opacity: 0.4 }} />
+                      <Image
+                        src="/icons/icon-shirt.svg"
+                        alt=""
+                        width={20}
+                        height={20}
+                        style={{ opacity: 0.4 }}
+                      />
                     )}
                   </div>
                   <div className={styles.searchResultText}>
@@ -227,7 +270,7 @@ function CockpitSearch({ theaterId }: { theaterId: string | null }) {
 
 const ERFASSEN_ITEMS = [
   { label: "Etikett scannen", href: "/kostueme/scan", icon: "icon-barcode-scan" },
-  { label: "Kostüm erfassen", href: "/kostueme/neu",  icon: "icon-shirt"        },
+  { label: "Kostüm erfassen", href: "/kostueme/neu", icon: "icon-shirt" },
 ] as const;
 
 function ErfassenDropdown() {
@@ -298,7 +341,10 @@ function ErfassenDropdown() {
           {ERFASSEN_ITEMS.map((item, i) => (
             <button
               key={item.href}
-              onClick={() => { setIsOpen(false); router.push(item.href); }}
+              onClick={() => {
+                setIsOpen(false);
+                router.push(item.href);
+              }}
               style={{
                 display: "flex",
                 alignItems: "center",

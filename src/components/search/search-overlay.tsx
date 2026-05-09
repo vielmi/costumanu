@@ -107,7 +107,7 @@ export function SearchOverlay({
           <label htmlFor="search-input" className="sr-only">
             {t("search.placeholder")}
           </label>
-          <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2" />
           <Input
             ref={inputRef}
             id="search-input"
@@ -116,14 +116,14 @@ export function SearchOverlay({
             placeholder={t("search.placeholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className={inputClassName ?? "h-12 rounded-full pl-12 pr-10 text-base"}
+            className={inputClassName ?? "h-12 rounded-full pr-10 pl-12 text-base"}
             autoComplete="off"
           />
           {query.length > 0 && (
             <button
               type="button"
               onClick={handleClear}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground absolute top-1/2 right-4 -translate-y-1/2"
               aria-label={t("common.close")}
             >
               <X className="h-4 w-4" />
@@ -139,23 +139,16 @@ export function SearchOverlay({
       {/* Suggestions */}
       {showSuggestions && (
         <div className="flex flex-col gap-2">
-          <h2 className="text-sm font-medium text-muted-foreground">
-            {t("search.suggestions")}
-          </h2>
+          <h2 className="text-muted-foreground text-sm font-medium">{t("search.suggestions")}</h2>
 
           {isLoading ? (
-            <p className="py-4 text-center text-sm text-muted-foreground">
-              {t("common.loading")}
-            </p>
+            <p className="text-muted-foreground py-4 text-center text-sm">{t("common.loading")}</p>
           ) : suggestions && suggestions.length > 0 ? (
-            <ul className="flex flex-col divide-y divide-border">
+            <ul className="divide-border flex flex-col divide-y">
               {suggestions.map((suggestion) => {
                 const provenance = suggestion.costume_provenance?.[0];
                 const subtitle = provenance
-                  ? [
-                      provenance.production_title,
-                      provenance.year ? String(provenance.year) : null,
-                    ]
+                  ? [provenance.production_title, provenance.year ? String(provenance.year) : null]
                       .filter(Boolean)
                       .join(" · ")
                   : null;
@@ -173,31 +166,23 @@ export function SearchOverlay({
                   <li key={suggestion.id}>
                     <Link
                       href={`${costumeRoutePrefix}/${suggestion.id}`}
-                      className="flex items-center gap-3 px-2 py-3 transition-colors hover:bg-muted/50"
+                      className="hover:bg-muted/50 flex items-center gap-3 px-2 py-3 transition-colors"
                     >
                       {/* Thumbnail */}
-                      <div className="h-[75px] w-[75px] shrink-0 overflow-hidden rounded-[4px] bg-muted">
+                      <div className="bg-muted h-[75px] w-[75px] shrink-0 overflow-hidden rounded-[4px]">
                         {imageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={imageUrl}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
+                          <img src={imageUrl} alt="" className="h-full w-full object-cover" />
                         ) : (
-                          <div className="h-full w-full bg-muted" />
+                          <div className="bg-muted h-full w-full" />
                         )}
                       </div>
 
                       {/* Text */}
                       <div className="flex min-w-0 flex-col gap-1">
-                        <span className="text-sm font-bold leading-snug">
-                          {suggestion.name}
-                        </span>
+                        <span className="text-sm leading-snug font-bold">{suggestion.name}</span>
                         {subtitle && (
-                          <span className="text-sm text-muted-foreground">
-                            {subtitle}
-                          </span>
+                          <span className="text-muted-foreground text-sm">{subtitle}</span>
                         )}
                       </div>
                     </Link>
@@ -206,7 +191,7 @@ export function SearchOverlay({
               })}
             </ul>
           ) : (
-            <p className="py-4 text-center text-sm text-muted-foreground">
+            <p className="text-muted-foreground py-4 text-center text-sm">
               {t("search.noSuggestions")}
             </p>
           )}

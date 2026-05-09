@@ -68,14 +68,16 @@ export async function getRecentCostumes(
 ): Promise<RecentCostume[]> {
   const { data, error } = await supabase
     .from("costumes")
-    .select(`
+    .select(
+      `
       id, name, created_at,
       gender_term:taxonomy_terms!gender_term_id(id, label_de),
       clothing_type:taxonomy_terms!clothing_type_id(id, label_de),
       costume_media(storage_path, sort_order),
       costume_items(current_status),
       costume_provenance(production_title, year)
-    `)
+    `
+    )
     .eq("theater_id", theaterId)
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -98,7 +100,8 @@ export async function getRecentCostumes(
 export async function getCostume(supabase: SupabaseClient, id: string): Promise<Costume | null> {
   const { data, error } = await supabase
     .from("costumes")
-    .select(`
+    .select(
+      `
       *,
       gender_term:taxonomy_terms!gender_term_id(*),
       clothing_type:taxonomy_terms!clothing_type_id(*),
@@ -107,7 +110,8 @@ export async function getCostume(supabase: SupabaseClient, id: string): Promise<
       costume_items(*),
       costume_provenance(*),
       costume_taxonomy(term_id, taxonomy_term:taxonomy_terms(*))
-    `)
+    `
+    )
     .eq("id", id)
     .single();
 
@@ -137,11 +141,13 @@ export async function getSimilarCostumes(
 ): Promise<SimilarCostume[]> {
   const { data } = await supabase
     .from("costumes")
-    .select(`
+    .select(
+      `
       id, name,
       clothing_type:taxonomy_terms!clothing_type_id(id, label_de),
       costume_media(storage_path, sort_order)
-    `)
+    `
+    )
     .eq("clothing_type_id", clothingTypeId)
     .neq("id", excludeId)
     .limit(limit);
@@ -187,15 +193,29 @@ export async function duplicateCostume(
 ): Promise<string> {
   const { data: orig, error } = await supabase
     .from("costumes")
-    .select("theater_id, name, description, gender_term_id, clothing_type_id, is_ensemble, parent_costume_id")
+    .select("*")
     .eq("id", sourceId)
     .single();
 
   if (error || !orig) throw new Error("Kostüm nicht gefunden");
 
+  // Build insert data from the original row, excluding auto-generated fields
+  // (id, created_at, fts_doc). custom_fields is included only if the column exists.
+  const r = orig as Record<string, unknown>;
+  const insertData: Record<string, unknown> = {
+    theater_id: r.theater_id,
+    name: `${r.name as string}_Kopie`,
+    description: r.description ?? null,
+    gender_term_id: r.gender_term_id ?? null,
+    clothing_type_id: r.clothing_type_id ?? null,
+    is_ensemble: r.is_ensemble ?? false,
+    parent_costume_id: r.parent_costume_id ?? null,
+  };
+  if ("custom_fields" in r) insertData.custom_fields = r.custom_fields;
+
   const { data: newC, error: insertError } = await supabase
     .from("costumes")
-    .insert({ ...orig, name: `${orig.name}_Kopie` })
+    .insert(insertData)
     .select("id")
     .single();
 
@@ -204,17 +224,40 @@ export async function duplicateCostume(
   const newId = newC.id as string;
 
   const [items, taxonomy, provenance, media] = await Promise.all([
-    supabase.from("costume_items").select("size_label, barcode_id, rfid_id, current_status, storage_location_path, condition, notes").eq("costume_id", sourceId),
+    supabase
+      .from("costume_items")
+      .select(
+        "size_label, barcode_id, rfid_id, current_status, storage_location_path, condition, notes"
+      )
+      .eq("costume_id", sourceId),
     supabase.from("costume_taxonomy").select("term_id").eq("costume_id", sourceId),
-    supabase.from("costume_provenance").select("production_title, year, role_name, actor_name, sort_order").eq("costume_id", sourceId),
-    supabase.from("costume_media").select("storage_path, sort_order, mime_type").eq("costume_id", sourceId),
+    supabase
+      .from("costume_provenance")
+      .select("production_title, year, role_name, actor_name, sort_order")
+      .eq("costume_id", sourceId),
+    supabase
+      .from("costume_media")
+      .select("storage_path, sort_order, mime_type")
+      .eq("costume_id", sourceId),
   ]);
 
   await Promise.all([
-    items.data?.length     ? supabase.from("costume_items").insert(items.data.map((i) => ({ ...i, costume_id: newId }))) : Promise.resolve(),
-    taxonomy.data?.length  ? supabase.from("costume_taxonomy").insert(taxonomy.data.map((t) => ({ costume_id: newId, term_id: t.term_id }))) : Promise.resolve(),
-    provenance.data?.length ? supabase.from("costume_provenance").insert(provenance.data.map((p) => ({ ...p, costume_id: newId }))) : Promise.resolve(),
-    media.data?.length     ? supabase.from("costume_media").insert(media.data.map((m) => ({ ...m, costume_id: newId }))) : Promise.resolve(),
+    items.data?.length
+      ? supabase.from("costume_items").insert(items.data.map((i) => ({ ...i, costume_id: newId })))
+      : Promise.resolve(),
+    taxonomy.data?.length
+      ? supabase
+          .from("costume_taxonomy")
+          .insert(taxonomy.data.map((t) => ({ costume_id: newId, term_id: t.term_id })))
+      : Promise.resolve(),
+    provenance.data?.length
+      ? supabase
+          .from("costume_provenance")
+          .insert(provenance.data.map((p) => ({ ...p, costume_id: newId })))
+      : Promise.resolve(),
+    media.data?.length
+      ? supabase.from("costume_media").insert(media.data.map((m) => ({ ...m, costume_id: newId })))
+      : Promise.resolve(),
   ]);
 
   return newId;

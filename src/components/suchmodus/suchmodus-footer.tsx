@@ -4,9 +4,9 @@ import styles from "./suchmodus-footer.module.css";
 import { APP_NAME } from "@/lib/constants/app";
 
 const FOOTER_LINKS = [
-  { label: "Häufige Fragen",      href: "/support" },
-  { label: "Ausleihe & Abholung", href: "/rental"  },
-  { label: "Support & Kontakt",   href: "/support"  },
+  { label: "Häufige Fragen", href: "/support" },
+  { label: "Ausleihe & Abholung", href: "/rental" },
+  { label: "Support & Kontakt", href: "/support" },
 ] as const;
 
 export function SuchmodusFooter() {

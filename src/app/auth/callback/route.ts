@@ -14,12 +14,14 @@ export async function GET(request: Request) {
       const isRecovery =
         type === "recovery" ||
         (data.session as { amr?: { method: string }[] } | null)?.amr?.some(
-          (entry) => entry.method === "recovery",
+          (entry) => entry.method === "recovery"
         );
       if (isRecovery) {
         return NextResponse.redirect(`${origin}/auth/reset-password`);
       }
-      return NextResponse.redirect(`${origin}/wishlist`);
+      // Root page handles role-based routing:
+      // theater members → cockpit, external viewers → suchmodus
+      return NextResponse.redirect(`${origin}/`);
     }
   }
 

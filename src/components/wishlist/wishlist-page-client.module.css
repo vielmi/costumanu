@@ -152,4 +152,6 @@
   color: var(--neutral-white);
   transition: opacity 120ms ease;
 }
-.createBtn:hover { opacity: 0.9; }
+.createBtn:hover {
+  opacity: 0.9;
+}

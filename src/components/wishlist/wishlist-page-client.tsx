@@ -29,7 +29,11 @@ const heartRightSlot = (
   </Link>
 );
 
-export function WishlistPageClient({ wishlists: initial, theaterId: _theaterId, userId: _userId }: Props) {
+export function WishlistPageClient({
+  wishlists: initial,
+  theaterId: _theaterId,
+  userId: _userId,
+}: Props) {
   const router = useRouter();
   const [wishlists, setWishlists] = useState(initial);
   const [showModal, setShowModal] = useState(false);
@@ -59,9 +63,15 @@ export function WishlistPageClient({ wishlists: initial, theaterId: _theaterId, 
           type="button"
           onClick={() => router.back()}
           style={{
-            display: "flex", alignItems: "center", gap: 6,
-            background: "none", border: "none", cursor: "pointer", padding: 0,
-            fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-150)",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: 0,
+            fontFamily: "var(--font-family-base)",
+            fontSize: "var(--font-size-150)",
             color: "var(--neutral-grey-600)",
           }}
         >
@@ -117,21 +127,16 @@ export function WishlistPageClient({ wishlists: initial, theaterId: _theaterId, 
       </div>
 
       {/* ── Bottom action ── */}
-      <div className={`${styles.bottomAction} ${wishlists.length > 0 ? styles.bottomActionFilled : ""}`}>
-        <button
-          type="button"
-          className={styles.createBtn}
-          onClick={() => setShowModal(true)}
-        >
+      <div
+        className={`${styles.bottomAction} ${wishlists.length > 0 ? styles.bottomActionFilled : ""}`}
+      >
+        <button type="button" className={styles.createBtn} onClick={() => setShowModal(true)}>
           Merkliste erstellen
         </button>
       </div>
 
       {showModal && (
-        <MerklisteAddModal
-          onClose={() => setShowModal(false)}
-          onSuccess={handleSuccess}
-        />
+        <MerklisteAddModal onClose={() => setShowModal(false)} onSuccess={handleSuccess} />
       )}
     </div>
   );

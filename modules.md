@@ -1,4 +1,5 @@
 ﻿# modules.md — kostüm+ Modul-Dokumentation
+
 > Dieses Dokument beschreibt die einzelnen App-Module als Kompositionen der Design-System-Komponenten.
 > Basis: `design-system.md` — alle Tokens, Farben, Icons und Basis-Komponenten sind dort dokumentiert.
 > Projekt: **costumanu** — `C:\Users\vielm\Repos\costumanu`
@@ -8,22 +9,22 @@
 
 ## Modul-Übersicht
 
-| # | Modul | Route | Status |
-|---|---|---|---|
-| 1 | Cockpit | `/` (Home) | ✅ Dokumentiert |
-| 2 | Kostümübersicht | `/fundus` | ✅ Implementiert |
-| 3 | Kostüm erfassen | `/kostueme/neu` | ✅ Implementiert |
-| 4 | Ausleihe | `/rental` | ✅ Implementiert |
-| 5 | Kostüm Detail | `/costume/[id]` | ✅ Dokumentiert |
-| 6 | Nachrichten | `/messages` | ✅ Implementiert |
-| 15 | Suchmodus Cockpit | `/suchmodus` | ✅ Dokumentiert |
-| 16 | Suchmodus Filter-Overlay | `/suchmodus/filter` | ✅ Dokumentiert |
-| 17 | Suchmodus Resultate-Grid | `/suchmodus/results` | ✅ Dokumentiert |
-| 18 | Suchmodus Kostüm-Detail | `/suchmodus/costume/[id]` | ✅ Dokumentiert |
-| 19 | Suchmodus Suche | `/suchmodus/search` | ✅ Dokumentiert |
-| 20 | Suchmodus Mobile Menu Drawer | — (Shared) | ✅ Dokumentiert |
-| 21 | Standort-Sheet | — (Shared) | ✅ Dokumentiert |
-| 22 | Cockpit Mobile-Layout (Drawer) | — (Shared) | ✅ Dokumentiert |
+| #   | Modul                          | Route                     | Status           |
+| --- | ------------------------------ | ------------------------- | ---------------- |
+| 1   | Cockpit                        | `/` (Home)                | ✅ Dokumentiert  |
+| 2   | Kostümübersicht                | `/fundus`                 | ✅ Implementiert |
+| 3   | Kostüm erfassen                | `/kostueme/neu`           | ✅ Implementiert |
+| 4   | Ausleihe                       | `/rental`                 | ✅ Implementiert |
+| 5   | Kostüm Detail                  | `/costume/[id]`           | ✅ Dokumentiert  |
+| 6   | Nachrichten                    | `/messages`               | ✅ Implementiert |
+| 15  | Suchmodus Cockpit              | `/suchmodus`              | ✅ Dokumentiert  |
+| 16  | Suchmodus Filter-Overlay       | `/suchmodus/filter`       | ✅ Dokumentiert  |
+| 17  | Suchmodus Resultate-Grid       | `/suchmodus/results`      | ✅ Dokumentiert  |
+| 18  | Suchmodus Kostüm-Detail        | `/suchmodus/costume/[id]` | ✅ Dokumentiert  |
+| 19  | Suchmodus Suche                | `/suchmodus/search`       | ✅ Dokumentiert  |
+| 20  | Suchmodus Mobile Menu Drawer   | — (Shared)                | ✅ Dokumentiert  |
+| 21  | Standort-Sheet                 | — (Shared)                | ✅ Dokumentiert  |
+| 22  | Cockpit Mobile-Layout (Drawer) | — (Shared)                | ✅ Dokumentiert  |
 
 > **Geteilte Komponenten** (in Sektion am Ende dieses Dokuments, gehören zusätzlich in design-system.md):
 > Mobile Navigation (Drawer + Multi-Level), Footer, Search-Filter Overlay, Search Input + Dropdown
@@ -33,6 +34,7 @@
 ## 1. Modul Cockpit
 
 ### Übersicht
+
 Startseite nach dem Login. Zeigt 3 Navigations-Kacheln, Liste zuletzt bearbeiteter Kostüme, CTA-Karte.
 
 ### Layout-Struktur
@@ -51,29 +53,29 @@ Startseite nach dem Login. Zeigt 3 Navigations-Kacheln, Liste zuletzt bearbeitet
 
 ### Komponente 1: Navigations-Kachel (Image Card)
 
-| Eigenschaft | Wert |
-|---|---|
+| Eigenschaft    | Wert                                         |
+| -------------- | -------------------------------------------- |
 | Grösse Desktop | `flex: 1` (fluid, gleichmässig breit im Row) |
-| Höhe | 180px |
-| Border-radius | `--radius-md` (12px) |
-| Overlay hell | `rgba(0, 0, 0, 0.3)` |
-| Overlay dunkel | `rgba(0, 0, 0, 0.5)` (mittlere Kachel) |
-| Titel | Body-1-medium, 20px, `#FFFFFF` |
-| Icon | `icon-arrow-right`, 26x26px, weiss |
+| Höhe           | 180px                                        |
+| Border-radius  | `--radius-md` (12px)                         |
+| Overlay hell   | `rgba(0, 0, 0, 0.3)`                         |
+| Overlay dunkel | `rgba(0, 0, 0, 0.5)` (mittlere Kachel)       |
+| Titel          | Body-1-medium, 20px, `#FFFFFF`               |
+| Icon           | `icon-arrow-right`, 26x26px, weiss           |
 
 > ⚠️ Figma zeigt 269px fix — Implementierung nutzt `flex: 1` damit alle drei Kacheln gleichmässig den verfügbaren Platz füllen.
 
 **Drei Kacheln:**
 
-| Kachel | Titel | Route |
-|---|---|---|
-| 1 | Kostüm Übersicht | `/fundus` |
-| 2 | Aktuelle- & vergangene Aufführungen | `/auffuehrungen` |
-| 3 | Darsteller & Masse | `/darsteller` |
+| Kachel | Titel                               | Route            |
+| ------ | ----------------------------------- | ---------------- |
+| 1      | Kostüm Übersicht                    | `/fundus`        |
+| 2      | Aktuelle- & vergangene Aufführungen | `/auffuehrungen` |
+| 3      | Darsteller & Masse                  | `/darsteller`    |
 
 ```css
 .image-card {
-  flex: 1;   /* fluid — passt sich an Content-Breite an */
+  flex: 1; /* fluid — passt sich an Content-Breite an */
   height: 180px;
   border-radius: var(--radius-md);
   position: relative;
@@ -92,7 +94,7 @@ Startseite nach dem Login. Zeigt 3 Navigations-Kacheln, Liste zuletzt bearbeitet
   right: 40px;
   font-size: var(--font-size-400);
   font-weight: var(--font-weight-500);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 .image-card__arrow {
   position: absolute;
@@ -100,20 +102,20 @@ Startseite nach dem Login. Zeigt 3 Navigations-Kacheln, Liste zuletzt bearbeitet
   right: 16px;
   width: 26px;
   height: 26px;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 ```
 
 ### Komponente 2: Kostüm List Item
 
-| Eigenschaft | Wert |
-|---|---|
-| Breite | 637px Desktop, fluid Mobile |
-| Höhe | 70px |
-| Border-radius | `--radius-xs` (4px) |
-| BG default | `neutral-grey-100` (#F3F4F6) |
-| BG aktiv | `secondary-500` (#ECF1EE) |
-| Aktiv-Balken | 5x70px links, `accent-01`, `border-radius: 4px 0 0 4px` |
+| Eigenschaft   | Wert                                                    |
+| ------------- | ------------------------------------------------------- |
+| Breite        | 637px Desktop, fluid Mobile                             |
+| Höhe          | 70px                                                    |
+| Border-radius | `--radius-xs` (4px)                                     |
+| BG default    | `neutral-grey-100` (#F3F4F6)                            |
+| BG aktiv      | `secondary-500` (#ECF1EE)                               |
+| Aktiv-Balken  | 5x70px links, `accent-01`, `border-radius: 4px 0 0 4px` |
 
 **Inhalte (links nach rechts):** `icon-more` (20x20px) → Avatar (46x46px rund) → [ID 10px + Name 14px bold] → Aufführung 14px → Icon-Badge (75x40px) → Status-Dot (10x10px)
 
@@ -133,22 +135,29 @@ Startseite nach dem Login. Zeigt 3 Navigations-Kacheln, Liste zuletzt bearbeitet
   padding: 0 12px;
   position: relative;
 }
-.costume-list-item--active { background: var(--secondary-500); }
+.costume-list-item--active {
+  background: var(--secondary-500);
+}
 .costume-list-item__indicator {
   position: absolute;
-  left: 0; top: 0;
-  width: 5px; height: 70px;
+  left: 0;
+  top: 0;
+  width: 5px;
+  height: 70px;
   background: var(--accent-01);
   border-radius: 4px 0 0 4px;
 }
 .costume-list-item__avatar {
-  width: 46px; height: 46px;
+  width: 46px;
+  height: 46px;
   border-radius: 100px;
   object-fit: cover;
   flex-shrink: 0;
 }
 .costume-list-item__id {
-  font-size: var(--font-size-50); /* 10px — Token undokumentiert in design-system.md, existiert aber in globals.css */
+  font-size: var(
+    --font-size-50
+  ); /* 10px — Token undokumentiert in design-system.md, existiert aber in globals.css */
   font-weight: 400;
   color: var(--neutral-grey-500);
 }
@@ -173,25 +182,32 @@ Startseite nach dem Login. Zeigt 3 Navigations-Kacheln, Liste zuletzt bearbeitet
   gap: 8px;
 }
 .costume-list-item__status {
-  width: 10px; height: 10px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   margin-left: auto;
   flex-shrink: 0;
 }
-.costume-list-item__status--available   { background: var(--accent-01); }
-.costume-list-item__status--unavailable { background: var(--color-error); }
-.costume-list-item__status--in-progress { background: var(--color-warning); }
+.costume-list-item__status--available {
+  background: var(--accent-01);
+}
+.costume-list-item__status--unavailable {
+  background: var(--color-error);
+}
+.costume-list-item__status--in-progress {
+  background: var(--color-warning);
+}
 ```
 
 ### Komponente 3: CTA-Karte "Suchmodus öffnen"
 
-| Eigenschaft | Wert |
-|---|---|
-| Grösse | 187x245px |
-| Border-radius | `--radius-md` (12px) |
-| Overlay | `rgba(0, 0, 0, 0.4)` |
-| Titel | Body-1-medium, 20px, weiss, zentriert |
-| Plus-Button | 60x60px Kreis, `border: 1px solid #FFFFFF`, Icon `icon-plus-m` weiss |
+| Eigenschaft   | Wert                                                                 |
+| ------------- | -------------------------------------------------------------------- |
+| Grösse        | 187x245px                                                            |
+| Border-radius | `--radius-md` (12px)                                                 |
+| Overlay       | `rgba(0, 0, 0, 0.4)`                                                 |
+| Titel         | Body-1-medium, 20px, weiss, zentriert                                |
+| Plus-Button   | 60x60px Kreis, `border: 1px solid #FFFFFF`, Icon `icon-plus-m` weiss |
 
 ### Daten-Struktur
 
@@ -207,9 +223,9 @@ interface CostumeListItem {
   name: string;
   imageUrl: string;
   production: string;
-  gender: 'female' | 'male' | 'unisex' | 'kid' | 'family';
+  gender: "female" | "male" | "unisex" | "kid" | "family";
   type?: string;
-  status: 'available' | 'unavailable' | 'in-progress';
+  status: "available" | "unavailable" | "in-progress";
   isActive?: boolean;
 }
 ```
@@ -253,7 +269,8 @@ interface CostumeListItem {
   margin-top: 8px;
 }
 .costume-pagination__dot {
-  width: 11px; height: 11px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   background: #000000;
 }
@@ -280,7 +297,8 @@ Temporäres Feedback nach dem Merken, erscheint auf dem Bild.
   padding: 0 12px;
 }
 .gemerkt-badge__icon-bg {
-  width: 34px; height: 34px;
+  width: 34px;
+  height: 34px;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 50%;
   display: flex;
@@ -290,7 +308,7 @@ Temporäres Feedback nach dem Merken, erscheint auf dem Bild.
 .gemerkt-badge__text {
   font-size: 16px;
   font-weight: var(--font-weight-500);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 ```
 
@@ -313,16 +331,17 @@ Inline-Tags mit Icon + Labeltext.
   color: #000000;
 }
 .costume-meta-tag svg {
-  width: 20px; height: 20px;
+  width: 20px;
+  height: 20px;
   color: var(--neutral-grey-600);
 }
 ```
 
 ### Komponente: Verfügbarkeits-Zeile
 
-| State | Erscheinung |
-|---|---|
-| Verfügbar | Grüner Kreis (`accent-01`) + Checkmark |
+| State       | Erscheinung                                                |
+| ----------- | ---------------------------------------------------------- |
+| Verfügbar   | Grüner Kreis (`accent-01`) + Checkmark                     |
 | Auf Anfrage | Grauer Kreis (`neutral-grey-400` outline) + `icon-anfrage` |
 
 ```css
@@ -335,11 +354,14 @@ Inline-Tags mit Icon + Labeltext.
   color: var(--neutral-grey-600);
 }
 .availability-dot {
-  width: 20px; height: 20px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   flex-shrink: 0;
 }
-.availability-dot--available { background: var(--accent-01); }
+.availability-dot--available {
+  background: var(--accent-01);
+}
 .availability-dot--on-request {
   border: 1.25px solid var(--neutral-grey-400);
 }
@@ -359,12 +381,12 @@ Inline-Tags mit Icon + Labeltext.
   gap: 8px;
   font-size: 18px;
   font-weight: var(--font-weight-500);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 .btn-secondary-action {
   flex: 1;
   height: 60px;
-  background: #FFFFFF;
+  background: #ffffff;
   border: 1px solid var(--primary-900);
   border-radius: var(--radius-md);
   display: flex;
@@ -382,17 +404,17 @@ Inline-Tags mit Icon + Labeltext.
 ```typescript
 interface CostumeDetail {
   id: string;
-  category: string;         // z.B. "Jumpsuit"
+  category: string; // z.B. "Jumpsuit"
   name: string;
-  size: string;             // z.B. "Konfektionsgrösse M"
+  size: string; // z.B. "Konfektionsgrösse M"
   description: string;
   images: string[];
-  gender: 'female' | 'male' | 'unisex' | 'kid' | 'family';
-  type: string;             // z.B. "Mehrteilig"
+  gender: "female" | "male" | "unisex" | "kid" | "family";
+  type: string; // z.B. "Mehrteilig"
   series?: string;
   availability: {
     institution: string;
-    status: 'available' | 'on-request';
+    status: "available" | "on-request";
   }[];
 }
 ```
@@ -409,15 +431,15 @@ interface CostumeDetail {
 
 ### Komponente: Kostüm-Karte
 
-| Eigenschaft | Wert |
-|---|---|
-| Breite | 165px |
-| Bild | 165x240px, `object-fit: cover` |
-| Kein Foto BG | `secondary-500` mit Multiply blend-mode |
-| Kategorie | Label-1-medium, 12px, `#000000` |
-| Name | Subtitle-1-medium, 16px, `#000000` |
-| Aufführung | Subtitle-2-regular, 14px, `#000000` |
-| Verfügbarkeit | `availability-row` Komponente |
+| Eigenschaft   | Wert                                    |
+| ------------- | --------------------------------------- |
+| Breite        | 165px                                   |
+| Bild          | 165x240px, `object-fit: cover`          |
+| Kein Foto BG  | `secondary-500` mit Multiply blend-mode |
+| Kategorie     | Label-1-medium, 12px, `#000000`         |
+| Name          | Subtitle-1-medium, 16px, `#000000`      |
+| Aufführung    | Subtitle-2-regular, 14px, `#000000`     |
+| Verfügbarkeit | `availability-row` Komponente           |
 
 ```css
 .costume-card {
@@ -439,9 +461,11 @@ interface CostumeDetail {
 }
 .costume-card__bookmark {
   position: absolute;
-  top: 6px; right: 6px;
-  width: 40px; height: 40px;
-  background: #FFFFFF;
+  top: 6px;
+  right: 6px;
+  width: 40px;
+  height: 40px;
+  background: #ffffff;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -480,7 +504,7 @@ interface CostumeTeaserCard {
   category: string;
   imageUrl?: string;
   production: string;
-  availability: { institution: string; status: 'available' | 'on-request'; };
+  availability: { institution: string; status: "available" | "on-request" };
   isBookmarked?: boolean;
 }
 ```
@@ -493,15 +517,15 @@ interface CostumeTeaserCard {
 
 ### Komponente: Kategorie-Kachel
 
-| Eigenschaft | Wert |
-|---|---|
-| Breite | 224px |
-| Höhe | 270px |
-| Border-radius | `--radius-md` (12px) |
-| Overlay | `rgba(0, 0, 0, 0.4)` |
+| Eigenschaft                    | Wert                                |
+| ------------------------------ | ----------------------------------- |
+| Breite                         | 224px                               |
+| Höhe                           | 270px                               |
+| Border-radius                  | `--radius-md` (12px)                |
+| Overlay                        | `rgba(0, 0, 0, 0.4)`                |
 | Abschnittstitel (über Kacheln) | H6-medium, 22px, `neutral-grey-600` |
-| Label im Bild | H4-medium, 26px, weiss, mit Pfeil |
-| Pfeil | `icon-arrow-right`, 27x27px, weiss |
+| Label im Bild                  | H4-medium, 26px, weiss, mit Pfeil   |
+| Pfeil                          | `icon-arrow-right`, 27x27px, weiss  |
 
 ```css
 .category-section__title {
@@ -532,7 +556,7 @@ interface CostumeTeaserCard {
   gap: 8px;
   font-size: 26px;
   font-weight: var(--font-weight-500);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 .category-tiles-scroll {
   display: flex;
@@ -550,12 +574,12 @@ interface CostumeTeaserCard {
 
 ### Komponente: Hero Banner
 
-| Eigenschaft | Wert |
-|---|---|
-| Breite | 100vw (full-width) |
-| Höhe Mobile | 400px |
-| Overlay | `rgba(0, 0, 0, 0.4)` |
-| Text | H1-medium, 36px, weiss, `letter-spacing: 0.003em` |
+| Eigenschaft | Wert                                              |
+| ----------- | ------------------------------------------------- |
+| Breite      | 100vw (full-width)                                |
+| Höhe Mobile | 400px                                             |
+| Overlay     | `rgba(0, 0, 0, 0.4)`                              |
+| Text        | H1-medium, 36px, weiss, `letter-spacing: 0.003em` |
 
 ```css
 .hero-banner {
@@ -578,12 +602,13 @@ interface CostumeTeaserCard {
 }
 .hero-banner__text {
   position: absolute;
-  left: 25px; right: 25px;
+  left: 25px;
+  right: 25px;
   top: 50%;
   transform: translateY(-50%);
   font-size: var(--font-size-1000);
   font-weight: var(--font-weight-500);
-  color: #FFFFFF;
+  color: #ffffff;
   letter-spacing: 0.003em;
   line-height: var(--line-height-120);
 }
@@ -597,19 +622,19 @@ interface CostumeTeaserCard {
 
 ### Varianten
 
-| Variante | Hintergrundfarbe | Token |
-|---|---|---|
-| Grün | `#76FEAC` | `accent-01` |
-| Rosa | `#F5E4E4` | `accent-02` |
-| Blau | `#CDDBE4` | `tertiary-700` |
+| Variante | Hintergrundfarbe | Token          |
+| -------- | ---------------- | -------------- |
+| Grün     | `#76FEAC`        | `accent-01`    |
+| Rosa     | `#F5E4E4`        | `accent-02`    |
+| Blau     | `#CDDBE4`        | `tertiary-700` |
 
 ### Komponente
 
-| Eigenschaft | Wert |
-|---|---|
-| Breite | 100% |
-| Höhe | 393px |
-| Padding | 16px |
+| Eigenschaft     | Wert                                |
+| --------------- | ----------------------------------- |
+| Breite          | 100%                                |
+| Höhe            | 393px                               |
+| Padding         | 16px                                |
 | Abschnittstitel | H6-medium, 22px, `neutral-grey-600` |
 
 ```css
@@ -618,9 +643,15 @@ interface CostumeTeaserCard {
   height: 393px;
   padding: 16px;
 }
-.highlight-teaser--green { background: var(--accent-01); }
-.highlight-teaser--pink  { background: var(--accent-02); }
-.highlight-teaser--blue  { background: var(--tertiary-700); }
+.highlight-teaser--green {
+  background: var(--accent-01);
+}
+.highlight-teaser--pink {
+  background: var(--accent-02);
+}
+.highlight-teaser--blue {
+  background: var(--tertiary-700);
+}
 .highlight-teaser__title {
   font-size: 22px;
   font-weight: var(--font-weight-500);
@@ -645,22 +676,22 @@ interface CostumeTeaserCard {
 ### Varianten
 
 | Variante | Hintergrundfarbe oberer Bereich |
-|---|---|
-| Grün | `secondary-700` (#75958D) |
-| Blau | `tertiary-800` (#83A7BF) |
+| -------- | ------------------------------- |
+| Grün     | `secondary-700` (#75958D)       |
+| Blau     | `tertiary-800` (#83A7BF)        |
 
 ### Komponente
 
-| Eigenschaft | Wert |
-|---|---|
-| Breite | 343px |
-| Border-radius | 30px |
-| Oberer Bereich | 203px Höhe, einfarbig, `border-radius: 30px` |
-| Haupt-Overlay | `rgba(0,0,0,0.6)`, `border-radius: 30px` |
-| "Save the date" | Body-1-medium, 20px, weiss, oben links |
-| Haupt-Titel | H1-regular, 36px, weiss |
-| CTA-Text/Datum | H1-regular, 36px, `primary-900` (#B59B3A) |
-| Pfeil rechts | 27x27px, `primary-900` |
+| Eigenschaft     | Wert                                         |
+| --------------- | -------------------------------------------- |
+| Breite          | 343px                                        |
+| Border-radius   | 30px                                         |
+| Oberer Bereich  | 203px Höhe, einfarbig, `border-radius: 30px` |
+| Haupt-Overlay   | `rgba(0,0,0,0.6)`, `border-radius: 30px`     |
+| "Save the date" | Body-1-medium, 20px, weiss, oben links       |
+| Haupt-Titel     | H1-regular, 36px, weiss                      |
+| CTA-Text/Datum  | H1-regular, 36px, `primary-900` (#B59B3A)    |
+| Pfeil rechts    | 27x27px, `primary-900`                       |
 
 ```css
 .cta-event-card {
@@ -676,7 +707,7 @@ interface CostumeTeaserCard {
 .cta-event-card__title {
   font-size: var(--font-size-1000);
   font-weight: var(--font-weight-400);
-  color: #FFFFFF;
+  color: #ffffff;
   line-height: var(--line-height-120);
 }
 .cta-event-card__date {
@@ -698,24 +729,24 @@ interface CostumeTeaserCard {
 
 #### App Header Bar (Mobile)
 
-| Eigenschaft | Wert |
-|---|---|
-| Höhe | 70px |
-| Hintergrund | `#FFFFFF`, `box-shadow: 0px 1px 10px rgba(0,0,0,0.2)` |
-| Logo | `brand-lu.svg` links |
+| Eigenschaft  | Wert                                                              |
+| ------------ | ----------------------------------------------------------------- |
+| Höhe         | 70px                                                              |
+| Hintergrund  | `#FFFFFF`, `box-shadow: 0px 1px 10px rgba(0,0,0,0.2)`             |
+| Logo         | `brand-lu.svg` links                                              |
 | Rechte Icons | `icon-chat`, `icon-heart`, `icon-shopping-bag`, je 45x45px Hitbox |
 
 #### Drawer Level 1
 
-| Eigenschaft | Wert |
-|---|---|
-| Hintergrund | `neutral-grey-600` (#242727) |
-| Breite | 375px (Vollbild Mobile) |
-| Abschnittstitel | Body-2-bold, 18px, `neutral-grey-400` |
-| Nav-Items | Body-1-regular, 20px, `#FFFFFF`, 50px Höhe |
-| Trennlinien | `1px solid rgba(255,255,255,0.2)` |
-| Pfeil rechts | `icon-arrow-s`, 20x20px, weiss |
-| Schliessen | `icon-close-small`, 20x20px, weiss, oben rechts |
+| Eigenschaft     | Wert                                            |
+| --------------- | ----------------------------------------------- |
+| Hintergrund     | `neutral-grey-600` (#242727)                    |
+| Breite          | 375px (Vollbild Mobile)                         |
+| Abschnittstitel | Body-2-bold, 18px, `neutral-grey-400`           |
+| Nav-Items       | Body-1-regular, 20px, `#FFFFFF`, 50px Höhe      |
+| Trennlinien     | `1px solid rgba(255,255,255,0.2)`               |
+| Pfeil rechts    | `icon-arrow-s`, 20x20px, weiss                  |
+| Schliessen      | `icon-close-small`, 20x20px, weiss, oben rechts |
 
 ```css
 .nav-drawer {
@@ -739,11 +770,12 @@ interface CostumeTeaserCard {
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   font-size: 20px;
   font-weight: var(--font-weight-400);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 ```
 
 **Level 1 Sektionen:**
+
 - Kostüme: Damen, Herren, Unisex, Kinder, Tiere, Fantasy
 - Netzwerk & Support: Nachrichten, Kostümanfragen, Netzwerk, Support
 - Profil: Mein Profil
@@ -756,25 +788,25 @@ Gleiche Optik wie Level 1, mit "Zurück"-Link oben (14px, `neutral-grey-300`, un
 
 #### Bottom Nav Bar (Mobile Profil-Leiste)
 
-| Eigenschaft | Wert |
-|---|---|
-| Höhe | 95px |
+| Eigenschaft | Wert                                                                                           |
+| ----------- | ---------------------------------------------------------------------------------------------- |
+| Höhe        | 95px                                                                                           |
 | Hintergrund | `neutral-grey-600`, `box-shadow: 0px -3px 10px rgba(0,0,0,0.25)`, `border-radius: 8px 8px 0 0` |
-| Avatar | 60x60px Kreis |
-| Name | Body-2-medium, 18px, weiss |
+| Avatar      | 60x60px Kreis                                                                                  |
+| Name        | Body-2-medium, 18px, weiss                                                                     |
 
 ---
 
 ### DS-B: Footer
 
-| Eigenschaft | Wert |
-|---|---|
-| Hintergrund | `#000000` |
-| Border-radius | `30px 30px 0 0` |
-| Padding | 24px 33px |
-| Logo | `kostüm+` Wordmark, `primary-900` (#B59B3A) |
-| Links | H4-regular, 26px, `#FFFFFF`, mit `icon-arrow-right` |
-| Copyright | Subtitle-1-regular, 16px, `rgba(255,255,255,0.5)` |
+| Eigenschaft   | Wert                                                |
+| ------------- | --------------------------------------------------- |
+| Hintergrund   | `#000000`                                           |
+| Border-radius | `30px 30px 0 0`                                     |
+| Padding       | 24px 33px                                           |
+| Logo          | `kostüm+` Wordmark, `primary-900` (#B59B3A)         |
+| Links         | H4-regular, 26px, `#FFFFFF`, mit `icon-arrow-right` |
+| Copyright     | Subtitle-1-regular, 16px, `rgba(255,255,255,0.5)`   |
 
 ```css
 .footer {
@@ -788,7 +820,7 @@ Gleiche Optik wie Level 1, mit "Zurück"-Link oben (14px, `neutral-grey-300`, un
   justify-content: space-between;
   font-size: 26px;
   font-weight: var(--font-weight-400);
-  color: #FFFFFF;
+  color: #ffffff;
   padding: 16px 0;
 }
 .footer__copyright {
@@ -820,7 +852,7 @@ Gleiche Optik wie Level 1, mit "Zurück"-Link oben (14px, `neutral-grey-300`, un
   gap: 12px;
   font-size: 16px;
   font-weight: var(--font-weight-500);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 ```
 
@@ -832,18 +864,18 @@ Slide-Up Panel, `border-radius: 20px 20px 0 0`, `box-shadow: 0px -2px 20px rgba(
 
 **Inhalts-Sektionen:**
 
-| Sektion | Inhalt-Typ |
-|---|---|
-| Gender oder Typ | 2x3 Select Cards (93px Höhe) |
-| Bekleidungsart | Select Cards (60px) + Suchfeld |
-| Aufführung | 4x Suchfeld-Rows (Epoche, Stücktitel, Darsteller, Rolle) |
-| Regie & Assistenz | Suchfeld-Rows |
-| Sparte | Select Cards |
-| Konfektionsgrösse | Size-Grid (106x70px) + Tag-Pills |
-| Masse | Range-Slider in `secondary-500` Container |
-| Materialart | Suchfeld + Select Cards (93px) |
-| Muster | Select Cards (93px) |
-| Farben | Color Swatches (60px) |
+| Sektion           | Inhalt-Typ                                               |
+| ----------------- | -------------------------------------------------------- |
+| Gender oder Typ   | 2x3 Select Cards (93px Höhe)                             |
+| Bekleidungsart    | Select Cards (60px) + Suchfeld                           |
+| Aufführung        | 4x Suchfeld-Rows (Epoche, Stücktitel, Darsteller, Rolle) |
+| Regie & Assistenz | Suchfeld-Rows                                            |
+| Sparte            | Select Cards                                             |
+| Konfektionsgrösse | Size-Grid (106x70px) + Tag-Pills                         |
+| Masse             | Range-Slider in `secondary-500` Container                |
+| Materialart       | Suchfeld + Select Cards (93px)                           |
+| Muster            | Select Cards (93px)                                      |
+| Farben            | Color Swatches (60px)                                    |
 
 #### Suchfeld-Row (Filter)
 
@@ -881,7 +913,8 @@ Slide-Up Panel, `border-radius: 20px 20px 0 0`, `box-shadow: 0px -2px 20px rgba(
   border-radius: 47px;
 }
 .range-slider__thumb {
-  width: 30px; height: 30px;
+  width: 30px;
+  height: 30px;
   background: var(--secondary-800);
   border-radius: 50%;
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
@@ -892,7 +925,8 @@ Slide-Up Panel, `border-radius: 20px 20px 0 0`, `box-shadow: 0px -2px 20px rgba(
 
 ```css
 .size-tile {
-  width: 106px; height: 70px;
+  width: 106px;
+  height: 70px;
   border: 1px solid var(--secondary-800);
   border-radius: var(--radius-sm);
   display: flex;
@@ -902,7 +936,9 @@ Slide-Up Panel, `border-radius: 20px 20px 0 0`, `box-shadow: 0px -2px 20px rgba(
   font-weight: var(--font-weight-500);
   color: var(--secondary-800);
 }
-.size-tile--selected { background: var(--secondary-500); }
+.size-tile--selected {
+  background: var(--secondary-500);
+}
 ```
 
 #### Tag-Pills (Grösse)
@@ -913,7 +949,7 @@ Slide-Up Panel, `border-radius: 20px 20px 0 0`, `box-shadow: 0px -2px 20px rgba(
   padding: 10px 25px;
   border: 1px solid var(--secondary-800);
   border-radius: 44px;
-  background: #FBFBFB;
+  background: #fbfbfb;
   font-size: 16px;
   font-weight: var(--font-weight-500);
   color: var(--secondary-700);
@@ -930,7 +966,7 @@ Slide-Up Panel, `border-radius: 20px 20px 0 0`, `box-shadow: 0px -2px 20px rgba(
   border-radius: var(--radius-md);
   font-size: 18px;
   font-weight: var(--font-weight-500);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 ```
 
@@ -949,7 +985,7 @@ Slide-Up Panel, `border-radius: 20px 20px 0 0`, `box-shadow: 0px -2px 20px rgba(
   align-items: center;
   padding: 0 24px;
   gap: 16px;
-  background: #FFFFFF;
+  background: #ffffff;
 }
 .search-input__text {
   font-size: 18px;
@@ -959,7 +995,7 @@ Slide-Up Panel, `border-radius: 20px 20px 0 0`, `box-shadow: 0px -2px 20px rgba(
 
 /* Dropdown */
 .search-dropdown {
-  background: #FFFFFF;
+  background: #ffffff;
   box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
   border-radius: var(--radius-xs);
 }
@@ -969,7 +1005,8 @@ Slide-Up Panel, `border-radius: 20px 20px 0 0`, `box-shadow: 0px -2px 20px rgba(
   font-weight: var(--font-weight-700); /* Match bold */
   color: #000000;
 }
-.search-dropdown__item span { /* Nicht-Match Anteil */
+.search-dropdown__item span {
+  /* Nicht-Match Anteil */
   font-weight: var(--font-weight-400);
 }
 
@@ -997,7 +1034,7 @@ Slide-Up Panel, `border-radius: 20px 20px 0 0`, `box-shadow: 0px -2px 20px rgba(
 
 ---
 
-*Stand: Mobile-Screens vollständig dokumentiert — kostüm+ / costumanu*
+_Stand: Mobile-Screens vollständig dokumentiert — kostüm+ / costumanu_
 
 ---
 
@@ -1006,6 +1043,7 @@ Slide-Up Panel, `border-radius: 20px 20px 0 0`, `box-shadow: 0px -2px 20px rgba(
 **Route:** `/suche`
 
 ### Übersicht
+
 Globale Suchseite mit zwei Zuständen: Default (leeres Feld + iOS-Keyboard) und Type (Suchbegriff + Vorschläge + vertikaler Akzentbalken).
 
 ### Layout-Struktur
@@ -1038,9 +1076,13 @@ Globale Suchseite mit zwei Zuständen: Default (leeres Feld + iOS-Keyboard) und 
   align-items: center;
   padding: 0 16px;
   gap: 12px;
-  background: #FFFFFF;
+  background: #ffffff;
 }
-.global-search__icon { width: 25px; height: 25px; color: #000000; }
+.global-search__icon {
+  width: 25px;
+  height: 25px;
+  color: #000000;
+}
 .global-search__divider {
   width: 0;
   height: 37px;
@@ -1058,7 +1100,8 @@ Globale Suchseite mit zwei Zuständen: Default (leeres Feld + iOS-Keyboard) und 
   color: #000000;
 }
 .global-search__clear {
-  width: 20px; height: 20px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   border: 1px solid var(--neutral-grey-600);
   display: flex;
@@ -1071,12 +1114,12 @@ Globale Suchseite mit zwei Zuständen: Default (leeres Feld + iOS-Keyboard) und 
 
 ### Komponente: Suchergebnis-Zeile
 
-| Eigenschaft | Wert |
-|---|---|
-| Bild | 75x75px, `border-radius: 4px` |
-| Aktiv-Balken | 3x69px rechts, `neutral-grey-600`, `border-radius: 45px` |
-| Titel | Subtitle-1-bold, 16px, `#000000` — Suchbegriff fett, Rest normal |
-| Untertitel | Subtitle-2-regular, 14px, `#000000` |
+| Eigenschaft  | Wert                                                             |
+| ------------ | ---------------------------------------------------------------- |
+| Bild         | 75x75px, `border-radius: 4px`                                    |
+| Aktiv-Balken | 3x69px rechts, `neutral-grey-600`, `border-radius: 45px`         |
+| Titel        | Subtitle-1-bold, 16px, `#000000` — Suchbegriff fett, Rest normal |
+| Untertitel   | Subtitle-2-regular, 14px, `#000000`                              |
 
 ```css
 .search-result-row {
@@ -1087,15 +1130,18 @@ Globale Suchseite mit zwei Zuständen: Default (leeres Feld + iOS-Keyboard) und 
   position: relative;
 }
 .search-result-row__image {
-  width: 75px; height: 75px;
+  width: 75px;
+  height: 75px;
   border-radius: 4px;
   object-fit: cover;
   flex-shrink: 0;
 }
 .search-result-row__indicator {
   position: absolute;
-  right: 0; top: 0;
-  width: 3px; height: 69px;
+  right: 0;
+  top: 0;
+  width: 3px;
+  height: 69px;
   background: var(--neutral-grey-600);
   border-radius: 45px;
 }
@@ -1104,7 +1150,9 @@ Globale Suchseite mit zwei Zuständen: Default (leeres Feld + iOS-Keyboard) und 
   font-weight: var(--font-weight-700); /* match-Anteil bold */
   color: #000000;
 }
-.search-result-row__title span { font-weight: var(--font-weight-400); }
+.search-result-row__title span {
+  font-weight: var(--font-weight-400);
+}
 .search-result-row__subtitle {
   font-size: 14px;
   font-weight: var(--font-weight-400);
@@ -1118,10 +1166,10 @@ Globale Suchseite mit zwei Zuständen: Default (leeres Feld + iOS-Keyboard) und 
 interface SearchResult {
   id: string;
   imageUrl: string;
-  title: string;        // Vollständiger Titel
-  matchText: string;    // Suchbegriff (bold markiert)
-  subtitle: string;     // Aufführung + Epoche
-  isActive?: boolean;   // Zeigt rechten Balken
+  title: string; // Vollständiger Titel
+  matchText: string; // Suchbegriff (bold markiert)
+  subtitle: string; // Aufführung + Epoche
+  isActive?: boolean; // Zeigt rechten Balken
 }
 ```
 
@@ -1133,16 +1181,16 @@ interface SearchResult {
 
 ### Komponente: Standort-Picker Modal
 
-| Eigenschaft | Wert |
-|---|---|
-| Container | Weisser Hintergrund, Slide-Up |
-| Suchfeld | `border-radius: 47px`, `border: 1px solid #000000`, `icon-location` links, `icon-close-small` rechts |
-| List Items | 343px breit, `border: 1px solid secondary-800`, `border-radius: 10px`, 80px Höhe |
-| Icon | `icon-location`, 22.5x32px, `secondary-800` |
-| Label | Body-2-medium, 18px, `secondary-800` |
-| Checkbox | Rechts ausgerichtet, `border: 2px solid secondary-800`, `border-radius: 4px`, 20x20px |
-| Toggle | "Alle Standorte durchsuchen", Toggle-Komponente (`secondary-500`/`secondary-700`) |
-| Button | `btn-filter-apply`, 62px, `primary-900` |
+| Eigenschaft | Wert                                                                                                 |
+| ----------- | ---------------------------------------------------------------------------------------------------- |
+| Container   | Weisser Hintergrund, Slide-Up                                                                        |
+| Suchfeld    | `border-radius: 47px`, `border: 1px solid #000000`, `icon-location` links, `icon-close-small` rechts |
+| List Items  | 343px breit, `border: 1px solid secondary-800`, `border-radius: 10px`, 80px Höhe                     |
+| Icon        | `icon-location`, 22.5x32px, `secondary-800`                                                          |
+| Label       | Body-2-medium, 18px, `secondary-800`                                                                 |
+| Checkbox    | Rechts ausgerichtet, `border: 2px solid secondary-800`, `border-radius: 4px`, 20x20px                |
+| Toggle      | "Alle Standorte durchsuchen", Toggle-Komponente (`secondary-500`/`secondary-700`)                    |
+| Button      | `btn-filter-apply`, 62px, `primary-900`                                                              |
 
 **Selected State:** `background: secondary-500`, Checkbox filled (`border: 2px solid secondary-700`), `border-radius: 4px`
 
@@ -1156,12 +1204,15 @@ interface SearchResult {
   align-items: center;
   padding: 0 16px;
   gap: 12px;
-  background: #FFFFFF;
+  background: #ffffff;
 }
-.standort-item--selected { background: var(--secondary-500); }
+.standort-item--selected {
+  background: var(--secondary-500);
+}
 .standort-item__checkbox {
   margin-left: auto;
-  width: 20px; height: 20px;
+  width: 20px;
+  height: 20px;
   border: 2px solid var(--secondary-800);
   border-radius: 4px;
 }
@@ -1197,16 +1248,21 @@ Horizontale Breadcrumb-Zeile oben auf der Detailseite.
   align-items: center;
   gap: 4px;
 }
-.breadcrumb__arrow { /* icon-arrow-left, 15x15px */
-  width: 15px; height: 15px;
+.breadcrumb__arrow {
+  /* icon-arrow-left, 15x15px */
+  width: 15px;
+  height: 15px;
   color: #000000;
 }
-.breadcrumb__divider { /* icon-arrow-s small, 10x10px, nach rechts */
-  width: 10px; height: 10px;
+.breadcrumb__divider {
+  /* icon-arrow-s small, 10x10px, nach rechts */
+  width: 10px;
+  height: 10px;
   color: #000000;
 }
 .breadcrumb__separator {
-  width: 18px; height: 0;
+  width: 18px;
+  height: 0;
   border-left: 1px solid var(--neutral-grey-300);
   transform: rotate(90deg);
 }
@@ -1225,6 +1281,7 @@ Die restlichen Inhalte (Bild, Metadaten, Buttons) sind identisch mit Modul 2 (Ko
 **Route:** `/kostueme/[id]/spezifikationen`
 
 ### Übersicht
+
 Vollständige Spezifikationsseite eines Kostüms als collapsible Accordion. Alle Sektionen können auf- und zugeklappt werden.
 
 ### Layout-Struktur (Mobile)
@@ -1256,14 +1313,14 @@ Kostümspezifikationen   (H4-medium, 24px)
 
 ### Komponente: Accordion Section
 
-| Eigenschaft | Wert |
-|---|---|
-| Header-Label | Body-2-bold, 18px, `neutral-grey-600` |
-| Trennlinie | `1px solid #000000` unter Header |
-| Icon | `icon-arrow-up`/`icon-arrow-down`, 16x16px, schwarz |
-| Feld-Label | Subtitle-1-bold, 16px, `#000000` |
-| Feld-Wert | Subtitle-1-regular, 16px, `neutral-grey-600` |
-| Interne Trennlinien | `1px solid neutral-grey-300` |
+| Eigenschaft         | Wert                                                |
+| ------------------- | --------------------------------------------------- |
+| Header-Label        | Body-2-bold, 18px, `neutral-grey-600`               |
+| Trennlinie          | `1px solid #000000` unter Header                    |
+| Icon                | `icon-arrow-up`/`icon-arrow-down`, 16x16px, schwarz |
+| Feld-Label          | Subtitle-1-bold, 16px, `#000000`                    |
+| Feld-Wert           | Subtitle-1-regular, 16px, `neutral-grey-600`        |
+| Interne Trennlinien | `1px solid neutral-grey-300`                        |
 
 ```css
 .accordion-section {
@@ -1280,7 +1337,9 @@ Kostümspezifikationen   (H4-medium, 24px)
   font-weight: var(--font-weight-700);
   color: var(--neutral-grey-600);
 }
-.accordion-divider { border-top: 1px solid #000000; }
+.accordion-divider {
+  border-top: 1px solid #000000;
+}
 .accordion-field {
   padding: 12px 0;
   border-bottom: 1px solid var(--neutral-grey-300);
@@ -1336,14 +1395,14 @@ interface CostumeSpecs {
     costumeAssistant: string;
   };
   material: {
-    type: string;           // z.B. "Baumwolle"
-    finish: string;         // z.B. "Satin"
-    pattern: string;        // z.B. "Uni"
-    colors: string[];       // z.B. ["Grün", "Rot"]
+    type: string; // z.B. "Baumwolle"
+    finish: string; // z.B. "Satin"
+    pattern: string; // z.B. "Uni"
+    colors: string[]; // z.B. ["Grün", "Rot"]
     washInstructions: WashIcon[];
   };
   measurements: {
-    size: string;           // z.B. "M"
+    size: string; // z.B. "M"
     skirtLength?: string;
     waist?: string;
     chest?: string;
@@ -1355,7 +1414,7 @@ interface CostumeSpecs {
     floor: string;
     shelf: string;
     sector: string;
-    status: 'available' | 'on-request';
+    status: "available" | "on-request";
   };
   ids: {
     internalId: string;
@@ -1373,18 +1432,19 @@ interface CostumeSpecs {
 **Route:** `/anfragen`
 
 ### Übersicht
+
 3-stufiger Anfragefluss für externe Kostüm-Anfragen bei anderen Theatern/Fundus. Inkl. Kostümliste, Kontaktkarte, Formular, Bestätigung.
 
 ### Multi-Step Progressbar
 
 3 Schritte horizontal, verbunden durch Linie (`primary-900`).
 
-| State | Erscheinung |
-|---|---|
-| Aktiv (current) | Gefüllter Kreis `primary-900`, weisse Zahl, 30x30px |
-| Pending | Outline Kreis `0.833px solid primary-900`, Zahl `primary-900` |
-| Label unter Dot | Subtitle-3-medium, 13px, `#000000` |
-| Verbindungslinie | `1px solid primary-900`, 232px breit |
+| State            | Erscheinung                                                   |
+| ---------------- | ------------------------------------------------------------- |
+| Aktiv (current)  | Gefüllter Kreis `primary-900`, weisse Zahl, 30x30px           |
+| Pending          | Outline Kreis `0.833px solid primary-900`, Zahl `primary-900` |
+| Label unter Dot  | Subtitle-3-medium, 13px, `#000000`                            |
+| Verbindungslinie | `1px solid primary-900`, 232px breit                          |
 
 ```css
 .progress-steps {
@@ -1401,7 +1461,8 @@ interface CostumeSpecs {
   border-top: 1px solid var(--primary-900);
 }
 .progress-dot {
-  width: 30px; height: 30px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1412,10 +1473,10 @@ interface CostumeSpecs {
 }
 .progress-dot--active {
   background: var(--primary-900);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 .progress-dot--pending {
-  background: #FFFFFF;
+  background: #ffffff;
   border: 0.833px solid var(--primary-900);
   color: var(--primary-900);
 }
@@ -1434,21 +1495,21 @@ Zeigt Kontaktkarte des Anfragenden (Slide-up Modal).
 
 **Kontaktkarte:**
 
-| Eigenschaft | Wert |
-|---|---|
-| Avatar | 80x80px Kreis |
-| Name | H5-medium (H4 mobile), 22px/24px |
-| Rolle | Body-1-regular/medium, 20px |
-| Institution | Body-2-medium, 18px, `neutral-grey-600` |
-| Telefon-Pill | `secondary-500`/`tertiary-600` (#E4EEF5) BG, `border-radius: 51px`, `icon-phone` + Nummer |
-| Email-Pill | Gleiche Optik, `icon-mail` + "E-Mail" |
+| Eigenschaft     | Wert                                                                                        |
+| --------------- | ------------------------------------------------------------------------------------------- |
+| Avatar          | 80x80px Kreis                                                                               |
+| Name            | H5-medium (H4 mobile), 22px/24px                                                            |
+| Rolle           | Body-1-regular/medium, 20px                                                                 |
+| Institution     | Body-2-medium, 18px, `neutral-grey-600`                                                     |
+| Telefon-Pill    | `secondary-500`/`tertiary-600` (#E4EEF5) BG, `border-radius: 51px`, `icon-phone` + Nummer   |
+| Email-Pill      | Gleiche Optik, `icon-mail` + "E-Mail"                                                       |
 | Formular-Felder | 50px hoch, `border-bottom: 1px solid #000000`, Label Body-2-medium 18px, `neutral-grey-600` |
 
 **Formularfelder Personalien:** Anrede (Dropdown, 135x50px), Vorname, Name, Rolle, Institution, E-Mail, Tel.
 
 ```css
 .contact-card {
-  background: #FFFFFF;
+  background: #ffffff;
   box-shadow: 1px 4px 20px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   padding: 24px;
@@ -1526,26 +1587,26 @@ Zeigt Kontaktkarte des Anfragenden (Slide-up Modal).
 
 **Institutions-Kacheln:**
 
-| Eigenschaft | Wert |
-|---|---|
-| Grösse | 164x120px |
-| Background | `primary-600` (#EEECE5) |
-| Border-radius | `--radius-md` (12px) |
-| Logo | Institution-Logo zentriert |
-| Badge | 25x25px Kreis `neutral-grey-600`, weisse Zahl, `border: 2px solid primary-600` |
-| Pfeile | 11.85x20px `neutral-grey-700`, links/rechts zum Wechseln |
+| Eigenschaft   | Wert                                                                           |
+| ------------- | ------------------------------------------------------------------------------ |
+| Grösse        | 164x120px                                                                      |
+| Background    | `primary-600` (#EEECE5)                                                        |
+| Border-radius | `--radius-md` (12px)                                                           |
+| Logo          | Institution-Logo zentriert                                                     |
+| Badge         | 25x25px Kreis `neutral-grey-600`, weisse Zahl, `border: 2px solid primary-600` |
+| Pfeile        | 11.85x20px `neutral-grey-700`, links/rechts zum Wechseln                       |
 
 **Kostüm-Zeile in Anfrage (kompakt):**
 
-| Eigenschaft | Wert |
-|---|---|
-| Bild | 75x100px, `border-radius: 4px` |
-| ID + Kategorie | Label-1-medium, 12px |
-| Name | Subtitle-1-medium, 16px |
-| Aufführung + Epoche | Subtitle-2-regular, 14px |
-| Verfügbarkeit | `availability-row` Komponente |
-| Löschen | `icon-delete`, 20x20px, `neutral-grey-600` |
-| Trennlinie | `1px solid tertiary-200` (#BCCED9) |
+| Eigenschaft         | Wert                                       |
+| ------------------- | ------------------------------------------ |
+| Bild                | 75x100px, `border-radius: 4px`             |
+| ID + Kategorie      | Label-1-medium, 12px                       |
+| Name                | Subtitle-1-medium, 16px                    |
+| Aufführung + Epoche | Subtitle-2-regular, 14px                   |
+| Verfügbarkeit       | `availability-row` Komponente              |
+| Löschen             | `icon-delete`, 20x20px, `neutral-grey-600` |
+| Trennlinie          | `1px solid tertiary-200` (#BCCED9)         |
 
 ### Bestätigungs-Screen
 
@@ -1553,7 +1614,8 @@ Grüner Checkmark-Kreis (`accent-01`, 100x100px) + Erfolgstext + "Schliessen"-Bu
 
 ```css
 .confirmation-check {
-  width: 100px; height: 100px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   background: var(--accent-01);
   display: flex;
@@ -1596,15 +1658,16 @@ interface AnfrageForm {
 **Route:** `/rental`
 
 ### Übersicht
+
 3-stufiger Ausleih-Flow: (1) Personalien → (2) Kostümauswahl → (3) Zusammenfassung + Bestätigung.
 
 **Step-Keys (Implementierung):**
 
-| Step | Key | Label |
-|---|---|---|
-| 1 | `personalien` | Kontaktdaten des Ausleihnehmers |
-| 2 | `auswahl` | Kostüme auswählen (aus Merkliste/Scan/manuell) |
-| 3 | `zusammenfassung` | Ausleihliste + Bestätigung |
+| Step | Key               | Label                                          |
+| ---- | ----------------- | ---------------------------------------------- |
+| 1    | `personalien`     | Kontaktdaten des Ausleihnehmers                |
+| 2    | `auswahl`         | Kostüme auswählen (aus Merkliste/Scan/manuell) |
+| 3    | `zusammenfassung` | Ausleihliste + Bestätigung                     |
 
 ### Schritt 1: Ausleih-Quelle wählen
 
@@ -1620,7 +1683,7 @@ interface AnfrageForm {
   align-items: center;
   padding: 0 16px;
   gap: 16px;
-  background: #FFFFFF;
+  background: #ffffff;
 }
 .ausleih-source-card--selected {
   background: var(--secondary-500);
@@ -1646,9 +1709,12 @@ Vollbild-Kamera (`375x652px`), schwarzer Boden (`#080808`) mit weissem Scan-Rahm
   padding: 0 16px;
   gap: 12px;
 }
-.wishlist-item--selected { background: var(--secondary-500); }
+.wishlist-item--selected {
+  background: var(--secondary-500);
+}
 .wishlist-item__thumbnail {
-  width: 50px; height: 67px;
+  width: 50px;
+  height: 67px;
   border-radius: 10px;
   object-fit: cover;
 }
@@ -1658,11 +1724,11 @@ Vollbild-Kamera (`375x652px`), schwarzer Boden (`#080808`) mit weissem Scan-Rahm
 
 **Ausleihliste Header:**
 
-| Element | Stil |
-|---|---|
-| Ausleih-Nr. | Subtitle-1-medium, 16px, `neutral-grey-700` |
+| Element      | Stil                                               |
+| ------------ | -------------------------------------------------- |
+| Ausleih-Nr.  | Subtitle-1-medium, 16px, `neutral-grey-700`        |
 | Kontaktkarte | Gleiche Optik wie Anfrage-Kontaktkarte (Schritt 2) |
-| Telefon-Pill | `tertiary-600` (#E4EEF5) Background |
+| Telefon-Pill | `tertiary-600` (#E4EEF5) Background                |
 
 **Kostüm-Status-Dropdown:**
 
@@ -1692,7 +1758,7 @@ Vollbild-Kamera (`375x652px`), schwarzer Boden (`#080808`) mit weissem Scan-Rahm
 
 ```typescript
 interface Ausleihe {
-  id: string;             // z.B. "Ausleih-Nr. 246"
+  id: string; // z.B. "Ausleih-Nr. 246"
   contact: {
     name: string;
     role: string;
@@ -1709,7 +1775,7 @@ interface Ausleihe {
     name: string;
     imageUrl: string;
     production: string;
-    status: 'nicht-versendet' | 'versendet' | 'zurueckgegeben';
+    status: "nicht-versendet" | "versendet" | "zurueckgegeben";
   }[];
 }
 ```
@@ -1721,6 +1787,7 @@ interface Ausleihe {
 **Route:** `/messages`
 
 ### Übersicht
+
 Nachrichten-Inbox mit Chat-Liste, Suchfeld oben, Absender-Avatare mit Badge.
 
 ### Layout-Struktur (Mobile)
@@ -1743,14 +1810,14 @@ Nachrichten          (Abschnittstitel, Body-2-medium, 18px)
 
 ### Komponente: Nachrichten-List-Item
 
-| Eigenschaft | Wert |
-|---|---|
-| Avatar | 45x45px, `border-radius: 50%` — Implementierung nutzt einheitlich rund für alle Thread-Typen |
-| Badge (ungelesen) | 21x21px Kreis, `#000000` BG, weisse Zahl Label-1-medium 12px, oben rechts am Avatar |
-| Absender | Subtitle-1-medium, 16px, `#000000` |
-| Preview | Subtitle-2-regular, 14px, `neutral-grey-500` |
-| Zeitstempel | Label-1-regular, 12px, `neutral-grey-400` |
-| Trennlinie | `1px solid neutral-grey-300`, 279px, ab Avatar-Rand |
+| Eigenschaft       | Wert                                                                                         |
+| ----------------- | -------------------------------------------------------------------------------------------- |
+| Avatar            | 45x45px, `border-radius: 50%` — Implementierung nutzt einheitlich rund für alle Thread-Typen |
+| Badge (ungelesen) | 21x21px Kreis, `#000000` BG, weisse Zahl Label-1-medium 12px, oben rechts am Avatar          |
+| Absender          | Subtitle-1-medium, 16px, `#000000`                                                           |
+| Preview           | Subtitle-2-regular, 14px, `neutral-grey-500`                                                 |
+| Zeitstempel       | Label-1-regular, 12px, `neutral-grey-400`                                                    |
+| Trennlinie        | `1px solid neutral-grey-300`, 279px, ab Avatar-Rand                                          |
 
 ```css
 .message-list-item {
@@ -1761,24 +1828,27 @@ Nachrichten          (Abschnittstitel, Body-2-medium, 18px)
   position: relative;
 }
 .message-list-item__avatar {
-  width: 45px; height: 45px;
+  width: 45px;
+  height: 45px;
   border-radius: 4px;
   flex-shrink: 0;
   position: relative;
 }
 .message-list-item__badge {
   position: absolute;
-  top: -6px; right: -6px;
-  width: 21px; height: 21px;
+  top: -6px;
+  right: -6px;
+  width: 21px;
+  height: 21px;
   background: #000000;
-  border: 1px solid #FFFFFF;
+  border: 1px solid #ffffff;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   font-weight: var(--font-weight-500);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 .message-list-item__content {
   flex: 1;
@@ -1817,10 +1887,10 @@ interface MessageThread {
   id: string;
   sender: string;
   avatarUrl: string;
-  isInstitution: boolean;   // Bestimmt border-radius (4px vs 50%)
+  isInstitution: boolean; // Bestimmt border-radius (4px vs 50%)
   preview: string;
-  timestamp: string;        // z.B. "15:55", "Dienstag", "20.11.23"
-  unreadCount?: number;     // Badge-Zahl
+  timestamp: string; // z.B. "15:55", "Dienstag", "20.11.23"
+  unreadCount?: number; // Badge-Zahl
 }
 ```
 
@@ -1833,6 +1903,7 @@ interface MessageThread {
 **Route:** `/suchmodus`
 
 ### Übersicht
+
 Landing-Page des Suchmodus. Vollbild-Hero mit Filter-Bar, Kategorie-Grid (Gender-Kacheln), horizontal scrollende Category Tiles, CTA-Karte, Netzwerk-Ovals, Footer.
 
 ### Layout-Struktur
@@ -1855,76 +1926,76 @@ Landing-Page des Suchmodus. Vollbild-Hero mit Filter-Bar, Kategorie-Grid (Gender
 
 ### Header
 
-| Eigenschaft | Wert |
-|---|---|
-| Höhe Desktop | 80px |
-| Höhe Mobile | 70px |
-| Position | sticky, top: 0, z-index: 50 |
-| Shadow | `0px 1px 10px rgba(0,0,0,0.20)` |
-| Padding | `0 20px` |
-| Icons rechts | 45×45px Hitbox je Icon |
+| Eigenschaft  | Wert                            |
+| ------------ | ------------------------------- |
+| Höhe Desktop | 80px                            |
+| Höhe Mobile  | 70px                            |
+| Position     | sticky, top: 0, z-index: 50     |
+| Shadow       | `0px 1px 10px rgba(0,0,0,0.20)` |
+| Padding      | `0 20px`                        |
+| Icons rechts | 45×45px Hitbox je Icon          |
 
 ### Hero
 
-| Eigenschaft | Wert |
-|---|---|
-| Höhe Desktop | 668px |
-| Höhe Mobile | 400px |
-| Position | `relative`, `overflow: hidden` |
+| Eigenschaft  | Wert                           |
+| ------------ | ------------------------------ |
+| Höhe Desktop | 668px                          |
+| Höhe Mobile  | 400px                          |
+| Position     | `relative`, `overflow: hidden` |
 
 #### Filter Bar
 
-| Eigenschaft | Wert |
-|---|---|
-| Position Desktop | `absolute`, `top: 42px`, `left: 50%`, `transform: translateX(-50%)` |
-| Position Mobile | `top: 20px`, `left/right: 16px`, `transform: none`, `width: calc(100% - 32px)` |
-| Gap | 10px |
-| **Filter-Button** | `height: 60px`, `padding: 0 24px`, `border-radius: 61px`, `background: primary-900`, weisser Text |
-| **Standort-Button** | 60×60px Kreis, `border: 1px solid primary-900`, weisser Hintergrund → Öffnet Standort-Sheet |
-| **Such-Button** | 60×60px Kreis, `border: 1px solid primary-900` |
+| Eigenschaft         | Wert                                                                                              |
+| ------------------- | ------------------------------------------------------------------------------------------------- |
+| Position Desktop    | `absolute`, `top: 42px`, `left: 50%`, `transform: translateX(-50%)`                               |
+| Position Mobile     | `top: 20px`, `left/right: 16px`, `transform: none`, `width: calc(100% - 32px)`                    |
+| Gap                 | 10px                                                                                              |
+| **Filter-Button**   | `height: 60px`, `padding: 0 24px`, `border-radius: 61px`, `background: primary-900`, weisser Text |
+| **Standort-Button** | 60×60px Kreis, `border: 1px solid primary-900`, weisser Hintergrund → Öffnet Standort-Sheet       |
+| **Such-Button**     | 60×60px Kreis, `border: 1px solid primary-900`                                                    |
 
 > ⚠️ Filter Bar hat `transform` auf Desktop — Kind-Elemente mit `position: fixed` müssen via React Portal gerendert werden (siehe Standort-Sheet, Modul 21).
 
 ### Gender-Grid
 
-| Eigenschaft | Wert |
-|---|---|
-| Spalten Desktop | `repeat(3, 1fr)` |
-| Spalten Mobile | `repeat(2, 1fr)` |
-| Gap | 12px |
-| Kachel-Höhe | 140px |
-| Border | `1px solid secondary-900` |
-| Border-radius | `var(--radius-md)` |
-| Padding-bottom | 14px |
-| Gap innen | 8px |
-| Label | `font-size: var(--font-size-300)`, `font-weight: var(--font-weight-500)` |
+| Eigenschaft     | Wert                                                                     |
+| --------------- | ------------------------------------------------------------------------ |
+| Spalten Desktop | `repeat(3, 1fr)`                                                         |
+| Spalten Mobile  | `repeat(2, 1fr)`                                                         |
+| Gap             | 12px                                                                     |
+| Kachel-Höhe     | 140px                                                                    |
+| Border          | `1px solid secondary-900`                                                |
+| Border-radius   | `var(--radius-md)`                                                       |
+| Padding-bottom  | 14px                                                                     |
+| Gap innen       | 8px                                                                      |
+| Label           | `font-size: var(--font-size-300)`, `font-weight: var(--font-weight-500)` |
 
 ### Category Tiles
 
-| Eigenschaft | Desktop | Mobile |
-|---|---|---|
-| Layout | `display: flex`, `gap: 30px` | `overflow-x: auto`, `scroll-snap-type: x mandatory`, `gap: 12px`, `padding: 0 16px` |
-| Kachel-Breite | `flex: 1` (fluid) | `60vw` |
-| Kachel-Höhe | 430px | 270px |
-| Border-radius | `var(--radius-card)` (20px) | idem |
-| Scroll-Snap | — | `scroll-snap-align: start` |
+| Eigenschaft   | Desktop                      | Mobile                                                                              |
+| ------------- | ---------------------------- | ----------------------------------------------------------------------------------- |
+| Layout        | `display: flex`, `gap: 30px` | `overflow-x: auto`, `scroll-snap-type: x mandatory`, `gap: 12px`, `padding: 0 16px` |
+| Kachel-Breite | `flex: 1` (fluid)            | `60vw`                                                                              |
+| Kachel-Höhe   | 430px                        | 270px                                                                               |
+| Border-radius | `var(--radius-card)` (20px)  | idem                                                                                |
+| Scroll-Snap   | —                            | `scroll-snap-align: start`                                                          |
 
 ### Section-Abstände
 
-| Klasse | Desktop | Mobile |
-|---|---|---|
-| `.sectionPadded` | `60px 67px` | `40px 16px` |
-| `.sectionPaddedBottom` | `0 67px 60px` | `0 0 40px` |
-| `.sectionTitleWrap` | `margin-bottom: 32px` | `padding: 0 16px`, `margin-bottom: 20px` |
-| Titel | `var(--font-size-800)`, `font-weight-500`, `neutral-grey-600` | idem |
+| Klasse                 | Desktop                                                       | Mobile                                   |
+| ---------------------- | ------------------------------------------------------------- | ---------------------------------------- |
+| `.sectionPadded`       | `60px 67px`                                                   | `40px 16px`                              |
+| `.sectionPaddedBottom` | `0 67px 60px`                                                 | `0 0 40px`                               |
+| `.sectionTitleWrap`    | `margin-bottom: 32px`                                         | `padding: 0 16px`, `margin-bottom: 20px` |
+| Titel                  | `var(--font-size-800)`, `font-weight-500`, `neutral-grey-600` | idem                                     |
 
 ### Netzwerk-Ovals
 
-| Eigenschaft | Desktop | Mobile |
-|---|---|---|
-| Grösse | 255×381px | 120×179px |
-| Border-radius | 166px | 78px |
-| Gap | 32px | idem |
+| Eigenschaft   | Desktop   | Mobile    |
+| ------------- | --------- | --------- |
+| Grösse        | 255×381px | 120×179px |
+| Border-radius | 166px     | 78px      |
+| Gap           | 32px      | idem      |
 
 ---
 
@@ -1950,65 +2021,65 @@ Landing-Page des Suchmodus. Vollbild-Hero mit Filter-Bar, Kategorie-Grid (Gender
 
 ### Header
 
-| Eigenschaft | Wert |
-|---|---|
-| Höhe | 70px |
-| Position | sticky, top: 0, z-index: 40 |
-| Shadow | `0px 1px 10px rgba(0,0,0,0.12)` |
-| Padding | `0 16px` |
-| Close-Button | 46×46px |
+| Eigenschaft  | Wert                            |
+| ------------ | ------------------------------- |
+| Höhe         | 70px                            |
+| Position     | sticky, top: 0, z-index: 40     |
+| Shadow       | `0px 1px 10px rgba(0,0,0,0.12)` |
+| Padding      | `0 16px`                        |
+| Close-Button | 46×46px                         |
 
 ### Sektion-Badge
 
-| Eigenschaft | Wert |
-|---|---|
-| Background | `var(--neutral-black)` |
-| Border-radius | 49px |
-| Padding | `3px 15px` |
-| Font | `var(--font-size-300)`, `font-weight-400`, `neutral-white` |
+| Eigenschaft   | Wert                                                       |
+| ------------- | ---------------------------------------------------------- |
+| Background    | `var(--neutral-black)`                                     |
+| Border-radius | 49px                                                       |
+| Padding       | `3px 15px`                                                 |
+| Font          | `var(--font-size-300)`, `font-weight-400`, `neutral-white` |
 
 ### Gender-Kacheln
 
-| Eigenschaft | Wert |
-|---|---|
-| Grid | `1fr 1fr`, `gap: 12px` |
-| Höhe | 93px |
-| Border | `1px solid secondary-700` |
-| Border-radius | `var(--radius-sm)` |
-| Selected | `background: secondary-500`, `border-color: secondary-800` |
+| Eigenschaft   | Wert                                                       |
+| ------------- | ---------------------------------------------------------- |
+| Grid          | `1fr 1fr`, `gap: 12px`                                     |
+| Höhe          | 93px                                                       |
+| Border        | `1px solid secondary-700`                                  |
+| Border-radius | `var(--radius-sm)`                                         |
+| Selected      | `background: secondary-500`, `border-color: secondary-800` |
 
 ### Chips
 
-| Eigenschaft | Wert |
-|---|---|
-| Höhe | 36px |
-| Padding | `0 16px` |
-| Border | `1px solid secondary-700` |
-| Border-radius | `var(--radius-full)` |
-| Font | `var(--font-size-200)`, `font-weight-500`, `secondary-700` |
-| Selected | `background: secondary-800`, `color: neutral-white` |
+| Eigenschaft   | Wert                                                       |
+| ------------- | ---------------------------------------------------------- |
+| Höhe          | 36px                                                       |
+| Padding       | `0 16px`                                                   |
+| Border        | `1px solid secondary-700`                                  |
+| Border-radius | `var(--radius-full)`                                       |
+| Font          | `var(--font-size-200)`, `font-weight-500`, `secondary-700` |
+| Selected      | `background: secondary-800`, `color: neutral-white`        |
 
 ### Sticky Footer (Filter-Buttons)
 
-| Eigenschaft | Wert |
-|---|---|
-| Position | `fixed`, `bottom: 0`, `left/right: 0` |
-| Padding | `12px 16px 28px` |
-| Shadow | `0px -2px 12px rgba(0,0,0,0.10)` |
-| Zurücksetzen | `btn-secondary` |
-| Filter anwenden | `btn-primary`, `flex: 1` |
+| Eigenschaft     | Wert                                  |
+| --------------- | ------------------------------------- |
+| Position        | `fixed`, `bottom: 0`, `left/right: 0` |
+| Padding         | `12px 16px 28px`                      |
+| Shadow          | `0px -2px 12px rgba(0,0,0,0.10)`      |
+| Zurücksetzen    | `btn-secondary`                       |
+| Filter anwenden | `btn-primary`, `flex: 1`              |
 
 ### Filter-Sektionen
 
-| Sektion | Inhalt |
-|---|---|
-| Kategorie | Gender-Kacheln (2-spaltig) + Bekleidungsart-Chips + Suchfeld |
-| Sparte | Chips |
-| Aufführung | 4× Suchfeld (Epoche, Stücktitel, Darsteller, Rolle) |
-| Regie & Assistenz | 3× Suchfeld |
-| Konfektionsgrösse | International (XS–XXL) + EU (32–54 S) als Chips |
-| Material | Suchfeld + Chips + Muster-Grid (3-spaltig, 80px hoch) |
-| Farbe | Color Swatches 36×36px, border-radius 50%, selected: scale(1.15) |
+| Sektion           | Inhalt                                                           |
+| ----------------- | ---------------------------------------------------------------- |
+| Kategorie         | Gender-Kacheln (2-spaltig) + Bekleidungsart-Chips + Suchfeld     |
+| Sparte            | Chips                                                            |
+| Aufführung        | 4× Suchfeld (Epoche, Stücktitel, Darsteller, Rolle)              |
+| Regie & Assistenz | 3× Suchfeld                                                      |
+| Konfektionsgrösse | International (XS–XXL) + EU (32–54 S) als Chips                  |
+| Material          | Suchfeld + Chips + Muster-Grid (3-spaltig, 80px hoch)            |
+| Farbe             | Color Swatches 36×36px, border-radius 50%, selected: scale(1.15) |
 
 ---
 
@@ -2034,30 +2105,30 @@ Landing-Page des Suchmodus. Vollbild-Hero mit Filter-Bar, Kategorie-Grid (Gender
 
 ### Header
 
-| Eigenschaft | Wert |
-|---|---|
-| Position | sticky, top: 0, z-index: 50 |
-| Shadow | `0px 1px 10px rgba(0,0,0,0.10)` |
-| Header-Top-Höhe | 64px |
-| Zurück-Button | 40×40px |
-| Titel | `var(--font-size-500)`, `font-weight-500`, ellipsis |
-| Anzahl | `var(--font-size-200)`, `font-weight-400`, `neutral-grey-400` |
-| View-Toggle Buttons | 34×34px, `border-radius: 6px`, active: `background: rgba(0,0,0,0.08)` |
-| Filter-Button | `height: 34px`, `padding: 0 12px`, `border-radius: 8px`, `border: 1px solid rgba(0,0,0,0.20)`, `var(--font-size-150)`, `font-weight-500` |
+| Eigenschaft         | Wert                                                                                                                                     |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Position            | sticky, top: 0, z-index: 50                                                                                                              |
+| Shadow              | `0px 1px 10px rgba(0,0,0,0.10)`                                                                                                          |
+| Header-Top-Höhe     | 64px                                                                                                                                     |
+| Zurück-Button       | 40×40px                                                                                                                                  |
+| Titel               | `var(--font-size-500)`, `font-weight-500`, ellipsis                                                                                      |
+| Anzahl              | `var(--font-size-200)`, `font-weight-400`, `neutral-grey-400`                                                                            |
+| View-Toggle Buttons | 34×34px, `border-radius: 6px`, active: `background: rgba(0,0,0,0.08)`                                                                    |
+| Filter-Button       | `height: 34px`, `padding: 0 12px`, `border-radius: 8px`, `border: 1px solid rgba(0,0,0,0.20)`, `var(--font-size-150)`, `font-weight-500` |
 
 ### Kostüm-Karte (Grid-Ansicht)
 
-| Eigenschaft | Wert |
-|---|---|
-| Grid | `1fr 1fr`, `gap: 13px`, `padding: 16px` |
-| Border-radius | `var(--radius-sm)` |
-| Bild | `aspect-ratio: 0.688`, `object-fit: cover` |
-| Bookmark-Button | 40×40px Kreis, `box-shadow: 0px 2px 6px rgba(0,0,0,0.15)` |
-| Kategorie | `var(--font-size-100)`, uppercase, `letter-spacing: 0.02em`, `neutral-grey-400` |
-| Name | `var(--font-size-300)`, `font-weight-500`, `neutral-black`, 2-zeilig clamp |
-| Aufführung | `var(--font-size-200)`, `font-weight-400`, `neutral-grey-400` |
-| Theater | `var(--font-size-75)`, `font-weight-500`, `neutral-grey-400`, ellipsis |
-| Verfügbar-Dot | 16×16px, `accent-01` oder outline `neutral-grey-400` |
+| Eigenschaft     | Wert                                                                            |
+| --------------- | ------------------------------------------------------------------------------- |
+| Grid            | `1fr 1fr`, `gap: 13px`, `padding: 16px`                                         |
+| Border-radius   | `var(--radius-sm)`                                                              |
+| Bild            | `aspect-ratio: 0.688`, `object-fit: cover`                                      |
+| Bookmark-Button | 40×40px Kreis, `box-shadow: 0px 2px 6px rgba(0,0,0,0.15)`                       |
+| Kategorie       | `var(--font-size-100)`, uppercase, `letter-spacing: 0.02em`, `neutral-grey-400` |
+| Name            | `var(--font-size-300)`, `font-weight-500`, `neutral-black`, 2-zeilig clamp      |
+| Aufführung      | `var(--font-size-200)`, `font-weight-400`, `neutral-grey-400`                   |
+| Theater         | `var(--font-size-75)`, `font-weight-500`, `neutral-grey-400`, ellipsis          |
+| Verfügbar-Dot   | 16×16px, `accent-01` oder outline `neutral-grey-400`                            |
 
 ---
 
@@ -2091,50 +2162,50 @@ Landing-Page des Suchmodus. Vollbild-Hero mit Filter-Bar, Kategorie-Grid (Gender
 
 ### Breadcrumb-Bar
 
-| Eigenschaft | Wert |
-|---|---|
-| Höhe | 52px |
-| Position | sticky, top: 0, z-index: 40 |
-| Shadow | `0px 1px 6px rgba(0,0,0,0.08)` |
-| Font | `var(--font-size-100)`, `font-weight-400` |
+| Eigenschaft | Wert                                      |
+| ----------- | ----------------------------------------- |
+| Höhe        | 52px                                      |
+| Position    | sticky, top: 0, z-index: 40               |
+| Shadow      | `0px 1px 6px rgba(0,0,0,0.08)`            |
+| Font        | `var(--font-size-100)`, `font-weight-400` |
 
 ### Bild-Bereich
 
-| Eigenschaft | Wert |
-|---|---|
-| Aspect-ratio | `340 / 372` |
-| Object-fit | cover |
-| Heart-Button | 40×40px, oben rechts, `box-shadow: 0px 2px 6px rgba(0,0,0,0.15)` |
-| Pagination Dots | 11×11px, border-radius 50%, aktiv: `neutral-black` fill |
+| Eigenschaft     | Wert                                                             |
+| --------------- | ---------------------------------------------------------------- |
+| Aspect-ratio    | `340 / 372`                                                      |
+| Object-fit      | cover                                                            |
+| Heart-Button    | 40×40px, oben rechts, `box-shadow: 0px 2px 6px rgba(0,0,0,0.15)` |
+| Pagination Dots | 11×11px, border-radius 50%, aktiv: `neutral-black` fill          |
 
 ### Info-Bereich
 
-| Element | Font |
-|---|---|
-| Bekleidungstyp | `var(--font-size-200)`, `font-weight-400`, `neutral-grey-600` |
-| Titel | `var(--font-size-700)`, `font-weight-500`, `neutral-black`, `line-height: 140%` |
-| Meta-Labels | `var(--font-size-200)`, `font-weight-400` |
-| Verfügbarkeit | `var(--font-size-150)`, `font-weight-500`, `neutral-grey-600` |
+| Element        | Font                                                                            |
+| -------------- | ------------------------------------------------------------------------------- |
+| Bekleidungstyp | `var(--font-size-200)`, `font-weight-400`, `neutral-grey-600`                   |
+| Titel          | `var(--font-size-700)`, `font-weight-500`, `neutral-black`, `line-height: 140%` |
+| Meta-Labels    | `var(--font-size-200)`, `font-weight-400`                                       |
+| Verfügbarkeit  | `var(--font-size-150)`, `font-weight-500`, `neutral-grey-600`                   |
 
 ### Accordion (Spezifikationen)
 
-| Eigenschaft | Wert |
-|---|---|
-| Titel-Label | `var(--font-size-600)`, `font-weight-500`, `neutral-grey-600` |
-| Accordion-Titel | `var(--font-size-350)`, `font-weight-700` |
-| Trennlinie | `1px solid neutral-black` |
-| Chevron-Animation | `rotate(180deg)` wenn open, `transition: 200ms ease` |
-| Feld-Label | `var(--font-size-300)`, `font-weight-700`, `neutral-black` |
-| Feld-Wert | `var(--font-size-300)`, `font-weight-400`, `neutral-grey-600` |
+| Eigenschaft       | Wert                                                          |
+| ----------------- | ------------------------------------------------------------- |
+| Titel-Label       | `var(--font-size-600)`, `font-weight-500`, `neutral-grey-600` |
+| Accordion-Titel   | `var(--font-size-350)`, `font-weight-700`                     |
+| Trennlinie        | `1px solid neutral-black`                                     |
+| Chevron-Animation | `rotate(180deg)` wenn open, `transition: 200ms ease`          |
+| Feld-Label        | `var(--font-size-300)`, `font-weight-700`, `neutral-black`    |
+| Feld-Wert         | `var(--font-size-300)`, `font-weight-400`, `neutral-grey-600` |
 
 ### Ähnliche Kostüme
 
-| Eigenschaft | Wert |
-|---|---|
-| Layout | horizontal scroll, `scroll-snap-type: x mandatory`, no scrollbar |
-| Karte-Breite | 155px |
-| Bild | 155×195px, `var(--radius-xs)` |
-| Heart-Button | `background: rgba(255,255,255,0.60)`, 40×40px |
+| Eigenschaft  | Wert                                                             |
+| ------------ | ---------------------------------------------------------------- |
+| Layout       | horizontal scroll, `scroll-snap-type: x mandatory`, no scrollbar |
+| Karte-Breite | 155px                                                            |
+| Bild         | 155×195px, `var(--radius-xs)`                                    |
+| Heart-Button | `background: rgba(255,255,255,0.60)`, 40×40px                    |
 
 ---
 
@@ -2159,27 +2230,27 @@ Landing-Page des Suchmodus. Vollbild-Hero mit Filter-Bar, Kategorie-Grid (Gender
 
 ### Such-Input
 
-| Eigenschaft | Wert |
-|---|---|
-| Höhe | 60px |
-| Border | `1px solid neutral-black` |
-| Border-radius | `var(--radius-full)` |
-| Padding | `0 16px`, `gap: 10px` |
-| Font | `var(--font-size-300)`, `font-weight-400` |
-| Placeholder | `neutral-grey-500` |
-| Clear-Button | 20×20px Kreis, `border: 1px solid neutral-grey-600` |
-| Cancel-Link | `var(--font-size-200)`, underline, `flex-shrink: 0` |
+| Eigenschaft   | Wert                                                |
+| ------------- | --------------------------------------------------- |
+| Höhe          | 60px                                                |
+| Border        | `1px solid neutral-black`                           |
+| Border-radius | `var(--radius-full)`                                |
+| Padding       | `0 16px`, `gap: 10px`                               |
+| Font          | `var(--font-size-300)`, `font-weight-400`           |
+| Placeholder   | `neutral-grey-500`                                  |
+| Clear-Button  | 20×20px Kreis, `border: 1px solid neutral-grey-600` |
+| Cancel-Link   | `var(--font-size-200)`, underline, `flex-shrink: 0` |
 
 ### Ergebnis-Liste
 
-| Eigenschaft | Wert |
-|---|---|
-| Item-Höhe | min-height: 91px |
-| Thumbnail | 75×75px, `border-radius: 4px` |
-| Gap | 14px |
-| Trennlinie | `1px solid neutral-grey-100` |
-| Name | `var(--font-size-300)`, `font-weight-700`, `neutral-black` |
-| Untertitel | `var(--font-size-300)`, `font-weight-400`, `neutral-black` |
+| Eigenschaft | Wert                                                       |
+| ----------- | ---------------------------------------------------------- |
+| Item-Höhe   | min-height: 91px                                           |
+| Thumbnail   | 75×75px, `border-radius: 4px`                              |
+| Gap         | 14px                                                       |
+| Trennlinie  | `1px solid neutral-grey-100`                               |
+| Name        | `var(--font-size-300)`, `font-weight-700`, `neutral-black` |
+| Untertitel  | `var(--font-size-300)`, `font-weight-400`, `neutral-black` |
 
 ---
 
@@ -2189,51 +2260,51 @@ Landing-Page des Suchmodus. Vollbild-Hero mit Filter-Bar, Kategorie-Grid (Gender
 
 ### Trigger
 
-| Eigenschaft | Wert |
-|---|---|
-| Sichtbarkeit | `display: none` (Desktop), `display: flex` (Mobile) |
-| Grösse | 8px Padding, kein Border/Background |
-| Icon | BurgerIcon SVG (24×24px), `fill: currentColor`, `neutral-black` |
+| Eigenschaft  | Wert                                                            |
+| ------------ | --------------------------------------------------------------- |
+| Sichtbarkeit | `display: none` (Desktop), `display: flex` (Mobile)             |
+| Grösse       | 8px Padding, kein Border/Background                             |
+| Icon         | BurgerIcon SVG (24×24px), `fill: currentColor`, `neutral-black` |
 
 ### Overlay (Level 1)
 
-| Eigenschaft | Wert |
-|---|---|
-| Position | `fixed`, `inset: 0`, `z-index: 3000` |
-| Background | `var(--neutral-grey-600)` |
-| Close-Button | 46×46px, oben rechts (`top: 7px, right: 7px`) |
-| Content-Padding | `56px 32px 0` |
+| Eigenschaft     | Wert                                          |
+| --------------- | --------------------------------------------- |
+| Position        | `fixed`, `inset: 0`, `z-index: 3000`          |
+| Background      | `var(--neutral-grey-600)`                     |
+| Close-Button    | 46×46px, oben rechts (`top: 7px, right: 7px`) |
+| Content-Padding | `56px 32px 0`                                 |
 
 ### Navigation Items
 
-| Eigenschaft | Wert |
-|---|---|
+| Eigenschaft   | Wert                                                          |
+| ------------- | ------------------------------------------------------------- |
 | Sektion-Label | `var(--font-size-350)`, `font-weight-700`, `neutral-grey-400` |
-| Nav-Item-Höhe | 58px |
-| Nav-Label | `var(--font-size-400)`, `font-weight-400`, `neutral-white` |
-| Trennlinie | `1px solid rgba(255,255,255,0.2)` |
+| Nav-Item-Höhe | 58px                                                          |
+| Nav-Label     | `var(--font-size-400)`, `font-weight-400`, `neutral-white`    |
+| Trennlinie    | `1px solid rgba(255,255,255,0.2)`                             |
 
 ### Level 2 (Bekleidungsart)
 
 Öffnet sich bei Klick auf eine Kategorie (z.B. "Herren"). Gleiche Optik, mit Zurück-Link:
 
-| Eigenschaft | Wert |
-|---|---|
-| Zurück-Label | `var(--font-size-100)`, `font-weight-400`, `neutral-grey-300`, underline |
-| Level-2-Titel | `var(--font-size-350)`, `font-weight-700`, `neutral-grey-400` |
-| Inhalte | DB-gefilterte Bekleidungsarten |
+| Eigenschaft   | Wert                                                                     |
+| ------------- | ------------------------------------------------------------------------ |
+| Zurück-Label  | `var(--font-size-100)`, `font-weight-400`, `neutral-grey-300`, underline |
+| Level-2-Titel | `var(--font-size-350)`, `font-weight-700`, `neutral-grey-400`            |
+| Inhalte       | DB-gefilterte Bekleidungsarten                                           |
 
 ### Profil-Footer
 
-| Eigenschaft | Wert |
-|---|---|
-| Höhe | 95px |
-| Padding | `0 32px` |
-| Background | `neutral-grey-600` |
-| Shadow | `0px -3px 10px rgba(0,0,0,0.25)` |
-| Border-radius | `8px 8px 0 0` |
-| Avatar | 60×60px Kreis, `secondary-700` |
-| Name | `var(--font-size-350)`, `font-weight-500`, `neutral-white` |
+| Eigenschaft   | Wert                                                       |
+| ------------- | ---------------------------------------------------------- |
+| Höhe          | 95px                                                       |
+| Padding       | `0 32px`                                                   |
+| Background    | `neutral-grey-600`                                         |
+| Shadow        | `0px -3px 10px rgba(0,0,0,0.25)`                           |
+| Border-radius | `8px 8px 0 0`                                              |
+| Avatar        | 60×60px Kreis, `secondary-700`                             |
+| Name          | `var(--font-size-350)`, `font-weight-500`, `neutral-white` |
 
 ---
 
@@ -2245,50 +2316,50 @@ Landing-Page des Suchmodus. Vollbild-Hero mit Filter-Bar, Kategorie-Grid (Gender
 
 ### Trigger-Button
 
-| Eigenschaft | Wert |
-|---|---|
-| Grösse | 60×60px |
-| Border | `1px solid var(--primary-900)` |
-| Border-radius | `var(--radius-full)` |
-| Background | `neutral-white` |
+| Eigenschaft   | Wert                           |
+| ------------- | ------------------------------ |
+| Grösse        | 60×60px                        |
+| Border        | `1px solid var(--primary-900)` |
+| Border-radius | `var(--radius-full)`           |
+| Background    | `neutral-white`                |
 
 ### Backdrop
 
-| Eigenschaft | Wert |
-|---|---|
-| Position | `fixed`, `inset: 0`, `z-index: 2000` |
-| Background | `rgba(36, 39, 39, 0.80)` |
+| Eigenschaft | Wert                                 |
+| ----------- | ------------------------------------ |
+| Position    | `fixed`, `inset: 0`, `z-index: 2000` |
+| Background  | `rgba(36, 39, 39, 0.80)`             |
 
 ### Sheet
 
-| Eigenschaft | Wert |
-|---|---|
-| Position | `fixed`, `bottom: 0`, `left/right: 0`, `z-index: 2001` |
-| Border-radius | `var(--radius-card) var(--radius-card) 0 0` |
-| Shadow | `0px -2px 20px rgba(0,0,0,0.2)` |
-| Padding | `28px 16px 40px` |
+| Eigenschaft   | Wert                                                   |
+| ------------- | ------------------------------------------------------ |
+| Position      | `fixed`, `bottom: 0`, `left/right: 0`, `z-index: 2001` |
+| Border-radius | `var(--radius-card) var(--radius-card) 0 0`            |
+| Shadow        | `0px -2px 20px rgba(0,0,0,0.2)`                        |
+| Padding       | `28px 16px 40px`                                       |
 
 ### Theater-Zeilen
 
-| Eigenschaft | Wert |
-|---|---|
-| Höhe | 64px |
-| Padding | `0 16px` |
-| Border-radius | `var(--radius-sm)` |
-| Default | `border: 1px solid neutral-grey-600` |
-| Selected | `background: secondary-500`, `border-color: secondary-700` |
-| Theater-Name | `var(--font-size-350)`, `font-weight-700` |
-| Checkbox | 22×22px, `border: 2px solid secondary-800`, `var(--radius-xs)`, filled wenn selected |
+| Eigenschaft   | Wert                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------ |
+| Höhe          | 64px                                                                                 |
+| Padding       | `0 16px`                                                                             |
+| Border-radius | `var(--radius-sm)`                                                                   |
+| Default       | `border: 1px solid neutral-grey-600`                                                 |
+| Selected      | `background: secondary-500`, `border-color: secondary-700`                           |
+| Theater-Name  | `var(--font-size-350)`, `font-weight-700`                                            |
+| Checkbox      | 22×22px, `border: 2px solid secondary-800`, `var(--radius-xs)`, filled wenn selected |
 
 ### Toggle (Alle Standorte)
 
-| Eigenschaft | Wert |
-|---|---|
-| Schalter | 50×28px, `border-radius: var(--radius-full)` |
-| Off | `background: secondary-500` |
-| On | `background: secondary-800` |
-| Thumb | 22×22px, weiss, `left: 3px` → `calc(100% - 25px)` |
-| Animation | `transition: background/left 150ms ease` |
+| Eigenschaft | Wert                                              |
+| ----------- | ------------------------------------------------- |
+| Schalter    | 50×28px, `border-radius: var(--radius-full)`      |
+| Off         | `background: secondary-500`                       |
+| On          | `background: secondary-800`                       |
+| Thumb       | 22×22px, weiss, `left: 3px` → `calc(100% - 25px)` |
+| Animation   | `transition: background/left 150ms ease`          |
 
 ### Save-Button
 
@@ -2304,23 +2375,23 @@ Landing-Page des Suchmodus. Vollbild-Hero mit Filter-Bar, Kategorie-Grid (Gender
 
 ### Unterschiede zu Modul 20
 
-| Eigenschaft | Cockpit (22) | Suchmodus (20) |
-|---|---|---|
-| Burger-Button sichtbar | immer (`display: flex`) | nur Mobile (`display: none` Desktop) |
-| Nav-Item-Trennlinie | `rgba(255,255,255,0.12)` | `rgba(255,255,255,0.2)` |
-| Divider-Margin | `20px 0 16px` | `16px 0` |
-| Avatar Grösse | 50×50px | 60×60px |
-| Profil-Label Font | `var(--font-size-300)` | `var(--font-size-350)` |
-| Logout-Button | vorhanden (`var(--font-size-200)`, underline, `neutral-grey-400`) | kein Logout |
+| Eigenschaft            | Cockpit (22)                                                      | Suchmodus (20)                       |
+| ---------------------- | ----------------------------------------------------------------- | ------------------------------------ |
+| Burger-Button sichtbar | immer (`display: flex`)                                           | nur Mobile (`display: none` Desktop) |
+| Nav-Item-Trennlinie    | `rgba(255,255,255,0.12)`                                          | `rgba(255,255,255,0.2)`              |
+| Divider-Margin         | `20px 0 16px`                                                     | `16px 0`                             |
+| Avatar Grösse          | 50×50px                                                           | 60×60px                              |
+| Profil-Label Font      | `var(--font-size-300)`                                            | `var(--font-size-350)`               |
+| Logout-Button          | vorhanden (`var(--font-size-200)`, underline, `neutral-grey-400`) | kein Logout                          |
 
 ### Overlay & Content
 
 Identisch mit Modul 20:
+
 - Position: `fixed`, `inset: 0`, `z-index: 3000`, `background: neutral-grey-600`
 - Content-Padding: `56px 32px 0`
 - Close-Button: 46×46px, `top: 7px right: 7px`
 
 ---
 
-*Stand: Alle Module dokumentiert (Suchmodus vollständig) — kostüm+ / costumanu*
-
+_Stand: Alle Module dokumentiert (Suchmodus vollständig) — kostüm+ / costumanu_

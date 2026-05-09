@@ -65,7 +65,9 @@ function WebScanner({ onDetected, onClose }: BarcodeScannerProps) {
           }
         );
       } catch (e: unknown) {
-        setError("Kamera konnte nicht gestartet werden: " + (e instanceof Error ? e.message : String(e)));
+        setError(
+          "Kamera konnte nicht gestartet werden: " + (e instanceof Error ? e.message : String(e))
+        );
       }
     }
 
@@ -76,34 +78,63 @@ function WebScanner({ onDetected, onClose }: BarcodeScannerProps) {
       controls?.stop();
       // Release camera stream so browser tab indicator disappears
       if (video?.srcObject) {
-        (video.srcObject as MediaStream).getTracks().forEach(t => t.stop());
+        (video.srcObject as MediaStream).getTracks().forEach((t) => t.stop());
         video.srcObject = null;
       }
     };
   }, [onDetected]);
 
   return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 1000,
-      background: "rgba(0,0,0,0.92)",
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-    }}>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 1000,
+        background: "rgba(0,0,0,0.92)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       {/* Close button */}
       <button
         onClick={onClose}
         style={{
-          position: "absolute", top: 20, right: 20,
-          background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%",
-          width: 44, height: 44, cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center",
+          position: "absolute",
+          top: 20,
+          right: 20,
+          background: "rgba(255,255,255,0.15)",
+          border: "none",
+          borderRadius: "50%",
+          width: 44,
+          height: 44,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/icons/icon-close-small.svg" alt="Schliessen" width={20} height={20} style={{ filter: "invert(1)" }} />
+        <img
+          src="/icons/icon-close-small.svg"
+          alt="Schliessen"
+          width={20}
+          height={20}
+          style={{ filter: "invert(1)" }}
+        />
       </button>
 
       {error ? (
-        <p style={{ color: "var(--color-error)", fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-300)", textAlign: "center", padding: "0 32px" }}>
+        <p
+          style={{
+            color: "var(--color-error)",
+            fontFamily: "var(--font-family-base)",
+            fontSize: "var(--font-size-300)",
+            textAlign: "center",
+            padding: "0 32px",
+          }}
+        >
           {error}
         </p>
       ) : (
@@ -115,18 +146,26 @@ function WebScanner({ onDetected, onClose }: BarcodeScannerProps) {
               style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 16 }}
             />
             {/* Scan frame overlay */}
-            <div style={{
-              position: "absolute", inset: 0,
-              border: "3px solid var(--primary-900)",
-              borderRadius: 16,
-              boxShadow: `0 0 0 9999px var(--overlay-scrim)`,
-            }} />
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                border: "3px solid var(--primary-900)",
+                borderRadius: 16,
+                boxShadow: `0 0 0 9999px var(--overlay-scrim)`,
+              }}
+            />
           </div>
 
-          <p style={{
-            marginTop: 24, color: "rgba(255,255,255,0.7)",
-            fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-250)", textAlign: "center",
-          }}>
+          <p
+            style={{
+              marginTop: 24,
+              color: "rgba(255,255,255,0.7)",
+              fontFamily: "var(--font-family-base)",
+              fontSize: "var(--font-size-250)",
+              textAlign: "center",
+            }}
+          >
             {hint}
           </p>
         </>
@@ -162,14 +201,28 @@ export function BarcodeScanner({ onDetected, onClose }: BarcodeScannerProps) {
             onClose();
           }}
           style={{
-            position: "absolute", top: 20, right: 20,
-            background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%",
-            width: 44, height: 44, cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
+            position: "absolute",
+            top: 20,
+            right: 20,
+            background: "rgba(255,255,255,0.15)",
+            border: "none",
+            borderRadius: "50%",
+            width: 44,
+            height: 44,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icons/icon-close-small.svg" alt="Schliessen" width={20} height={20} style={{ filter: "invert(1)" }} />
+          <img
+            src="/icons/icon-close-small.svg"
+            alt="Schliessen"
+            width={20}
+            height={20}
+            style={{ filter: "invert(1)" }}
+          />
         </button>
       </div>
     );

@@ -6,7 +6,6 @@
   flex-direction: column;
 }
 
-
 /* ─── Filter bar — same style as cockpit hero filter bar ─────────────────── */
 .filterBar {
   display: flex;
@@ -67,7 +66,9 @@
   border-radius: var(--radius-xs);
   transition: opacity 120ms ease;
 }
-.backBtn:hover { opacity: 0.6; }
+.backBtn:hover {
+  opacity: 0.6;
+}
 
 .pageTitle {
   font-family: var(--font-family-base);
@@ -176,7 +177,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #34C759;
+  background: #34c759;
   border-radius: var(--radius-full);
   padding: 0 20px 0 8px;
   height: 52px;
@@ -199,7 +200,9 @@
   box-shadow: var(--shadow-100);
   transition: opacity 120ms ease;
 }
-.moveBtn:hover { opacity: 0.8; }
+.moveBtn:hover {
+  opacity: 0.8;
+}
 
 .toastIcon {
   width: 36px;
@@ -224,8 +227,14 @@
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ─── Card info ──────────────────────────────────────────────────────────── */

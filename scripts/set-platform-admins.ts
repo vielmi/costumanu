@@ -13,15 +13,30 @@ const sb = createClient(
 const EMAILS = ["rebecca.rotondari@gmail.com", "heidiikaufmann@gmail.com"];
 
 async function main() {
-  const { data: { users }, error } = await sb.auth.admin.listUsers();
-  if (error) { console.error("Fehler:", error.message); return; }
+  const {
+    data: { users },
+    error,
+  } = await sb.auth.admin.listUsers();
+  if (error) {
+    console.error("Fehler:", error.message);
+    return;
+  }
 
   for (const email of EMAILS) {
     const user = users.find((u) => u.email === email);
-    if (!user) { console.log(`Nicht gefunden: ${email}`); continue; }
-    const { error: updateErr } = await sb.from("profiles").update({ platform_role: "platform_admin" }).eq("id", user.id);
-    if (updateErr) { console.error(`Fehler ${email}: ${updateErr.message}`); }
-    else { console.log(`✓ ${email}`); }
+    if (!user) {
+      console.log(`Nicht gefunden: ${email}`);
+      continue;
+    }
+    const { error: updateErr } = await sb
+      .from("profiles")
+      .update({ platform_role: "platform_admin" })
+      .eq("id", user.id);
+    if (updateErr) {
+      console.error(`Fehler ${email}: ${updateErr.message}`);
+    } else {
+      console.log(`✓ ${email}`);
+    }
   }
 }
 

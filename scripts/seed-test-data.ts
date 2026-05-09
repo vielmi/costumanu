@@ -8,7 +8,8 @@
 import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_ACCESS_TOKEN!;
+const SERVICE_ROLE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_ACCESS_TOKEN!;
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
@@ -26,9 +27,27 @@ async function main() {
   console.log("Creating theaters...");
   await supabase.from("theaters").upsert(
     [
-      { id: THEATER_1, name: "Bühne Bern", slug: "buehne-bern", address_info: { street: "Kornhausplatz 20", city: "Bern", zip: "3011" }, settings: { allow_external_sharing: true } },
-      { id: THEATER_2, name: "Schauspielhaus Zürich", slug: "schauspielhaus-zh", address_info: { street: "Rämistrasse 34", city: "Zürich", zip: "8001" }, settings: { allow_external_sharing: true } },
-      { id: THEATER_3, name: "Theater Basel", slug: "theater-basel", address_info: { street: "Theaterstrasse 7", city: "Basel", zip: "4051" }, settings: { allow_external_sharing: true } },
+      {
+        id: THEATER_1,
+        name: "Bühne Bern",
+        slug: "buehne-bern",
+        address_info: { street: "Kornhausplatz 20", city: "Bern", zip: "3011" },
+        settings: { allow_external_sharing: true },
+      },
+      {
+        id: THEATER_2,
+        name: "Schauspielhaus Zürich",
+        slug: "schauspielhaus-zh",
+        address_info: { street: "Rämistrasse 34", city: "Zürich", zip: "8001" },
+        settings: { allow_external_sharing: true },
+      },
+      {
+        id: THEATER_3,
+        name: "Theater Basel",
+        slug: "theater-basel",
+        address_info: { street: "Theaterstrasse 7", city: "Basel", zip: "4051" },
+        settings: { allow_external_sharing: true },
+      },
     ],
     { onConflict: "id" }
   );
@@ -94,63 +113,101 @@ async function main() {
   const costumes = [
     {
       id: "cc000000-0000-0000-0000-000000000001",
-      theater_id: THEATER_1, name: "Roter Ballkleid Traum",
-      description: "Bodenlanges Ballkleid aus roter Seide mit Schleppe und aufwendiger Perlenstickerei am Oberteil. Getragen in der Premiere von 'La Traviata' am Stadttheater Bern.",
-      gender_term_id: genderDamen, clothing_type_id: typeKleider, is_ensemble: false,
+      theater_id: THEATER_1,
+      name: "Roter Ballkleid Traum",
+      description:
+        "Bodenlanges Ballkleid aus roter Seide mit Schleppe und aufwendiger Perlenstickerei am Oberteil. Getragen in der Premiere von 'La Traviata' am Stadttheater Bern.",
+      gender_term_id: genderDamen,
+      clothing_type_id: typeKleider,
+      is_ensemble: false,
     },
     {
       id: "cc000000-0000-0000-0000-000000000002",
-      theater_id: THEATER_1, name: "Schwarzer Dreiteiler Barock",
-      description: "Eleganter Dreiteiler-Anzug im Barockstil mit Goldknöpfen und bestickter Weste. Samt-Stoff mit leichtem Schimmer.",
-      gender_term_id: genderHerren, clothing_type_id: typeAnzuege, is_ensemble: true,
+      theater_id: THEATER_1,
+      name: "Schwarzer Dreiteiler Barock",
+      description:
+        "Eleganter Dreiteiler-Anzug im Barockstil mit Goldknöpfen und bestickter Weste. Samt-Stoff mit leichtem Schimmer.",
+      gender_term_id: genderHerren,
+      clothing_type_id: typeAnzuege,
+      is_ensemble: true,
     },
     {
       id: "cc000000-0000-0000-0000-000000000003",
-      theater_id: THEATER_2, name: "Militäruniform 1. Weltkrieg",
-      description: "Originalgetreue Nachbildung einer Schweizer Militäruniform aus dem Ersten Weltkrieg. Feldgrauer Wollstoff, Messingknöpfe.",
-      gender_term_id: genderHerren, clothing_type_id: typeUniformen, is_ensemble: false,
+      theater_id: THEATER_2,
+      name: "Militäruniform 1. Weltkrieg",
+      description:
+        "Originalgetreue Nachbildung einer Schweizer Militäruniform aus dem Ersten Weltkrieg. Feldgrauer Wollstoff, Messingknöpfe.",
+      gender_term_id: genderHerren,
+      clothing_type_id: typeUniformen,
+      is_ensemble: false,
     },
     {
       id: "cc000000-0000-0000-0000-000000000004",
-      theater_id: THEATER_1, name: "Rokoko Reifrock",
-      description: "Opulenter Reifrock mit Blumenmuster und Spitzenbesatz. Perfekt für höfische Szenen. Umfangreiche Unterstruktur für authentische Silhouette.",
-      gender_term_id: genderDamen, clothing_type_id: typeKleider, is_ensemble: false,
+      theater_id: THEATER_1,
+      name: "Rokoko Reifrock",
+      description:
+        "Opulenter Reifrock mit Blumenmuster und Spitzenbesatz. Perfekt für höfische Szenen. Umfangreiche Unterstruktur für authentische Silhouette.",
+      gender_term_id: genderDamen,
+      clothing_type_id: typeKleider,
+      is_ensemble: false,
     },
     {
       id: "cc000000-0000-0000-0000-000000000005",
-      theater_id: THEATER_2, name: "Lederjacke Zeitgenössisch",
-      description: "Moderne schwarze Lederjacke im Used-Look. Ideal für zeitgenössische Inszenierungen.",
-      gender_term_id: genderUnisex, clothing_type_id: typeMaentel, is_ensemble: false,
+      theater_id: THEATER_2,
+      name: "Lederjacke Zeitgenössisch",
+      description:
+        "Moderne schwarze Lederjacke im Used-Look. Ideal für zeitgenössische Inszenierungen.",
+      gender_term_id: genderUnisex,
+      clothing_type_id: typeMaentel,
+      is_ensemble: false,
     },
     {
       id: "cc000000-0000-0000-0000-000000000006",
-      theater_id: THEATER_3, name: "Goldene Abendgarderobe",
-      description: "Goldschimmerndes Abendkleid mit Pailletten und tiefem Rückenausschnitt. Inspiriert von den Goldenen Zwanzigern.",
-      gender_term_id: genderDamen, clothing_type_id: typeKleider, is_ensemble: false,
+      theater_id: THEATER_3,
+      name: "Goldene Abendgarderobe",
+      description:
+        "Goldschimmerndes Abendkleid mit Pailletten und tiefem Rückenausschnitt. Inspiriert von den Goldenen Zwanzigern.",
+      gender_term_id: genderDamen,
+      clothing_type_id: typeKleider,
+      is_ensemble: false,
     },
     {
       id: "cc000000-0000-0000-0000-000000000007",
-      theater_id: THEATER_1, name: "Matrosenhose Vintage",
+      theater_id: THEATER_1,
+      name: "Matrosenhose Vintage",
       description: "Weite Matrosenhose aus schwerem Baumwollstoff. Hoher Bund mit Knopfleiste.",
-      gender_term_id: genderHerren, clothing_type_id: typeHosen, is_ensemble: false,
+      gender_term_id: genderHerren,
+      clothing_type_id: typeHosen,
+      is_ensemble: false,
     },
     {
       id: "cc000000-0000-0000-0000-000000000008",
-      theater_id: THEATER_3, name: "Kinderkostüm Kleiner Prinz",
-      description: "Komplettes Kostüm für 'Der Kleine Prinz': blauer Mantel mit Goldsternen, weisse Hose und roter Schal.",
-      gender_term_id: genderKinder, clothing_type_id: typeMaentel, is_ensemble: true,
+      theater_id: THEATER_3,
+      name: "Kinderkostüm Kleiner Prinz",
+      description:
+        "Komplettes Kostüm für 'Der Kleine Prinz': blauer Mantel mit Goldsternen, weisse Hose und roter Schal.",
+      gender_term_id: genderKinder,
+      clothing_type_id: typeMaentel,
+      is_ensemble: true,
     },
     {
       id: "cc000000-0000-0000-0000-000000000009",
-      theater_id: THEATER_2, name: "Zylinderhat Schwarz",
+      theater_id: THEATER_2,
+      name: "Zylinderhat Schwarz",
       description: "Klassischer schwarzer Zylinder aus Filz. Passend zu Frack oder Gehrock.",
-      gender_term_id: genderHerren, clothing_type_id: typeKopf, is_ensemble: false,
+      gender_term_id: genderHerren,
+      clothing_type_id: typeKopf,
+      is_ensemble: false,
     },
     {
       id: "cc000000-0000-0000-0000-000000000010",
-      theater_id: THEATER_1, name: "Weisses Hochzeitskleid Biedermeier",
-      description: "Aufwendig gearbeitetes Hochzeitskleid im Biedermeier-Stil mit Spitzenärmeln, hoher Taille und langer Schleppe.",
-      gender_term_id: genderDamen, clothing_type_id: typeKleider, is_ensemble: false,
+      theater_id: THEATER_1,
+      name: "Weisses Hochzeitskleid Biedermeier",
+      description:
+        "Aufwendig gearbeitetes Hochzeitskleid im Biedermeier-Stil mit Spitzenärmeln, hoher Taille und langer Schleppe.",
+      gender_term_id: genderDamen,
+      clothing_type_id: typeKleider,
+      is_ensemble: false,
     },
   ];
 
@@ -160,9 +217,29 @@ async function main() {
   console.log("Creating ensemble children...");
   await supabase.from("costumes").upsert(
     [
-      { id: "cc000000-0000-0000-0000-000000000011", theater_id: THEATER_1, name: "Barockjacke mit Goldknöpfen", gender_term_id: genderHerren, clothing_type_id: typeMaentel, parent_costume_id: "cc000000-0000-0000-0000-000000000002" },
-      { id: "cc000000-0000-0000-0000-000000000012", theater_id: THEATER_1, name: "Bestickte Weste Samt", gender_term_id: genderHerren, parent_costume_id: "cc000000-0000-0000-0000-000000000002" },
-      { id: "cc000000-0000-0000-0000-000000000013", theater_id: THEATER_1, name: "Kniehose Barock Schwarz", gender_term_id: genderHerren, clothing_type_id: typeHosen, parent_costume_id: "cc000000-0000-0000-0000-000000000002" },
+      {
+        id: "cc000000-0000-0000-0000-000000000011",
+        theater_id: THEATER_1,
+        name: "Barockjacke mit Goldknöpfen",
+        gender_term_id: genderHerren,
+        clothing_type_id: typeMaentel,
+        parent_costume_id: "cc000000-0000-0000-0000-000000000002",
+      },
+      {
+        id: "cc000000-0000-0000-0000-000000000012",
+        theater_id: THEATER_1,
+        name: "Bestickte Weste Samt",
+        gender_term_id: genderHerren,
+        parent_costume_id: "cc000000-0000-0000-0000-000000000002",
+      },
+      {
+        id: "cc000000-0000-0000-0000-000000000013",
+        theater_id: THEATER_1,
+        name: "Kniehose Barock Schwarz",
+        gender_term_id: genderHerren,
+        clothing_type_id: typeHosen,
+        parent_costume_id: "cc000000-0000-0000-0000-000000000002",
+      },
     ],
     { onConflict: "id" }
   );
@@ -175,9 +252,29 @@ async function main() {
     theater_id: c.theater_id,
     barcode_id: `KP-TEST${String(i + 1).padStart(4, "0")}`,
     size_label: ["S", "M", "L", "XL", "M", "S", "L", "128", "L", "S"][i],
-    size_data: i % 3 === 0 ? { chest: 88 + i * 2, waist: 72 + i * 2, hip: 94 + i * 2, back_length: 40 + i, shoulder_width: 38 + i } : null,
+    size_data:
+      i % 3 === 0
+        ? {
+            chest: 88 + i * 2,
+            waist: 72 + i * 2,
+            hip: 94 + i * 2,
+            back_length: 40 + i,
+            shoulder_width: 38 + i,
+          }
+        : null,
     condition_grade: [5, 4, 3, 5, 4, 5, 3, 4, 5, 4][i],
-    current_status: ["available", "available", "rented", "available", "available", "cleaning", "available", "available", "available", "available"][i] as string,
+    current_status: [
+      "available",
+      "available",
+      "rented",
+      "available",
+      "available",
+      "cleaning",
+      "available",
+      "available",
+      "available",
+      "available",
+    ][i] as string,
     storage_location_path: [
       "Bern.Stock1.Regal3.Box7",
       "Bern.Stock2.Regal1.Box2",
@@ -199,18 +296,108 @@ async function main() {
   console.log("Creating provenance records...");
   await supabase.from("costume_provenance").upsert(
     [
-      { id: "dd000000-0000-0000-0000-000000000001", costume_id: costumes[0].id, production_title: "La Traviata", year: 2024, actor_name: "Anna Meier", role_name: "Violetta", director_name: "Marco Rossi", costume_designer: "Lena Huber", costume_assistant: "Tim Bauer" },
-      { id: "dd000000-0000-0000-0000-000000000002", costume_id: costumes[1].id, production_title: "Don Giovanni", year: 2023, actor_name: "Peter Müller", role_name: "Don Giovanni", director_name: "Sarah Koch", costume_designer: "Julia Meier" },
-      { id: "dd000000-0000-0000-0000-000000000003", costume_id: costumes[2].id, production_title: "Hauptmann von Köpenick", year: 2022, role_name: "Hauptmann Voigt", director_name: "Thomas Lutz", costume_designer: "Eva Steiner" },
-      { id: "dd000000-0000-0000-0000-000000000004", costume_id: costumes[3].id, production_title: "Marie Antoinette", year: 2024, actor_name: "Sophie Bauer", role_name: "Marie Antoinette", costume_designer: "Lena Huber" },
-      { id: "dd000000-0000-0000-0000-000000000005", costume_id: costumes[4].id, production_title: "Trainspotting", year: 2025, role_name: "Renton", director_name: "Alex Grün" },
-      { id: "dd000000-0000-0000-0000-000000000006", costume_id: costumes[5].id, production_title: "Cabaret", year: 2023, actor_name: "Maria Zimmermann", role_name: "Sally Bowles", director_name: "Fritz Weber", costume_designer: "Nina Kraft" },
-      { id: "dd000000-0000-0000-0000-000000000007", costume_id: costumes[6].id, production_title: "Woyzeck", year: 2024, role_name: "Woyzeck", director_name: "Claudia Frey" },
-      { id: "dd000000-0000-0000-0000-000000000008", costume_id: costumes[7].id, production_title: "Der Kleine Prinz", year: 2025, actor_name: "Liam Fischer", role_name: "Der Kleine Prinz", costume_designer: "Sabine Keller" },
-      { id: "dd000000-0000-0000-0000-000000000009", costume_id: costumes[8].id, production_title: "A Christmas Carol", year: 2023, role_name: "Ebenezer Scrooge", director_name: "Hans Moser" },
-      { id: "dd000000-0000-0000-0000-000000000010", costume_id: costumes[9].id, production_title: "Faust", year: 2024, actor_name: "Elena Richter", role_name: "Gretchen", director_name: "Karl Brunner", costume_designer: "Lena Huber" },
+      {
+        id: "dd000000-0000-0000-0000-000000000001",
+        costume_id: costumes[0].id,
+        production_title: "La Traviata",
+        year: 2024,
+        actor_name: "Anna Meier",
+        role_name: "Violetta",
+        director_name: "Marco Rossi",
+        costume_designer: "Lena Huber",
+        costume_assistant: "Tim Bauer",
+      },
+      {
+        id: "dd000000-0000-0000-0000-000000000002",
+        costume_id: costumes[1].id,
+        production_title: "Don Giovanni",
+        year: 2023,
+        actor_name: "Peter Müller",
+        role_name: "Don Giovanni",
+        director_name: "Sarah Koch",
+        costume_designer: "Julia Meier",
+      },
+      {
+        id: "dd000000-0000-0000-0000-000000000003",
+        costume_id: costumes[2].id,
+        production_title: "Hauptmann von Köpenick",
+        year: 2022,
+        role_name: "Hauptmann Voigt",
+        director_name: "Thomas Lutz",
+        costume_designer: "Eva Steiner",
+      },
+      {
+        id: "dd000000-0000-0000-0000-000000000004",
+        costume_id: costumes[3].id,
+        production_title: "Marie Antoinette",
+        year: 2024,
+        actor_name: "Sophie Bauer",
+        role_name: "Marie Antoinette",
+        costume_designer: "Lena Huber",
+      },
+      {
+        id: "dd000000-0000-0000-0000-000000000005",
+        costume_id: costumes[4].id,
+        production_title: "Trainspotting",
+        year: 2025,
+        role_name: "Renton",
+        director_name: "Alex Grün",
+      },
+      {
+        id: "dd000000-0000-0000-0000-000000000006",
+        costume_id: costumes[5].id,
+        production_title: "Cabaret",
+        year: 2023,
+        actor_name: "Maria Zimmermann",
+        role_name: "Sally Bowles",
+        director_name: "Fritz Weber",
+        costume_designer: "Nina Kraft",
+      },
+      {
+        id: "dd000000-0000-0000-0000-000000000007",
+        costume_id: costumes[6].id,
+        production_title: "Woyzeck",
+        year: 2024,
+        role_name: "Woyzeck",
+        director_name: "Claudia Frey",
+      },
+      {
+        id: "dd000000-0000-0000-0000-000000000008",
+        costume_id: costumes[7].id,
+        production_title: "Der Kleine Prinz",
+        year: 2025,
+        actor_name: "Liam Fischer",
+        role_name: "Der Kleine Prinz",
+        costume_designer: "Sabine Keller",
+      },
+      {
+        id: "dd000000-0000-0000-0000-000000000009",
+        costume_id: costumes[8].id,
+        production_title: "A Christmas Carol",
+        year: 2023,
+        role_name: "Ebenezer Scrooge",
+        director_name: "Hans Moser",
+      },
+      {
+        id: "dd000000-0000-0000-0000-000000000010",
+        costume_id: costumes[9].id,
+        production_title: "Faust",
+        year: 2024,
+        actor_name: "Elena Richter",
+        role_name: "Gretchen",
+        director_name: "Karl Brunner",
+        costume_designer: "Lena Huber",
+      },
       // Second provenance for costume 0 (to show timeline)
-      { id: "dd000000-0000-0000-0000-000000000011", costume_id: costumes[0].id, production_title: "Carmen", year: 2022, actor_name: "Clara Schmidt", role_name: "Carmen", director_name: "Paolo Bianchi" },
+      {
+        id: "dd000000-0000-0000-0000-000000000011",
+        costume_id: costumes[0].id,
+        production_title: "Carmen",
+        year: 2022,
+        actor_name: "Clara Schmidt",
+        role_name: "Carmen",
+        director_name: "Paolo Bianchi",
+      },
     ],
     { onConflict: "id" }
   );
@@ -289,7 +476,8 @@ async function main() {
         id: "ee000000-0000-0000-0000-000000000001",
         theater_id: THEATER_2,
         title: "Rampenverkauf Südpol Luzern",
-        description: "Über 3'000 Kostüme, Accessoires und Requisiten aus dem Fundus des Südpol Luzern zu günstigen Preisen.",
+        description:
+          "Über 3'000 Kostüme, Accessoires und Requisiten aus dem Fundus des Südpol Luzern zu günstigen Preisen.",
         event_date: "2026-03-15",
         is_published: true,
       },
@@ -297,7 +485,8 @@ async function main() {
         id: "ee000000-0000-0000-0000-000000000002",
         theater_id: THEATER_1,
         title: "Tag der offenen Tür — Fundus Bühne Bern",
-        description: "Blick hinter die Kulissen: Besichtigung des Kostümfundus mit über 10'000 Stücken. Führungen stündlich.",
+        description:
+          "Blick hinter die Kulissen: Besichtigung des Kostümfundus mit über 10'000 Stücken. Führungen stündlich.",
         event_date: "2026-04-20",
         is_published: true,
       },

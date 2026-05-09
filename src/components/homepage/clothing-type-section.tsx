@@ -7,10 +7,7 @@ type ClothingTypeSectionProps = {
   subTypesByParent: Record<string, TaxonomyTerm[]>;
 };
 
-export function ClothingTypeSection({
-  clothingTypes,
-  subTypesByParent,
-}: ClothingTypeSectionProps) {
+export function ClothingTypeSection({ clothingTypes, subTypesByParent }: ClothingTypeSectionProps) {
   return (
     <section className="mx-auto max-w-5xl px-4 py-6">
       <h2 className="mb-4 text-lg font-bold">Bekleidungsart</h2>
@@ -21,22 +18,17 @@ export function ClothingTypeSection({
             <Link
               key={item.id}
               href={`/results?clothing_type=${item.id}`}
-              className="group relative overflow-hidden rounded-xl bg-muted"
+              className="group bg-muted relative overflow-hidden rounded-xl"
             >
               {/* Placeholder image area */}
-              <div className="aspect-[3/4] w-full bg-gradient-to-br from-muted to-muted-foreground/10" />
+              <div className="from-muted to-muted-foreground/10 aspect-[3/4] w-full bg-gradient-to-br" />
 
               <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/60 to-transparent p-4">
-                <h3 className="mb-2 text-lg font-bold text-white">
-                  {item.label_de}
-                </h3>
+                <h3 className="mb-2 text-lg font-bold text-white">{item.label_de}</h3>
                 {subTypes.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
                     {subTypes.slice(0, 3).map((tag) => (
-                      <Badge
-                        key={tag.id}
-                        className="bg-chip text-chip-foreground hover:bg-chip/90"
-                      >
+                      <Badge key={tag.id} className="bg-chip text-chip-foreground hover:bg-chip/90">
                         {tag.label_de}
                       </Badge>
                     ))}

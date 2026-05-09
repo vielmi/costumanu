@@ -88,9 +88,7 @@ export function RentalWizard({
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [costumeSource, setCostumeSource] = useState<CostumeSource>("cart");
-  const [selectedCostumes, setSelectedCostumes] = useState<CartItem[]>(
-    initialCartItems
-  );
+  const [selectedCostumes, setSelectedCostumes] = useState<CartItem[]>(initialCartItems);
   const [isSuccess, setIsSuccess] = useState(false);
 
   // Cart items via React Query
@@ -135,8 +133,7 @@ export function RentalWizard({
           borrower_user_id: userId,
           status: "requested",
           production_context: purpose || null,
-          rental_period:
-            startDate && endDate ? `[${startDate},${endDate}]` : null,
+          rental_period: startDate && endDate ? `[${startDate},${endDate}]` : null,
         })
         .select("id")
         .single();
@@ -273,17 +270,11 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
                       : "bg-muted text-muted-foreground"
                 }`}
               >
-                {isCompleted ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  index + 1
-                )}
+                {isCompleted ? <Check className="h-4 w-4" /> : index + 1}
               </div>
               <span
                 className={`text-xs ${
-                  isActive
-                    ? "font-semibold text-foreground"
-                    : "text-muted-foreground"
+                  isActive ? "text-foreground font-semibold" : "text-muted-foreground"
                 }`}
               >
                 {t(step.labelKey)}
@@ -292,11 +283,7 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
 
             {/* Connector line */}
             {index < STEPS.length - 1 && (
-              <div
-                className={`mx-2 h-0.5 flex-1 ${
-                  isCompleted ? "bg-gold" : "bg-muted"
-                }`}
-              />
+              <div className={`mx-2 h-0.5 flex-1 ${isCompleted ? "bg-gold" : "bg-muted"}`} />
             )}
           </div>
         );
@@ -340,22 +327,18 @@ function Step1Personalien({
           <h3 className="text-sm font-semibold">{t("rental.myDetails")}</h3>
 
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-              <User className="h-5 w-5 text-muted-foreground" />
+            <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-full">
+              <User className="text-muted-foreground h-5 w-5" />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-semibold">
-                {profile.display_name || "---"}
-              </span>
+              <span className="text-sm font-semibold">{profile.display_name || "---"}</span>
               {profile.professional_title && (
-                <span className="text-xs text-muted-foreground">
-                  {profile.professional_title}
-                </span>
+                <span className="text-muted-foreground text-xs">{profile.professional_title}</span>
               )}
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex flex-col gap-1.5 text-sm">
             <div className="flex items-center gap-2">
               <MapPin className="h-3.5 w-3.5 shrink-0" />
               <span>{theaterName}</span>
@@ -392,10 +375,7 @@ function Step1Personalien({
         <span className="text-sm font-medium">{t("rental.rentalPeriod")}</span>
         <div className="flex gap-3">
           <div className="flex flex-1 flex-col gap-1">
-            <label
-              htmlFor="startDate"
-              className="text-xs text-muted-foreground"
-            >
+            <label htmlFor="startDate" className="text-muted-foreground text-xs">
               {t("rental.startDate")}
             </label>
             <Input
@@ -406,7 +386,7 @@ function Step1Personalien({
             />
           </div>
           <div className="flex flex-1 flex-col gap-1">
-            <label htmlFor="endDate" className="text-xs text-muted-foreground">
+            <label htmlFor="endDate" className="text-muted-foreground text-xs">
               {t("rental.endDate")}
             </label>
             <Input
@@ -421,7 +401,7 @@ function Step1Personalien({
 
       {/* Next button */}
       <Button
-        className="w-full bg-gold text-gold-foreground hover:bg-gold/90"
+        className="bg-gold text-gold-foreground hover:bg-gold/90 w-full"
         size="lg"
         onClick={onNext}
       >
@@ -491,17 +471,13 @@ function Step2Auswahl({
 
         {selectedCostumes.length === 0 ? (
           <Card>
-            <CardContent className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+            <CardContent className="text-muted-foreground flex items-center justify-center py-8 text-sm">
               {t("rental.chooseCostumes")}
             </CardContent>
           </Card>
         ) : (
           selectedCostumes.map((item) => (
-            <CostumeCard
-              key={item.id}
-              item={item}
-              onRemove={() => onRemoveCostume(item.id)}
-            />
+            <CostumeCard key={item.id} item={item} onRemove={() => onRemoveCostume(item.id)} />
           ))
         )}
       </div>
@@ -509,9 +485,7 @@ function Step2Auswahl({
       {/* Source selection */}
       <div className="flex flex-col gap-3">
         <h3 className="text-sm font-semibold">{t("rental.costumeSource")}</h3>
-        <p className="text-sm text-muted-foreground">
-          {t("rental.chooseSource")}
-        </p>
+        <p className="text-muted-foreground text-sm">{t("rental.chooseSource")}</p>
 
         <div className="grid grid-cols-2 gap-3">
           {COSTUME_SOURCES.map((source) => {
@@ -523,18 +497,10 @@ function Step2Auswahl({
                 type="button"
                 onClick={() => setCostumeSource(source.key)}
                 className={`flex flex-col items-center gap-2 rounded-xl border p-4 text-center transition-colors ${
-                  isSelected
-                    ? "border-foreground bg-accent"
-                    : "border-border hover:bg-accent/50"
+                  isSelected ? "border-foreground bg-accent" : "border-border hover:bg-accent/50"
                 }`}
               >
-                <div
-                  className={`${
-                    isSelected
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
-                >
+                <div className={`${isSelected ? "text-foreground" : "text-muted-foreground"}`}>
                   {source.icon}
                 </div>
                 <span className="text-xs font-medium">{t(source.labelKey)}</span>
@@ -550,10 +516,7 @@ function Step2Auswahl({
           <ArrowLeft className="mr-2 h-4 w-4" />
           {t("rental.previousStep")}
         </Button>
-        <Button
-          className="flex-1 bg-gold text-gold-foreground hover:bg-gold/90"
-          onClick={onNext}
-        >
+        <Button className="bg-gold text-gold-foreground hover:bg-gold/90 flex-1" onClick={onNext}>
           {t("rental.nextStep")}
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
@@ -564,13 +527,7 @@ function Step2Auswahl({
 
 // ─── Costume Card (used in Step 2) ───────────────────────────────────
 
-function CostumeCard({
-  item,
-  onRemove,
-}: {
-  item: CartItem;
-  onRemove: () => void;
-}) {
+function CostumeCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) {
   const supabase = createClient();
   const costume = item.costumes;
   const firstMedia = costume.costume_media?.[0];
@@ -585,16 +542,12 @@ function CostumeCard({
     <Card className="py-3">
       <CardContent className="flex items-center gap-4">
         {/* Thumbnail */}
-        <div className="h-16 w-12 shrink-0 overflow-hidden rounded-md bg-muted">
+        <div className="bg-muted h-16 w-12 shrink-0 overflow-hidden rounded-md">
           {imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={imageUrl}
-              alt={costume.name}
-              className="h-full w-full object-cover"
-            />
+            <img src={imageUrl} alt={costume.name} className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted-foreground/10 text-[10px] text-muted-foreground">
+            <div className="from-muted to-muted-foreground/10 text-muted-foreground flex h-full w-full items-center justify-center bg-gradient-to-br text-[10px]">
               Kein Foto
             </div>
           )}
@@ -603,13 +556,11 @@ function CostumeCard({
         {/* Info */}
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           {firstItem && (
-            <span className="font-mono text-xs text-muted-foreground">
-              {firstItem.barcode_id}
-            </span>
+            <span className="text-muted-foreground font-mono text-xs">{firstItem.barcode_id}</span>
           )}
           <h3 className="truncate text-sm font-semibold">{costume.name}</h3>
           {firstProvenance && (
-            <p className="truncate text-xs text-muted-foreground">
+            <p className="text-muted-foreground truncate text-xs">
               {firstProvenance.production_title}
               {firstProvenance.year ? ` (${firstProvenance.year})` : ""}
             </p>
@@ -623,12 +574,7 @@ function CostumeCard({
         </div>
 
         {/* Remove button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onRemove}
-          aria-label="Entfernen"
-        >
+        <Button variant="ghost" size="icon" onClick={onRemove} aria-label="Entfernen">
           <Trash2 className="h-4 w-4" />
         </Button>
       </CardContent>
@@ -671,11 +617,9 @@ function Step3Zusammenfassung({
       <Card>
         <CardContent className="flex flex-col gap-2 pt-4">
           <h3 className="text-sm font-semibold">{t("rental.userInfo")}</h3>
-          <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex flex-col gap-1 text-sm">
             <span>{profile.display_name}</span>
-            {profile.professional_title && (
-              <span>{profile.professional_title}</span>
-            )}
+            {profile.professional_title && <span>{profile.professional_title}</span>}
             <div className="flex items-center gap-2">
               <MapPin className="h-3 w-3 shrink-0" />
               <span>{theaterName}</span>
@@ -699,7 +643,7 @@ function Step3Zusammenfassung({
         <Card>
           <CardContent className="flex flex-col gap-1 pt-4">
             <h3 className="text-sm font-semibold">{t("rental.purpose")}</h3>
-            <p className="text-sm text-muted-foreground">{purpose}</p>
+            <p className="text-muted-foreground text-sm">{purpose}</p>
           </CardContent>
         </Card>
       )}
@@ -708,19 +652,12 @@ function Step3Zusammenfassung({
       {(startDate || endDate) && (
         <Card>
           <CardContent className="flex flex-col gap-1 pt-4">
-            <h3 className="text-sm font-semibold">
-              {t("rental.rentalPeriod")}
-            </h3>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <h3 className="text-sm font-semibold">{t("rental.rentalPeriod")}</h3>
+            <div className="text-muted-foreground flex items-center gap-2 text-sm">
               <Calendar className="h-3.5 w-3.5 shrink-0" />
               <span>
-                {startDate
-                  ? new Date(startDate).toLocaleDateString("de-DE")
-                  : "---"}{" "}
-                &ndash;{" "}
-                {endDate
-                  ? new Date(endDate).toLocaleDateString("de-DE")
-                  : "---"}
+                {startDate ? new Date(startDate).toLocaleDateString("de-DE") : "---"} &ndash;{" "}
+                {endDate ? new Date(endDate).toLocaleDateString("de-DE") : "---"}
               </span>
             </div>
           </CardContent>
@@ -736,19 +673,15 @@ function Step3Zusammenfassung({
           </Badge>
         </h3>
         {selectedCostumes.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {t("rental.chooseCostumes")}
-          </p>
+          <p className="text-muted-foreground text-sm">{t("rental.chooseCostumes")}</p>
         ) : (
-          selectedCostumes.map((item) => (
-            <SummaryCostumeCard key={item.id} item={item} />
-          ))
+          selectedCostumes.map((item) => <SummaryCostumeCard key={item.id} item={item} />)
         )}
       </div>
 
       {/* Error */}
       {error && (
-        <p className="text-sm text-destructive">
+        <p className="text-destructive text-sm">
           {t("common.error")}: {error.message}
         </p>
       )}
@@ -760,7 +693,7 @@ function Step3Zusammenfassung({
           {t("rental.previousStep")}
         </Button>
         <Button
-          className="flex-1 bg-gold text-gold-foreground hover:bg-gold/90"
+          className="bg-gold text-gold-foreground hover:bg-gold/90 flex-1"
           size="lg"
           onClick={onSubmit}
           disabled={isSubmitting}
@@ -789,16 +722,12 @@ function SummaryCostumeCard({ item }: { item: CartItem }) {
     <Card className="py-2">
       <CardContent className="flex items-center gap-3">
         {/* Thumbnail */}
-        <div className="h-12 w-9 shrink-0 overflow-hidden rounded bg-muted">
+        <div className="bg-muted h-12 w-9 shrink-0 overflow-hidden rounded">
           {imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={imageUrl}
-              alt={costume.name}
-              className="h-full w-full object-cover"
-            />
+            <img src={imageUrl} alt={costume.name} className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted-foreground/10 text-[8px] text-muted-foreground">
+            <div className="from-muted to-muted-foreground/10 text-muted-foreground flex h-full w-full items-center justify-center bg-gradient-to-br text-[8px]">
               Foto
             </div>
           )}
@@ -808,12 +737,12 @@ function SummaryCostumeCard({ item }: { item: CartItem }) {
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="truncate text-sm font-medium">{costume.name}</span>
           {firstItem && (
-            <span className="font-mono text-[10px] text-muted-foreground">
+            <span className="text-muted-foreground font-mono text-[10px]">
               {firstItem.barcode_id}
             </span>
           )}
           {firstProvenance && (
-            <span className="truncate text-xs text-muted-foreground">
+            <span className="text-muted-foreground truncate text-xs">
               {firstProvenance.production_title}
             </span>
           )}
