@@ -2817,7 +2817,7 @@ function NetworksTab({
                           <select
                             value={m.network_role}
                             disabled={isPending}
-                            onChange={(e) =>
+                            onChange={() =>
                               handleToggleRole(
                                 network.id,
                                 m.theater_id,

@@ -141,70 +141,73 @@ export default async function SuchmodusResultsPage({
     filtered = filtered.filter((r) => idSet.has(r.id));
   }
 
+  type ProvenanceRow = {
+    production_title?: string | null;
+    actor_name?: string | null;
+    role_name?: string | null;
+    director_name?: string | null;
+    costume_designer?: string | null;
+    costume_assistant?: string | null;
+  };
+  type ItemRow = { size_label?: string | null };
+
   if (params.title) {
     const q = params.title.toLowerCase();
     filtered = filtered.filter((r) =>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (r.costume_provenance as any[])?.some((p: any) =>
+      (r.costume_provenance as ProvenanceRow[])?.some((p) =>
         p.production_title?.toLowerCase().includes(q)
       )
     );
   }
+
   if (params.actor) {
     const q = params.actor.toLowerCase();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filtered = filtered.filter((r) =>
-      (r.costume_provenance as any[])?.some((p: any) => p.actor_name?.toLowerCase().includes(q))
+      (r.costume_provenance as ProvenanceRow[])?.some((p) =>
+        p.actor_name?.toLowerCase().includes(q)
+      )
     );
   }
   if (params.role) {
     const q = params.role.toLowerCase();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filtered = filtered.filter((r) =>
-      (r.costume_provenance as any[])?.some((p: any) => p.role_name?.toLowerCase().includes(q))
+      (r.costume_provenance as ProvenanceRow[])?.some((p) => p.role_name?.toLowerCase().includes(q))
     );
   }
   if (params.director) {
     const q = params.director.toLowerCase();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filtered = filtered.filter((r) =>
-      (r.costume_provenance as any[])?.some((p: any) => p.director_name?.toLowerCase().includes(q))
+      (r.costume_provenance as ProvenanceRow[])?.some((p) =>
+        p.director_name?.toLowerCase().includes(q)
+      )
     );
   }
   if (params.designer) {
     const q = params.designer.toLowerCase();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filtered = filtered.filter((r) =>
-      (r.costume_provenance as any[])?.some((p: any) =>
+      (r.costume_provenance as ProvenanceRow[])?.some((p) =>
         p.costume_designer?.toLowerCase().includes(q)
       )
     );
   }
   if (params.assistant) {
     const q = params.assistant.toLowerCase();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filtered = filtered.filter((r) =>
-      (r.costume_provenance as any[])?.some((p: any) =>
+      (r.costume_provenance as ProvenanceRow[])?.some((p) =>
         p.costume_assistant?.toLowerCase().includes(q)
       )
     );
   }
   if (params.size_int) {
     const sizes = params.size_int.split(",").map((s) => s.toLowerCase());
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filtered = filtered.filter((r) =>
-      (r.costume_items as any[])?.some((i: any) =>
-        sizes.includes(i.size_label?.toLowerCase() ?? "")
-      )
+      (r.costume_items as ItemRow[])?.some((i) => sizes.includes(i.size_label?.toLowerCase() ?? ""))
     );
   }
   if (params.size_eu) {
     const sizes = params.size_eu.split(",").map((s) => s.toLowerCase());
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filtered = filtered.filter((r) =>
-      (r.costume_items as any[])?.some((i: any) =>
-        sizes.includes(i.size_label?.toLowerCase() ?? "")
-      )
+      (r.costume_items as ItemRow[])?.some((i) => sizes.includes(i.size_label?.toLowerCase() ?? ""))
     );
   }
 

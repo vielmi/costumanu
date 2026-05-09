@@ -50,9 +50,19 @@ export default async function WishlistDetailPage({ params }: { params: Promise<{
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const costumes: WishlistCostume[] = (rawItems ?? [])
-    .map((row: any) => {
+  type RawRow = {
+    id: string;
+    costumes: {
+      id: string;
+      name: string;
+      clothing_type: { label_de: string } | null;
+      costume_media: { storage_path: string; sort_order: number }[];
+      costume_items: { current_status: string | null; storage_location_path: string | null }[];
+      theater: { name: string } | null;
+    } | null;
+  };
+  const costumes: WishlistCostume[] = ((rawItems as RawRow[]) ?? [])
+    .map((row) => {
       const c = row.costumes;
       if (!c) return null;
 

@@ -284,9 +284,8 @@ export function CostumeComments({ costumeId, theaterId, currentUserId, currentUs
       .eq("theater_id", theaterId);
 
     if (data) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setMembers(
-        data.map((m: any) => ({
+        (data as { user_id: string; profiles: { display_name: string } | null }[]).map((m) => ({
           user_id: m.user_id,
           display_name: m.profiles?.display_name ?? "Unbekannt",
         }))
