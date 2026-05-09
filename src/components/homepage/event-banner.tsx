@@ -25,13 +25,13 @@ export function EventBanner({ event }: EventBannerProps) {
 
   return (
     <section className="mx-auto max-w-5xl px-4 py-6">
-      <div className="relative overflow-hidden rounded-xl bg-surface-dark text-surface-dark-foreground">
+      <div className="bg-surface-dark text-surface-dark-foreground relative overflow-hidden rounded-xl">
         {/* Placeholder image background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-surface-dark to-surface-dark/80" />
+        <div className="from-surface-dark to-surface-dark/80 absolute inset-0 bg-gradient-to-br" />
 
         <div className="relative p-6">
           {formattedDate && (
-            <Badge className="mb-3 bg-gold text-gold-foreground hover:bg-gold/90">
+            <Badge className="bg-gold text-gold-foreground hover:bg-gold/90 mb-3">
               <CalendarDays className="mr-1.5 h-3 w-3" />
               {formattedDate}
             </Badge>
@@ -40,9 +40,7 @@ export function EventBanner({ event }: EventBannerProps) {
           <h2 className="text-xl font-bold">{event.title}</h2>
 
           {event.description && (
-            <p className="mt-3 text-sm text-surface-dark-foreground/70">
-              {event.description}
-            </p>
+            <p className="text-surface-dark-foreground/70 mt-3 text-sm">{event.description}</p>
           )}
         </div>
       </div>

@@ -12,8 +12,13 @@
   cursor: pointer;
   transition: background 120ms ease;
 }
-.triggerBtn:hover { background: var(--secondary-500); }
-.triggerBtn:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 2px; }
+.triggerBtn:hover {
+  background: var(--secondary-500);
+}
+.triggerBtn:focus-visible {
+  outline: 2px solid var(--primary-900);
+  outline-offset: 2px;
+}
 .triggerBtn img {
   filter: var(--filter-primary-900);
 }
@@ -23,7 +28,7 @@
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background: rgba(36, 39, 39, 0.80);
+  background: rgba(36, 39, 39, 0.8);
 }
 
 /* ─── Bottom sheet ───────────────────────────────────────────────────────── */
@@ -68,8 +73,13 @@
   border-radius: var(--radius-xs);
   transition: opacity 120ms ease;
 }
-.closeBtn:hover { opacity: 0.7; }
-.closeBtn:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 2px; }
+.closeBtn:hover {
+  opacity: 0.7;
+}
+.closeBtn:focus-visible {
+  outline: 2px solid var(--primary-900);
+  outline-offset: 2px;
+}
 
 /* ─── Theater list ───────────────────────────────────────────────────────── */
 .theaterList {
@@ -91,10 +101,18 @@
   border: 1px solid var(--neutral-grey-600);
   cursor: pointer;
   text-align: left;
-  transition: background 120ms ease, border-color 120ms ease;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease;
 }
-.theaterBtn:hover:not(.selected) { background: var(--secondary-500); border-color: var(--secondary-700); }
-.theaterBtn:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 2px; }
+.theaterBtn:hover:not(.selected) {
+  background: var(--secondary-500);
+  border-color: var(--secondary-700);
+}
+.theaterBtn:focus-visible {
+  outline: 2px solid var(--primary-900);
+  outline-offset: 2px;
+}
 
 .theaterBtn.selected {
   background: var(--secondary-500);

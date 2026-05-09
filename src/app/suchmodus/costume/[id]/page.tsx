@@ -11,7 +11,8 @@ export default async function SuchmodusCostumeDetailPage({ params }: { params: P
 
   const { data: costume, error } = await supabase
     .from("costumes")
-    .select(`
+    .select(
+      `
       id, name, description, gender_term_id, clothing_type_id,
       parent_costume_id, is_ensemble, created_at, theater_id,
       gender_term:taxonomy_terms!gender_term_id(id, vocabulary, label_de, parent_id, sort_order),
@@ -21,25 +22,36 @@ export default async function SuchmodusCostumeDetailPage({ params }: { params: P
       costume_items(id, costume_id, theater_id, barcode_id, rfid_id, size_label, size_data, size_notes, condition_grade, current_status, storage_location_path, is_public_for_rent, updated_at),
       costume_taxonomy(term_id, taxonomy_term:taxonomy_terms(id, vocabulary, label_de, parent_id, sort_order)),
       theater:theaters(id, name, slug, address_info)
-    `)
+    `
+    )
     .eq("id", id)
     .single();
 
   if (error || !costume) notFound();
 
   // Similar costumes
-  let similarCostumes: { id: string; name: string; imageUrl: string | null; clothingTypeLabel: string | null; provenance: string | null; status: string | null; theaterName: string | null }[] = [];
+  let similarCostumes: {
+    id: string;
+    name: string;
+    imageUrl: string | null;
+    clothingTypeLabel: string | null;
+    provenance: string | null;
+    status: string | null;
+    theaterName: string | null;
+  }[] = [];
   if (costume.clothing_type_id) {
     const { data: simRows } = await supabase
       .from("costumes")
-      .select(`
+      .select(
+        `
         id, name,
         clothing_type:taxonomy_terms!clothing_type_id(id, label_de),
         costume_media(storage_path, sort_order),
         costume_provenance(production_title, year),
         costume_items(current_status),
         theater:theaters!theater_id(name)
-      `)
+      `
+      )
       .eq("clothing_type_id", costume.clothing_type_id)
       .neq("id", id)
       .limit(6);
@@ -91,7 +103,10 @@ export default async function SuchmodusCostumeDetailPage({ params }: { params: P
 
   // Taxonomy by vocabulary
   const taxonomyByVocabulary: Record<string, TaxonomyTerm[]> = {};
-  for (const ct of (costume.costume_taxonomy as unknown as { term_id: string; taxonomy_term: TaxonomyTerm | TaxonomyTerm[] }[]) ?? []) {
+  for (const ct of (costume.costume_taxonomy as unknown as {
+    term_id: string;
+    taxonomy_term: TaxonomyTerm | TaxonomyTerm[];
+  }[]) ?? []) {
     const term = Array.isArray(ct.taxonomy_term) ? ct.taxonomy_term[0] : ct.taxonomy_term;
     if (!term) continue;
     taxonomyByVocabulary[term.vocabulary] ??= [];
@@ -100,8 +115,12 @@ export default async function SuchmodusCostumeDetailPage({ params }: { params: P
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const costumeAny = costume as any;
-  const genderTerm = Array.isArray(costumeAny.gender_term) ? costumeAny.gender_term[0] : costumeAny.gender_term;
-  const clothingType = Array.isArray(costumeAny.clothing_type) ? costumeAny.clothing_type[0] : costumeAny.clothing_type;
+  const genderTerm = Array.isArray(costumeAny.gender_term)
+    ? costumeAny.gender_term[0]
+    : costumeAny.gender_term;
+  const clothingType = Array.isArray(costumeAny.clothing_type)
+    ? costumeAny.clothing_type[0]
+    : costumeAny.clothing_type;
   const theater = Array.isArray(costumeAny.theater) ? costumeAny.theater[0] : costumeAny.theater;
   const firstItem = costume.costume_items?.[0] ?? null;
   const firstProvenance = costume.costume_provenance?.[0] ?? null;

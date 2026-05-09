@@ -32,16 +32,9 @@ type FilterPanelProps = {
   onApply: (filters: Record<string, string>) => void;
 };
 
-export function FilterPanel({
-  open,
-  onClose,
-  currentFilters,
-  onApply,
-}: FilterPanelProps) {
+export function FilterPanel({ open, onClose, currentFilters, onApply }: FilterPanelProps) {
   // Local draft state derived from currentFilters when panel opens
-  const [draft, setDraft] = useState<Record<string, string>>(() =>
-    stripUndefined(currentFilters)
-  );
+  const [draft, setDraft] = useState<Record<string, string>>(() => stripUndefined(currentFilters));
 
   // Sync draft when sheet opens with new currentFilters
   const handleOpenChange = useCallback(
@@ -185,9 +178,7 @@ export function FilterPanel({
               </Badge>
             )}
           </SheetTitle>
-          <SheetDescription className="sr-only">
-            {t("filter.title")}
-          </SheetDescription>
+          <SheetDescription className="sr-only">{t("filter.title")}</SheetDescription>
         </SheetHeader>
 
         {/* Scrollable filter sections */}
@@ -208,16 +199,12 @@ export function FilterPanel({
             {/* ── Bekleidungstyp (sub-type, shown conditionally) ─ */}
             {selectedClothingTypeId && (clothingSubTypes ?? []).length > 0 && (
               <AccordionItem value="clothing_sub_type">
-                <AccordionTrigger>
-                  {t("filter.clothingSubType")}
-                </AccordionTrigger>
+                <AccordionTrigger>{t("filter.clothingSubType")}</AccordionTrigger>
                 <AccordionContent>
                   <TermGrid
                     terms={clothingSubTypes ?? []}
                     selectedId={draft.clothing_sub_type}
-                    onToggle={(id) =>
-                      toggleDraftValue("clothing_sub_type", id)
-                    }
+                    onToggle={(id) => toggleDraftValue("clothing_sub_type", id)}
                   />
                 </AccordionContent>
               </AccordionItem>
@@ -250,10 +237,7 @@ export function FilterPanel({
 
           {/* ── Nur Serien anzeigen ──────────────────────────── */}
           <div className="flex items-center justify-between border-t py-4">
-            <label
-              htmlFor="series-toggle"
-              className="text-sm font-medium leading-none"
-            >
+            <label htmlFor="series-toggle" className="text-sm leading-none font-medium">
               {t("filter.onlySeriesToggle")}
             </label>
             <Switch
@@ -266,11 +250,7 @@ export function FilterPanel({
 
         {/* ── Bottom action bar ─────────────────────────────── */}
         <SheetFooter className="flex-row gap-3 border-t pt-4">
-          <Button
-            variant="outline"
-            className="flex-1 gap-2"
-            onClick={handleReset}
-          >
+          <Button variant="outline" className="flex-1 gap-2" onClick={handleReset}>
             <RotateCcw className="h-4 w-4" />
             {t("filter.resetFilter")}
           </Button>
@@ -322,9 +302,7 @@ function TermGrid({
 
 // ─── Utilities ───────────────────────────────────────────────────────
 
-function stripUndefined(
-  obj: Record<string, string | undefined>
-): Record<string, string> {
+function stripUndefined(obj: Record<string, string | undefined>): Record<string, string> {
   const result: Record<string, string> = {};
   for (const [key, value] of Object.entries(obj)) {
     if (value !== undefined) {

@@ -47,7 +47,11 @@ function CostumeCard({
           type="button"
           className={`${styles.bookmarkBtn} ${isBookmarked ? styles.bookmarkBtnActive : ""}`}
           aria-label="Merken"
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onBookmark(costume.id); }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onBookmark(costume.id);
+          }}
         >
           <Image
             src={isBookmarked ? "/icons/icon-heart-1.svg" : "/icons/icon-heart.svg"}
@@ -64,17 +68,17 @@ function CostumeCard({
         )}
         <div className={styles.cardNameBlock}>
           <p className={styles.cardName}>{costume.name}</p>
-          {costume.provenance && (
-            <p className={styles.cardProvenance}>{costume.provenance}</p>
-          )}
+          {costume.provenance && <p className={styles.cardProvenance}>{costume.provenance}</p>}
         </div>
         <div className={styles.cardAvailability}>
-          <span className={`${styles.availDot} ${costume.isAvailable ? styles.available : styles.onRequest}`}>
-            {costume.isAvailable && <Image src="/icons/icon-check.svg" alt="" width={10} height={10} />}
+          <span
+            className={`${styles.availDot} ${costume.isAvailable ? styles.available : styles.onRequest}`}
+          >
+            {costume.isAvailable && (
+              <Image src="/icons/icon-check.svg" alt="" width={10} height={10} />
+            )}
           </span>
-          {costume.theaterName && (
-            <span className={styles.cardTheater}>{costume.theaterName}</span>
-          )}
+          {costume.theaterName && <span className={styles.cardTheater}>{costume.theaterName}</span>}
         </div>
       </div>
     </Link>
@@ -99,8 +103,13 @@ export function SuchmodusResultsClient({
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
   const [modalCostumeId, setModalCostumeId] = useState<string | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
-  const [autoBookmark, setAutoBookmark] = useState<{ costumeId: string; wishlistId: string } | null>(null);
-  const [moveTarget, setMoveTarget] = useState<{ costumeId: string; wishlistId: string } | null>(null);
+  const [autoBookmark, setAutoBookmark] = useState<{
+    costumeId: string;
+    wishlistId: string;
+  } | null>(null);
+  const [moveTarget, setMoveTarget] = useState<{ costumeId: string; wishlistId: string } | null>(
+    null
+  );
   const lastUsedWishlist = useRef<{ id: string; name: string } | null>(null);
   // Maps costumeId → wishlist it was added to (für Entfernen)
   const bookmarkWishlistMap = useRef<Record<string, { id: string; name: string }>>({});
@@ -120,11 +129,17 @@ export function SuchmodusResultsClient({
     if (bookmarkedIds.has(costumeId)) {
       const entry = bookmarkWishlistMap.current[costumeId];
       if (!entry) return;
-      setBookmarkedIds((prev) => { const next = new Set(prev); next.delete(costumeId); return next; });
+      setBookmarkedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(costumeId);
+        return next;
+      });
       delete bookmarkWishlistMap.current[costumeId];
       setAutoBookmark(null);
       setToastMsg(`Von ${entry.name} entfernt`);
-      await supabase.from("wishlist_items").delete()
+      await supabase
+        .from("wishlist_items")
+        .delete()
         .eq("wishlist_id", entry.id)
         .eq("costume_id", costumeId);
       return;
@@ -178,21 +193,35 @@ export function SuchmodusResultsClient({
 
   return (
     <div className={styles.page}>
-
       {/* ═══ Header ═══ */}
       <SuchmodusHeader genderTerms={genderTerms} />
 
       {/* ═══ Filter bar ═══ */}
       <div className={styles.filterBar}>
         <Link href="/suchmodus/filter" className={styles.filterPill}>
-          <Image src="/icons/icon-filter.svg" alt="" width={24} height={24} style={{ filter: "invert(1)" }} />
-          <span className="text-subtitle-1" style={{ color: "var(--neutral-white)", fontWeight: "var(--font-weight-500)" }}>
+          <Image
+            src="/icons/icon-filter.svg"
+            alt=""
+            width={24}
+            height={24}
+            style={{ filter: "invert(1)" }}
+          />
+          <span
+            className="text-subtitle-1"
+            style={{ color: "var(--neutral-white)", fontWeight: "var(--font-weight-500)" }}
+          >
             Kostümfilter
           </span>
         </Link>
         <StandortSheet theaters={theaters} />
         <Link href="/suchmodus/search" className={styles.filterCircle}>
-          <Image src="/icons/icon-search.svg" alt="Suche" width={24} height={24} className={styles.filterCircleIcon} />
+          <Image
+            src="/icons/icon-search.svg"
+            alt="Suche"
+            width={24}
+            height={24}
+            className={styles.filterCircleIcon}
+          />
         </Link>
       </div>
 
@@ -261,7 +290,6 @@ export function SuchmodusResultsClient({
           )}
         </div>
       )}
-
     </div>
   );
 }

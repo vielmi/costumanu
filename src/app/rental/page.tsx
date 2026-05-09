@@ -41,8 +41,8 @@ export default async function AusleihePage() {
       return (
         <AppShell>
           <main className="mx-auto max-w-5xl px-4 py-8">
-            <h1 className="text-xl font-bold text-destructive">{t("inventory.errorTitle")}</h1>
-            <p className="mt-4 text-sm text-muted-foreground">{t("inventory.errorDescription")}</p>
+            <h1 className="text-destructive text-xl font-bold">{t("inventory.errorTitle")}</h1>
+            <p className="text-muted-foreground mt-4 text-sm">{t("inventory.errorDescription")}</p>
           </main>
         </AppShell>
       );
@@ -91,7 +91,9 @@ export default async function AusleihePage() {
     <AppShell>
       <main className="mx-auto max-w-5xl px-4 py-8">
         <RentalOverview
-          initialCartItems={(cartItems ?? []) as unknown as Parameters<typeof RentalOverview>[0]["initialCartItems"]}
+          initialCartItems={
+            (cartItems ?? []) as unknown as Parameters<typeof RentalOverview>[0]["initialCartItems"]
+          }
           userId={user.id}
           userEmail={user.email ?? ""}
           theaterId={theaterId}

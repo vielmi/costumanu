@@ -139,7 +139,7 @@
 /* ─── Divider ────────────────────────────────────────────────────────────── */
 .divider {
   height: 1px;
-  background: #BCCED9;
+  background: #bcced9;
 }
 
 /* ─── "Fertig" button (edit mode title bar) ─────────────────────────────── */
@@ -306,8 +306,12 @@
   text-align: left;
 }
 
-.statusOption:hover { background: var(--neutral-grey-100); }
-.statusOptionActive { background: var(--neutral-grey-100); }
+.statusOption:hover {
+  background: var(--neutral-grey-100);
+}
+.statusOptionActive {
+  background: var(--neutral-grey-100);
+}
 
 .statusDotMenu {
   width: 10px;
@@ -443,14 +447,14 @@
 }
 
 .menuItemDelete {
-  color: #E03131;
+  color: #e03131;
 }
 
 /* ─── Rename modal ───────────────────────────────────────────────────────── */
 .renameBackdrop {
   position: fixed;
   inset: 0;
-  background: rgba(36, 39, 39, 0.60);
+  background: rgba(36, 39, 39, 0.6);
   z-index: 200;
   display: flex;
   align-items: center;
@@ -524,7 +528,9 @@
   font-weight: var(--font-weight-500);
   color: var(--neutral-grey-500);
   cursor: not-allowed;
-  transition: background 120ms ease, color 120ms ease;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
 }
 
 .renameSaveBtnActive {

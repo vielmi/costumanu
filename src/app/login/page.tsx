@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { t } from "@/lib/i18n";
 import { AppLogo } from "@/components/layout/app-logo";
@@ -26,10 +27,9 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     const supabase = createClient();
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(
-      email,
-      { redirectTo: `${window.location.origin}/auth/callback?type=recovery` }
-    );
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback?type=recovery`,
+    });
     setLoading(false);
     if (resetError) {
       setError(resetError.message);
@@ -57,19 +57,43 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--page-bg)" }}>
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        background: "var(--page-bg)",
+      }}
+    >
       {/* Header */}
-      <div style={{ height: 72, flexShrink: 0, display: "flex", alignItems: "center", padding: "0 20px" }}>
+      <div
+        style={{
+          height: 72,
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          padding: "0 20px",
+        }}
+      >
         <AppLogo />
       </div>
 
       {/* Content */}
-      <main style={{ flex: 1, overflowY: "auto", background: "var(--neutral-white)", borderRadius: "var(--radius-panel) var(--radius-panel) 0 0", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 16px" }}>
+      <main
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          background: "var(--neutral-white)",
+          borderRadius: "var(--radius-panel) var(--radius-panel) 0 0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "40px 16px",
+        }}
+      >
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-center text-xl">
-              {t("auth.signIn")}
-            </CardTitle>
+            <CardTitle className="text-center text-xl">{t("auth.signIn")}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -102,14 +126,10 @@ export default function LoginPage() {
                 />
               </div>
 
-              {error && (
-                <p className="text-sm text-destructive">{error}</p>
-              )}
+              {error && <p className="text-destructive text-sm">{error}</p>}
 
               {resetSent && (
-                <p className="text-sm text-green-600">
-                  {t("auth.resetSent", { email })}
-                </p>
+                <p className="text-sm text-green-600">{t("auth.resetSent", { email })}</p>
               )}
 
               <Button type="submit" disabled={loading}>
@@ -120,10 +140,19 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleResetPassword}
                 disabled={loading}
-                className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+                className="text-muted-foreground text-sm underline-offset-4 hover:underline"
               >
                 {t("auth.forgotPassword")}
               </button>
+
+              <div className="text-center">
+                <Link
+                  href="/register"
+                  className="text-muted-foreground text-sm underline-offset-4 hover:underline"
+                >
+                  {t("auth.noAccount")}
+                </Link>
+              </div>
             </form>
           </CardContent>
         </Card>

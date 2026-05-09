@@ -40,7 +40,9 @@
   flex-shrink: 0;
   white-space: nowrap;
 }
-.resetBtn:hover { color: var(--neutral-black); }
+.resetBtn:hover {
+  color: var(--neutral-black);
+}
 
 .applyBtn {
   background: var(--primary-900);
@@ -55,7 +57,9 @@
   flex-shrink: 0;
   white-space: nowrap;
 }
-.applyBtn:hover { opacity: 0.9; }
+.applyBtn:hover {
+  opacity: 0.9;
+}
 
 /* ─── Body ────────────────────────────────────────────────────────────────── */
 .body {
@@ -112,7 +116,9 @@
   padding-bottom: 12px;
   gap: 6px;
   cursor: pointer;
-  transition: background 120ms ease, border-color 120ms ease;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease;
 }
 
 .genderCard.selected {
@@ -150,7 +156,10 @@
   font-size: var(--font-size-200);
   font-weight: var(--font-weight-500);
   color: var(--secondary-700);
-  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
   white-space: nowrap;
 }
 
@@ -245,7 +254,9 @@
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: transform 120ms ease, border-color 120ms ease;
+  transition:
+    transform 120ms ease,
+    border-color 120ms ease;
   flex-shrink: 0;
 }
 
@@ -253,4 +264,3 @@
   border-color: var(--secondary-800);
   transform: scale(1.15);
 }
-

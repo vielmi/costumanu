@@ -6,11 +6,7 @@ type SearchParams = Promise<{
   q?: string;
 }>;
 
-export default async function SuchePage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function SuchePage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const initialQuery = params.q ?? "";
 

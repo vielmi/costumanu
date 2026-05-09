@@ -46,7 +46,9 @@ function getCostumeStatus(items: RecentCostume["costume_items"]): CostumeStatus 
   return "in-progress";
 }
 
-function formatProduction(provenance: RecentCostume["costume_provenance"][number] | undefined): string {
+function formatProduction(
+  provenance: RecentCostume["costume_provenance"][number] | undefined
+): string {
   if (!provenance) return "—";
   return provenance.year
     ? `${provenance.production_title}, ${provenance.year}`
@@ -70,13 +72,16 @@ function StatusDot({ status }: { status: CostumeStatus }) {
         marginLeft: "auto",
       }}
     >
-      <span style={{
-        width: 10, height: 10,
-        borderRadius: "50%",
-        background: colorMap[status],
-        flexShrink: 0,
-        display: "block",
-      }} />
+      <span
+        style={{
+          width: 10,
+          height: 10,
+          borderRadius: "50%",
+          background: colorMap[status],
+          flexShrink: 0,
+          display: "block",
+        }}
+      />
     </span>
   );
 }
@@ -126,9 +131,22 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
   const genderIcon = getGenderIcon(costume.gender_term?.label_de);
 
   const menuItems = [
-    { label: "Bearbeiten",  action: () => { setMenuOpen(false); router.push(`/kostueme/neu?edit=${costume.id}`); } },
+    {
+      label: "Bearbeiten",
+      action: () => {
+        setMenuOpen(false);
+        router.push(`/kostueme/neu?edit=${costume.id}`);
+      },
+    },
     { label: "Duplizieren", action: handleDuplicate },
-    { label: "Löschen",     action: () => { setMenuOpen(false); setShowDeleteSheet(true); }, danger: true },
+    {
+      label: "Löschen",
+      action: () => {
+        setMenuOpen(false);
+        setShowDeleteSheet(true);
+      },
+      danger: true,
+    },
   ];
 
   return (
@@ -151,7 +169,13 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
           <button
             type="button"
             onClick={() => setActionError(null)}
-            style={{ background: "none", border: "none", cursor: "pointer", padding: "0 4px", color: "var(--color-error)" }}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "0 4px",
+              color: "var(--color-error)",
+            }}
           >
             ✕
           </button>
@@ -174,8 +198,10 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
           <div
             style={{
               position: "absolute",
-              left: 0, top: 0,
-              width: 5, height: 70,
+              left: 0,
+              top: 0,
+              width: 5,
+              height: 70,
               background: "var(--accent-01)",
               borderRadius: "4px 0 0 4px",
               zIndex: 1,
@@ -183,7 +209,15 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
           />
         )}
 
-        <div style={{ display: "flex", alignItems: "center", padding: "0 4px 0 12px", flexShrink: 0, position: "relative" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            padding: "0 4px 0 12px",
+            flexShrink: 0,
+            position: "relative",
+          }}
+        >
           <ContextMenu
             items={menuItems}
             isOpen={menuOpen}
@@ -196,35 +230,68 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
 
         <Link
           href={`/costume/${costume.id}`}
-          style={{ flex: 1, display: "flex", alignItems: "center", gap: 12, padding: "0 16px 0 4px", textDecoration: "none" }}
+          style={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            padding: "0 16px 0 4px",
+            textDecoration: "none",
+          }}
         >
           {/* Thumbnail */}
           <div
             style={{
-              width: 46, height: 46, borderRadius: "100px",
-              overflow: "hidden", flexShrink: 0,
+              width: 46,
+              height: 46,
+              borderRadius: "100px",
+              overflow: "hidden",
+              flexShrink: 0,
               background: "var(--neutral-grey-300)",
-              display: "flex", alignItems: "center", justifyContent: "center",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             {imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={imageUrl} alt={costume.name} style={{ objectFit: "cover", width: "100%", height: "100%" }} />
+              <img
+                src={imageUrl}
+                alt={costume.name}
+                style={{ objectFit: "cover", width: "100%", height: "100%" }}
+              />
             ) : (
-              <Image src="/icons/icon-shirt.svg" alt="" width={24} height={24} style={{ opacity: 0.4 }} />
+              <Image
+                src="/icons/icon-shirt.svg"
+                alt=""
+                width={24}
+                height={24}
+                style={{ opacity: 0.4 }}
+              />
             )}
           </div>
 
           {/* ID + Name */}
           <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
-            <span style={{ fontSize: "var(--font-size-50)", color: "var(--neutral-grey-500)", fontFamily: "var(--font-family-base)" }}>
+            <span
+              style={{
+                fontSize: "var(--font-size-50)",
+                color: "var(--neutral-grey-500)",
+                fontFamily: "var(--font-family-base)",
+              }}
+            >
               ID-{costume.id.slice(0, 9).toUpperCase()}
             </span>
             <span
               style={{
-                fontSize: "var(--font-size-200)", fontWeight: "var(--font-weight-500)",
-                color: "var(--neutral-black)", fontFamily: "var(--font-family-base)",
-                letterSpacing: "0.01em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                fontSize: "var(--font-size-200)",
+                fontWeight: "var(--font-weight-500)",
+                color: "var(--neutral-black)",
+                fontFamily: "var(--font-family-base)",
+                letterSpacing: "0.01em",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
               }}
             >
               {costume.name}
@@ -235,10 +302,15 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
           <span
             className={styles.productionLabel}
             style={{
-              fontSize: "var(--font-size-200)", color: "var(--neutral-grey-600)",
-              fontFamily: "var(--font-family-base)", flexShrink: 0,
-              minWidth: 120, maxWidth: 160,
-              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+              fontSize: "var(--font-size-200)",
+              color: "var(--neutral-grey-600)",
+              fontFamily: "var(--font-family-base)",
+              flexShrink: 0,
+              minWidth: 120,
+              maxWidth: 160,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
             }}
           >
             {productionLabel}
@@ -248,12 +320,21 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
           <div
             className={styles.genderBadge}
             style={{
-              border: "1px solid var(--neutral-grey-300)", borderRadius: "var(--radius-md)",
-              height: 40, padding: "0 10px",
-              alignItems: "center", gap: 8, flexShrink: 0,
+              border: "1px solid var(--neutral-grey-300)",
+              borderRadius: "var(--radius-md)",
+              height: 40,
+              padding: "0 10px",
+              alignItems: "center",
+              gap: 8,
+              flexShrink: 0,
             }}
           >
-            <Image src={`/icons/icon-${genderIcon}.svg`} alt={costume.gender_term?.label_de ?? ""} width={16} height={16} />
+            <Image
+              src={`/icons/icon-${genderIcon}.svg`}
+              alt={costume.gender_term?.label_de ?? ""}
+              width={16}
+              height={16}
+            />
             <div style={{ width: "0.8px", height: 20, background: "var(--neutral-grey-300)" }} />
             <Image src="/icons/icon-shirt.svg" alt="" width={16} height={16} />
           </div>
@@ -284,20 +365,73 @@ function SuchmodusCta({ fullWidth }: { fullWidth?: boolean }) {
         width: fullWidth ? "100%" : COCKPIT.CTA_CARD_WIDTH,
         height: fullWidth ? 110 : COCKPIT.CTA_CARD_HEIGHT,
         borderRadius: "var(--radius-md)",
-        position: "relative", overflow: "hidden",
-        background: "var(--tertiary-900)", textDecoration: "none",
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0,
+        position: "relative",
+        overflow: "hidden",
+        background: "var(--tertiary-900)",
+        textDecoration: "none",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/images/cockpit-search.jpg" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      <img
+        src="/images/cockpit-search.jpg"
+        alt=""
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
+      />
       <div style={{ position: "absolute", inset: 0, background: "var(--overlay-medium)" }} />
-      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: fullWidth ? "row" : "column", alignItems: "center", justifyContent: "center", gap: fullWidth ? 16 : 20, padding: "0 20px" }}>
-        <span style={{ fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-500)", color: "var(--neutral-white)", fontFamily: "var(--font-family-base)", textAlign: "center", lineHeight: "var(--line-height-150)" }}>
+      <div
+        style={{
+          position: "relative",
+          zIndex: 1,
+          display: "flex",
+          flexDirection: fullWidth ? "row" : "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: fullWidth ? 16 : 20,
+          padding: "0 20px",
+        }}
+      >
+        <span
+          style={{
+            fontSize: "var(--font-size-400)",
+            fontWeight: "var(--font-weight-500)",
+            color: "var(--neutral-white)",
+            fontFamily: "var(--font-family-base)",
+            textAlign: "center",
+            lineHeight: "var(--line-height-150)",
+          }}
+        >
           Suchmodus öffnen
         </span>
-        <div style={{ width: fullWidth ? 40 : 60, height: fullWidth ? 40 : 60, borderRadius: "50%", border: "1px solid var(--neutral-white)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <Image src="/icons/icon-plus-m.svg" alt="" width={fullWidth ? 18 : 24} height={fullWidth ? 18 : 24} style={{ filter: "invert(1)" }} />
+        <div
+          style={{
+            width: fullWidth ? 40 : 60,
+            height: fullWidth ? 40 : 60,
+            borderRadius: "50%",
+            border: "1px solid var(--neutral-white)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <Image
+            src="/icons/icon-plus-m.svg"
+            alt=""
+            width={fullWidth ? 18 : 24}
+            height={fullWidth ? 18 : 24}
+            style={{ filter: "invert(1)" }}
+          />
         </div>
       </div>
     </Link>
@@ -308,8 +442,10 @@ function SuchmodusCta({ fullWidth }: { fullWidth?: boolean }) {
 
 export function CockpitContent({ recentCostumes }: CockpitContentProps) {
   return (
-    <div className={styles.contentPadding} style={{ padding: 24, display: "flex", flexDirection: "column", gap: 32 }}>
-
+    <div
+      className={styles.contentPadding}
+      style={{ padding: 24, display: "flex", flexDirection: "column", gap: 32 }}
+    >
       {/* Image cards — horizontal scroll on mobile */}
       <div className={styles.imageCards}>
         {IMAGE_CARDS.map((card) => (
@@ -321,26 +457,68 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
               minWidth: 220,
               height: 180,
               borderRadius: "var(--radius-md)",
-              position: "relative", overflow: "hidden",
-              background: card.bg, textDecoration: "none", display: "block",
+              position: "relative",
+              overflow: "hidden",
+              background: card.bg,
+              textDecoration: "none",
+              display: "block",
               scrollSnapAlign: "start",
               flexShrink: 0,
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={card.image} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-            <div style={{ position: "absolute", inset: 0, background: `rgba(0,0,0,${card.overlayOpacity})` }} />
+            <img
+              src={card.image}
+              alt=""
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: `rgba(0,0,0,${card.overlayOpacity})`,
+              }}
+            />
             <span
               style={{
-                position: "absolute", bottom: 16, left: 20, right: 44,
-                fontSize: "var(--font-size-400)", fontWeight: "var(--font-weight-500)",
-                color: "var(--neutral-white)", fontFamily: "var(--font-family-base)", lineHeight: "var(--line-height-150)",
+                position: "absolute",
+                bottom: 16,
+                left: 20,
+                right: 44,
+                fontSize: "var(--font-size-400)",
+                fontWeight: "var(--font-weight-500)",
+                color: "var(--neutral-white)",
+                fontFamily: "var(--font-family-base)",
+                lineHeight: "var(--line-height-150)",
               }}
             >
               {card.title}
             </span>
-            <div style={{ position: "absolute", bottom: 20, right: 16, width: 26, height: 26, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Image src="/icons/icon-arrow-right-2.svg" alt="" width={26} height={26} style={{ filter: "invert(1)" }} />
+            <div
+              style={{
+                position: "absolute",
+                bottom: 20,
+                right: 16,
+                width: 26,
+                height: 26,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Image
+                src="/icons/icon-arrow-right-2.svg"
+                alt=""
+                width={26}
+                height={26}
+                style={{ filter: "invert(1)" }}
+              />
             </div>
           </Link>
         ))}
@@ -350,12 +528,17 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
       <div>
         <h2
           style={{
-            fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-350)",
-            fontWeight: "var(--font-weight-500)", color: "var(--neutral-grey-700)", marginBottom: 16,
+            fontFamily: "var(--font-family-base)",
+            fontSize: "var(--font-size-350)",
+            fontWeight: "var(--font-weight-500)",
+            color: "var(--neutral-grey-700)",
+            marginBottom: 16,
           }}
         >
           Zuletzt bearbeitete{" "}
-          <span style={{ fontWeight: "var(--font-weight-700)", textDecoration: "underline" }}>Kostüme</span>
+          <span style={{ fontWeight: "var(--font-weight-700)", textDecoration: "underline" }}>
+            Kostüme
+          </span>
         </h2>
 
         {/* Suchmodus CTA — mobile: above list, full-width */}
@@ -366,9 +549,17 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
         <div className={styles.recentRow}>
           <div style={{ flex: 1, minWidth: 0 }}>
             {recentCostumes.length === 0 ? (
-              <p style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-300)", color: "var(--neutral-grey-500)" }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-family-base)",
+                  fontSize: "var(--font-size-300)",
+                  color: "var(--neutral-grey-500)",
+                }}
+              >
                 Noch keine Kostüme erfasst.{" "}
-                <Link href="/kostueme/neu" style={{ color: "var(--primary-900)" }}>Jetzt erstes Kostüm erfassen</Link>
+                <Link href="/kostueme/neu" style={{ color: "var(--primary-900)" }}>
+                  Jetzt erstes Kostüm erfassen
+                </Link>
               </p>
             ) : (
               <div className={styles.costumeList}>

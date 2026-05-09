@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
-import { SuchmodusResultsClient, type ResultCostume } from "@/components/suchmodus/suchmodus-results-client";
+import {
+  SuchmodusResultsClient,
+  type ResultCostume,
+} from "@/components/suchmodus/suchmodus-results-client";
 import type { NetworkTheater, GenderTerm } from "@/components/suchmodus/suchmodus-cockpit";
 
 type SearchParams = Promise<{
@@ -33,7 +36,11 @@ export default async function SuchmodusResultsPage({
 
   const [{ data: allTheatersData }, { data: genderData }] = await Promise.all([
     supabase.from("theaters").select("id, name, slug, settings").order("name"),
-    supabase.from("taxonomy_terms").select("id, label_de").eq("vocabulary", "gender").order("sort_order"),
+    supabase
+      .from("taxonomy_terms")
+      .select("id, label_de")
+      .eq("vocabulary", "gender")
+      .order("sort_order"),
   ]);
 
   // Resolve single gender (from drawer) or first of multi (from filter)
@@ -42,37 +49,40 @@ export default async function SuchmodusResultsPage({
 
   // ── Resolve title labels ──────────────────────────────────────────────────
   const termIds = [genderId, clothingTypeId].filter(Boolean) as string[];
-  const { data: termRows } = termIds.length > 0
-    ? await supabase.from("taxonomy_terms").select("id, label_de").in("id", termIds)
-    : { data: [] };
+  const { data: termRows } =
+    termIds.length > 0
+      ? await supabase.from("taxonomy_terms").select("id, label_de").in("id", termIds)
+      : { data: [] };
 
   const termMap = Object.fromEntries((termRows ?? []).map((t) => [t.id, t.label_de]));
 
-  const genderLabel  = genderId       ? (termMap[genderId]       ?? "") : "";
+  const genderLabel = genderId ? (termMap[genderId] ?? "") : "";
   const clothingLabel = clothingTypeId ? (termMap[clothingTypeId] ?? "") : "";
 
-  const title = clothingLabel
-    ? `${clothingLabel} ${genderLabel}`.trim()
-    : genderLabel || "Kostüme";
+  const title = clothingLabel ? `${clothingLabel} ${genderLabel}`.trim() : genderLabel || "Kostüme";
 
   // ── Build costume query ───────────────────────────────────────────────────
   let query = supabase
     .from("costumes")
-    .select(`
+    .select(
+      `
       id, name,
       clothing_type:taxonomy_terms!clothing_type_id(id, label_de),
       costume_media(storage_path, sort_order),
       costume_provenance(production_title, year, actor_name, role_name, director_name, costume_designer, costume_assistant),
       costume_items(current_status, size_label),
       theater:theaters(name)
-    `)
+    `
+    )
     .order("created_at", { ascending: false })
     .limit(200);
 
   // Gender filter (single from drawer, or multi from filter page)
   const genderIds = params.genders
     ? params.genders.split(",").filter(Boolean)
-    : genderId ? [genderId] : [];
+    : genderId
+      ? [genderId]
+      : [];
   if (genderIds.length === 1) {
     query = query.eq("gender_term_id", genderIds[0]);
   } else if (genderIds.length > 1) {
@@ -131,47 +141,74 @@ export default async function SuchmodusResultsPage({
     filtered = filtered.filter((r) => idSet.has(r.id));
   }
 
+  type ProvenanceRow = {
+    production_title?: string | null;
+    actor_name?: string | null;
+    role_name?: string | null;
+    director_name?: string | null;
+    costume_designer?: string | null;
+    costume_assistant?: string | null;
+  };
+  type ItemRow = { size_label?: string | null };
+
   if (params.title) {
     const q = params.title.toLowerCase();
     filtered = filtered.filter((r) =>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (r.costume_provenance as any[])?.some((p: any) => p.production_title?.toLowerCase().includes(q))
+      (r.costume_provenance as ProvenanceRow[])?.some((p) =>
+        p.production_title?.toLowerCase().includes(q)
+      )
     );
   }
+
   if (params.actor) {
     const q = params.actor.toLowerCase();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    filtered = filtered.filter((r) => (r.costume_provenance as any[])?.some((p: any) => p.actor_name?.toLowerCase().includes(q)));
+    filtered = filtered.filter((r) =>
+      (r.costume_provenance as ProvenanceRow[])?.some((p) =>
+        p.actor_name?.toLowerCase().includes(q)
+      )
+    );
   }
   if (params.role) {
     const q = params.role.toLowerCase();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    filtered = filtered.filter((r) => (r.costume_provenance as any[])?.some((p: any) => p.role_name?.toLowerCase().includes(q)));
+    filtered = filtered.filter((r) =>
+      (r.costume_provenance as ProvenanceRow[])?.some((p) => p.role_name?.toLowerCase().includes(q))
+    );
   }
   if (params.director) {
     const q = params.director.toLowerCase();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    filtered = filtered.filter((r) => (r.costume_provenance as any[])?.some((p: any) => p.director_name?.toLowerCase().includes(q)));
+    filtered = filtered.filter((r) =>
+      (r.costume_provenance as ProvenanceRow[])?.some((p) =>
+        p.director_name?.toLowerCase().includes(q)
+      )
+    );
   }
   if (params.designer) {
     const q = params.designer.toLowerCase();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    filtered = filtered.filter((r) => (r.costume_provenance as any[])?.some((p: any) => p.costume_designer?.toLowerCase().includes(q)));
+    filtered = filtered.filter((r) =>
+      (r.costume_provenance as ProvenanceRow[])?.some((p) =>
+        p.costume_designer?.toLowerCase().includes(q)
+      )
+    );
   }
   if (params.assistant) {
     const q = params.assistant.toLowerCase();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    filtered = filtered.filter((r) => (r.costume_provenance as any[])?.some((p: any) => p.costume_assistant?.toLowerCase().includes(q)));
+    filtered = filtered.filter((r) =>
+      (r.costume_provenance as ProvenanceRow[])?.some((p) =>
+        p.costume_assistant?.toLowerCase().includes(q)
+      )
+    );
   }
   if (params.size_int) {
     const sizes = params.size_int.split(",").map((s) => s.toLowerCase());
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    filtered = filtered.filter((r) => (r.costume_items as any[])?.some((i: any) => sizes.includes(i.size_label?.toLowerCase() ?? "")));
+    filtered = filtered.filter((r) =>
+      (r.costume_items as ItemRow[])?.some((i) => sizes.includes(i.size_label?.toLowerCase() ?? ""))
+    );
   }
   if (params.size_eu) {
     const sizes = params.size_eu.split(",").map((s) => s.toLowerCase());
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    filtered = filtered.filter((r) => (r.costume_items as any[])?.some((i: any) => sizes.includes(i.size_label?.toLowerCase() ?? "")));
+    filtered = filtered.filter((r) =>
+      (r.costume_items as ItemRow[])?.some((i) => sizes.includes(i.size_label?.toLowerCase() ?? ""))
+    );
   }
 
   // ── Build public image URLs ───────────────────────────────────────────────

@@ -32,19 +32,13 @@ export async function getUserMembership(
 }
 
 export async function getAllTheaters(supabase: SupabaseClient): Promise<Theater[]> {
-  const { data, error } = await supabase
-    .from("theaters")
-    .select("id, name, slug")
-    .order("name");
+  const { data, error } = await supabase.from("theaters").select("id, name, slug").order("name");
 
   if (error) throw error;
   return (data ?? []) as Theater[];
 }
 
-export async function getTheaterMembers(
-  supabase: SupabaseClient,
-  theaterId: string
-) {
+export async function getTheaterMembers(supabase: SupabaseClient, theaterId: string) {
   const { data, error } = await supabase
     .from("theater_members")
     .select("user_id, role")

@@ -22,6 +22,9 @@ jobs:
       - name: Dependencies installieren
         run: npm ci
 
+      - name: Prettier Format Check
+        run: npm run format:check
+
       - name: TypeScript & ESLint
         run: npm run lint
 
@@ -54,7 +57,7 @@ jobs:
   e2e-tests:
     name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
-    needs: build  # Erst bauen, dann E2E
+    needs: build # Erst bauen, dann E2E
     steps:
       - uses: actions/checkout@v4
 

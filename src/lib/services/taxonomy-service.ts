@@ -50,11 +50,7 @@ export async function createTaxonomyTerm(
   supabase: SupabaseClient,
   term: Omit<TaxonomyTerm, "id">
 ): Promise<TaxonomyTerm> {
-  const { data, error } = await supabase
-    .from("taxonomy_terms")
-    .insert(term)
-    .select()
-    .single();
+  const { data, error } = await supabase.from("taxonomy_terms").insert(term).select().single();
 
   if (error) throw error;
   return data as TaxonomyTerm;
@@ -65,22 +61,13 @@ export async function updateTaxonomyTerm(
   id: string,
   updates: Partial<Omit<TaxonomyTerm, "id">>
 ): Promise<void> {
-  const { error } = await supabase
-    .from("taxonomy_terms")
-    .update(updates)
-    .eq("id", id);
+  const { error } = await supabase.from("taxonomy_terms").update(updates).eq("id", id);
 
   if (error) throw error;
 }
 
-export async function deleteTaxonomyTerm(
-  supabase: SupabaseClient,
-  id: string
-): Promise<void> {
-  const { error } = await supabase
-    .from("taxonomy_terms")
-    .delete()
-    .eq("id", id);
+export async function deleteTaxonomyTerm(supabase: SupabaseClient, id: string): Promise<void> {
+  const { error } = await supabase.from("taxonomy_terms").delete().eq("id", id);
 
   if (error) throw error;
 }

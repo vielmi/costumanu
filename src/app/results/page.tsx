@@ -7,17 +7,15 @@ import type { Costume } from "@/lib/types/costume";
 
 type SearchParams = Promise<{ scope?: string }>;
 
-export default async function ResultsPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function ResultsPage({ searchParams }: { searchParams: SearchParams }) {
   const { scope } = await searchParams;
   const isNetwork = scope === "network";
 
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
   // Own theater
@@ -41,20 +39,23 @@ export default async function ResultsPage({
   // Fetch costumes based on scope
   const queryIds = isNetwork ? networkTheaterIds : [theaterId];
 
-  const { data: costumes } = queryIds.length > 0
-    ? await supabase
-        .from("costumes")
-        .select(`
+  const { data: costumes } =
+    queryIds.length > 0
+      ? await supabase
+          .from("costumes")
+          .select(
+            `
           id, name, description, gender_term_id, clothing_type_id, created_at, theater_id,
           gender_term:taxonomy_terms!gender_term_id(id, vocabulary, label_de, parent_id, sort_order),
           clothing_type:taxonomy_terms!clothing_type_id(id, vocabulary, label_de, parent_id, sort_order),
           costume_media(id, costume_id, storage_path, sort_order, created_at),
           costume_provenance(id, costume_id, production_title, year, role_name),
           costume_items(id, costume_id, theater_id, barcode_id, size_label, condition_grade, current_status)
-        `)
-        .in("theater_id", queryIds)
-        .order("created_at", { ascending: false })
-    : { data: [] };
+        `
+          )
+          .in("theater_id", queryIds)
+          .order("created_at", { ascending: false })
+      : { data: [] };
 
   return (
     <AppShell>

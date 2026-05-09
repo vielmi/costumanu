@@ -41,8 +41,10 @@ export default async function FundusPage() {
       return (
         <AppShell>
           <main className="mx-auto max-w-5xl px-4 py-8">
-            <h1 className="text-xl font-bold text-destructive">Fehler beim Erstellen des Theaters</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <h1 className="text-destructive text-xl font-bold">
+              Fehler beim Erstellen des Theaters
+            </h1>
+            <p className="text-muted-foreground mt-2 text-sm">
               Bitte versuche es später erneut oder kontaktiere den Support.
             </p>
           </main>
@@ -58,7 +60,8 @@ export default async function FundusPage() {
     await Promise.all([
       supabase
         .from("costumes")
-        .select(`
+        .select(
+          `
           id, name, description, gender_term_id, clothing_type_id, created_at, theater_id,
           gender_term:taxonomy_terms!gender_term_id(id, vocabulary, label_de, parent_id, sort_order),
           clothing_type:taxonomy_terms!clothing_type_id(id, vocabulary, label_de, parent_id, sort_order),
@@ -67,7 +70,8 @@ export default async function FundusPage() {
           costume_items(id, costume_id, theater_id, barcode_id, size_label, condition_grade, current_status, storage_location_path),
           costume_taxonomy(term_id, taxonomy_term:taxonomy_terms(id, vocabulary, label_de)),
           theater:theaters!theater_id(id, name, slug)
-        `)
+        `
+        )
         .eq("theater_id", theaterId)
         .order("created_at", { ascending: false }),
       supabase

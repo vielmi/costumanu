@@ -5,7 +5,9 @@ import { WishlistPageClient } from "@/components/wishlist/wishlist-page-client";
 export default async function MerklistePage() {
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
   // Ensure theater exists for user
@@ -38,7 +40,8 @@ export default async function MerklistePage() {
   // Fetch wishlists with item count and cover image
   const { data: wishlists } = await supabase
     .from("wishlists")
-    .select(`
+    .select(
+      `
       id, name, is_archived, created_at, cover_image_path,
       wishlist_items(
         id,
@@ -46,7 +49,8 @@ export default async function MerklistePage() {
           costume_media(storage_path, sort_order)
         )
       )
-    `)
+    `
+    )
     .eq("owner_id", user.id)
     .eq("is_archived", false)
     .order("created_at", { ascending: false });
@@ -60,10 +64,13 @@ export default async function MerklistePage() {
 
   const mapped = (wishlists ?? []).map((w) => {
     // cover_image_path has priority over costume-derived cover
-    let coverUrl: string | null = (w as unknown as { cover_image_path?: string }).cover_image_path ?? null;
+    let coverUrl: string | null =
+      (w as unknown as { cover_image_path?: string }).cover_image_path ?? null;
 
     if (!coverUrl) {
-      const items = (Array.isArray(w.wishlist_items) ? w.wishlist_items : []) as unknown as ItemRow[];
+      const items = (Array.isArray(w.wishlist_items)
+        ? w.wishlist_items
+        : []) as unknown as ItemRow[];
       for (const item of items) {
         const media = item.costumes?.costume_media;
         if (Array.isArray(media) && media.length > 0) {
@@ -85,11 +92,5 @@ export default async function MerklistePage() {
     };
   });
 
-  return (
-    <WishlistPageClient
-      wishlists={mapped}
-      theaterId={theaterId}
-      userId={user.id}
-    />
-  );
+  return <WishlistPageClient wishlists={mapped} theaterId={theaterId} userId={user.id} />;
 }

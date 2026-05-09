@@ -22,7 +22,7 @@ export function RentalSuccess({ orderId }: RentalSuccessProps) {
       {/* Success message */}
       <div className="flex flex-col gap-2">
         <h1 className="text-xl font-bold">{t("rental.successTitle")}</h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           {t("rental.rentalNumber")}: {orderId.slice(0, 8).toUpperCase()}
         </p>
       </div>

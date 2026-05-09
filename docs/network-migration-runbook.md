@@ -91,6 +91,7 @@ WHERE c.theater_id = '<THEATER_ID>'
 ## Schritt 4 — Theater-Owner informieren
 
 Der Theater-Owner muss informiert werden, dass:
+
 - Das Theater jetzt im Netzwerk ist
 - Alle Kostüme standardmässig **nicht sichtbar** sind
 - Er/sie Kostüme einzeln freigeben kann (in der App unter Suchmodus-Einstellungen)
@@ -141,7 +142,7 @@ WHERE cnv.costume_id = c.id
 
 ## Platzhalter ersetzen
 
-| Platzhalter | Beschreibung | Wo finden |
-|---|---|---|
-| `<THEATER_ID>` | UUID des Theaters | `theaters`-Tabelle |
+| Platzhalter    | Beschreibung       | Wo finden                  |
+| -------------- | ------------------ | -------------------------- |
+| `<THEATER_ID>` | UUID des Theaters  | `theaters`-Tabelle         |
 | `<NETWORK_ID>` | UUID des Netzwerks | `theater_networks`-Tabelle |

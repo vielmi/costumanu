@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import type { FieldDef } from "@/lib/services/field-service";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
@@ -11,7 +12,11 @@ import { getMusterIcon } from "@/lib/constants/icons";
 import { COLOR_SWATCHES } from "@/lib/constants/color-swatches";
 import styles from "./kostueme-neu.module.css";
 
-interface TaxTerm { id: string; label_de: string; parent_id?: string | null; }
+interface TaxTerm {
+  id: string;
+  label_de: string;
+  parent_id?: string | null;
+}
 
 interface Taxonomy {
   genders: TaxTerm[];
@@ -41,7 +46,6 @@ function getWashIcon(label: string): string | null {
   return null;
 }
 
-
 interface Props {
   theaterId: string;
   theaterName: string;
@@ -49,25 +53,27 @@ interface Props {
   currentUserName: string;
   costumeType: "single" | "ensemble" | "serie";
   taxonomy: Taxonomy;
+  fieldDefinitions: FieldDef[];
+  fieldRequirements: import("@/lib/services/field-service").FieldRequirement[];
   editCostume?: import("@/lib/types/costume").Costume;
 }
 
 const NAV_SECTIONS = [
-  { id: "kategorie",   label: "Kategorie",   icon: "icon-category"  },
-  { id: "material",    label: "Material",    icon: "icon-material"  },
-  { id: "bilder",      label: "Bilder",      icon: "icon-images" },
-  { id: "masse",       label: "Masse",       icon: "icon-measuring" },
-  { id: "lagerort",    label: "Lagerort",    icon: "icon-location"  },
-  { id: "infos",       label: "ID & Infos",  icon: "icon-list"      },
+  { id: "kategorie", label: "Kategorie", icon: "icon-category" },
+  { id: "material", label: "Material", icon: "icon-material" },
+  { id: "bilder", label: "Bilder", icon: "icon-images" },
+  { id: "masse", label: "Masse", icon: "icon-measuring" },
+  { id: "lagerort", label: "Lagerort", icon: "icon-location" },
+  { id: "infos", label: "ID & Infos", icon: "icon-list" },
 ];
 
 const GENDER_CARDS = [
-  { id: "damen",   label: "Damen",   icon: "icon-female"   },
-  { id: "herren",  label: "Herren",  icon: "icon-male"     },
-  { id: "unisex",  label: "Unisex",  icon: "icon-unisex"   },
-  { id: "kinder",  label: "Kinder",  icon: "icon-children" },
-  { id: "tier",    label: "Tier",    icon: "icon-animal"   },
-  { id: "fantasy", label: "Fantasy", icon: "icon-fantasy"  },
+  { id: "damen", label: "Damen", icon: "icon-female" },
+  { id: "herren", label: "Herren", icon: "icon-male" },
+  { id: "unisex", label: "Unisex", icon: "icon-unisex" },
+  { id: "kinder", label: "Kinder", icon: "icon-children" },
+  { id: "tier", label: "Tier", icon: "icon-animal" },
+  { id: "fantasy", label: "Fantasy", icon: "icon-fantasy" },
 ];
 
 const KONFEKTIONS_SIZES_INT = ["XS", "S", "M", "L", "XL", "XXL"];
@@ -100,9 +106,32 @@ function Pill({ label, active, onClick }: { label: string; active: boolean; onCl
     >
       {label}
       {active && (
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-          <line x1="1" y1="1" x2="11" y2="11" stroke="var(--secondary-800)" strokeWidth="1.5" strokeLinecap="round"/>
-          <line x1="11" y1="1" x2="1" y2="11" stroke="var(--secondary-800)" strokeWidth="1.5" strokeLinecap="round"/>
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 12 12"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ flexShrink: 0 }}
+        >
+          <line
+            x1="1"
+            y1="1"
+            x2="11"
+            y2="11"
+            stroke="var(--secondary-800)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+          <line
+            x1="11"
+            y1="1"
+            x2="1"
+            y2="11"
+            stroke="var(--secondary-800)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
         </svg>
       )}
     </button>
@@ -152,7 +181,11 @@ function CreatableSearchCard({
           .select("year")
           .not("year", "is", null)
           .limit(50);
-        const all = [...new Set((data ?? []).map((d: { year: number | null }) => String(d.year)).filter(Boolean))];
+        const all = [
+          ...new Set(
+            (data ?? []).map((d: { year: number | null }) => String(d.year)).filter(Boolean)
+          ),
+        ];
         results = all.filter((y) => y.startsWith(value)).slice(0, 8);
       } else {
         const { data } = await supabase
@@ -160,9 +193,11 @@ function CreatableSearchCard({
           .select(dbColumn)
           .ilike(dbColumn, `%${value}%`)
           .limit(20);
-        results = [...new Set(
-          (data ?? []).map((d: Record<string, unknown>) => String(d[dbColumn])).filter(Boolean)
-        )].slice(0, 8);
+        results = [
+          ...new Set(
+            (data ?? []).map((d: Record<string, unknown>) => String(d[dbColumn])).filter(Boolean)
+          ),
+        ].slice(0, 8);
       }
       setSuggestions(results);
       setOpen(true);
@@ -181,37 +216,45 @@ function CreatableSearchCard({
 
   return (
     <div ref={containerRef} style={{ position: "relative" }}>
-      <div style={{
-        background: "var(--secondary-500)",
-        borderRadius: "var(--radius-md)",
-        padding: "13px 13px 16px",
-        flex: 1,
-      }}>
-        <div style={{
-          fontFamily: "var(--font-family-base)",
-          fontSize: "var(--font-size-350)",
-          fontWeight: "var(--font-weight-500)",
-          color: "var(--neutral-black)",
-          marginBottom: 10,
-        }}>
+      <div
+        style={{
+          background: "var(--secondary-500)",
+          borderRadius: "var(--radius-md)",
+          padding: "13px 13px 16px",
+          flex: 1,
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "var(--font-family-base)",
+            fontSize: "var(--font-size-350)",
+            fontWeight: "var(--font-weight-500)",
+            color: "var(--neutral-black)",
+            marginBottom: 10,
+          }}
+        >
           {label}
         </div>
-        <div style={{
-          border: "1px solid var(--neutral-black)",
-          borderRadius: 47,
-          height: 60,
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          padding: "0 16px",
-          background: "var(--secondary-500)",
-        }}>
+        <div
+          style={{
+            border: "1px solid var(--neutral-black)",
+            borderRadius: 47,
+            height: 60,
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            padding: "0 16px",
+            background: "var(--secondary-500)",
+          }}
+        >
           <Image src="/icons/icon-search.svg" alt="" width={25} height={25} />
           <input
             type="text"
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            onFocus={() => { if (value.trim()) setOpen(true); }}
+            onFocus={() => {
+              if (value.trim()) setOpen(true);
+            }}
             placeholder="durchsuchen"
             style={{
               flex: 1,
@@ -228,17 +271,19 @@ function CreatableSearchCard({
         </div>
       </div>
       {open && (suggestions.length > 0 || showCreate) && (
-        <div style={{
-          position: "absolute",
-          top: "calc(100% + 4px)",
-          left: 0,
-          right: 0,
-          background: "white",
-          borderRadius: "var(--radius-sm)",
-          boxShadow: "var(--shadow-300)",
-          zIndex: 100,
-          overflow: "hidden",
-        }}>
+        <div
+          style={{
+            position: "absolute",
+            top: "calc(100% + 4px)",
+            left: 0,
+            right: 0,
+            background: "white",
+            borderRadius: "var(--radius-sm)",
+            boxShadow: "var(--shadow-300)",
+            zIndex: 100,
+            overflow: "hidden",
+          }}
+        >
           {suggestions.map((s) => (
             <button
               key={s}
@@ -290,7 +335,9 @@ function CreatableSearchCard({
 }
 
 // ─── Build initial form from an existing costume (edit mode) ─────────────────
-function buildFormFromCostume(c: import("@/lib/types/costume").Costume): ReturnType<typeof emptyForm> {
+function buildFormFromCostume(
+  c: import("@/lib/types/costume").Costume
+): ReturnType<typeof emptyForm> {
   const item = c.costume_items?.[0];
   const prov = c.costume_provenance?.[0];
   const storageParts = item?.storage_location_path?.split(".") ?? [];
@@ -350,57 +397,95 @@ function buildFormFromCostume(c: import("@/lib/types/costume").Costume): ReturnT
 
 function emptyForm() {
   return {
-    name: "", description: "", genderId: "",
-    clothingTypeLabel: "", clothingTypeSearch: "", clothingTypeSuggestions: [] as string[],
-    materialSearch: "", materialIds: [] as string[], musterIds: [] as string[],
-    colorIds: [] as string[], spartanIds: [] as string[], temperatureIds: [] as string[],
-    washingTypeIds: [] as string[], dryingIds: [] as string[], ironingIds: [] as string[],
+    name: "",
+    description: "",
+    genderId: "",
+    clothingTypeLabel: "",
+    clothingTypeSearch: "",
+    clothingTypeSuggestions: [] as string[],
+    materialSearch: "",
+    materialIds: [] as string[],
+    musterIds: [] as string[],
+    colorIds: [] as string[],
+    spartanIds: [] as string[],
+    temperatureIds: [] as string[],
+    washingTypeIds: [] as string[],
+    dryingIds: [] as string[],
+    ironingIds: [] as string[],
     subtypeIds: [] as string[],
     keineReinigung: false,
-    colorNote: "", materialNotes: "",
-    sizeLabel: "", sizeNotes: "",
-    locationFloor: "", locationRack: "", locationSector: "",
-    currentStatus: "available", isPublicForRent: false,
-    chest: "", waist: "", hip: "", backLength: "", shoulderWidth: "", legLength: "",
-    storageLocation: "", barcodeId: "", rfidId: "", qrCodeId: "",
+    colorNote: "",
+    materialNotes: "",
+    sizeLabel: "",
+    sizeNotes: "",
+    locationFloor: "",
+    locationRack: "",
+    locationSector: "",
+    currentStatus: "available",
+    isPublicForRent: false,
+    chest: "",
+    waist: "",
+    hip: "",
+    backLength: "",
+    shoulderWidth: "",
+    legLength: "",
+    storageLocation: "",
+    barcodeId: "",
+    rfidId: "",
+    qrCodeId: "",
     conditionGrade: "3",
-    productionTitle: "", productionYear: "", spielsaison: "", actorName: "", roleName: "",
+    productionTitle: "",
+    productionYear: "",
+    spielsaison: "",
+    actorName: "",
+    roleName: "",
     notes: "",
   };
 }
 
 // ─── Free-text card (same visual as CreatableSearchCard, no autocomplete) ────
-function FreeTextCard({ label, value, onChange, placeholder = "eingeben" }: {
+function FreeTextCard({
+  label,
+  value,
+  onChange,
+  placeholder = "eingeben",
+}: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
 }) {
   return (
-    <div style={{
-      background: "var(--secondary-500)",
-      borderRadius: "var(--radius-md)",
-      padding: "13px 13px 16px",
-      flex: 1,
-    }}>
-      <div style={{
-        fontFamily: "var(--font-family-base)",
-        fontSize: "var(--font-size-350)",
-        fontWeight: "var(--font-weight-500)",
-        color: "var(--neutral-black)",
-        marginBottom: 10,
-      }}>
+    <div
+      style={{
+        background: "var(--secondary-500)",
+        borderRadius: "var(--radius-md)",
+        padding: "13px 13px 16px",
+        flex: 1,
+      }}
+    >
+      <div
+        style={{
+          fontFamily: "var(--font-family-base)",
+          fontSize: "var(--font-size-350)",
+          fontWeight: "var(--font-weight-500)",
+          color: "var(--neutral-black)",
+          marginBottom: 10,
+        }}
+      >
         {label}
       </div>
-      <div style={{
-        border: "1px solid var(--neutral-black)",
-        borderRadius: 47,
-        height: 60,
-        display: "flex",
-        alignItems: "center",
-        padding: "0 16px",
-        background: "var(--secondary-500)",
-      }}>
+      <div
+        style={{
+          border: "1px solid var(--neutral-black)",
+          borderRadius: 47,
+          height: 60,
+          display: "flex",
+          alignItems: "center",
+          padding: "0 16px",
+          background: "var(--secondary-500)",
+        }}
+      >
         <input
           type="text"
           value={value}
@@ -424,12 +509,32 @@ function FreeTextCard({ label, value, onChange, placeholder = "eingeben" }: {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, currentUserName, costumeType, taxonomy, editCostume }: Props) {
+export function KostuemeNeuClient({
+  theaterId,
+  theaterName,
+  currentUserId,
+  currentUserName,
+  costumeType,
+  taxonomy,
+  fieldDefinitions,
+  fieldRequirements,
+  editCostume,
+}: Props) {
   const router = useRouter();
   const supabase = createClient();
   const mainRef = useRef<HTMLDivElement>(null);
   const lastScrollYRef = useRef(0);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+
+  const navSections =
+    fieldDefinitions.length > 0
+      ? [
+          ...NAV_SECTIONS.slice(0, -1),
+          { id: "eigene-felder", label: "Eigene Felder", icon: "icon-list" },
+          NAV_SECTIONS[NAV_SECTIONS.length - 1],
+        ]
+      : NAV_SECTIONS;
+
   const [activeSection, setActiveSection] = useState("kategorie");
   const [headerHidden, setHeaderHidden] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -456,7 +561,7 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
     const sb = createClient();
     return [...editCostume.costume_media]
       .sort((a, b) => a.sort_order - b.sort_order)
-      .map(m => ({
+      .map((m) => ({
         kind: "existing" as const,
         mediaId: m.id,
         storagePath: m.storage_path,
@@ -466,18 +571,49 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
   const [deletedMediaIds, setDeletedMediaIds] = useState<string[]>([]);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const [form, setForm] = useState(() => editCostume ? buildFormFromCostume(editCostume) : emptyForm());
+  const [form, setForm] = useState(() =>
+    editCostume ? buildFormFromCostume(editCostume) : emptyForm()
+  );
+  const [customFields, setCustomFields] = useState<Record<string, string | number | boolean>>(
+    () => {
+      const cf = editCostume?.custom_fields;
+      if (!cf || typeof cf !== "object") return {};
+      return cf as Record<string, string | number | boolean>;
+    }
+  );
+
+  function setCustomField(label: string, value: string | number | boolean) {
+    setCustomFields((prev) => ({ ...prev, [label]: value }));
+  }
 
   function setField<K extends keyof typeof form>(key: K, val: (typeof form)[K]) {
     setForm((f) => {
       const next = { ...f, [key]: val };
-      if (showErrors && next.name.trim() && next.genderId && next.clothingTypeLabel && next.colorIds.length > 0) {
+      if (
+        showErrors &&
+        next.name.trim() &&
+        next.genderId &&
+        next.clothingTypeLabel &&
+        next.colorIds.length > 0
+      ) {
         setShowErrors(false);
       }
       return next;
     });
   }
-  function toggleArr(key: "materialIds" | "musterIds" | "colorIds" | "spartanIds" | "temperatureIds" | "washingTypeIds" | "dryingIds" | "ironingIds" | "subtypeIds", id: string) {
+  function toggleArr(
+    key:
+      | "materialIds"
+      | "musterIds"
+      | "colorIds"
+      | "spartanIds"
+      | "temperatureIds"
+      | "washingTypeIds"
+      | "dryingIds"
+      | "ironingIds"
+      | "subtypeIds",
+    id: string
+  ) {
     setForm((f) => {
       const arr = f[key] as string[];
       return { ...f, [key]: arr.includes(id) ? arr.filter((x) => x !== id) : [...arr, id] };
@@ -495,8 +631,8 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
     }
     lastScrollYRef.current = y;
     const containerTop = el.getBoundingClientRect().top;
-    let current = NAV_SECTIONS[0].id;
-    for (const sec of NAV_SECTIONS) {
+    let current = navSections[0].id;
+    for (const sec of navSections) {
       const ref = sectionRefs.current[sec.id];
       if (ref) {
         const refTop = ref.getBoundingClientRect().top - containerTop;
@@ -525,85 +661,135 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
 
   function handleImageAdd(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
-    setAllImages(prev => [
+    setAllImages((prev) => [
       ...prev,
-      ...files.map(f => ({ kind: "new" as const, file: f, url: URL.createObjectURL(f) })),
+      ...files.map((f) => ({ kind: "new" as const, file: f, url: URL.createObjectURL(f) })),
     ]);
     e.target.value = "";
   }
 
   function removeImage(idx: number) {
-    setAllImages(prev => {
+    setAllImages((prev) => {
       const entry = prev[idx];
       if (entry.kind === "existing") {
-        setDeletedMediaIds(d => [...d, entry.mediaId]);
+        setDeletedMediaIds((d) => [...d, entry.mediaId]);
       }
       return prev.filter((_, i) => i !== idx);
     });
     setLightboxIndex(null);
   }
 
-  const genderTermId = taxonomy.genders.find(
-    (g) => g.label_de.toLowerCase() === form.genderId
-  )?.id ?? null;
+  const genderTermId =
+    taxonomy.genders.find((g) => g.label_de.toLowerCase() === form.genderId)?.id ?? null;
 
   async function handleSave() {
-    const isValid = form.name.trim() && form.genderId && form.clothingTypeLabel && form.colorIds.length > 0;
+    const isValid =
+      form.name.trim() && form.genderId && form.clothingTypeLabel && form.colorIds.length > 0;
     if (!isValid) {
       setShowErrors(true);
-      const firstMissing = !form.name.trim() ? "name-field"
-        : !form.genderId ? "gender-field"
-        : !form.clothingTypeLabel ? "clothing-type-field"
-        : "color-field";
+      const firstMissing = !form.name.trim()
+        ? "name-field"
+        : !form.genderId
+          ? "gender-field"
+          : !form.clothingTypeLabel
+            ? "clothing-type-field"
+            : "color-field";
       const el = document.getElementById(firstMissing);
       if (el && mainRef.current) {
         const containerTop = mainRef.current.getBoundingClientRect().top;
         const elTop = el.getBoundingClientRect().top;
-        mainRef.current.scrollTo({ top: mainRef.current.scrollTop + (elTop - containerTop) - 40, behavior: "smooth" });
+        mainRef.current.scrollTo({
+          top: mainRef.current.scrollTop + (elTop - containerTop) - 40,
+          behavior: "smooth",
+        });
       }
       return;
     }
+    // Validate network-required fields (field_requirements) that exist in fieldDefinitions
+    const definedLabels = new Set(fieldDefinitions.map((d) => d.label));
+    const missingRequired = fieldRequirements
+      .filter((r) => r.is_required && definedLabels.has(r.label))
+      .filter((r) => {
+        const val = customFields[r.label];
+        return val === undefined || val === null || String(val).trim() === "";
+      });
+    if (missingRequired.length > 0) {
+      setSaveError(
+        `Netzwerk-Pflichtfeld${missingRequired.length > 1 ? "er" : ""} fehlt: ${missingRequired.map((r) => r.label).join(", ")}`
+      );
+      const el = document.getElementById("eigene-felder");
+      if (el && mainRef.current) {
+        const containerTop = mainRef.current.getBoundingClientRect().top;
+        const elTop = el.getBoundingClientRect().top;
+        mainRef.current.scrollTo({
+          top: mainRef.current.scrollTop + (elTop - containerTop) - 40,
+          behavior: "smooth",
+        });
+      }
+      return;
+    }
+
     setSaving(true);
     try {
       const taxTermIds = [
-        ...form.materialIds, ...form.musterIds, ...form.colorIds,
-        ...form.spartanIds, ...form.temperatureIds, ...form.washingTypeIds,
-        ...form.dryingIds, ...form.ironingIds, ...form.subtypeIds,
+        ...form.materialIds,
+        ...form.musterIds,
+        ...form.colorIds,
+        ...form.spartanIds,
+        ...form.temperatureIds,
+        ...form.washingTypeIds,
+        ...form.dryingIds,
+        ...form.ironingIds,
+        ...form.subtypeIds,
       ];
       const sizeData = {
-        chest: form.chest || null, waist: form.waist || null, hip: form.hip || null,
-        back_length: form.backLength || null, shoulder_width: form.shoulderWidth || null,
+        chest: form.chest || null,
+        waist: form.waist || null,
+        hip: form.hip || null,
+        back_length: form.backLength || null,
+        shoulder_width: form.shoulderWidth || null,
         leg_length: form.legLength || null,
       };
-      const storagePath = [form.locationFloor, form.locationRack, form.locationSector].filter(Boolean).join(".") || form.storageLocation || null;
+      const storagePath =
+        [form.locationFloor, form.locationRack, form.locationSector].filter(Boolean).join(".") ||
+        form.storageLocation ||
+        null;
 
       if (editCostume) {
-        await supabase.from("costumes").update({
-          name: form.name,
-          description: form.description || null,
-          gender_term_id: genderTermId,
-          clothing_type_id: taxonomy.clothingTypes.find((t) => t.label_de === form.clothingTypeLabel)?.id ?? null,
-        }).eq("id", editCostume.id);
+        await supabase
+          .from("costumes")
+          .update({
+            name: form.name,
+            description: form.description || null,
+            gender_term_id: genderTermId,
+            clothing_type_id:
+              taxonomy.clothingTypes.find((t) => t.label_de === form.clothingTypeLabel)?.id ?? null,
+            custom_fields: Object.keys(customFields).length > 0 ? customFields : null,
+          })
+          .eq("id", editCostume.id);
 
         await supabase.from("costume_taxonomy").delete().eq("costume_id", editCostume.id);
         if (taxTermIds.length > 0) {
-          await supabase.from("costume_taxonomy").insert(
-            taxTermIds.map((term_id) => ({ costume_id: editCostume.id, term_id }))
-          );
+          await supabase
+            .from("costume_taxonomy")
+            .insert(taxTermIds.map((term_id) => ({ costume_id: editCostume.id, term_id })));
         }
 
         const existingItem = editCostume.costume_items?.[0];
         if (existingItem) {
-          await supabase.from("costume_items").update({
-            barcode_id: form.barcodeId || null,
-            size_label: form.sizeLabel || null,
-            size_data: sizeData,
-            size_notes: form.sizeNotes || null,
-            condition_grade: form.conditionGrade ? Number(form.conditionGrade) : null,
-            current_status: form.currentStatus,
-            storage_location_path: storagePath,
-            is_public_for_rent: form.isPublicForRent,
-          }).eq("id", existingItem.id);
+          await supabase
+            .from("costume_items")
+            .update({
+              barcode_id: form.barcodeId || null,
+              size_label: form.sizeLabel || null,
+              size_data: sizeData,
+              size_notes: form.sizeNotes || null,
+              condition_grade: form.conditionGrade ? Number(form.conditionGrade) : null,
+              current_status: form.currentStatus,
+              storage_location_path: storagePath,
+              is_public_for_rent: form.isPublicForRent,
+            })
+            .eq("id", existingItem.id);
         }
 
         await supabase.from("costume_provenance").delete().eq("costume_id", editCostume.id);
@@ -620,23 +806,49 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
 
         // Gelöschte Bilder entfernen
         if (deletedMediaIds.length > 0) {
-          const toDelete = (editCostume.costume_media ?? []).filter(m => deletedMediaIds.includes(m.id));
+          const toDelete = (editCostume.costume_media ?? []).filter((m) =>
+            deletedMediaIds.includes(m.id)
+          );
           await Promise.all([
             supabase.from("costume_media").delete().in("id", deletedMediaIds),
-            supabase.storage.from("costume-images").remove(toDelete.map(m => m.storage_path)),
+            supabase.storage.from("costume-images").remove(toDelete.map((m) => m.storage_path)),
           ]);
         }
         // Neue Bilder hochladen
-        const newImages = allImages.filter(img => img.kind === "new") as { kind: "new"; file: File; url: string }[];
+        const newImages = allImages.filter((img) => img.kind === "new") as {
+          kind: "new";
+          file: File;
+          url: string;
+        }[];
         const remainingCount = (editCostume.costume_media?.length ?? 0) - deletedMediaIds.length;
         for (let i = 0; i < newImages.length; i++) {
           const img = newImages[i];
           const ext = img.file.name.split(".").pop() ?? "jpg";
-          const contentType = img.file.type || ({ jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", gif: "image/gif", heic: "image/heic", heif: "image/heif", avif: "image/avif" } as Record<string, string>)[ext] || "image/jpeg";
+          const contentType =
+            img.file.type ||
+            (
+              {
+                jpg: "image/jpeg",
+                jpeg: "image/jpeg",
+                png: "image/png",
+                webp: "image/webp",
+                gif: "image/gif",
+                heic: "image/heic",
+                heif: "image/heif",
+                avif: "image/avif",
+              } as Record<string, string>
+            )[ext] ||
+            "image/jpeg";
           const path = `${theaterId}/${editCostume.id}/${Date.now()}_${i}.${ext}`;
-          const { error: uploadErr } = await supabase.storage.from("costume-images").upload(path, img.file, { contentType });
+          const { error: uploadErr } = await supabase.storage
+            .from("costume-images")
+            .upload(path, img.file, { contentType });
           if (uploadErr) throw new Error(`Bild-Upload fehlgeschlagen: ${uploadErr.message}`);
-          await supabase.from("costume_media").insert({ costume_id: editCostume.id, storage_path: path, sort_order: remainingCount + i });
+          await supabase.from("costume_media").insert({
+            costume_id: editCostume.id,
+            storage_path: path,
+            sort_order: remainingCount + i,
+          });
         }
 
         await supabase.from("costume_activity_log").insert({
@@ -658,8 +870,10 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
             name: form.name,
             description: form.description || null,
             gender_term_id: genderTermId,
-            clothing_type_id: taxonomy.clothingTypes.find((t) => t.label_de === form.clothingTypeLabel)?.id ?? null,
+            clothing_type_id:
+              taxonomy.clothingTypes.find((t) => t.label_de === form.clothingTypeLabel)?.id ?? null,
             is_ensemble: costumeType === "ensemble",
+            custom_fields: Object.keys(customFields).length > 0 ? customFields : null,
           })
           .select("id")
           .single();
@@ -667,13 +881,14 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
         if (costumeErr || !costume) throw costumeErr;
 
         if (taxTermIds.length > 0) {
-          await supabase.from("costume_taxonomy").insert(
-            taxTermIds.map((term_id) => ({ costume_id: costume.id, term_id }))
-          );
+          await supabase
+            .from("costume_taxonomy")
+            .insert(taxTermIds.map((term_id) => ({ costume_id: costume.id, term_id })));
         }
 
         await supabase.from("costume_items").insert({
-          costume_id: costume.id, theater_id: theaterId,
+          costume_id: costume.id,
+          theater_id: theaterId,
           barcode_id: form.barcodeId || null,
           size_label: form.sizeLabel || null,
           size_data: sizeData,
@@ -695,15 +910,37 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
           });
         }
 
-        const newImagesForCreate = allImages.filter(img => img.kind === "new") as { kind: "new"; file: File; url: string }[];
+        const newImagesForCreate = allImages.filter((img) => img.kind === "new") as {
+          kind: "new";
+          file: File;
+          url: string;
+        }[];
         for (let i = 0; i < newImagesForCreate.length; i++) {
           const img = newImagesForCreate[i];
           const ext = img.file.name.split(".").pop() ?? "jpg";
-          const contentType = img.file.type || ({ jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", gif: "image/gif", heic: "image/heic", heif: "image/heif", avif: "image/avif" } as Record<string, string>)[ext] || "image/jpeg";
+          const contentType =
+            img.file.type ||
+            (
+              {
+                jpg: "image/jpeg",
+                jpeg: "image/jpeg",
+                png: "image/png",
+                webp: "image/webp",
+                gif: "image/gif",
+                heic: "image/heic",
+                heif: "image/heif",
+                avif: "image/avif",
+              } as Record<string, string>
+            )[ext] ||
+            "image/jpeg";
           const path = `${theaterId}/${costume.id}/${i}.${ext}`;
-          const { error: uploadErr } = await supabase.storage.from("costume-images").upload(path, img.file, { contentType });
+          const { error: uploadErr } = await supabase.storage
+            .from("costume-images")
+            .upload(path, img.file, { contentType });
           if (uploadErr) throw new Error(`Bild-Upload fehlgeschlagen: ${uploadErr.message}`);
-          await supabase.from("costume_media").insert({ costume_id: costume.id, storage_path: path, sort_order: i });
+          await supabase
+            .from("costume_media")
+            .insert({ costume_id: costume.id, storage_path: path, sort_order: i });
         }
 
         await supabase.from("costume_activity_log").insert({
@@ -734,80 +971,127 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
   const ironingOptions = taxonomy.ironings.map((i) => ({ id: i.id, label: i.label_de }));
 
   const STATUS_OPTIONS = [
-    { value: "available",   label: "Verfügbar",   color: "var(--accent-01)" },
-    { value: "cleaning",    label: "Reinigung",   color: "var(--color-warning)" },
-    { value: "in_progress", label: "In Arbeit",   color: "var(--color-error)" },
-    { value: "rented",      label: "Ausgeliehen", color: "var(--color-error)" },
-    { value: "reserved",    label: "Reserviert",  color: "var(--color-error)" },
-    { value: "stage",       label: "Bühne",       color: "var(--color-error)" },
-    { value: "rehearsal",   label: "Probebühne",  color: "var(--color-error)" },
-    { value: "sorted_out",  label: "Aussortiert", color: "var(--color-error)" },
-    { value: "sold",        label: "Verkauft",    color: "var(--color-error)" },
+    { value: "available", label: "Verfügbar", color: "var(--accent-01)" },
+    { value: "cleaning", label: "Reinigung", color: "var(--color-warning)" },
+    { value: "in_progress", label: "In Arbeit", color: "var(--color-error)" },
+    { value: "rented", label: "Ausgeliehen", color: "var(--color-error)" },
+    { value: "reserved", label: "Reserviert", color: "var(--color-error)" },
+    { value: "stage", label: "Bühne", color: "var(--color-error)" },
+    { value: "rehearsal", label: "Probebühne", color: "var(--color-error)" },
+    { value: "sorted_out", label: "Aussortiert", color: "var(--color-error)" },
+    { value: "sold", label: "Verkauft", color: "var(--color-error)" },
   ];
-  const selectedStatus = STATUS_OPTIONS.find(o => o.value === form.currentStatus) ?? STATUS_OPTIONS[0];
+  const selectedStatus =
+    STATUS_OPTIONS.find((o) => o.value === form.currentStatus) ?? STATUS_OPTIONS[0];
 
   return (
     <div className={styles.root}>
-
       {/* ═══ Header ═══ */}
       <div className={`${styles.headerWrap} ${headerHidden ? styles.headerWrapHidden : ""}`}>
-      <div className={styles.header} style={{ height: 72 }}>
-        <div className={styles.headerLogo} style={{ width: NAV_W }}>
-          <AppLogo />
-        </div>
-
-        {/* Mobile-only Titel */}
-        <span className={styles.headerMobileTitle}>Kostüm erfassen</span>
-
-        <div className={styles.headerActions}>
-          <div className={styles.spacer} />
-
-          {/* Camera */}
-          <button type="button" onClick={() => setShowCamera(true)} title="Foto aufnehmen" className={styles.cameraBtn}>
-            <Image src="/icons/icon-camera-filled.svg" alt="Bilder" width={23} height={23} style={{ filter: "invert(1)" }} />
-          </button>
-
-          {/* Speichern */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
-            <button
-              type="button"
-              onClick={() => { setSaveError(null); handleSave(); }}
-              disabled={saving || !(form.name.trim() && form.genderId && form.clothingTypeLabel && form.colorIds.length > 0)}
-              className="btn-primary"
-              style={{ whiteSpace: "nowrap" }}
-            >
-              {saving ? "Speichert..." : "Speichern"}
-            </button>
-            {saveError && (
-              <span style={{ fontSize: "var(--font-size-100)", color: "var(--color-error)", fontFamily: "var(--font-family-base)", maxWidth: 240, textAlign: "right" }}>
-                {saveError}
-              </span>
-            )}
+        <div className={styles.header} style={{ height: 72 }}>
+          <div className={styles.headerLogo} style={{ width: NAV_W }}>
+            <AppLogo />
           </div>
 
-          {/* Close */}
-          <button type="button" onClick={() => setShowCloseSheet(true)} className={styles.closeBtn}>
-            <Image src="/icons/icon-close-small.svg" alt="Schliessen" width={32} height={32} />
-          </button>
+          {/* Mobile-only Titel */}
+          <span className={styles.headerMobileTitle}>Kostüm erfassen</span>
+
+          <div className={styles.headerActions}>
+            <div className={styles.spacer} />
+
+            {/* Camera */}
+            <button
+              type="button"
+              onClick={() => setShowCamera(true)}
+              title="Foto aufnehmen"
+              className={styles.cameraBtn}
+            >
+              <Image
+                src="/icons/icon-camera-filled.svg"
+                alt="Bilder"
+                width={23}
+                height={23}
+                style={{ filter: "invert(1)" }}
+              />
+            </button>
+
+            {/* Speichern */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+                gap: 4,
+                flexShrink: 0,
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  setSaveError(null);
+                  handleSave();
+                }}
+                disabled={
+                  saving ||
+                  !(
+                    form.name.trim() &&
+                    form.genderId &&
+                    form.clothingTypeLabel &&
+                    form.colorIds.length > 0
+                  )
+                }
+                className="btn-primary"
+                style={{ whiteSpace: "nowrap" }}
+              >
+                {saving ? "Speichert..." : "Speichern"}
+              </button>
+              {saveError && (
+                <span
+                  style={{
+                    fontSize: "var(--font-size-100)",
+                    color: "var(--color-error)",
+                    fontFamily: "var(--font-family-base)",
+                    maxWidth: 240,
+                    textAlign: "right",
+                  }}
+                >
+                  {saveError}
+                </span>
+              )}
+            </div>
+
+            {/* Close */}
+            <button
+              type="button"
+              onClick={() => setShowCloseSheet(true)}
+              className={styles.closeBtn}
+            >
+              <Image src="/icons/icon-close-small.svg" alt="Schliessen" width={32} height={32} />
+            </button>
+          </div>
         </div>
-      </div>
       </div>
 
       {/* ═══ Body ═══ */}
       <div className={styles.body}>
-
         {/* Left nav */}
         <nav className={styles.nav} style={{ width: NAV_W }}>
-          {NAV_SECTIONS.map((sec, index) => {
+          {navSections.map((sec, index) => {
             const isActive = activeSection === sec.id;
             return (
               <button
                 key={sec.id}
                 type="button"
                 onClick={() => scrollToSection(sec.id)}
-                className={`${styles.navItem} ${isActive ? styles.navItemActive : ""} ${index < NAV_SECTIONS.length - 1 ? styles.navItemBorder : ""}`}
+                className={`${styles.navItem} ${isActive ? styles.navItemActive : ""} ${index < navSections.length - 1 ? styles.navItemBorder : ""}`}
               >
-                <Image src={`/icons/${sec.icon}.svg`} alt="" width={20} height={20} className={styles.navItemIcon} />
+                <Image
+                  src={`/icons/${sec.icon}.svg`}
+                  alt=""
+                  width={20}
+                  height={20}
+                  className={styles.navItemIcon}
+                />
                 <span className={styles.navItemLabel}>{sec.label}</span>
               </button>
             );
@@ -817,13 +1101,30 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
         {/* Scrollable content */}
         <div className={styles.contentClip}>
           <div ref={mainRef} className={styles.contentScroll}>
-            <input ref={imageInputRef} type="file" accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/heic,image/heif,image/avif,image/bmp" multiple className={styles.hiddenInput} onChange={handleImageAdd} />
-            <input id="camera-capture-input" ref={cameraCaptureRef} type="file" accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/heic,image/heif,image/avif,image/bmp" capture="environment" className={styles.hiddenInput} onChange={handleImageAdd} />
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/heic,image/heif,image/avif,image/bmp"
+              multiple
+              className={styles.hiddenInput}
+              onChange={handleImageAdd}
+            />
+            <input
+              id="camera-capture-input"
+              ref={cameraCaptureRef}
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/heic,image/heif,image/avif,image/bmp"
+              capture="environment"
+              className={styles.hiddenInput}
+              onChange={handleImageAdd}
+            />
 
             {/* ─── Kategorie ─── */}
             <section
               id="kategorie"
-              ref={(el) => { sectionRefs.current["kategorie"] = el; }}
+              ref={(el) => {
+                sectionRefs.current["kategorie"] = el;
+              }}
               className={styles.sectionCard}
             >
               <div className={styles.sectionHeading}>
@@ -832,14 +1133,16 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
               </div>
 
               <div className={styles.sectionFields}>
-
                 {/* Name */}
                 <div id="name-field">
                   <div className={styles.subHeading}>Name des Kostüms *</div>
                   <input
                     type="text"
                     value={form.name}
-                    onChange={(e) => { setField("name", e.target.value); if (showErrors) setShowErrors(false); }}
+                    onChange={(e) => {
+                      setField("name", e.target.value);
+                      if (showErrors) setShowErrors(false);
+                    }}
                     placeholder="z.B. Abendkleid aus Satin & Tüll"
                     className={styles.flatInput}
                   />
@@ -866,7 +1169,10 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                             alt={g.label}
                             width={32}
                             height={32}
-                            style={{ filter: active ? "invert(1)" : "none", opacity: active ? 1 : 0.7 }}
+                            style={{
+                              filter: active ? "invert(1)" : "none",
+                              opacity: active ? 1 : 0.7,
+                            }}
                           />
                           <span className={styles.genderCardLabel}>{g.label}</span>
                         </button>
@@ -883,7 +1189,12 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                   <div className={styles.subHeading}>Sparte</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                     {spartanOptions.map((o) => (
-                      <Pill key={o.id} label={o.label} active={form.spartanIds.includes(o.id)} onClick={() => toggleArr("spartanIds", o.id)} />
+                      <Pill
+                        key={o.id}
+                        label={o.label}
+                        active={form.spartanIds.includes(o.id)}
+                        onClick={() => toggleArr("spartanIds", o.id)}
+                      />
                     ))}
                   </div>
                 </div>
@@ -892,11 +1203,36 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                 <div>
                   <div className={styles.subHeading}>Aufführung</div>
                   <div className={styles.auffuehrungGrid}>
-                    <CreatableSearchCard label="Epoche"     value={form.productionYear}  onChange={(v) => setField("productionYear", v)}  dbColumn="year" />
-                    <CreatableSearchCard label="Stücktitel" value={form.productionTitle} onChange={(v) => setField("productionTitle", v)} dbColumn="production_title" />
-                    <CreatableSearchCard label="Darsteller" value={form.actorName}       onChange={(v) => setField("actorName", v)}        dbColumn="actor_name" />
-                    <CreatableSearchCard label="Rolle"      value={form.roleName}        onChange={(v) => setField("roleName", v)}         dbColumn="role_name" />
-                    <FreeTextCard       label="Spielsaison" value={form.spielsaison}    onChange={(v) => setField("spielsaison", v)}      placeholder="z.B. 2024/25" />
+                    <CreatableSearchCard
+                      label="Epoche"
+                      value={form.productionYear}
+                      onChange={(v) => setField("productionYear", v)}
+                      dbColumn="year"
+                    />
+                    <CreatableSearchCard
+                      label="Stücktitel"
+                      value={form.productionTitle}
+                      onChange={(v) => setField("productionTitle", v)}
+                      dbColumn="production_title"
+                    />
+                    <CreatableSearchCard
+                      label="Darsteller"
+                      value={form.actorName}
+                      onChange={(v) => setField("actorName", v)}
+                      dbColumn="actor_name"
+                    />
+                    <CreatableSearchCard
+                      label="Rolle"
+                      value={form.roleName}
+                      onChange={(v) => setField("roleName", v)}
+                      dbColumn="role_name"
+                    />
+                    <FreeTextCard
+                      label="Spielsaison"
+                      value={form.spielsaison}
+                      onChange={(v) => setField("spielsaison", v)}
+                      placeholder="z.B. 2024/25"
+                    />
                   </div>
                 </div>
 
@@ -913,7 +1249,9 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                           onClick={() => setField("clothingTypeLabel", isActive ? "" : label)}
                           className={`${styles.clothingBtn} ${isActive ? styles.clothingBtnActive : ""}`}
                         >
-                          <div className={`${styles.radioCircle} ${isActive ? styles.radioCircleActive : ""}`}>
+                          <div
+                            className={`${styles.radioCircle} ${isActive ? styles.radioCircleActive : ""}`}
+                          >
                             {isActive && <div className={styles.radioCircleDot} />}
                           </div>
                           <span className={styles.clothingLabel}>{label}</span>
@@ -927,9 +1265,11 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
 
                   {/* Bekleidungstypen — nur wenn eine Bekleidungsart gewählt */}
                   {(() => {
-                    const selectedType = taxonomy.clothingTypes.find(t => t.label_de === form.clothingTypeLabel);
+                    const selectedType = taxonomy.clothingTypes.find(
+                      (t) => t.label_de === form.clothingTypeLabel
+                    );
                     const subtypes = selectedType
-                      ? taxonomy.clothingSubtypes.filter(s => s.parent_id === selectedType.id)
+                      ? taxonomy.clothingSubtypes.filter((s) => s.parent_id === selectedType.id)
                       : [];
                     if (!selectedType || subtypes.length === 0) return null;
                     return (
@@ -948,12 +1288,13 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                       </div>
                     );
                   })()}
-
                 </div>
 
                 {/* Beschreibung */}
                 <div>
-                  <div className={styles.subHeading}>Kostüm Beschreibung &amp; zusätzliche Informationen</div>
+                  <div className={styles.subHeading}>
+                    Kostüm Beschreibung &amp; zusätzliche Informationen
+                  </div>
                   <textarea
                     value={form.description}
                     onChange={(e) => setField("description", e.target.value)}
@@ -968,7 +1309,9 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
             {/* ─── Material ─── */}
             <section
               id="material"
-              ref={(el) => { sectionRefs.current["material"] = el; }}
+              ref={(el) => {
+                sectionRefs.current["material"] = el;
+              }}
               className={styles.sectionCard}
             >
               <div className={styles.sectionHeading}>
@@ -976,13 +1319,17 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                 <h2 className={styles.sectionHeadingTitle}>Material</h2>
               </div>
               <div className={styles.sectionFields}>
-
                 {/* Materialien */}
                 <div>
                   <div className={styles.subHeading}>Materialien</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                     {materialOptions.map((o) => (
-                      <Pill key={o.id} label={o.label} active={form.materialIds.includes(o.id)} onClick={() => toggleArr("materialIds", o.id)} />
+                      <Pill
+                        key={o.id}
+                        label={o.label}
+                        active={form.materialIds.includes(o.id)}
+                        onClick={() => toggleArr("materialIds", o.id)}
+                      />
                     ))}
                   </div>
                 </div>
@@ -1003,8 +1350,11 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                           <span
                             className={styles.maskIcon}
                             style={{
-                              width: 32, height: 32,
-                              backgroundColor: isActive ? "var(--neutral-white)" : "var(--secondary-700)",
+                              width: 32,
+                              height: 32,
+                              backgroundColor: isActive
+                                ? "var(--neutral-white)"
+                                : "var(--secondary-700)",
                               WebkitMaskImage: `url(/icons/${getMusterIcon(o.label)}.svg)`,
                               maskImage: `url(/icons/${getMusterIcon(o.label)}.svg)`,
                             }}
@@ -1024,13 +1374,19 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                       const isActive = form.colorIds.includes(o.id);
                       const isMulticolor = o.label === "Multicolor";
                       const isTransparent = o.label === "Transparent";
-                      const isLight = o.label === "Weiss" || o.label === "Beige" || o.label === "Silber" || isTransparent;
+                      const isLight =
+                        o.label === "Weiss" ||
+                        o.label === "Beige" ||
+                        o.label === "Silber" ||
+                        isTransparent;
                       const hex = COLOR_SWATCHES[o.label] ?? "#CCCCCC";
                       return (
                         <button
                           key={o.id}
                           type="button"
-                          onClick={() => setField("colorIds", form.colorIds[0] === o.id ? [] : [o.id])}
+                          onClick={() =>
+                            setField("colorIds", form.colorIds[0] === o.id ? [] : [o.id])
+                          }
                           className={`${styles.colorBtn} ${isActive ? styles.colorBtnActive : ""}`}
                         >
                           <span className={styles.colorLabel}>{o.label}</span>
@@ -1039,11 +1395,18 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                             style={{
                               border: isLight ? "1px solid #DCDCDC" : "none",
                               ...(isMulticolor
-                                ? { background: "conic-gradient(red, yellow, lime, cyan, blue, magenta, red)" }
+                                ? {
+                                    background:
+                                      "conic-gradient(red, yellow, lime, cyan, blue, magenta, red)",
+                                  }
                                 : isTransparent
-                                ? { backgroundImage: "linear-gradient(45deg, #D0D0D0 25%, #FFFFFF 25%, #FFFFFF 75%, #D0D0D0 75%), linear-gradient(45deg, #D0D0D0 25%, #FFFFFF 25%, #FFFFFF 75%, #D0D0D0 75%)", backgroundSize: "8px 8px", backgroundPosition: "0 0, 4px 4px" }
-                                : { background: hex }
-                              ),
+                                  ? {
+                                      backgroundImage:
+                                        "linear-gradient(45deg, #D0D0D0 25%, #FFFFFF 25%, #FFFFFF 75%, #D0D0D0 75%), linear-gradient(45deg, #D0D0D0 25%, #FFFFFF 25%, #FFFFFF 75%, #D0D0D0 75%)",
+                                      backgroundSize: "8px 8px",
+                                      backgroundPosition: "0 0, 4px 4px",
+                                    }
+                                  : { background: hex }),
                             }}
                           />
                         </button>
@@ -1071,7 +1434,13 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                   <div className={styles.subHeading}>Reinigung</div>
                   <div className={styles.careCard}>
                     <div className={styles.careHeader}>
-                      <span className={styles.careIcon} style={{ WebkitMaskImage: "url('/icons/icon-wash-basin.svg')", maskImage: "url('/icons/icon-wash-basin.svg')" }} />
+                      <span
+                        className={styles.careIcon}
+                        style={{
+                          WebkitMaskImage: "url('/icons/icon-wash-basin.svg')",
+                          maskImage: "url('/icons/icon-wash-basin.svg')",
+                        }}
+                      />
                       <span className={styles.careTitle}>Waschen</span>
                     </div>
                     <div className={styles.washTileGrid}>
@@ -1085,10 +1454,21 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                             onClick={() => toggleArr("temperatureIds", o.id)}
                             className={`${styles.washTile} ${isActive ? styles.washTileActive : ""}`}
                           >
-                            {iconSrc
-                              ? <img src={iconSrc} alt={o.label} width={50} height={50} className={isActive ? styles.washTileIconActive : ""} />
-                              : <span className={`${styles.washTileLabel} ${isActive ? styles.washTileLabelActive : ""}`}>{o.label}</span>
-                            }
+                            {iconSrc ? (
+                              <img
+                                src={iconSrc}
+                                alt={o.label}
+                                width={50}
+                                height={50}
+                                className={isActive ? styles.washTileIconActive : ""}
+                              />
+                            ) : (
+                              <span
+                                className={`${styles.washTileLabel} ${isActive ? styles.washTileLabelActive : ""}`}
+                              >
+                                {o.label}
+                              </span>
+                            )}
                           </button>
                         );
                       })}
@@ -1102,8 +1482,20 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                             onClick={() => toggleArr("washingTypeIds", o.id)}
                             className={`${styles.washTile} ${styles.washTileType} ${isActive ? styles.washTileActive : ""}`}
                           >
-                            {iconSrc && <img src={iconSrc} alt="" width={50} height={50} className={isActive ? styles.washTileIconActive : ""} />}
-                            <span className={`${styles.washTileLabel} ${isActive ? styles.washTileLabelActive : ""}`}>{o.label}</span>
+                            {iconSrc && (
+                              <img
+                                src={iconSrc}
+                                alt=""
+                                width={50}
+                                height={50}
+                                className={isActive ? styles.washTileIconActive : ""}
+                              />
+                            )}
+                            <span
+                              className={`${styles.washTileLabel} ${isActive ? styles.washTileLabelActive : ""}`}
+                            >
+                              {o.label}
+                            </span>
                           </button>
                         );
                       })}
@@ -1115,7 +1507,13 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                 <div className={styles.careGrid}>
                   <div className={styles.careCard}>
                     <div className={styles.careHeader}>
-                      <span className={styles.careIcon} style={{ WebkitMaskImage: "url('/icons/icon-tumbler.svg')", maskImage: "url('/icons/icon-tumbler.svg')" }} />
+                      <span
+                        className={styles.careIcon}
+                        style={{
+                          WebkitMaskImage: "url('/icons/icon-tumbler.svg')",
+                          maskImage: "url('/icons/icon-tumbler.svg')",
+                        }}
+                      />
                       <span className={styles.careTitle}>Trocknen</span>
                     </div>
                     <div className={styles.checkboxList}>
@@ -1140,7 +1538,13 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
 
                   <div className={styles.careCard}>
                     <div className={styles.careHeader}>
-                      <span className={styles.careIcon} style={{ WebkitMaskImage: "url('/icons/icon-steam.svg')", maskImage: "url('/icons/icon-steam.svg')" }} />
+                      <span
+                        className={styles.careIcon}
+                        style={{
+                          WebkitMaskImage: "url('/icons/icon-steam.svg')",
+                          maskImage: "url('/icons/icon-steam.svg')",
+                        }}
+                      />
                       <span className={styles.careTitle}>Bügeln</span>
                     </div>
                     <div className={styles.checkboxList} style={{ marginBottom: 16 }}>
@@ -1180,7 +1584,9 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
             {/* ─── Bilder ─── */}
             <section
               id="bilder"
-              ref={(el) => { sectionRefs.current["bilder"] = el; }}
+              ref={(el) => {
+                sectionRefs.current["bilder"] = el;
+              }}
               className={styles.sectionCard}
             >
               <div className={styles.sectionHeading}>
@@ -1193,8 +1599,16 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                   <div className={styles.dropZone}>
                     {allImages.length === 0 ? (
                       <>
-                        <Image src="/icons/icon-images.svg" alt="" width={48} height={48} style={{ opacity: 0.3 }} />
-                        <span className={styles.dropZoneHint}><strong>Bilder</strong> hochladen oder aufnehmen</span>
+                        <Image
+                          src="/icons/icon-images.svg"
+                          alt=""
+                          width={48}
+                          height={48}
+                          style={{ opacity: 0.3 }}
+                        />
+                        <span className={styles.dropZoneHint}>
+                          <strong>Bilder</strong> hochladen oder aufnehmen
+                        </span>
                       </>
                     ) : (
                       <div className={styles.imageThumbs}>
@@ -1207,8 +1621,18 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                               className={styles.imageThumb}
                               onClick={() => setLightboxIndex(idx)}
                             />
-                            <button type="button" onClick={() => removeImage(idx)} className={styles.imageRemoveBtn}>
-                              <Image src="/icons/icon-close-small.svg" alt="" width={12} height={12} style={{ filter: "invert(1)" }} />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(idx)}
+                              className={styles.imageRemoveBtn}
+                            >
+                              <Image
+                                src="/icons/icon-close-small.svg"
+                                alt=""
+                                width={12}
+                                height={12}
+                                style={{ filter: "invert(1)" }}
+                              />
                             </button>
                           </div>
                         ))}
@@ -1217,7 +1641,11 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                   </div>
                 </div>
                 <div className={styles.uploadButtons}>
-                  <button type="button" onClick={() => imageInputRef.current?.click()} className={styles.uploadBtnSecondary}>
+                  <button
+                    type="button"
+                    onClick={() => imageInputRef.current?.click()}
+                    className={styles.uploadBtnSecondary}
+                  >
                     Upload Bildmaterial
                     <span
                       className={styles.maskIcon}
@@ -1228,7 +1656,11 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                       }}
                     />
                   </button>
-                  <button type="button" onClick={() => setShowCamera(true)} className={styles.uploadBtnPrimary}>
+                  <button
+                    type="button"
+                    onClick={() => setShowCamera(true)}
+                    className={styles.uploadBtnPrimary}
+                  >
                     Foto aufnehmen
                     <span
                       className={styles.maskIcon}
@@ -1246,7 +1678,9 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
             {/* ─── Masse ─── */}
             <section
               id="masse"
-              ref={(el) => { sectionRefs.current["masse"] = el; }}
+              ref={(el) => {
+                sectionRefs.current["masse"] = el;
+              }}
               className={styles.sectionCard}
             >
               <div className={styles.sectionHeading}>
@@ -1288,7 +1722,9 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
             {/* ─── Lagerort ─── */}
             <section
               id="lagerort"
-              ref={(el) => { sectionRefs.current["lagerort"] = el; }}
+              ref={(el) => {
+                sectionRefs.current["lagerort"] = el;
+              }}
               className={styles.sectionCard}
             >
               <div className={styles.sectionHeading}>
@@ -1299,7 +1735,13 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                 <div className={styles.theaterCardWrap}>
                   <div className={styles.subHeading}>{theaterName}</div>
                   <div className={styles.theaterCard}>
-                    <Image src="/icons/icon-location.svg" alt="" width={20} height={20} style={{ filter: "invert(1)", marginTop: 2, flexShrink: 0 }} />
+                    <Image
+                      src="/icons/icon-location.svg"
+                      alt=""
+                      width={20}
+                      height={20}
+                      style={{ filter: "invert(1)", marginTop: 2, flexShrink: 0 }}
+                    />
                     <div>
                       <p className={styles.theaterCardName}>{theaterName}</p>
                     </div>
@@ -1310,10 +1752,12 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                   <div className={styles.subHeading}>Platzierung</div>
                   <div className={styles.platzierungCard}>
                     <div className={styles.locationGrid}>
-                      {([
-                        { label: "Stockwerk", field: "locationFloor" as const },
-                        { label: "Stange",    field: "locationRack"  as const },
-                      ] as const).map(({ label, field }) => (
+                      {(
+                        [
+                          { label: "Stockwerk", field: "locationFloor" as const },
+                          { label: "Stange", field: "locationRack" as const },
+                        ] as const
+                      ).map(({ label, field }) => (
                         <div key={field}>
                           <p className={styles.locationFieldLabel}>{label}</p>
                           <div className={styles.locationSelectWrap}>
@@ -1321,11 +1765,17 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                               value={form[field]}
                               onChange={(e) => setField(field, e.target.value)}
                               className={styles.locationSelect}
-                              style={{ color: form[field] ? "var(--secondary-800)" : "var(--neutral-grey-400)" }}
+                              style={{
+                                color: form[field]
+                                  ? "var(--secondary-800)"
+                                  : "var(--neutral-grey-400)",
+                              }}
                             >
                               <option value="">–</option>
                               {["1", "2", "3", "4", "5"].map((v) => (
-                                <option key={v} value={v}>{v}</option>
+                                <option key={v} value={v}>
+                                  {v}
+                                </option>
                               ))}
                             </select>
                           </div>
@@ -1359,28 +1809,36 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
               <div className={styles.sichtbarkeit}>
                 <div className={styles.subHeading}>Sichtbarkeit</div>
                 <div className={styles.sichtbarkeitRow}>
-
                   {/* Status dropdown */}
                   <div className={styles.statusDropdownWrap}>
                     <p className={styles.fieldLabel}>Status</p>
                     <button
                       type="button"
-                      onClick={() => setShowStatusDropdown(v => !v)}
+                      onClick={() => setShowStatusDropdown((v) => !v)}
                       className={styles.statusDropdownTrigger}
                     >
-                      <div className={styles.statusDot} style={{ background: selectedStatus.color }} />
+                      <div
+                        className={styles.statusDot}
+                        style={{ background: selectedStatus.color }}
+                      />
                       <span style={{ flex: 1, textAlign: "left" }}>{selectedStatus.label}</span>
                       <span className="dropdown-arrow" />
                     </button>
                     {showStatusDropdown && (
                       <>
-                        <div onClick={() => setShowStatusDropdown(false)} className={styles.statusDropdownBackdrop} />
+                        <div
+                          onClick={() => setShowStatusDropdown(false)}
+                          className={styles.statusDropdownBackdrop}
+                        />
                         <div className={styles.statusDropdownMenu}>
-                          {STATUS_OPTIONS.map(o => (
+                          {STATUS_OPTIONS.map((o) => (
                             <button
                               key={o.value}
                               type="button"
-                              onClick={() => { setField("currentStatus", o.value); setShowStatusDropdown(false); }}
+                              onClick={() => {
+                                setField("currentStatus", o.value);
+                                setShowStatusDropdown(false);
+                              }}
                               className={`${styles.statusOption} ${o.value === form.currentStatus ? styles.statusOptionActive : ""}`}
                             >
                               <div className={styles.statusDot} style={{ background: o.color }} />
@@ -1396,7 +1854,12 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                   <div>
                     <p className={styles.fieldLabel}>Sichtbar im Kostüm-Netzwerk</p>
                     <div className={styles.radioGroup}>
-                      {([{ label: "Nein", value: false }, { label: "Ja", value: true }] as const).map(({ label, value }) => {
+                      {(
+                        [
+                          { label: "Nein", value: false },
+                          { label: "Ja", value: true },
+                        ] as const
+                      ).map(({ label, value }) => {
                         const isActive = form.isPublicForRent === value;
                         return (
                           <button
@@ -1418,10 +1881,107 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
               </div>
             </section>
 
+            {/* ─── Eigene Felder ─── */}
+            {fieldDefinitions.length > 0 && (
+              <section
+                id="eigene-felder"
+                ref={(el) => {
+                  sectionRefs.current["eigene-felder"] = el;
+                }}
+                className={styles.sectionCard}
+              >
+                <div className={styles.sectionHeading}>
+                  <Image src="/icons/icon-list.svg" alt="" width={30} height={30} />
+                  <h2 className={styles.sectionHeadingTitle}>Eigene Felder</h2>
+                </div>
+                <div className={styles.sectionFields}>
+                  {fieldDefinitions.map((def) => (
+                    <div key={def.id}>
+                      <div className={styles.subHeading}>
+                        {def.label}
+                        {def.is_required ? " *" : ""}
+                      </div>
+                      {def.field_type === "text" && (
+                        <input
+                          type="text"
+                          value={(customFields[def.label] ?? "") as string}
+                          onChange={(e) => setCustomField(def.label, e.target.value)}
+                          className={styles.flatInput}
+                        />
+                      )}
+                      {def.field_type === "textarea" && (
+                        <textarea
+                          value={(customFields[def.label] ?? "") as string}
+                          onChange={(e) => setCustomField(def.label, e.target.value)}
+                          rows={3}
+                          className={styles.textarea}
+                        />
+                      )}
+                      {def.field_type === "number" && (
+                        <input
+                          type="number"
+                          value={(customFields[def.label] ?? "") as string}
+                          onChange={(e) =>
+                            setCustomField(
+                              def.label,
+                              e.target.value === "" ? "" : Number(e.target.value)
+                            )
+                          }
+                          className={styles.simpleInput}
+                        />
+                      )}
+                      {def.field_type === "boolean" && (
+                        <div className={styles.radioGroup}>
+                          {(
+                            [
+                              { label: "Nein", value: false },
+                              { label: "Ja", value: true },
+                            ] as const
+                          ).map(({ label, value }) => {
+                            const isActive = (customFields[def.label] ?? false) === value;
+                            return (
+                              <button
+                                key={label}
+                                type="button"
+                                onClick={() => setCustomField(def.label, value)}
+                                className={styles.radioBtn}
+                              >
+                                <div className={styles.radioOuter}>
+                                  {isActive && <div className={styles.radioInner} />}
+                                </div>
+                                <span className={styles.radioLabel}>{label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                      {def.field_type === "select" && (
+                        <select
+                          value={(customFields[def.label] ?? "") as string}
+                          onChange={(e) => setCustomField(def.label, e.target.value)}
+                          className={styles.simpleInput}
+                          style={{ height: 52, borderRadius: 12, padding: "0 16px" }}
+                        >
+                          <option value="">– wählen –</option>
+                          {(def.options ?? []).map((opt) => (
+                            <option key={opt} value={opt}>
+                              {opt}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* ─── ID & Infos ─── */}
             <section
               id="infos"
-              ref={(el) => { sectionRefs.current["infos"] = el; }}
+              ref={(el) => {
+                sectionRefs.current["infos"] = el;
+              }}
               className={styles.sectionCard}
             >
               <div className={styles.sectionHeading}>
@@ -1429,17 +1989,44 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                 <h2 className={styles.sectionHeadingTitle}>ID &amp; Infos</h2>
               </div>
               <div className={styles.sectionFields}>
-
                 {/* Identifikation */}
                 <div>
                   <div className={styles.subHeading}>Identifikation</div>
                   <div className={styles.identTable}>
-                    {([
-                      { label: "ID",      icon: "icon-list",    field: "barcodeId" as const, placeholder: "Auto-Generierung", scan: "barcodeId" as const, photo: true  },
-                      { label: "RFID",    icon: "icon-rfid",    field: "rfidId"    as const, placeholder: "–",                scan: null,                 photo: false },
-                      { label: "QR-Code", icon: "icon-qr-code", field: "qrCodeId"  as const, placeholder: "–",                scan: "qrCodeId"  as const, photo: false },
-                    ]).map(({ label, icon, field, placeholder, scan, photo }, i, arr) => (
-                      <div key={field} className={styles.identRow} style={{ borderBottom: i < arr.length - 1 ? "1px solid var(--neutral-grey-200)" : "none" }}>
+                    {[
+                      {
+                        label: "ID",
+                        icon: "icon-list",
+                        field: "barcodeId" as const,
+                        placeholder: "Auto-Generierung",
+                        scan: "barcodeId" as const,
+                        photo: true,
+                      },
+                      {
+                        label: "RFID",
+                        icon: "icon-rfid",
+                        field: "rfidId" as const,
+                        placeholder: "–",
+                        scan: null,
+                        photo: false,
+                      },
+                      {
+                        label: "QR-Code",
+                        icon: "icon-qr-code",
+                        field: "qrCodeId" as const,
+                        placeholder: "–",
+                        scan: "qrCodeId" as const,
+                        photo: false,
+                      },
+                    ].map(({ label, icon, field, placeholder, scan, photo }, i, arr) => (
+                      <div
+                        key={field}
+                        className={styles.identRow}
+                        style={{
+                          borderBottom:
+                            i < arr.length - 1 ? "1px solid var(--neutral-grey-200)" : "none",
+                        }}
+                      >
                         <div className={styles.identCellLabel}>
                           <Image src={`/icons/${icon}.svg`} alt="" width={22} height={22} />
                           {label}
@@ -1453,12 +2040,27 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                           className={styles.identInput}
                         />
                         {scan && (
-                          <button type="button" onClick={() => setShowScanner(scan)} className={styles.identMoreBtn} title="Scannen">
-                            <Image src="/icons/icon-qr-code-scan.svg" alt="Scannen" width={20} height={20} />
+                          <button
+                            type="button"
+                            onClick={() => setShowScanner(scan)}
+                            className={styles.identMoreBtn}
+                            title="Scannen"
+                          >
+                            <Image
+                              src="/icons/icon-qr-code-scan.svg"
+                              alt="Scannen"
+                              width={20}
+                              height={20}
+                            />
                           </button>
                         )}
                         {photo && (
-                          <button type="button" onClick={() => setShowLabelCamera(true)} className={styles.identMoreBtn} title="Foto aufnehmen">
+                          <button
+                            type="button"
+                            onClick={() => setShowLabelCamera(true)}
+                            className={styles.identMoreBtn}
+                            title="Foto aufnehmen"
+                          >
                             <Image src="/icons/icon-camera.svg" alt="Foto" width={20} height={20} />
                           </button>
                         )}
@@ -1469,8 +2071,18 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                     <div className={styles.identPhotoWrap}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={labelPhotoPreview} alt="Etikette" className={styles.identPhoto} />
-                      <button type="button" onClick={() => setLabelPhotoPreview(null)} className={styles.identPhotoRemove}>
-                        <Image src="/icons/icon-close-small.svg" alt="" width={12} height={12} style={{ filter: "invert(1)" }} />
+                      <button
+                        type="button"
+                        onClick={() => setLabelPhotoPreview(null)}
+                        className={styles.identPhotoRemove}
+                      >
+                        <Image
+                          src="/icons/icon-close-small.svg"
+                          alt=""
+                          width={12}
+                          height={12}
+                          style={{ filter: "invert(1)" }}
+                        />
                       </button>
                       <span className={styles.identPhotoHint}>Etikette — ID manuell eingeben</span>
                     </div>
@@ -1487,7 +2099,9 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                     rows={6}
                     className={styles.textarea}
                   />
-                  <p className={styles.notesHint}>Die Notizen werden nicht im öffentlichen Netzwerk angezeigt.</p>
+                  <p className={styles.notesHint}>
+                    Die Notizen werden nicht im öffentlichen Netzwerk angezeigt.
+                  </p>
                 </div>
 
                 {/* Historie */}
@@ -1496,13 +2110,14 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
                   <div className={styles.historieTable}>
                     <div className={styles.historieRow}>
                       <span className={styles.historieDate}>—</span>
-                      <span className={styles.historieText}>Datei wird nach dem Speichern erstellt</span>
+                      <span className={styles.historieText}>
+                        Datei wird nach dem Speichern erstellt
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
             </section>
-
 
             <div className={styles.bottomSpacer} />
           </div>
@@ -1529,7 +2144,10 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
       {showCamera && (
         <CameraCapture
           onCapture={(file) => {
-            setAllImages(prev => [...prev, { kind: "new", file, url: URL.createObjectURL(file) }]);
+            setAllImages((prev) => [
+              ...prev,
+              { kind: "new", file, url: URL.createObjectURL(file) },
+            ]);
             setShowCamera(false);
           }}
           onClose={() => setShowCamera(false)}
@@ -1561,35 +2179,65 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
       {/* Lightbox */}
       {lightboxIndex !== null && (
         <div className={styles.lightbox} onClick={() => setLightboxIndex(null)}>
-          <button type="button" className={styles.lightboxClose} onClick={() => setLightboxIndex(null)}>
-            <Image src="/icons/icon-close-medium.svg" alt="Schliessen" width={22} height={22} style={{ filter: "invert(1)" }} />
+          <button
+            type="button"
+            className={styles.lightboxClose}
+            onClick={() => setLightboxIndex(null)}
+          >
+            <Image
+              src="/icons/icon-close-medium.svg"
+              alt="Schliessen"
+              width={22}
+              height={22}
+              style={{ filter: "invert(1)" }}
+            />
           </button>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={allImages[lightboxIndex].url}
             alt=""
             className={styles.lightboxImg}
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           />
           {allImages.length > 1 && (
             <>
               <button
                 type="button"
                 className={`${styles.lightboxNav} ${styles.lightboxNavPrev}`}
-                onClick={e => { e.stopPropagation(); setLightboxIndex(i => i !== null ? (i - 1 + allImages.length) % allImages.length : 0); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex((i) =>
+                    i !== null ? (i - 1 + allImages.length) % allImages.length : 0
+                  );
+                }}
               >
-                <Image src="/icons/icon-arrow-left.svg" alt="Zurück" width={24} height={24} style={{ filter: "invert(1)" }} />
+                <Image
+                  src="/icons/icon-arrow-left.svg"
+                  alt="Zurück"
+                  width={24}
+                  height={24}
+                  style={{ filter: "invert(1)" }}
+                />
               </button>
               <button
                 type="button"
                 className={`${styles.lightboxNav} ${styles.lightboxNavNext}`}
-                onClick={e => { e.stopPropagation(); setLightboxIndex(i => i !== null ? (i + 1) % allImages.length : 0); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex((i) => (i !== null ? (i + 1) % allImages.length : 0));
+                }}
               >
-                <Image src="/icons/icon-arrow-right-2.svg" alt="Weiter" width={24} height={24} style={{ filter: "invert(1)" }} />
+                <Image
+                  src="/icons/icon-arrow-right-2.svg"
+                  alt="Weiter"
+                  width={24}
+                  height={24}
+                  style={{ filter: "invert(1)" }}
+                />
               </button>
             </>
           )}
-          <div className={styles.lightboxThumbs} onClick={e => e.stopPropagation()}>
+          <div className={styles.lightboxThumbs} onClick={(e) => e.stopPropagation()}>
             {allImages.map((img, idx) => (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -1611,11 +2259,25 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
           <div className={styles.sheet}>
             <div className={styles.sheetHandle} />
             <p className={styles.sheetTitle}>Kostüm löschen?</p>
-            <p className={styles.sheetSubtitle}>Das Kostüm wird unwiderruflich gelöscht und kann nicht wiederhergestellt werden.</p>
-            <button type="button" onClick={() => { setShowDeleteSheet(false); }} className="btn-danger" style={{ width: "100%" }}>
+            <p className={styles.sheetSubtitle}>
+              Das Kostüm wird unwiderruflich gelöscht und kann nicht wiederhergestellt werden.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setShowDeleteSheet(false);
+              }}
+              className="btn-danger"
+              style={{ width: "100%" }}
+            >
               Endgültig löschen
             </button>
-            <button type="button" onClick={() => setShowDeleteSheet(false)} className="btn-primary" style={{ width: "100%" }}>
+            <button
+              type="button"
+              onClick={() => setShowDeleteSheet(false)}
+              className="btn-primary"
+              style={{ width: "100%" }}
+            >
               Abbrechen
             </button>
           </div>
@@ -1629,11 +2291,23 @@ export function KostuemeNeuClient({ theaterId, theaterName, currentUserId, curre
           <div className={styles.sheet}>
             <div className={styles.sheetHandle} />
             <p className={styles.sheetTitle}>Kostüm schliessen?</p>
-            <p className={styles.sheetSubtitle}>Deine Eingaben gehen verloren, wenn du jetzt schliesst.</p>
-            <button type="button" onClick={() => router.push("/")} className="btn-danger" style={{ width: "100%" }}>
+            <p className={styles.sheetSubtitle}>
+              Deine Eingaben gehen verloren, wenn du jetzt schliesst.
+            </p>
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              className="btn-danger"
+              style={{ width: "100%" }}
+            >
               Schliessen ohne Speichern
             </button>
-            <button type="button" onClick={() => setShowCloseSheet(false)} className="btn-primary" style={{ width: "100%" }}>
+            <button
+              type="button"
+              onClick={() => setShowCloseSheet(false)}
+              className="btn-primary"
+              style={{ width: "100%" }}
+            >
               Weiter bearbeiten
             </button>
           </div>

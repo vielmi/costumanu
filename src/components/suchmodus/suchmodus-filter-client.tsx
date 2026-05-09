@@ -21,17 +21,20 @@ export type SuchmodusFilterProps = {
   musterTerms: Term[];
 };
 
-
 // ─── EU sizes ────────────────────────────────────────────────────────────────
 
 const INT_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
-const EU_SIZES  = ["32", "34", "36", "38", "40", "42", "44", "46", "48", "50", "52", "54 S"];
+const EU_SIZES = ["32", "34", "36", "38", "40", "42", "44", "46", "48", "50", "52", "54 S"];
 
 // ─── Toggle helper ────────────────────────────────────────────────────────────
 
 function toggle(set: Set<string>, id: string): Set<string> {
   const next = new Set(set);
-  if (next.has(id)) { next.delete(id); } else { next.add(id); }
+  if (next.has(id)) {
+    next.delete(id);
+  } else {
+    next.add(id);
+  }
   return next;
 }
 
@@ -49,24 +52,24 @@ export function SuchmodusFilterClient({
   const router = useRouter();
 
   // Multi-select state
-  const [selectedGenders,       setSelectedGenders]       = useState<Set<string>>(new Set());
+  const [selectedGenders, setSelectedGenders] = useState<Set<string>>(new Set());
   const [selectedClothingTypes, setSelectedClothingTypes] = useState<Set<string>>(new Set());
-  const [selectedSegments,      setSelectedSegments]      = useState<Set<string>>(new Set());
-  const [selectedMaterials,     setSelectedMaterials]     = useState<Set<string>>(new Set());
-  const [selectedFarben,        setSelectedFarben]        = useState<Set<string>>(new Set());
-  const [selectedMuster,        setSelectedMuster]        = useState<Set<string>>(new Set());
-  const [selectedEpochen,       setSelectedEpochen]       = useState<Set<string>>(new Set());
-  const [selectedIntSizes,      setSelectedIntSizes]      = useState<Set<string>>(new Set());
-  const [selectedEuSizes,       setSelectedEuSizes]       = useState<Set<string>>(new Set());
+  const [selectedSegments, setSelectedSegments] = useState<Set<string>>(new Set());
+  const [selectedMaterials, setSelectedMaterials] = useState<Set<string>>(new Set());
+  const [selectedFarben, setSelectedFarben] = useState<Set<string>>(new Set());
+  const [selectedMuster, setSelectedMuster] = useState<Set<string>>(new Set());
+  const [selectedEpochen, setSelectedEpochen] = useState<Set<string>>(new Set());
+  const [selectedIntSizes, setSelectedIntSizes] = useState<Set<string>>(new Set());
+  const [selectedEuSizes, setSelectedEuSizes] = useState<Set<string>>(new Set());
 
   // Free-text
   const [clothingSearch, setClothingSearch] = useState("");
-  const [titleSearch,    setTitleSearch]    = useState("");
-  const [actorSearch,    setActorSearch]    = useState("");
-  const [roleSearch,     setRoleSearch]     = useState("");
+  const [titleSearch, setTitleSearch] = useState("");
+  const [actorSearch, setActorSearch] = useState("");
+  const [roleSearch, setRoleSearch] = useState("");
   const [directorSearch, setDirectorSearch] = useState("");
   const [designerSearch, setDesignerSearch] = useState("");
-  const [assistantSearch,setAssistantSearch]= useState("");
+  const [assistantSearch, setAssistantSearch] = useState("");
   const [materialSearch, setMaterialSearch] = useState("");
 
   function reset() {
@@ -91,22 +94,23 @@ export function SuchmodusFilterClient({
 
   function apply() {
     const params = new URLSearchParams();
-    if (selectedGenders.size === 1)       params.set("gender",        [...selectedGenders][0]);
-    if (selectedGenders.size > 1)         params.set("genders",       [...selectedGenders].join(","));
-    if (selectedClothingTypes.size > 0)   params.set("clothing_type", [...selectedClothingTypes].join(","));
-    if (selectedSegments.size > 0)        params.set("segment",       [...selectedSegments].join(","));
-    if (selectedMaterials.size > 0)       params.set("material",      [...selectedMaterials].join(","));
-    if (selectedFarben.size > 0)          params.set("farbe",         [...selectedFarben].join(","));
-    if (selectedMuster.size > 0)          params.set("muster",        [...selectedMuster].join(","));
-    if (selectedEpochen.size > 0)         params.set("epoche",        [...selectedEpochen].join(","));
-    if (selectedIntSizes.size > 0)        params.set("size_int",      [...selectedIntSizes].join(","));
-    if (selectedEuSizes.size > 0)         params.set("size_eu",       [...selectedEuSizes].join(","));
-    if (titleSearch.trim())               params.set("title",         titleSearch.trim());
-    if (actorSearch.trim())               params.set("actor",         actorSearch.trim());
-    if (roleSearch.trim())                params.set("role",          roleSearch.trim());
-    if (directorSearch.trim())            params.set("director",      directorSearch.trim());
-    if (designerSearch.trim())            params.set("designer",      designerSearch.trim());
-    if (assistantSearch.trim())           params.set("assistant",     assistantSearch.trim());
+    if (selectedGenders.size === 1) params.set("gender", [...selectedGenders][0]);
+    if (selectedGenders.size > 1) params.set("genders", [...selectedGenders].join(","));
+    if (selectedClothingTypes.size > 0)
+      params.set("clothing_type", [...selectedClothingTypes].join(","));
+    if (selectedSegments.size > 0) params.set("segment", [...selectedSegments].join(","));
+    if (selectedMaterials.size > 0) params.set("material", [...selectedMaterials].join(","));
+    if (selectedFarben.size > 0) params.set("farbe", [...selectedFarben].join(","));
+    if (selectedMuster.size > 0) params.set("muster", [...selectedMuster].join(","));
+    if (selectedEpochen.size > 0) params.set("epoche", [...selectedEpochen].join(","));
+    if (selectedIntSizes.size > 0) params.set("size_int", [...selectedIntSizes].join(","));
+    if (selectedEuSizes.size > 0) params.set("size_eu", [...selectedEuSizes].join(","));
+    if (titleSearch.trim()) params.set("title", titleSearch.trim());
+    if (actorSearch.trim()) params.set("actor", actorSearch.trim());
+    if (roleSearch.trim()) params.set("role", roleSearch.trim());
+    if (directorSearch.trim()) params.set("director", directorSearch.trim());
+    if (designerSearch.trim()) params.set("designer", designerSearch.trim());
+    if (assistantSearch.trim()) params.set("assistant", assistantSearch.trim());
     router.push(`/suchmodus/results?${params.toString()}`);
   }
 
@@ -121,7 +125,6 @@ export function SuchmodusFilterClient({
 
   return (
     <div className={styles.page}>
-
       {/* ═══ Header ═══ */}
       <header className={styles.header}>
         <button type="button" className={styles.resetBtn} onClick={reset}>
@@ -135,7 +138,6 @@ export function SuchmodusFilterClient({
 
       {/* ═══ Body ═══ */}
       <div className={styles.body}>
-
         {/* ── Kategorie ── */}
         <section className={styles.section}>
           <span className={styles.sectionBadge}>Kategorie</span>
@@ -162,9 +164,13 @@ export function SuchmodusFilterClient({
           </div>
 
           {/* Bekleidungsart */}
-          <p className={styles.subSectionLabel} style={{ marginTop: 8 }}>Bekleidungsart</p>
+          <p className={styles.subSectionLabel} style={{ marginTop: 8 }}>
+            Bekleidungsart
+          </p>
           <div className={styles.searchWrap}>
-            <span className={styles.searchIcon}><Image src="/icons/icon-search.svg" alt="" width={20} height={20} /></span>
+            <span className={styles.searchIcon}>
+              <Image src="/icons/icon-search.svg" alt="" width={20} height={20} />
+            </span>
             <input
               type="text"
               className={styles.searchInput}
@@ -229,12 +235,14 @@ export function SuchmodusFilterClient({
         <section className={styles.section}>
           <span className={styles.sectionBadge}>Aufführung</span>
           {[
-            { label: "Stücktitel", value: titleSearch,    setter: setTitleSearch    },
-            { label: "Darsteller", value: actorSearch,    setter: setActorSearch    },
-            { label: "Rolle",      value: roleSearch,     setter: setRoleSearch     },
+            { label: "Stücktitel", value: titleSearch, setter: setTitleSearch },
+            { label: "Darsteller", value: actorSearch, setter: setActorSearch },
+            { label: "Rolle", value: roleSearch, setter: setRoleSearch },
           ].map(({ label, value, setter }) => (
             <div key={label} className={styles.searchWrap}>
-              <span className={styles.searchIcon}><Image src="/icons/icon-search.svg" alt="" width={20} height={20} /></span>
+              <span className={styles.searchIcon}>
+                <Image src="/icons/icon-search.svg" alt="" width={20} height={20} />
+              </span>
               <input
                 type="text"
                 className={styles.searchInput}
@@ -250,12 +258,14 @@ export function SuchmodusFilterClient({
         <section className={styles.section}>
           <span className={styles.sectionBadge}>Regie &amp; Assistenz</span>
           {[
-            { label: "Regie",            value: directorSearch, setter: setDirectorSearch },
-            { label: "Kostümbildner",    value: designerSearch, setter: setDesignerSearch },
-            { label: "Kostümassistenz",  value: assistantSearch,setter: setAssistantSearch },
+            { label: "Regie", value: directorSearch, setter: setDirectorSearch },
+            { label: "Kostümbildner", value: designerSearch, setter: setDesignerSearch },
+            { label: "Kostümassistenz", value: assistantSearch, setter: setAssistantSearch },
           ].map(({ label, value, setter }) => (
             <div key={label} className={styles.searchWrap}>
-              <span className={styles.searchIcon}><Image src="/icons/icon-search.svg" alt="" width={20} height={20} /></span>
+              <span className={styles.searchIcon}>
+                <Image src="/icons/icon-search.svg" alt="" width={20} height={20} />
+              </span>
               <input
                 type="text"
                 className={styles.searchInput}
@@ -304,7 +314,9 @@ export function SuchmodusFilterClient({
 
           <p className={styles.subSectionLabel}>Materialart &amp; Verarbeitung</p>
           <div className={styles.searchWrap}>
-            <span className={styles.searchIcon}><Image src="/icons/icon-search.svg" alt="" width={20} height={20} /></span>
+            <span className={styles.searchIcon}>
+              <Image src="/icons/icon-search.svg" alt="" width={20} height={20} />
+            </span>
             <input
               type="text"
               className={styles.searchInput}
@@ -329,7 +341,9 @@ export function SuchmodusFilterClient({
           {/* Muster */}
           {musterTerms.length > 0 && (
             <>
-              <p className={styles.subSectionLabel} style={{ marginTop: 8 }}>Muster</p>
+              <p className={styles.subSectionLabel} style={{ marginTop: 8 }}>
+                Muster
+              </p>
               <div className={styles.musterGrid}>
                 {musterTerms.map((t) => {
                   const iconName = getMusterIcon(t.label_de);
@@ -366,7 +380,10 @@ export function SuchmodusFilterClient({
                     style={
                       isGradient
                         ? { background: hex, backgroundSize: "8px 8px" }
-                        : { background: hex, border: hex === "#FFFFFF" ? "2px solid #D1D1D1" : undefined }
+                        : {
+                            background: hex,
+                            border: hex === "#FFFFFF" ? "2px solid #D1D1D1" : undefined,
+                          }
                     }
                     onClick={() => setSelectedFarben((s) => toggle(s, t.id))}
                     aria-label={t.label_de}
@@ -377,10 +394,7 @@ export function SuchmodusFilterClient({
             </div>
           </section>
         )}
-
       </div>
-
-
     </div>
   );
 }

@@ -1,6 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+// Routes that are publicly accessible without authentication
+const PUBLIC_PATHS = ["/login", "/register", "/auth/", "/suchmodus/public"];
+
+function isPublicPath(pathname: string) {
+  return PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+}
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -15,9 +22,7 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           supabaseResponse = NextResponse.next({
             request,
           });
@@ -29,8 +34,18 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Refresh the auth token
-  await supabase.auth.getUser();
+  // Refresh auth token and capture session
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { pathname } = request.nextUrl;
+
+  // Protect /suchmodus — requires a logged-in account (Externer Viewer)
+  if (pathname.startsWith("/suchmodus") && !isPublicPath(pathname) && !user) {
+    const loginUrl = new URL("/login", request.url);
+    return NextResponse.redirect(loginUrl);
+  }
 
   return supabaseResponse;
 }

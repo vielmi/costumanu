@@ -12,14 +12,21 @@ export function SiteFooter() {
   return (
     <footer className="bg-surface-dark text-surface-dark-foreground">
       <div style={{ padding: "28px 20px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 20,
+          }}
+        >
           <span className="text-xl font-bold tracking-tight">{APP_NAME}</span>
           <nav style={{ display: "flex", gap: 24 }}>
             {footerNavLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex items-center gap-2 text-sm text-surface-dark-foreground/70 transition-colors hover:text-surface-dark-foreground"
+                className="text-surface-dark-foreground/70 hover:text-surface-dark-foreground flex items-center gap-2 text-sm transition-colors"
               >
                 {link.label}
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -28,7 +35,7 @@ export function SiteFooter() {
           </nav>
         </div>
 
-        <p className="text-xs text-surface-dark-foreground/50">
+        <p className="text-surface-dark-foreground/50 text-xs">
           &copy; {APP_NAME} |{" "}
           <Link href="/impressum" className="hover:text-surface-dark-foreground/70">
             {t("footer.imprint")}

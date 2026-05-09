@@ -183,7 +183,9 @@
   transition: opacity 120ms ease;
 }
 
-.actionBtn:hover { opacity: 0.85; }
+.actionBtn:hover {
+  opacity: 0.85;
+}
 
 .actionBtnPrimary {
   background: var(--primary-900);

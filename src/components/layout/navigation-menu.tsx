@@ -43,11 +43,8 @@ type MenuLevel = "root" | "clothing_types" | "sub_types";
 
 export function NavigationMenu({ open, onClose }: NavigationMenuProps) {
   const [level, setLevel] = useState<MenuLevel>("root");
-  const [selectedGender, setSelectedGender] = useState<TaxonomyTerm | null>(
-    null
-  );
-  const [selectedClothingType, setSelectedClothingType] =
-    useState<TaxonomyTerm | null>(null);
+  const [selectedGender, setSelectedGender] = useState<TaxonomyTerm | null>(null);
+  const [selectedClothingType, setSelectedClothingType] = useState<TaxonomyTerm | null>(null);
 
   const supabase = createClient();
 
@@ -131,14 +128,14 @@ export function NavigationMenu({ open, onClose }: NavigationMenuProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col bg-surface-dark text-surface-dark-foreground">
+    <div className="bg-surface-dark text-surface-dark-foreground fixed inset-0 z-[60] flex flex-col">
       {/* Header */}
       <div className="flex h-14 items-center justify-between px-4">
         {level !== "root" ? (
           <Button
             variant="ghost"
             size="sm"
-            className="gap-1 text-surface-dark-foreground"
+            className="text-surface-dark-foreground gap-1"
             onClick={handleBack}
           >
             <ArrowLeft className="h-4 w-4" />
@@ -161,11 +158,7 @@ export function NavigationMenu({ open, onClose }: NavigationMenuProps) {
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         {level === "root" && (
-          <RootMenu
-            genders={genders ?? []}
-            onGenderTap={handleGenderTap}
-            onClose={handleClose}
-          />
+          <RootMenu genders={genders ?? []} onGenderTap={handleGenderTap} onClose={handleClose} />
         )}
         {level === "clothing_types" && selectedGender && (
           <ClothingTypeMenu
@@ -175,26 +168,24 @@ export function NavigationMenu({ open, onClose }: NavigationMenuProps) {
             onClose={handleClose}
           />
         )}
-        {level === "sub_types" &&
-          selectedGender &&
-          selectedClothingType && (
-            <SubTypeMenu
-              gender={selectedGender}
-              clothingType={selectedClothingType}
-              subTypes={subTypes ?? []}
-              onClose={handleClose}
-            />
-          )}
+        {level === "sub_types" && selectedGender && selectedClothingType && (
+          <SubTypeMenu
+            gender={selectedGender}
+            clothingType={selectedClothingType}
+            subTypes={subTypes ?? []}
+            onClose={handleClose}
+          />
+        )}
       </div>
 
       {/* Mein Profil bar at bottom */}
-      <div className="border-t border-surface-dark-foreground/10 px-4 py-3">
+      <div className="border-surface-dark-foreground/10 border-t px-4 py-3">
         <Link
           href="/profile"
-          className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-surface-dark-foreground/10"
+          className="hover:bg-surface-dark-foreground/10 flex items-center gap-3 rounded-lg p-2 transition-colors"
           onClick={handleClose}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-dark-foreground/20">
+          <div className="bg-surface-dark-foreground/20 flex h-10 w-10 items-center justify-center rounded-full">
             <User className="h-5 w-5" />
           </div>
           <span className="text-sm font-medium">{t("nav.myProfile")}</span>
@@ -219,7 +210,7 @@ function RootMenu({
     <div className="flex flex-col gap-6">
       {/* Kostüme section */}
       <div>
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-dark-foreground/50">
+        <h2 className="text-surface-dark-foreground/50 mb-3 text-xs font-semibold tracking-wider uppercase">
           {t("nav.costumes")}
         </h2>
         <div className="flex flex-col gap-1">
@@ -229,16 +220,14 @@ function RootMenu({
               <button
                 key={gender.id}
                 type="button"
-                className="flex items-center justify-between rounded-lg p-3 text-left transition-colors hover:bg-surface-dark-foreground/10"
+                className="hover:bg-surface-dark-foreground/10 flex items-center justify-between rounded-lg p-3 text-left transition-colors"
                 onClick={() => onGenderTap(gender)}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className="h-5 w-5 text-surface-dark-foreground/70" />
-                  <span className="text-sm font-medium">
-                    {gender.label_de}
-                  </span>
+                  <Icon className="text-surface-dark-foreground/70 h-5 w-5" />
+                  <span className="text-sm font-medium">{gender.label_de}</span>
                 </div>
-                <ChevronRight className="h-4 w-4 text-surface-dark-foreground/40" />
+                <ChevronRight className="text-surface-dark-foreground/40 h-4 w-4" />
               </button>
             );
           })}
@@ -247,7 +236,7 @@ function RootMenu({
 
       {/* Netzwerk & Support section */}
       <div>
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-dark-foreground/50">
+        <h2 className="text-surface-dark-foreground/50 mb-3 text-xs font-semibold tracking-wider uppercase">
           {t("nav.networkAndSupport")}
         </h2>
         <div className="flex flex-col gap-1">
@@ -263,18 +252,8 @@ function RootMenu({
             label={t("nav.costumeInquiries")}
             onClose={onClose}
           />
-          <MenuLink
-            href="/netzwerk"
-            icon={Globe}
-            label={t("nav.network")}
-            onClose={onClose}
-          />
-          <MenuLink
-            href="/support"
-            icon={Headphones}
-            label={t("nav.support")}
-            onClose={onClose}
-          />
+          <MenuLink href="/netzwerk" icon={Globe} label={t("nav.network")} onClose={onClose} />
+          <MenuLink href="/support" icon={Headphones} label={t("nav.support")} onClose={onClose} />
         </div>
       </div>
     </div>
@@ -297,20 +276,16 @@ function ClothingTypeMenu({
   return (
     <div>
       <h2 className="mb-1 text-lg font-bold">{gender.label_de}</h2>
-      <p className="mb-4 text-xs text-surface-dark-foreground/50">
-        {t("nav.clothingType")}
-      </p>
+      <p className="text-surface-dark-foreground/50 mb-4 text-xs">{t("nav.clothingType")}</p>
 
       {/* "Alle anzeigen" link for this gender */}
       <Link
         href={`/fundus?gender=${encodeURIComponent(gender.label_de)}`}
-        className="mb-2 flex items-center justify-between rounded-lg bg-surface-dark-foreground/5 p-3 transition-colors hover:bg-surface-dark-foreground/10"
+        className="bg-surface-dark-foreground/5 hover:bg-surface-dark-foreground/10 mb-2 flex items-center justify-between rounded-lg p-3 transition-colors"
         onClick={onClose}
       >
-        <span className="text-sm font-medium">
-          {t("nav.showAll", { label: gender.label_de })}
-        </span>
-        <ChevronRight className="h-4 w-4 text-surface-dark-foreground/40" />
+        <span className="text-sm font-medium">{t("nav.showAll", { label: gender.label_de })}</span>
+        <ChevronRight className="text-surface-dark-foreground/40 h-4 w-4" />
       </Link>
 
       <div className="flex flex-col gap-1">
@@ -318,11 +293,11 @@ function ClothingTypeMenu({
           <button
             key={ct.id}
             type="button"
-            className="flex items-center justify-between rounded-lg p-3 text-left transition-colors hover:bg-surface-dark-foreground/10"
+            className="hover:bg-surface-dark-foreground/10 flex items-center justify-between rounded-lg p-3 text-left transition-colors"
             onClick={() => onClothingTypeTap(ct)}
           >
             <span className="text-sm font-medium">{ct.label_de}</span>
-            <ChevronRight className="h-4 w-4 text-surface-dark-foreground/40" />
+            <ChevronRight className="text-surface-dark-foreground/40 h-4 w-4" />
           </button>
         ))}
       </div>
@@ -346,20 +321,20 @@ function SubTypeMenu({
   return (
     <div>
       <h2 className="mb-1 text-lg font-bold">{clothingType.label_de}</h2>
-      <p className="mb-4 text-xs text-surface-dark-foreground/50">
+      <p className="text-surface-dark-foreground/50 mb-4 text-xs">
         {gender.label_de} &rsaquo; {clothingType.label_de}
       </p>
 
       {/* "Alle anzeigen" link for this clothing type + gender */}
       <Link
         href={`/fundus?gender=${encodeURIComponent(gender.label_de)}&clothingType=${encodeURIComponent(clothingType.label_de)}`}
-        className="mb-2 flex items-center justify-between rounded-lg bg-surface-dark-foreground/5 p-3 transition-colors hover:bg-surface-dark-foreground/10"
+        className="bg-surface-dark-foreground/5 hover:bg-surface-dark-foreground/10 mb-2 flex items-center justify-between rounded-lg p-3 transition-colors"
         onClick={onClose}
       >
         <span className="text-sm font-medium">
           {t("nav.showAll", { label: clothingType.label_de })}
         </span>
-        <ChevronRight className="h-4 w-4 text-surface-dark-foreground/40" />
+        <ChevronRight className="text-surface-dark-foreground/40 h-4 w-4" />
       </Link>
 
       {subTypes.length > 0 ? (
@@ -368,7 +343,7 @@ function SubTypeMenu({
             <Link
               key={sub.id}
               href={`/fundus?gender=${encodeURIComponent(gender.label_de)}&clothingType=${encodeURIComponent(sub.label_de)}`}
-              className="flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-surface-dark-foreground/10"
+              className="hover:bg-surface-dark-foreground/10 flex items-center justify-between rounded-lg p-3 transition-colors"
               onClick={onClose}
             >
               <span className="text-sm font-medium">{sub.label_de}</span>
@@ -376,9 +351,7 @@ function SubTypeMenu({
           ))}
         </div>
       ) : (
-        <p className="p-3 text-sm text-surface-dark-foreground/50">
-          {t("common.noResults")}
-        </p>
+        <p className="text-surface-dark-foreground/50 p-3 text-sm">{t("common.noResults")}</p>
       )}
     </div>
   );
@@ -400,10 +373,10 @@ function MenuLink({
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-surface-dark-foreground/10"
+      className="hover:bg-surface-dark-foreground/10 flex items-center gap-3 rounded-lg p-3 transition-colors"
       onClick={onClose}
     >
-      <Icon className="h-5 w-5 text-surface-dark-foreground/70" />
+      <Icon className="text-surface-dark-foreground/70 h-5 w-5" />
       <span className="text-sm font-medium">{label}</span>
     </Link>
   );

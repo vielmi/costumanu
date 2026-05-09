@@ -18,8 +18,14 @@ const TARGET_EMAIL = "manuela.vielmi@gmail.com";
 
 async function main() {
   // User anhand E-Mail in auth.users suchen
-  const { data: { users }, error: listErr } = await sb.auth.admin.listUsers();
-  if (listErr) { console.error("Fehler beim Laden der Users:", listErr.message); return; }
+  const {
+    data: { users },
+    error: listErr,
+  } = await sb.auth.admin.listUsers();
+  if (listErr) {
+    console.error("Fehler beim Laden der Users:", listErr.message);
+    return;
+  }
 
   const user = users.find((u) => u.email === TARGET_EMAIL);
   if (!user) {
@@ -34,7 +40,10 @@ async function main() {
     .update({ platform_role: "platform_admin" })
     .eq("id", user.id);
 
-  if (updateErr) { console.error("Fehler beim Update:", updateErr.message); return; }
+  if (updateErr) {
+    console.error("Fehler beim Update:", updateErr.message);
+    return;
+  }
   console.log(`✓ platform_role = 'platform_admin' gesetzt für ${TARGET_EMAIL}`);
 }
 

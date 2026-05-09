@@ -39,7 +39,8 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
     queryFn: async (): Promise<Suggestion[]> => {
       if (!debouncedQuery) return [];
 
-      const FIELDS = "id, name, costume_provenance(production_title, year), costume_media(storage_path, sort_order)";
+      const FIELDS =
+        "id, name, costume_provenance(production_title, year), costume_media(storage_path, sort_order)";
 
       // 1) FTS on name + description
       // 2) Taxonomy term match (colors, materials, epochs, etc.)
@@ -49,10 +50,7 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
           .select(FIELDS)
           .textSearch("fts_doc", debouncedQuery, { type: "websearch" })
           .limit(8),
-        supabase
-          .from("taxonomy_terms")
-          .select("id")
-          .ilike("label_de", `%${debouncedQuery}%`),
+        supabase.from("taxonomy_terms").select("id").ilike("label_de", `%${debouncedQuery}%`),
       ]);
 
       if (ftsResult.error) console.error("[SuchmodusSearch] fts error:", ftsResult.error);
@@ -82,11 +80,13 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
 
       // Merge and deduplicate (FTS results first)
       const seen = new Set<string>();
-      return [...ftsData, ...taxonomyData].filter((c) => {
-        if (seen.has(c.id)) return false;
-        seen.add(c.id);
-        return true;
-      }).slice(0, 8);
+      return [...ftsData, ...taxonomyData]
+        .filter((c) => {
+          if (seen.has(c.id)) return false;
+          seen.add(c.id);
+          return true;
+        })
+        .slice(0, 8);
     },
     enabled: debouncedQuery.length > 0,
     staleTime: 30 * 1000,
@@ -104,7 +104,13 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
       {/* ─── Header ─── */}
       <div className={styles.header}>
         <div className={styles.inputWrap}>
-          <Image src="/icons/icon-search.svg" alt="" width={20} height={20} className={styles.inputIcon} />
+          <Image
+            src="/icons/icon-search.svg"
+            alt=""
+            width={20}
+            height={20}
+            className={styles.inputIcon}
+          />
           <input
             ref={inputRef}
             type="search"
@@ -118,7 +124,12 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
             spellCheck={false}
           />
           {query.length > 0 && (
-            <button type="button" onClick={handleClear} className={styles.clearBtn} aria-label="Eingabe löschen">
+            <button
+              type="button"
+              onClick={handleClear}
+              className={styles.clearBtn}
+              aria-label="Eingabe löschen"
+            >
               <Image src="/icons/icon-close-small.svg" alt="" width={9} height={9} />
             </button>
           )}
@@ -141,12 +152,18 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
               {suggestions.map((s) => {
                 const prov = s.costume_provenance?.[0];
                 const subtitle = prov
-                  ? [prov.production_title, prov.year ? String(prov.year) : null].filter(Boolean).join(" | ")
+                  ? [prov.production_title, prov.year ? String(prov.year) : null]
+                      .filter(Boolean)
+                      .join(" | ")
                   : null;
 
-                const sortedMedia = [...(s.costume_media ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+                const sortedMedia = [...(s.costume_media ?? [])].sort(
+                  (a, b) => a.sort_order - b.sort_order
+                );
                 const imageUrl = sortedMedia[0]
-                  ? supabase.storage.from("costume-images").getPublicUrl(sortedMedia[0].storage_path).data.publicUrl
+                  ? supabase.storage
+                      .from("costume-images")
+                      .getPublicUrl(sortedMedia[0].storage_path).data.publicUrl
                   : null;
 
                 return (

@@ -23,16 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Plus,
-  Search,
-  Heart,
-  MoreVertical,
-  Trash2,
-  Edit2,
-  Share2,
-  Archive,
-} from "lucide-react";
+import { Plus, Search, Heart, MoreVertical, Trash2, Edit2, Share2, Archive } from "lucide-react";
 
 interface Wishlist {
   id: string;
@@ -48,11 +39,7 @@ interface MerklisteClientProps {
   userId: string;
 }
 
-export function MerklisteClient({
-  initialWishlists,
-  theaterId,
-  userId,
-}: MerklisteClientProps) {
+export function MerklisteClient({ initialWishlists, theaterId, userId }: MerklisteClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newName, setNewName] = useState("");
@@ -116,10 +103,7 @@ export function MerklisteClient({
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("wishlists")
-        .delete()
-        .eq("id", id);
+      const { error } = await supabase.from("wishlists").delete().eq("id", id);
 
       if (error) throw error;
     },
@@ -130,10 +114,7 @@ export function MerklisteClient({
 
   const renameMutation = useMutation({
     mutationFn: async ({ id, name }: { id: string; name: string }) => {
-      const { error } = await supabase
-        .from("wishlists")
-        .update({ name })
-        .eq("id", id);
+      const { error } = await supabase.from("wishlists").update({ name }).eq("id", id);
 
       if (error) throw error;
     },
@@ -147,10 +128,7 @@ export function MerklisteClient({
 
   const archiveMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("wishlists")
-        .update({ is_archived: true })
-        .eq("id", id);
+      const { error } = await supabase.from("wishlists").update({ is_archived: true }).eq("id", id);
 
       if (error) throw error;
     },
@@ -218,10 +196,7 @@ export function MerklisteClient({
             className="max-w-sm"
             autoFocus
           />
-          <Button
-            type="submit"
-            disabled={createMutation.isPending || !newName.trim()}
-          >
+          <Button type="submit" disabled={createMutation.isPending || !newName.trim()}>
             {createMutation.isPending ? "Erstellen..." : t("wishlist.createNew")}
           </Button>
           <Button
@@ -236,18 +211,14 @@ export function MerklisteClient({
           </Button>
         </form>
       ) : (
-        <Button
-          variant="outline"
-          className="w-fit"
-          onClick={() => setShowCreateForm(true)}
-        >
+        <Button variant="outline" className="w-fit" onClick={() => setShowCreateForm(true)}>
           <Plus className="mr-2 h-4 w-4" />
           {t("wishlist.createNew")}
         </Button>
       )}
 
       {createMutation.isError && (
-        <p className="text-sm text-destructive">
+        <p className="text-destructive text-sm">
           {t("common.error")}: {(createMutation.error as Error).message}
         </p>
       )}
@@ -256,12 +227,8 @@ export function MerklisteClient({
       {filteredWishlists.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed py-16">
           <Heart className="text-muted-foreground h-10 w-10" />
-          <p className="text-muted-foreground font-medium">
-            {t("wishlist.noWishlists")}
-          </p>
-          <p className="text-muted-foreground text-sm">
-            {t("wishlist.noWishlistsDescription")}
-          </p>
+          <p className="text-muted-foreground font-medium">{t("wishlist.noWishlists")}</p>
+          <p className="text-muted-foreground text-sm">{t("wishlist.noWishlistsDescription")}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -283,12 +250,10 @@ export function MerklisteClient({
                     <p className="truncate font-semibold">{wishlist.name}</p>
                     <Badge variant="secondary" className="shrink-0">
                       {wishlist.item_count}{" "}
-                      {wishlist.item_count === 1
-                        ? t("common.costume")
-                        : t("common.costumes")}
+                      {wishlist.item_count === 1 ? t("common.costume") : t("common.costumes")}
                     </Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {new Date(wishlist.created_at).toLocaleDateString("de-DE", {
                       day: "2-digit",
                       month: "long",
@@ -310,7 +275,11 @@ export function MerklisteClient({
                       <Edit2 className="mr-2 h-4 w-4" />
                       {t("common.rename")}
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => {/* Share handler — placeholder */}}>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        /* Share handler — placeholder */
+                      }}
+                    >
                       <Share2 className="mr-2 h-4 w-4" />
                       {t("common.share")}
                     </DropdownMenuItem>
@@ -348,20 +317,11 @@ export function MerklisteClient({
               autoFocus
             />
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setRenameDialogOpen(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => setRenameDialogOpen(false)}>
                 {t("common.cancel")}
               </Button>
-              <Button
-                type="submit"
-                disabled={renameMutation.isPending || !renameValue.trim()}
-              >
-                {renameMutation.isPending
-                  ? t("common.loading")
-                  : t("common.save")}
+              <Button type="submit" disabled={renameMutation.isPending || !renameValue.trim()}>
+                {renameMutation.isPending ? t("common.loading") : t("common.save")}
               </Button>
             </DialogFooter>
           </form>

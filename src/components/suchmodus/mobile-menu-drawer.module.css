@@ -12,8 +12,13 @@
   border-radius: var(--radius-xs);
   transition: opacity 120ms ease;
 }
-.burgerButton:hover { opacity: 0.7; }
-.burgerButton:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 2px; }
+.burgerButton:hover {
+  opacity: 0.7;
+}
+.burgerButton:focus-visible {
+  outline: 2px solid var(--primary-900);
+  outline-offset: 2px;
+}
 
 /* ─── Full-screen overlay ────────────────────────────────────────────────── */
 .overlay {
@@ -43,8 +48,13 @@
   border-radius: var(--radius-xs);
   transition: opacity 120ms ease;
 }
-.closeButton:hover { opacity: 0.7; }
-.closeButton:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 2px; }
+.closeButton:hover {
+  opacity: 0.7;
+}
+.closeButton:focus-visible {
+  outline: 2px solid var(--primary-900);
+  outline-offset: 2px;
+}
 
 /* ─── Scrollable content ─────────────────────────────────────────────────── */
 .content {
@@ -75,8 +85,13 @@
 .navItem:last-child {
   border-bottom: none;
 }
-.navItem:hover { opacity: 0.75; }
-.navItem:focus-visible { outline: 2px solid var(--primary-900); outline-offset: -2px; }
+.navItem:hover {
+  opacity: 0.75;
+}
+.navItem:focus-visible {
+  outline: 2px solid var(--primary-900);
+  outline-offset: -2px;
+}
 .navLabel {
   flex: 1;
   font-family: var(--font-family-base);
@@ -105,8 +120,13 @@
   border-radius: var(--radius-xs);
   transition: opacity 120ms ease;
 }
-.backButton:hover { opacity: 0.7; }
-.backButton:focus-visible { outline: 2px solid var(--primary-900); outline-offset: 4px; }
+.backButton:hover {
+  opacity: 0.7;
+}
+.backButton:focus-visible {
+  outline: 2px solid var(--primary-900);
+  outline-offset: 4px;
+}
 .backLabel {
   font-family: var(--font-family-base);
   font-size: var(--font-size-100);
@@ -153,8 +173,13 @@
 .navItemButton:last-child {
   border-bottom: none;
 }
-.navItemButton:hover { opacity: 0.75; }
-.navItemButton:focus-visible { outline: 2px solid var(--primary-900); outline-offset: -2px; }
+.navItemButton:hover {
+  opacity: 0.75;
+}
+.navItemButton:focus-visible {
+  outline: 2px solid var(--primary-900);
+  outline-offset: -2px;
+}
 
 /* ─── Profile footer ─────────────────────────────────────────────────────── */
 .profileFooter {

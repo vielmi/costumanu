@@ -9,7 +9,7 @@
   height: 80px;
   padding: 0 8px 0 4px;
   background: var(--neutral-white);
-  box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.20);
+  box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
 }
 
@@ -36,7 +36,9 @@
   border-radius: var(--radius-xs);
   transition: opacity 120ms ease;
 }
-.iconBtn:hover { opacity: 0.7; }
+.iconBtn:hover {
+  opacity: 0.7;
+}
 
 @media (max-width: 743px) {
   .header {

@@ -2,12 +2,23 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShellClient } from "@/components/layout/app-shell-client";
 import { resolveUserContext } from "@/lib/services/profile-service";
-import { getPendingRentalsCount, getUnreadMessagesCount } from "@/lib/services/notification-service";
+import {
+  getPendingRentalsCount,
+  getUnreadMessagesCount,
+} from "@/lib/services/notification-service";
 
-export async function AppShell({ children, topBar }: { children: React.ReactNode; topBar?: React.ReactNode }) {
+export async function AppShell({
+  children,
+  topBar,
+}: {
+  children: React.ReactNode;
+  topBar?: React.ReactNode;
+}) {
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
   const { userRole, theaterId } = await resolveUserContext(supabase, user.id);

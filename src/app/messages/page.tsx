@@ -107,9 +107,7 @@ export default async function NachrichtenPage() {
 
   // Sort by most recent message
   normalizedThreads.sort(
-    (a, b) =>
-      new Date(b.lastMessageAt).getTime() -
-      new Date(a.lastMessageAt).getTime()
+    (a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
   );
 
   return (

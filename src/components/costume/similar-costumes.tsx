@@ -45,23 +45,17 @@ function SimilarCostumeCard({ costume }: { costume: Costume }) {
 
   return (
     <Link href={`/costume/${costume.id}`} className="flex-shrink-0">
-      <div className="h-40 w-28 overflow-hidden rounded-xl bg-muted md:h-48 md:w-36">
+      <div className="bg-muted h-40 w-28 overflow-hidden rounded-xl md:h-48 md:w-36">
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={imageUrl}
-            alt={costume.name}
-            className="h-full w-full object-cover"
-          />
+          <img src={imageUrl} alt={costume.name} className="h-full w-full object-cover" />
         ) : (
-          <div className="h-full w-full bg-gradient-to-br from-muted to-muted-foreground/10" />
+          <div className="from-muted to-muted-foreground/10 h-full w-full bg-gradient-to-br" />
         )}
       </div>
-      <p className="mt-2 max-w-28 text-sm font-medium leading-tight md:max-w-36">
-        {costume.name}
-      </p>
+      <p className="mt-2 max-w-28 text-sm leading-tight font-medium md:max-w-36">{costume.name}</p>
       {firstProvenance && (
-        <p className="max-w-28 text-xs text-muted-foreground md:max-w-36">
+        <p className="text-muted-foreground max-w-28 text-xs md:max-w-36">
           {firstProvenance.production_title}
           {firstProvenance.year ? ` (${firstProvenance.year})` : ""}
         </p>

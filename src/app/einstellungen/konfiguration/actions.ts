@@ -9,10 +9,12 @@ const MAX_NAME_LENGTH = 100;
 
 function validateNameAndSlug(name: string, slug: string) {
   if (!name.trim()) throw new Error("Name darf nicht leer sein");
-  if (name.trim().length > MAX_NAME_LENGTH) throw new Error(`Name darf maximal ${MAX_NAME_LENGTH} Zeichen haben`);
+  if (name.trim().length > MAX_NAME_LENGTH)
+    throw new Error(`Name darf maximal ${MAX_NAME_LENGTH} Zeichen haben`);
   if (!slug.trim()) throw new Error("Slug darf nicht leer sein");
   const normalized = slug.trim().toLowerCase().replace(/\s+/g, "-");
-  if (!SLUG_PATTERN.test(normalized)) throw new Error("Slug darf nur Kleinbuchstaben, Ziffern und Bindestriche enthalten");
+  if (!SLUG_PATTERN.test(normalized))
+    throw new Error("Slug darf nur Kleinbuchstaben, Ziffern und Bindestriche enthalten");
 }
 
 function getAdminClient() {
@@ -25,11 +27,14 @@ function getAdminClient() {
 
 async function assertAdmin() {
   const supabase = await createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error("Nicht eingeloggt");
 
-  // Check platform admin first
-  const { data: profile } = await supabase
+  // Use admin client to bypass RLS — same as konfiguration/page.tsx
+  const admin = getAdminClient();
+  const { data: profile } = await admin
     .from("profiles")
     .select("platform_role")
     .eq("id", user.id)
@@ -55,10 +60,7 @@ async function assertAdmin() {
 
 // ─── Theater actions (platform admin only) ────────────────────────────────────
 
-export async function createTheaterAction(formData: {
-  name: string;
-  slug: string;
-}) {
+export async function createTheaterAction(formData: { name: string; slug: string }) {
   validateNameAndSlug(formData.name, formData.slug);
   const { isPlatformAdmin } = await assertAdmin();
   if (!isPlatformAdmin) throw new Error("Keine Berechtigung");
@@ -120,9 +122,7 @@ export async function createUserAction(formData: {
   const { theaterId: adminTheaterId, isPlatformAdmin } = await assertAdmin();
   const admin = getAdminClient();
 
-  const targetTheaterId = isPlatformAdmin
-    ? formData.theaterId
-    : adminTheaterId;
+  const targetTheaterId = isPlatformAdmin ? formData.theaterId : adminTheaterId;
   if (!targetTheaterId) throw new Error("Theater-ID fehlt");
 
   const { data: newUser, error: createErr } = await admin.auth.admin.createUser({
@@ -184,6 +184,102 @@ export async function updateUserAction(formData: {
     .eq("user_id", formData.userId)
     .eq("theater_id", formData.theaterId);
 
+  revalidatePath("/einstellungen/konfiguration");
+}
+
+// ─── Network actions (network admin) ─────────────────────────────────────────
+
+export async function updateNetworkSettingsAction(formData: {
+  networkId: string;
+  name: string;
+  description: string;
+  defaultVisibility: "none" | "all";
+}) {
+  if (!formData.name.trim()) throw new Error("Name darf nicht leer sein");
+  if (formData.name.trim().length > 100) throw new Error("Name zu lang");
+
+  // Use server client — RLS enforces network admin permission
+  const supabase = await createServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Nicht eingeloggt");
+
+  const { error } = await supabase
+    .from("theater_networks")
+    .update({
+      name: formData.name.trim(),
+      description: formData.description.trim() || null,
+      default_visibility: formData.defaultVisibility,
+    })
+    .eq("id", formData.networkId);
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/einstellungen/konfiguration");
+}
+
+// ─── Network actions (platform admin only) ───────────────────────────────────
+
+export async function createNetworkAction(formData: { name: string; slug: string }) {
+  validateNameAndSlug(formData.name, formData.slug);
+  const { isPlatformAdmin } = await assertAdmin();
+  if (!isPlatformAdmin) throw new Error("Keine Berechtigung");
+  const admin = getAdminClient();
+
+  const slug = formData.slug.trim().toLowerCase().replace(/\s+/g, "-");
+  const { data, error } = await admin
+    .from("theater_networks")
+    .insert({ name: formData.name.trim(), slug })
+    .select("id, name, slug")
+    .single();
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/einstellungen/konfiguration");
+  return data as { id: string; name: string; slug: string };
+}
+
+export async function deleteNetworkAction(networkId: string) {
+  const { isPlatformAdmin } = await assertAdmin();
+  if (!isPlatformAdmin) throw new Error("Keine Berechtigung");
+  const admin = getAdminClient();
+
+  const { error } = await admin.from("theater_networks").delete().eq("id", networkId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/einstellungen/konfiguration");
+}
+
+export async function addTheaterToNetworkAction(formData: {
+  networkId: string;
+  theaterId: string;
+  networkRole: "member" | "admin";
+}) {
+  const { isPlatformAdmin } = await assertAdmin();
+  if (!isPlatformAdmin) throw new Error("Keine Berechtigung");
+  const admin = getAdminClient();
+
+  const { error } = await admin.from("theater_network_members").upsert({
+    network_id: formData.networkId,
+    theater_id: formData.theaterId,
+    network_role: formData.networkRole,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/einstellungen/konfiguration");
+}
+
+export async function removeTheaterFromNetworkAction(formData: {
+  networkId: string;
+  theaterId: string;
+}) {
+  const { isPlatformAdmin } = await assertAdmin();
+  if (!isPlatformAdmin) throw new Error("Keine Berechtigung");
+  const admin = getAdminClient();
+
+  const { error } = await admin
+    .from("theater_network_members")
+    .delete()
+    .eq("network_id", formData.networkId)
+    .eq("theater_id", formData.theaterId);
+  if (error) throw new Error(error.message);
   revalidatePath("/einstellungen/konfiguration");
 }
 

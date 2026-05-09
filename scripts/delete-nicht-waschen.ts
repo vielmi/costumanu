@@ -34,24 +34,27 @@ async function main() {
     .select("*", { count: "exact", head: true })
     .eq("term_id", term.id);
 
-  if (refErr) { console.error("Fehler beim Prüfen der Referenzen:", refErr.message); return; }
+  if (refErr) {
+    console.error("Fehler beim Prüfen der Referenzen:", refErr.message);
+    return;
+  }
   console.log(`Referenzen in costume_taxonomy: ${count}`);
 
   if (count && count > 0) {
-    const { error: delRefErr } = await sb
-      .from("costume_taxonomy")
-      .delete()
-      .eq("term_id", term.id);
-    if (delRefErr) { console.error("Fehler beim Löschen der Referenzen:", delRefErr.message); return; }
+    const { error: delRefErr } = await sb.from("costume_taxonomy").delete().eq("term_id", term.id);
+    if (delRefErr) {
+      console.error("Fehler beim Löschen der Referenzen:", delRefErr.message);
+      return;
+    }
     console.log(`✓ ${count} Referenzen gelöscht`);
   }
 
-  const { error: delErr } = await sb
-    .from("taxonomy_terms")
-    .delete()
-    .eq("id", term.id);
+  const { error: delErr } = await sb.from("taxonomy_terms").delete().eq("id", term.id);
 
-  if (delErr) { console.error("Fehler beim Löschen des Terms:", delErr.message); return; }
+  if (delErr) {
+    console.error("Fehler beim Löschen des Terms:", delErr.message);
+    return;
+  }
   console.log("✓ Term 'Nicht waschen' gelöscht");
 }
 

@@ -9,8 +9,6 @@ import type { NavItem } from "@/components/layout/sidebar";
 import { BurgerIcon } from "@/lib/constants/icons";
 import styles from "./cockpit-mobile-drawer.module.css";
 
-
-
 interface CockpitMobileDrawerProps {
   navItems: NavItem[];
 }
@@ -19,7 +17,9 @@ export function CockpitMobileDrawer({ navItems }: CockpitMobileDrawerProps) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  function close() { setOpen(false); }
+  function close() {
+    setOpen(false);
+  }
 
   async function handleLogout() {
     close();
@@ -47,7 +47,13 @@ export function CockpitMobileDrawer({ navItems }: CockpitMobileDrawerProps) {
             className={styles.closeButton}
             aria-label="Menü schliessen"
           >
-            <Image src="/icons/icon-close-medium.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
+            <Image
+              src="/icons/icon-close-medium.svg"
+              alt=""
+              width={20}
+              height={20}
+              style={{ filter: "invert(1)" }}
+            />
           </button>
 
           <div className={styles.content}>
@@ -82,7 +88,13 @@ export function CockpitMobileDrawer({ navItems }: CockpitMobileDrawerProps) {
                       Beta
                     </span>
                   )}
-                  <Image src="/icons/icon-arrow-s.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
+                  <Image
+                    src="/icons/icon-arrow-s.svg"
+                    alt=""
+                    width={20}
+                    height={20}
+                    style={{ filter: "invert(1)" }}
+                  />
                 </Link>
               ))}
             </nav>
@@ -92,9 +104,17 @@ export function CockpitMobileDrawer({ navItems }: CockpitMobileDrawerProps) {
             <p className={styles.sectionLabel}>Kostüm erfassen</p>
             <nav>
               {[
-                { label: "Kostüm erfassen",       href: "/kostueme/neu",               icon: "icon-shirt"     },
-                { label: "Mehrteiler erfassen",    href: "/kostueme/neu?type=ensemble", icon: "icon-shirt-1"   },
-                { label: "Kostüm Serie erfassen",  href: "/kostueme/neu?type=serie",    icon: "icon-serie"     },
+                { label: "Kostüm erfassen", href: "/kostueme/neu", icon: "icon-shirt" },
+                {
+                  label: "Mehrteiler erfassen",
+                  href: "/kostueme/neu?type=ensemble",
+                  icon: "icon-shirt-1",
+                },
+                {
+                  label: "Kostüm Serie erfassen",
+                  href: "/kostueme/neu?type=serie",
+                  icon: "icon-serie",
+                },
               ].map((item) => (
                 <Link key={item.href} href={item.href} onClick={close} className={styles.navItem}>
                   <Image
@@ -105,7 +125,13 @@ export function CockpitMobileDrawer({ navItems }: CockpitMobileDrawerProps) {
                     style={{ filter: "invert(1)", flexShrink: 0 }}
                   />
                   <span className={styles.navLabel}>{item.label}</span>
-                  <Image src="/icons/icon-arrow-s.svg" alt="" width={20} height={20} style={{ filter: "invert(1)" }} />
+                  <Image
+                    src="/icons/icon-arrow-s.svg"
+                    alt=""
+                    width={20}
+                    height={20}
+                    style={{ filter: "invert(1)" }}
+                  />
                 </Link>
               ))}
             </nav>
@@ -113,7 +139,13 @@ export function CockpitMobileDrawer({ navItems }: CockpitMobileDrawerProps) {
 
           <div className={styles.profileFooter}>
             <div className={styles.avatarCircle}>
-              <Image src="/icons/icon-avatar.svg" alt="" width={32} height={32} style={{ filter: "invert(1)" }} />
+              <Image
+                src="/icons/icon-avatar.svg"
+                alt=""
+                width={32}
+                height={32}
+                style={{ filter: "invert(1)" }}
+              />
             </div>
             <Link href="/profile" onClick={close} className={styles.profileLabel}>
               Mein Profil
