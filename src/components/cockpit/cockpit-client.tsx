@@ -493,21 +493,7 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
                   background: `rgba(0,0,0,${card.overlayOpacity})`,
                 }}
               />
-              <span
-                style={{
-                  position: "absolute",
-                  bottom: 16,
-                  left: 20,
-                  right: 44,
-                  fontSize: "var(--font-size-400)",
-                  fontWeight: "var(--font-weight-500)",
-                  color: "var(--neutral-white)",
-                  fontFamily: "var(--font-family-base)",
-                  lineHeight: "var(--line-height-150)",
-                }}
-              >
-                {card.title}
-              </span>
+              <span className={styles.imageCardTitle}>{card.title}</span>
               <div
                 style={{
                   position: "absolute",
@@ -521,7 +507,7 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
                 }}
               >
                 <Image
-                  src="/icons/icon-arrow-right-2.svg"
+                  src="/icons/icon-right-arrow.svg"
                   alt=""
                   width={26}
                   height={26}

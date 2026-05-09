@@ -58,6 +58,19 @@
   scroll-snap-align: start;
 }
 
+/* ─── Image card title ────────────────────────────────────────────────────── */
+.imageCardTitle {
+  position: absolute;
+  bottom: 16px;
+  left: 20px;
+  right: 44px;
+  font-size: var(--font-size-1000);
+  font-weight: var(--font-weight-500);
+  color: var(--neutral-white);
+  font-family: var(--font-family-base);
+  line-height: var(--line-height-150);
+}
+
 /* ─── Recent row ──────────────────────────────────────────────────────────── */
 .recentRow {
   display: flex;
@@ -267,6 +280,12 @@
     flex: unset;
     flex-shrink: unset;
     scroll-snap-align: unset;
+  }
+
+  .imageCardTitle {
+    font-size: var(--font-size-1000-s);
+    right: 36px;
+    bottom: 12px;
   }
 
   /* Suchmodus CTA: show between image cards and list */
