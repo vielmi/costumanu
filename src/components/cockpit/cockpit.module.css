@@ -107,6 +107,11 @@
   display: flex;
 }
 
+/* Suchmodus CTA label */
+.suchmodusCtaLabel {
+  font-size: var(--font-size-400);
+}
+
 /* Mobile-only: production label inside text block */
 .mobileProductionLabel {
   display: none;
@@ -316,6 +321,10 @@
 
   .genderBadge {
     display: none;
+  }
+
+  .suchmodusCtaLabel {
+    font-size: var(--font-size-350);
   }
 
   /* Show mobile-only elements inside text block */

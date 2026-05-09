@@ -417,8 +417,8 @@ function SuchmodusCta({ fullWidth }: { fullWidth?: boolean }) {
         }}
       >
         <span
+          className={styles.suchmodusCtaLabel}
           style={{
-            fontSize: "var(--font-size-400)",
             fontWeight: "var(--font-weight-500)",
             color: "var(--neutral-white)",
             fontFamily: "var(--font-family-base)",
