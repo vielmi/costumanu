@@ -297,6 +297,7 @@
   /* Suchmodus CTA: show between image cards and list */
   .suchmodusMobile {
     display: block;
+    margin-bottom: 16px;
   }
 
   .suchmodusDesktop {
