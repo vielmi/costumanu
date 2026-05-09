@@ -412,9 +412,10 @@ function SuchmodusCta({ fullWidth }: { fullWidth?: boolean }) {
           display: "flex",
           flexDirection: fullWidth ? "row" : "column",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: fullWidth ? "space-between" : "center",
           gap: fullWidth ? 16 : 20,
-          padding: "0 20px",
+          padding: fullWidth ? "0 20px" : "0 20px",
+          width: "100%",
         }}
       >
         <span
@@ -423,7 +424,7 @@ function SuchmodusCta({ fullWidth }: { fullWidth?: boolean }) {
             fontWeight: "var(--font-weight-500)",
             color: "var(--neutral-white)",
             fontFamily: "var(--font-family-base)",
-            textAlign: "center",
+            textAlign: "left",
             lineHeight: "var(--line-height-150)",
           }}
         >
