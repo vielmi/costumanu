@@ -64,7 +64,7 @@
   bottom: 16px;
   left: 20px;
   right: 44px;
-  font-size: var(--font-size-1000);
+  font-size: var(--font-size-600);
   font-weight: var(--font-weight-500);
   color: var(--neutral-white);
   font-family: var(--font-family-base);
@@ -283,7 +283,7 @@
   }
 
   .imageCardTitle {
-    font-size: var(--font-size-1000-s);
+    font-size: var(--font-size-400);
     right: 36px;
     bottom: 12px;
   }
