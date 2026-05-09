@@ -28,19 +28,44 @@
   flex-direction: column;
 }
 
-/* ─── Content ────────────────────────────────────────────────────────────── */
+/* ─── Content root ────────────────────────────────────────────────────────── */
+.cockpitRoot {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ─── Top section (image cards + mobile CTA) ─────────────────────────────── */
+.topSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ─── Image cards ─────────────────────────────────────────────────────────── */
 .imageCards {
   display: flex;
   gap: 12px;
 }
 
+.imageCard {
+  flex: 1;
+  min-width: 220px;
+  height: 180px;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+  scroll-snap-align: start;
+}
+
+/* ─── Recent row ──────────────────────────────────────────────────────────── */
 .recentRow {
   display: flex;
   gap: 16px;
   align-items: flex-start;
 }
 
-/* Suchmodus CTA is rendered inside recentRow on desktop, above it on mobile */
+/* Suchmodus CTA — mobile version hidden by default */
 .suchmodusMobile {
   display: none;
 }
@@ -49,7 +74,7 @@
   display: flex;
 }
 
-/* Costume list — full-width breakout on mobile */
+/* ─── Costume list ────────────────────────────────────────────────────────── */
 .costumeList {
   display: flex;
   flex-direction: column;
@@ -60,7 +85,7 @@
   border-radius: var(--radius-xs);
 }
 
-/* Production + gender badge — hidden on mobile */
+/* Production + gender badge — visible on desktop */
 .productionLabel {
   display: block;
 }
@@ -69,7 +94,17 @@
   display: flex;
 }
 
-/* Desktop top bar — hidden on mobile */
+/* Mobile-only: production label inside text block */
+.mobileProductionLabel {
+  display: none;
+}
+
+/* Mobile-only: icon row inside text block */
+.mobileIcons {
+  display: none;
+}
+
+/* ─── Desktop top bar ─────────────────────────────────────────────────────── */
 .desktopTopBar {
   display: flex;
   flex-shrink: 0;
@@ -80,7 +115,7 @@
   padding-bottom: 12px;
 }
 
-/* ─── Search dropdown ───────────────────────────────────────────────────── */
+/* ─── Search dropdown ────────────────────────────────────────────────────── */
 .searchDropdown {
   position: absolute;
   top: calc(100% + 6px);
@@ -210,19 +245,31 @@
     display: none !important;
   }
 
-  /* Image cards: horizontal scroll */
-  .imageCards {
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding: 0 16px 4px;
-    scrollbar-width: none;
-  }
-  .imageCards::-webkit-scrollbar {
-    display: none;
+  /* Content root */
+  .cockpitRoot {
+    padding: 16px 16px 32px;
+    gap: 16px;
   }
 
-  /* Switch CTA position: mobile version above, desktop version hidden */
+  /* Image cards: 2-column fixed grid */
+  .imageCards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow-x: unset;
+    scroll-snap-type: none;
+    padding: 0;
+    gap: 8px;
+  }
+
+  .imageCard {
+    min-width: 0;
+    height: 150px;
+    flex: unset;
+    flex-shrink: unset;
+    scroll-snap-align: unset;
+  }
+
+  /* Suchmodus CTA: show between image cards and list */
   .suchmodusMobile {
     display: block;
   }
@@ -238,21 +285,35 @@
     gap: 0;
   }
 
-  /* Reduce content padding on mobile */
-  .contentPadding {
-    padding: 16px 16px 32px !important;
-  }
-
   .costumeRow {
     border-radius: 0;
   }
 
-  /* Hide production label and gender badge in rows */
+  /* Hide desktop-only columns in rows */
   .productionLabel {
     display: none;
   }
 
   .genderBadge {
     display: none;
+  }
+
+  /* Show mobile-only elements inside text block */
+  .mobileProductionLabel {
+    display: block;
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-150);
+    color: var(--neutral-grey-500);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+  }
+
+  .mobileIcons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
   }
 }

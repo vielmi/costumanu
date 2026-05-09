@@ -28,7 +28,7 @@ const IMAGE_CARDS = [
     image: "/images/cockpit-kostueme.jpg",
   },
   {
-    title: "Aktuelle- & vergangene Produktionen",
+    title: "Produktionen",
     href: "/produktionen",
     overlayOpacity: 0.5,
     bg: "var(--secondary-900)",
@@ -186,8 +186,8 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
         className={styles.costumeRow}
         style={{
           display: "flex",
-          alignItems: "stretch",
-          height: 70,
+          alignItems: "center",
+          minHeight: 70,
           background: isActive ? "var(--secondary-500)" : "var(--neutral-grey-100)",
           flexShrink: 0,
           position: "relative",
@@ -271,7 +271,7 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
             )}
           </div>
 
-          {/* ID + Name */}
+          {/* ID + Name + mobile extras */}
           <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
             <span
               style={{
@@ -296,6 +296,21 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
             >
               {costume.name}
             </span>
+            {/* Mobile: production label */}
+            {productionLabel !== "—" && (
+              <span className={styles.mobileProductionLabel}>{productionLabel}</span>
+            )}
+            {/* Mobile: gender + type icons */}
+            <div className={styles.mobileIcons}>
+              <Image
+                src={`/icons/icon-${genderIcon}.svg`}
+                alt={costume.gender_term?.label_de ?? ""}
+                width={14}
+                height={14}
+              />
+              <div style={{ width: "0.8px", height: 12, background: "var(--neutral-grey-300)" }} />
+              <Image src="/icons/icon-shirt.svg" alt="" width={14} height={14} />
+            </div>
           </div>
 
           {/* Production — hidden on mobile */}
@@ -442,86 +457,85 @@ function SuchmodusCta({ fullWidth }: { fullWidth?: boolean }) {
 
 export function CockpitContent({ recentCostumes }: CockpitContentProps) {
   return (
-    <div
-      className={styles.contentPadding}
-      style={{ padding: 24, display: "flex", flexDirection: "column", gap: 32 }}
-    >
-      {/* Image cards — horizontal scroll on mobile */}
-      <div className={styles.imageCards}>
-        {IMAGE_CARDS.map((card) => (
-          <Link
-            key={card.href}
-            href={card.href}
-            style={{
-              flex: 1,
-              minWidth: 220,
-              height: 180,
-              borderRadius: "var(--radius-md)",
-              position: "relative",
-              overflow: "hidden",
-              background: card.bg,
-              textDecoration: "none",
-              display: "block",
-              scrollSnapAlign: "start",
-              flexShrink: 0,
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={card.image}
-              alt=""
+    <div className={styles.cockpitRoot}>
+      {/* Top section: image cards grid + Suchmodus CTA (mobile only) */}
+      <div className={styles.topSection}>
+        <div className={styles.imageCards}>
+          {IMAGE_CARDS.map((card) => (
+            <Link
+              key={card.href}
+              href={card.href}
+              className={styles.imageCard}
               style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                background: `rgba(0,0,0,${card.overlayOpacity})`,
-              }}
-            />
-            <span
-              style={{
-                position: "absolute",
-                bottom: 16,
-                left: 20,
-                right: 44,
-                fontSize: "var(--font-size-400)",
-                fontWeight: "var(--font-weight-500)",
-                color: "var(--neutral-white)",
-                fontFamily: "var(--font-family-base)",
-                lineHeight: "var(--line-height-150)",
+                position: "relative",
+                overflow: "hidden",
+                background: card.bg,
+                textDecoration: "none",
+                display: "block",
               }}
             >
-              {card.title}
-            </span>
-            <div
-              style={{
-                position: "absolute",
-                bottom: 20,
-                right: 16,
-                width: 26,
-                height: 26,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Image
-                src="/icons/icon-arrow-right-2.svg"
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={card.image}
                 alt=""
-                width={26}
-                height={26}
-                style={{ filter: "invert(1)" }}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
               />
-            </div>
-          </Link>
-        ))}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: `rgba(0,0,0,${card.overlayOpacity})`,
+                }}
+              />
+              <span
+                style={{
+                  position: "absolute",
+                  bottom: 16,
+                  left: 20,
+                  right: 44,
+                  fontSize: "var(--font-size-400)",
+                  fontWeight: "var(--font-weight-500)",
+                  color: "var(--neutral-white)",
+                  fontFamily: "var(--font-family-base)",
+                  lineHeight: "var(--line-height-150)",
+                }}
+              >
+                {card.title}
+              </span>
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: 20,
+                  right: 16,
+                  width: 26,
+                  height: 26,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Image
+                  src="/icons/icon-arrow-right-2.svg"
+                  alt=""
+                  width={26}
+                  height={26}
+                  style={{ filter: "invert(1)" }}
+                />
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Suchmodus CTA — mobile: between image cards and list */}
+        <div className={styles.suchmodusMobile}>
+          <SuchmodusCta fullWidth />
+        </div>
       </div>
 
       {/* Recent costumes */}
@@ -540,11 +554,6 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
             Kostüme
           </span>
         </h2>
-
-        {/* Suchmodus CTA — mobile: above list, full-width */}
-        <div className={styles.suchmodusMobile} style={{ marginBottom: 16 }}>
-          <SuchmodusCta fullWidth />
-        </div>
 
         <div className={styles.recentRow}>
           <div style={{ flex: 1, minWidth: 0 }}>
