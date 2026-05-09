@@ -529,6 +529,7 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
       {/* Recent costumes */}
       <div>
         <h2
+          className={styles.recentHeading}
           style={{
             fontFamily: "var(--font-family-base)",
             fontSize: "var(--font-size-350)",

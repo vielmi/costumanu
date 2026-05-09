@@ -289,7 +289,7 @@
   }
 
   .imageCardTitle {
-    font-size: var(--font-size-350);
+    font-size: var(--font-size-300);
     bottom: unset;
     top: 16px;
     right: 12px;
@@ -331,7 +331,11 @@
   }
 
   .suchmodusCtaLabel {
-    font-size: var(--font-size-350);
+    font-size: var(--font-size-300);
+  }
+
+  .recentHeading {
+    font-size: var(--font-size-300) !important;
   }
 
   /* Show mobile-only elements inside text block */
