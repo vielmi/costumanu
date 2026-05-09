@@ -61,7 +61,7 @@ export default async function WishlistDetailPage({ params }: { params: Promise<{
       theater: { name: string } | null;
     } | null;
   };
-  const costumes: WishlistCostume[] = ((rawItems as RawRow[]) ?? [])
+  const costumes: WishlistCostume[] = ((rawItems as unknown as RawRow[]) ?? [])
     .map((row) => {
       const c = row.costumes;
       if (!c) return null;
@@ -74,7 +74,7 @@ export default async function WishlistDetailPage({ params }: { params: Promise<{
         ? `${supabaseUrl}/storage/v1/object/public/costume-media/${sorted[0].storage_path}`
         : null;
 
-      const items: { current_status: string; storage_location_path: string | null }[] =
+      const items: { current_status: string | null; storage_location_path: string | null }[] =
         Array.isArray(c.costume_items) ? c.costume_items : [];
       const status = items[0]?.current_status ?? null;
       const storageLocation = items[0]?.storage_location_path ?? null;
