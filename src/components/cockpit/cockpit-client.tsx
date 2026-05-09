@@ -231,6 +231,8 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
           href={`/costume/${costume.id}`}
           style={{
             flex: 1,
+            minWidth: 0,
+            overflow: "hidden",
             display: "flex",
             alignItems: "center",
             gap: 12,
