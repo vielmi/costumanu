@@ -187,7 +187,6 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
         style={{
           display: "flex",
           alignItems: "center",
-          minHeight: 70,
           background: isActive ? "var(--secondary-500)" : "var(--neutral-grey-100)",
           flexShrink: 0,
           position: "relative",
@@ -201,7 +200,7 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
               left: 0,
               top: 0,
               width: 5,
-              height: 70,
+              height: "100%",
               background: "var(--accent-01)",
               borderRadius: "4px 0 0 4px",
               zIndex: 1,

@@ -95,6 +95,7 @@
 }
 
 .costumeRow {
+  min-height: 70px;
   border-radius: var(--radius-xs);
 }
 
@@ -312,7 +313,12 @@
   }
 
   .costumeRow {
-    border-radius: 0;
+    min-height: 103px;
+    border-radius: var(--radius-sm);
+  }
+
+  .costumeList {
+    gap: 12px;
   }
 
   /* Hide desktop-only columns in rows */
