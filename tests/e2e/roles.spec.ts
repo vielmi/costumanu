@@ -105,9 +105,9 @@ test.describe("Cross-Theater-Isolation", () => {
 
 // ─── Anon ────────────────────────────────────────────────────
 test.describe("Anon — kein Login", () => {
-  test("Suchmodus erreichbar", async ({ page }) => {
+  test("Suchmodus erfordert Login", async ({ page }) => {
     await page.goto("/suchmodus");
-    await expect(page).not.toHaveURL(/login/);
+    await expect(page).toHaveURL(/login/);
   });
 
   test("Fundus nicht erreichbar", async ({ page }) => {
