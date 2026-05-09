@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { CockpitContent } from "@/components/cockpit/cockpit-client";
@@ -51,7 +52,7 @@ export function CockpitShell({
   return (
     <div className={styles.shell}>
       {/* ── Mobile header ── */}
-      <AppMobileHeader navItems={navItems} />
+      <AppMobileHeader navItems={navItems} rightSlot={<CockpitMobileActions />} />
 
       <div className={styles.shellInner}>
         {/* Sidebar — desktop only */}
@@ -75,6 +76,52 @@ export function CockpitShell({
           </main>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ─── CockpitMobileActions (search + Erfassen, mobile header right slot) ──────
+
+function CockpitMobileActions() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+      <Link
+        href="/fundus"
+        aria-label="Suche"
+        style={{
+          width: 44,
+          height: 44,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textDecoration: "none",
+        }}
+      >
+        <Image src="/icons/icon-search.svg" alt="" width={22} height={22} />
+      </Link>
+      <Link
+        href="/kostueme/neu"
+        aria-label="Kostüm erfassen"
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: "50%",
+          background: "var(--primary-900)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textDecoration: "none",
+          flexShrink: 0,
+        }}
+      >
+        <Image
+          src="/icons/icon-plus-m.svg"
+          alt=""
+          width={20}
+          height={20}
+          style={{ filter: "invert(1)" }}
+        />
+      </Link>
     </div>
   );
 }
