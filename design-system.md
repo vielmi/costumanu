@@ -457,17 +457,17 @@ src/assets/logos/
 
 ---
 
-### kostüm+ Wordmark
+### palcoPiù Wordmark
 
-| Filename    | Size     | Description                                        |
-| ----------- | -------- | -------------------------------------------------- |
-| `Union.svg` | 443×86px | **kostüm+** wordmark, dark (`#1D1D1B`), no partner |
+| Filename    | Size     | Description                                         |
+| ----------- | -------- | --------------------------------------------------- |
+| `Union.svg` | 443×86px | **palcoPiù** wordmark, dark (`#1D1D1B`), no partner |
 
 ---
 
-### kostüm+ Brand Lockups (with partner)
+### palcoPiù Brand Lockups (with partner)
 
-Full horizontal lockup: partner icon left + "kostüm+" text right.
+Full horizontal lockup: partner icon left + "palcoPiù" text right.
 
 | Filename        | Partner          | Size     | Partner colour     |
 | --------------- | ---------------- | -------- | ------------------ |
@@ -1763,7 +1763,7 @@ Alle App-Seiten verwenden den Token `--page-bg` als Root-Hintergrundfarbe.
 
 #### `AppLogo` — Brand Logo Komponente
 
-Wiederverwendbare Logo-Komponente: schwarzes K-Icon-Box + „kostüm+" Schriftzug, verlinkt auf `/`.
+Wiederverwendbare Logo-Komponente: schwarzes K-Icon-Box + „palcoPiù" Schriftzug, verlinkt auf `/`.
 
 **Pfad:** `src/components/layout/app-logo.tsx`
 
@@ -1774,16 +1774,16 @@ import { AppLogo } from "@/components/layout/app-logo";
 <AppLogo showText={false} /> // Nur K-Icon (collapsed Sidebar)
 ```
 
-| Property   | Typ       | Default | Beschreibung                             |
-| ---------- | --------- | ------- | ---------------------------------------- |
-| `showText` | `boolean` | `true`  | Blendet den „kostüm+" Schriftzug ein/aus |
+| Property   | Typ       | Default | Beschreibung                              |
+| ---------- | --------- | ------- | ----------------------------------------- |
+| `showText` | `boolean` | `true`  | Blendet den „palcoPiù" Schriftzug ein/aus |
 
 **Specs:**
 | Element | Wert |
 |---|---|
 | Icon-Box | 38×38px, `background: #0D0D0D`, `border-radius: 8px` |
 | Icon-Buchstabe „K" | 18px, `font-weight: 700`, `color: #F5C842` |
-| Schriftzug „kostüm+" | `font-size-350` (18px), `font-weight: 700`, `color: neutral-grey-700` |
+| Schriftzug „palcoPiù" | `font-size-350` (18px), `font-weight: 700`, `color: neutral-grey-700` |
 | Gap Icon–Text | 8px |
 
 **Verwendet in:** `cockpit-shell.tsx`, `kostueme-neu-client.tsx`
@@ -1997,7 +1997,7 @@ Zwei Schriftskalen ("Tablet" / "Mobile") implizieren zwei Breakpoints. Empfohlen
 
 ---
 
-_Generiert aus Figma Design System HCID-Fundus-Layout-01 — kostüm+ / costumanu_
+_Generiert aus Figma Design System HCID-Fundus-Layout-01 — palcoPiù / costumanu_
 
 ---
 
@@ -2167,15 +2167,15 @@ Erscheint am unteren Bildschirmrand, zeigt eingeloggten Nutzer.
 
 ## 12. Footer
 
-| Eigenschaft     | Wert                                                                 |
-| --------------- | -------------------------------------------------------------------- |
-| Hintergrund     | `#000000`                                                            |
-| Border-radius   | `30px 30px 0 0`                                                      |
-| Padding         | `24px 33px`                                                          |
-| Logo            | `kostüm+` Wordmark (`Union.svg`), `primary-900` (#B59B3A), zentriert |
-| Links           | H4-regular, 26px, `#FFFFFF`, mit `icon-arrow-right` (27×27px) rechts |
-| Copyright-Zeile | Subtitle-1-regular, 16px, `rgba(255,255,255,0.5)`, zentriert         |
-| Copyright-BG    | `rgba(255,255,255,0.05)`, `padding: 16px 0`                          |
+| Eigenschaft     | Wert                                                                  |
+| --------------- | --------------------------------------------------------------------- |
+| Hintergrund     | `#000000`                                                             |
+| Border-radius   | `30px 30px 0 0`                                                       |
+| Padding         | `24px 33px`                                                           |
+| Logo            | `palcoPiù` Wordmark (`Union.svg`), `primary-900` (#B59B3A), zentriert |
+| Links           | H4-regular, 26px, `#FFFFFF`, mit `icon-arrow-right` (27×27px) rechts  |
+| Copyright-Zeile | Subtitle-1-regular, 16px, `rgba(255,255,255,0.5)`, zentriert          |
+| Copyright-BG    | `rgba(255,255,255,0.05)`, `padding: 16px 0`                           |
 
 ```css
 .footer {
@@ -2501,4 +2501,4 @@ Horizontal scrollbare Zeile mit Grössen als Pill-Tags.
 
 ---
 
-_Generiert aus Figma Design System HCID-Fundus-Layout-01 — kostüm+ / costumanu_
+_Generiert aus Figma Design System HCID-Fundus-Layout-01 — palcoPiù / costumanu_

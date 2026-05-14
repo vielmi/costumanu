@@ -358,18 +358,20 @@ export function FundusClient({
                   <rect x="11" y="11" width="7" height="7" rx="1" fill="currentColor" />
                 </svg>
               </button>
-              <div className={styles.viewDivider} />
-              <select
-                className={styles.sortSelect}
-                value={sort}
-                onChange={(e) => setSort(e.target.value as typeof sort)}
-                aria-label="Sortierung"
-              >
-                <option value="name_asc">Name A–Z</option>
-                <option value="name_desc">Name Z–A</option>
-                <option value="newest">Neueste zuerst</option>
-                <option value="oldest">Älteste zuerst</option>
-              </select>
+              <div className={styles.sortGroup}>
+                <div className={styles.viewDivider} />
+                <select
+                  className={styles.sortSelect}
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as typeof sort)}
+                  aria-label="Sortierung"
+                >
+                  <option value="name_asc">Name A–Z</option>
+                  <option value="name_desc">Name Z–A</option>
+                  <option value="newest">Neueste zuerst</option>
+                  <option value="oldest">Älteste zuerst</option>
+                </select>
+              </div>
             </div>
           </div>
           <button type="button" className={styles.listEdit} onClick={() => setEditMode(true)}>
@@ -493,18 +495,23 @@ export function FundusClient({
           </Link>
         </div>
       ) : view === "grid" ? (
-        <div className={styles.grid}>
-          {sortedCostumes.map((costume) => (
-            <CostumeCard
-              key={costume.id}
-              costume={costume}
-              queryIds={queryIds}
-              editMode={editMode}
-              isSelected={selectedIds.has(costume.id)}
-              onToggleSelect={() => toggleSelect(costume.id)}
-            />
-          ))}
-        </div>
+        <>
+          <p className={styles.sectionHeading}>
+            Zuletzt bearbeitete <span className={styles.sectionHeadingUnderline}>Kostüme</span>
+          </p>
+          <div className={styles.grid}>
+            {sortedCostumes.map((costume) => (
+              <CostumeCard
+                key={costume.id}
+                costume={costume}
+                queryIds={queryIds}
+                editMode={editMode}
+                isSelected={selectedIds.has(costume.id)}
+                onToggleSelect={() => toggleSelect(costume.id)}
+              />
+            ))}
+          </div>
+        </>
       ) : (
         <div className={styles.list}>
           {sortedCostumes.map((costume) => (
@@ -784,7 +791,7 @@ function CostumeCard({
             >
               <span className={styles.statusDot} style={{ background: selectedStatus.color }} />
               <span>{selectedStatus.label}</span>
-              <span className="dropdown-arrow" />
+              <span className={styles.statusArrow} />
             </button>
             {statusMenuOpen && (
               <>
@@ -942,6 +949,41 @@ function CostumeListRow({
     },
   ];
 
+  const thumbEl = (
+    <div
+      style={{
+        width: 46,
+        height: 46,
+        borderRadius: "100px",
+        overflow: "hidden",
+        flexShrink: 0,
+        background: "var(--neutral-grey-300)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={imageUrl}
+          alt={costume.name}
+          style={{ objectFit: "cover", objectPosition: "top", width: "100%", height: "100%" }}
+        />
+      ) : (
+        <Image src="/icons/icon-shirt.svg" alt="" width={24} height={24} style={{ opacity: 0.4 }} />
+      )}
+    </div>
+  );
+
+  const textEl = (
+    <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+      <span className={styles.listId}>ID-{costume.id.slice(0, 9).toUpperCase()}</span>
+      <span className={styles.listName}>{costume.name}</span>
+      {productionLabel && <span className={styles.listProductionInline}>{productionLabel}</span>}
+    </div>
+  );
+
   return (
     <>
       {actionError && (
@@ -962,9 +1004,7 @@ function CostumeListRow({
         style={{ zIndex: statusMenuOpen || menuOpen ? 10 : undefined }}
       >
         {/* Left: checkbox (edit mode) or 3-dot menu */}
-        <div
-          style={{ display: "flex", alignItems: "center", padding: "0 4px 0 12px", flexShrink: 0 }}
-        >
+        <div className={styles.listLeft}>
           {editMode ? (
             <button
               type="button"
@@ -986,145 +1026,23 @@ function CostumeListRow({
           )}
         </div>
 
-        {/* Thumbnail + Name — clickable in edit mode */}
+        {/* Thumbnail + text (link or div) */}
         {editMode ? (
-          <div
-            style={{
-              flex: 1,
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              padding: "0 8px",
-              cursor: "pointer",
-            }}
-            onClick={onToggleSelect}
-          >
-            <div
-              style={{
-                width: 46,
-                height: 46,
-                borderRadius: "100px",
-                overflow: "hidden",
-                flexShrink: 0,
-                background: "var(--neutral-grey-300)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt={costume.name}
-                  style={{ objectFit: "cover", width: "100%", height: "100%" }}
-                /> // eslint-disable-line @next/next/no-img-element
-              ) : (
-                <Image
-                  src="/icons/icon-shirt.svg"
-                  alt=""
-                  width={24}
-                  height={24}
-                  style={{ opacity: 0.4 }}
-                />
-              )}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
-              <span
-                style={{
-                  fontSize: "var(--font-size-50)",
-                  color: "var(--neutral-grey-500)",
-                  fontFamily: "var(--font-family-base)",
-                }}
-              >
-                ID-{costume.id.slice(0, 9).toUpperCase()}
-              </span>
-              <span
-                style={{
-                  fontSize: "var(--font-size-200)",
-                  fontWeight: "var(--font-weight-500)",
-                  color: "var(--neutral-black)",
-                  fontFamily: "var(--font-family-base)",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {costume.name}
-              </span>
-            </div>
+          <div className={styles.listLink} onClick={onToggleSelect} style={{ cursor: "pointer" }}>
+            {thumbEl}
+            {textEl}
           </div>
         ) : (
-          <Link
-            href={`/costume/${costume.id}`}
-            style={{
-              flex: 1,
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              padding: "0 8px",
-              textDecoration: "none",
-            }}
-          >
-            <div
-              style={{
-                width: 46,
-                height: 46,
-                borderRadius: "100px",
-                overflow: "hidden",
-                flexShrink: 0,
-                background: "var(--neutral-grey-300)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt={costume.name}
-                  style={{ objectFit: "cover", width: "100%", height: "100%" }}
-                /> // eslint-disable-line @next/next/no-img-element
-              ) : (
-                <Image
-                  src="/icons/icon-shirt.svg"
-                  alt=""
-                  width={24}
-                  height={24}
-                  style={{ opacity: 0.4 }}
-                />
-              )}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
-              <span
-                style={{
-                  fontSize: "var(--font-size-50)",
-                  color: "var(--neutral-grey-500)",
-                  fontFamily: "var(--font-family-base)",
-                }}
-              >
-                ID-{costume.id.slice(0, 9).toUpperCase()}
-              </span>
-              <span
-                style={{
-                  fontSize: "var(--font-size-200)",
-                  fontWeight: "var(--font-weight-500)",
-                  color: "var(--neutral-black)",
-                  fontFamily: "var(--font-family-base)",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {costume.name}
-              </span>
-            </div>
+          <Link href={`/costume/${costume.id}`} className={styles.listLink}>
+            {thumbEl}
+            {textEl}
           </Link>
         )}
 
-        {/* Production label */}
+        {/* Desktop-only: production label */}
         <span className={styles.listProductionLabel}>{productionLabel}</span>
 
-        {/* Gender + shirt badge */}
+        {/* Desktop-only: gender + shirt badge */}
         <div className={styles.listGenderBadge}>
           <Image
             src={`/icons/icon-${genderIcon}.svg`}
@@ -1136,35 +1054,51 @@ function CostumeListRow({
           <Image src="/icons/icon-shirt.svg" alt="" width={16} height={16} />
         </div>
 
-        {/* Status dropdown */}
-        <div className={styles.statusWrap} style={{ marginRight: 16 }}>
-          <button
-            type="button"
-            className={styles.statusTrigger}
-            onClick={() => setStatusMenuOpen((v) => !v)}
-          >
-            <span className={styles.statusDot} style={{ background: selectedStatus.color }} />
-            <span>{selectedStatus.label}</span>
-            <span className="dropdown-arrow" />
-          </button>
-          {statusMenuOpen && (
-            <>
-              <div className={styles.statusBackdrop} onClick={() => setStatusMenuOpen(false)} />
-              <div className={styles.statusMenuDown}>
-                {STATUS_OPTIONS.map((o) => (
-                  <button
-                    key={o.value}
-                    type="button"
-                    onClick={() => handleStatusChange(o.value)}
-                    className={`${styles.statusOption} ${o.value === currentStatus ? styles.statusOptionActive : ""}`}
-                  >
-                    <span className={styles.statusDot} style={{ background: o.color }} />
-                    {o.label}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
+        {/* Status area — on mobile wraps to full-width second row */}
+        <div className={styles.listStatusArea}>
+          {/* Mobile-only: icon pair — aligned to pill text center */}
+          <div className={styles.listIconsMobile}>
+            <Image
+              src={`/icons/icon-${genderIcon}.svg`}
+              alt={costume.gender_term?.label_de ?? ""}
+              width={16}
+              height={16}
+            />
+            <div style={{ width: "0.8px", height: 16, background: "var(--neutral-grey-300)" }} />
+            <Image src="/icons/icon-shirt.svg" alt="" width={16} height={16} />
+          </div>
+
+          {/* Status dropdown */}
+          <div className={styles.statusWrap}>
+            <button
+              type="button"
+              className={styles.statusTrigger}
+              style={{ backgroundColor: "#ffffff" }}
+              onClick={() => setStatusMenuOpen((v) => !v)}
+            >
+              <span className={styles.statusDot} style={{ background: selectedStatus.color }} />
+              <span>{selectedStatus.label}</span>
+              <span className={styles.statusArrow} />
+            </button>
+            {statusMenuOpen && (
+              <>
+                <div className={styles.statusBackdrop} onClick={() => setStatusMenuOpen(false)} />
+                <div className={styles.statusMenuDown}>
+                  {STATUS_OPTIONS.map((o) => (
+                    <button
+                      key={o.value}
+                      type="button"
+                      onClick={() => handleStatusChange(o.value)}
+                      className={`${styles.statusOption} ${o.value === currentStatus ? styles.statusOptionActive : ""}`}
+                    >
+                      <span className={styles.statusDot} style={{ background: o.color }} />
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 

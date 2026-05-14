@@ -20,6 +20,28 @@ type CostumeSpecsProps = {
   firstProvenance: CostumeProvenance | null;
 };
 
+function getCareIcon(term: TaxonomyTerm): string {
+  if (term.vocabulary === "temperature") {
+    const l = term.label_de;
+    if (l.includes("20")) return "/icons/icon-wash-20.svg";
+    if (l.includes("30")) return "/icons/icon-wash-30.svg";
+    if (l.includes("40")) return "/icons/icon-wash-40.svg";
+    if (l.includes("50")) return "/icons/icon-wash-50.svg";
+    if (l.includes("60")) return "/icons/icon-wash-60.svg";
+    if (l.toLowerCase().includes("hand")) return "/icons/icon-wash-O.svg";
+    return "/icons/icon-wash.svg";
+  }
+  if (term.vocabulary === "washing_type") {
+    const l = term.label_de.toLowerCase();
+    if (l.includes("chemisch") || l.includes("dry")) return "/icons/icon-wash-dry-clean.svg";
+    if (l.includes("hand")) return "/icons/icon-wash-O.svg";
+    return "/icons/icon-wash-basin.svg";
+  }
+  if (term.vocabulary === "drying") return "/icons/icon-tumbler.svg";
+  if (term.vocabulary === "ironing") return "/icons/icon-steam.svg";
+  return "/icons/icon-wash.svg";
+}
+
 const sizeDataLabels: Record<string, string> = {
   chest: t("costume.chest"),
   waist: t("costume.waist"),
@@ -89,7 +111,7 @@ export function CostumeSpecs({
             <AccordionItem value="masse">
               <AccordionTrigger>{t("costume.measurements")}</AccordionTrigger>
               <AccordionContent>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-2">
                   {firstItem.size_label && (
                     <InlineRow label={t("costume.sizeLabel")} value={firstItem.size_label} />
                   )}
@@ -116,7 +138,7 @@ export function CostumeSpecs({
             <AccordionItem value="details">
               <AccordionTrigger>{t("costume.costumeDetails")}</AccordionTrigger>
               <AccordionContent>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-2">
                   {costume.gender_term && (
                     <InlineRow
                       label={t("costume.genderAndType")}
@@ -146,7 +168,7 @@ export function CostumeSpecs({
                       <p
                         style={{
                           fontFamily: "var(--font-family-base)",
-                          fontSize: "var(--font-size-150)",
+                          fontSize: "var(--font-size-300)",
                           color: "var(--neutral-grey-700)",
                           margin: 0,
                         }}
@@ -166,13 +188,13 @@ export function CostumeSpecs({
                             key={s.id}
                             style={{
                               fontFamily: "var(--font-family-base)",
-                              fontSize: "var(--font-size-300)",
+                              fontSize: "var(--font-size-150)",
                               fontWeight: 500,
                               color: "var(--secondary-700)",
                               background: "var(--neutral-grey-50)",
                               border: "1px solid var(--secondary-800)",
                               borderRadius: 44,
-                              padding: "4px 14px",
+                              padding: "3px 12px",
                               whiteSpace: "nowrap",
                             }}
                           >
@@ -192,7 +214,7 @@ export function CostumeSpecs({
             <AccordionItem value="material">
               <AccordionTrigger>{t("costume.materialAndColor")}</AccordionTrigger>
               <AccordionContent>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-2">
                   {materials.length > 0 && (
                     <InlineRow
                       label={t("costume.material")}
@@ -218,7 +240,7 @@ export function CostumeSpecs({
                       <span
                         style={{
                           fontFamily: "var(--font-family-base)",
-                          fontSize: "var(--font-size-150)",
+                          fontSize: "var(--font-size-300)",
                           fontWeight: "var(--font-weight-600)" as React.CSSProperties["fontWeight"],
                           color: "var(--neutral-grey-700)",
                           flexShrink: 0,
@@ -241,7 +263,7 @@ export function CostumeSpecs({
                           <span
                             style={{
                               fontFamily: "var(--font-family-base)",
-                              fontSize: "var(--font-size-150)",
+                              fontSize: "var(--font-size-300)",
                               color: "var(--neutral-grey-700)",
                             }}
                           >
@@ -263,11 +285,18 @@ export function CostumeSpecs({
               <AccordionContent>
                 <div className="flex flex-col gap-2">
                   {washing.map((w) => (
-                    <div key={w.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div key={w.id} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <Image
+                        src={getCareIcon(w)}
+                        alt=""
+                        width={24}
+                        height={24}
+                        style={{ flexShrink: 0, filter: "brightness(0)" }}
+                      />
                       <span
                         style={{
                           fontFamily: "var(--font-family-base)",
-                          fontSize: "var(--font-size-150)",
+                          fontSize: "var(--font-size-300)",
                           color: "var(--neutral-grey-700)",
                         }}
                       >
@@ -285,31 +314,31 @@ export function CostumeSpecs({
             <AccordionItem value="produktion">
               <AccordionTrigger>{t("costume.production")}</AccordionTrigger>
               <AccordionContent>
-                <div className="flex flex-col gap-3">
-                  <SpecRow
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <ProdRow
                     label={t("costume.productionTitle")}
                     value={firstProvenance.production_title}
                   />
                   {firstProvenance.year && (
-                    <SpecRow label={t("costume.seasonYear")} value={String(firstProvenance.year)} />
+                    <ProdRow label={t("costume.seasonYear")} value={String(firstProvenance.year)} />
                   )}
                   {firstProvenance.director_name && (
-                    <SpecRow label={t("costume.director")} value={firstProvenance.director_name} />
+                    <ProdRow label={t("costume.director")} value={firstProvenance.director_name} />
                   )}
                   {firstProvenance.costume_designer && (
-                    <SpecRow
+                    <ProdRow
                       label={t("costume.costumeDesigner")}
                       value={firstProvenance.costume_designer}
                     />
                   )}
                   {firstProvenance.role_name && (
-                    <SpecRow label={t("costume.role")} value={firstProvenance.role_name} />
+                    <ProdRow label={t("costume.role")} value={firstProvenance.role_name} />
                   )}
                   {firstProvenance.actor_name && (
-                    <SpecRow label={t("costume.actor")} value={firstProvenance.actor_name} />
+                    <ProdRow label={t("costume.actor")} value={firstProvenance.actor_name} />
                   )}
                   {firstProvenance.costume_assistant && (
-                    <SpecRow
+                    <ProdRow
                       label={t("costume.costumeAssistant")}
                       value={firstProvenance.costume_assistant}
                     />
@@ -324,13 +353,13 @@ export function CostumeSpecs({
             <AccordionItem value="standort">
               <AccordionTrigger>{t("costume.locationAndAvailability")}</AccordionTrigger>
               <AccordionContent>
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
                   {costume.theater && (
                     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       <p
                         style={{
                           fontFamily: "var(--font-family-base)",
-                          fontSize: "var(--font-size-150)",
+                          fontSize: "var(--font-size-300)",
                           fontWeight: 700,
                           color: "var(--neutral-grey-700)",
                           margin: 0,
@@ -342,7 +371,7 @@ export function CostumeSpecs({
                         <p
                           style={{
                             fontFamily: "var(--font-family-base)",
-                            fontSize: "var(--font-size-150)",
+                            fontSize: "var(--font-size-300)",
                             color: "var(--neutral-grey-700)",
                             margin: 0,
                           }}
@@ -354,7 +383,7 @@ export function CostumeSpecs({
                         <p
                           style={{
                             fontFamily: "var(--font-family-base)",
-                            fontSize: "var(--font-size-150)",
+                            fontSize: "var(--font-size-300)",
                             color: "var(--neutral-grey-700)",
                             margin: 0,
                           }}
@@ -366,7 +395,7 @@ export function CostumeSpecs({
                         <p
                           style={{
                             fontFamily: "var(--font-family-base)",
-                            fontSize: "var(--font-size-150)",
+                            fontSize: "var(--font-size-300)",
                             color: "var(--neutral-grey-700)",
                             margin: 0,
                           }}
@@ -382,7 +411,7 @@ export function CostumeSpecs({
                       <p
                         style={{
                           fontFamily: "var(--font-family-base)",
-                          fontSize: "var(--font-size-150)",
+                          fontSize: "var(--font-size-300)",
                           fontWeight: 700,
                           color: "var(--neutral-grey-700)",
                           margin: 0,
@@ -394,7 +423,7 @@ export function CostumeSpecs({
                         <p
                           style={{
                             fontFamily: "var(--font-family-base)",
-                            fontSize: "var(--font-size-150)",
+                            fontSize: "var(--font-size-300)",
                             color: "var(--neutral-grey-700)",
                             margin: 0,
                           }}
@@ -406,7 +435,7 @@ export function CostumeSpecs({
                         <p
                           style={{
                             fontFamily: "var(--font-family-base)",
-                            fontSize: "var(--font-size-150)",
+                            fontSize: "var(--font-size-300)",
                             color: "var(--neutral-grey-700)",
                             margin: 0,
                           }}
@@ -418,7 +447,7 @@ export function CostumeSpecs({
                         <p
                           style={{
                             fontFamily: "var(--font-family-base)",
-                            fontSize: "var(--font-size-150)",
+                            fontSize: "var(--font-size-300)",
                             color: "var(--neutral-grey-700)",
                             margin: 0,
                           }}
@@ -434,7 +463,7 @@ export function CostumeSpecs({
                       <p
                         style={{
                           fontFamily: "var(--font-family-base)",
-                          fontSize: "var(--font-size-150)",
+                          fontSize: "var(--font-size-300)",
                           fontWeight: 700,
                           color: "var(--neutral-grey-700)",
                           margin: 0,
@@ -470,13 +499,31 @@ export function CostumeSpecs({
 
 // ─── Helper components ────────────────────────────────────────────────────────
 
+function ProdRow({ label, value }: { label: string; value: string }) {
+  return (
+    <p
+      style={{
+        fontFamily: "var(--font-family-base)",
+        fontSize: "var(--font-size-300)",
+        color: "var(--neutral-grey-700)",
+        margin: 0,
+      }}
+    >
+      <span style={{ fontWeight: "var(--font-weight-600)" as React.CSSProperties["fontWeight"] }}>
+        {label}:
+      </span>{" "}
+      {value}
+    </p>
+  );
+}
+
 function SpecRow({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
       <span
         style={{
           fontFamily: "var(--font-family-base)",
-          fontSize: "var(--font-size-150)",
+          fontSize: "var(--font-size-300)",
           fontWeight: 500,
           color: "var(--neutral-grey-500)",
           flexShrink: 0,
@@ -487,7 +534,7 @@ function SpecRow({ label, value }: { label: string; value: string }) {
       <span
         style={{
           fontFamily: "var(--font-family-base)",
-          fontSize: "var(--font-size-150)",
+          fontSize: "var(--font-size-300)",
           color: "var(--neutral-grey-700)",
           textAlign: "right",
         }}
@@ -503,7 +550,7 @@ function InlineRow({ label, value }: { label: string; value: string }) {
     <p
       style={{
         fontFamily: "var(--font-family-base)",
-        fontSize: "var(--font-size-150)",
+        fontSize: "var(--font-size-300)",
         color: "var(--neutral-grey-700)",
         margin: 0,
       }}
@@ -516,34 +563,51 @@ function InlineRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+const STATUS_COLORS: Record<string, string> = {
+  available: "var(--accent-01)",
+  cleaning: "var(--color-warning)",
+  repair: "var(--color-warning)",
+  rented: "var(--color-error)",
+  in_progress: "var(--color-warning)",
+  reserved: "var(--color-warning)",
+  stage: "var(--color-warning)",
+  rehearsal: "var(--color-warning)",
+  sorted_out: "var(--neutral-grey-400)",
+  sold: "var(--neutral-grey-400)",
+  lost: "var(--neutral-grey-400)",
+};
+
 function AvailabilityIndicator({ status }: { status: string }) {
   const isAvailable = status === "available";
+  const color = STATUS_COLORS[status] ?? "var(--neutral-grey-400)";
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
       <span
         style={{
-          width: 20,
-          height: 20,
+          width: 26,
+          height: 26,
           borderRadius: "50%",
           flexShrink: 0,
-          background: isAvailable ? "var(--color-status-available)" : "var(--neutral-grey-400)",
+          background: color,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        <Image
-          src="/icons/icon-check.svg"
-          alt=""
-          width={10}
-          height={10}
-          style={{ filter: "invert(1)" }}
-        />
+        {isAvailable && (
+          <Image
+            src="/icons/icon-check.svg"
+            alt=""
+            width={12}
+            height={12}
+            style={{ filter: "invert(1)" }}
+          />
+        )}
       </span>
       <span
         style={{
           fontFamily: "var(--font-family-base)",
-          fontSize: "var(--font-size-150)",
+          fontSize: "var(--font-size-300)",
           color: "var(--neutral-grey-700)",
         }}
       >
@@ -569,7 +633,7 @@ function IdRow({ label, value }: { label: string; value: string }) {
       <p
         style={{
           fontFamily: "var(--font-family-base)",
-          fontSize: "var(--font-size-150)",
+          fontSize: "var(--font-size-300)",
           color: "var(--neutral-grey-700)",
           margin: 0,
         }}

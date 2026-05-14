@@ -66,7 +66,7 @@
 .moreMenuBackdrop {
   position: fixed;
   inset: 0;
-  z-index: 99;
+  z-index: 210;
 }
 
 .moreMenuDropdown {
@@ -228,7 +228,7 @@
   background: var(--neutral-white);
   border-radius: 40px;
   overflow: hidden;
-  padding: 48px 40px 60px 85px;
+  padding: 36px 40px 60px 85px;
   flex-shrink: 0;
 }
 
@@ -763,7 +763,7 @@
 }
 
 .dropZoneWrap {
-  padding: 24px 48px 0;
+  padding: 24px 36px 0;
 }
 
 .dropZone {
@@ -868,8 +868,8 @@
   background: rgba(255, 255, 255, 0.12);
   border: none;
   cursor: pointer;
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -916,7 +916,7 @@
 .uploadButtons {
   display: flex;
   gap: 10px;
-  padding: 16px 48px 24px;
+  padding: 16px 36px 24px;
   justify-content: center;
 }
 
@@ -1047,6 +1047,77 @@
   margin: 0;
 }
 
+.locationCardList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 320px;
+}
+
+.locationCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1.5px solid var(--neutral-grey-200);
+  border-radius: var(--radius-sm);
+  background: var(--neutral-white);
+  padding: 14px 16px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease;
+}
+
+.locationCard:hover {
+  border-color: var(--secondary-700);
+}
+
+.locationCardActive {
+  border-color: var(--secondary-700);
+  background: var(--secondary-600);
+}
+
+.locationCardIcon {
+  margin-top: 2px;
+  flex-shrink: 0;
+  filter: invert(0);
+}
+
+.locationCardActive .locationCardIcon {
+  filter: invert(1);
+}
+
+.locationCardText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.locationCardName {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-200);
+  font-weight: var(--font-weight-700);
+  color: var(--neutral-black);
+  margin: 0;
+}
+
+.locationCardActive .locationCardName {
+  color: var(--neutral-white);
+}
+
+.locationCardAddr {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-100);
+  color: var(--neutral-grey-500);
+  margin: 0;
+}
+
+.locationCardActive .locationCardAddr {
+  color: rgba(255, 255, 255, 0.75);
+}
+
 .platzierungWrap {
   flex: 1;
 }
@@ -1079,7 +1150,7 @@
 
 .locationSelect {
   width: 100%;
-  height: 48px;
+  height: 36px;
   border-radius: 10px;
   border: 1px solid var(--secondary-700);
   background-color: var(--neutral-white);
@@ -1147,7 +1218,7 @@
 
 .statusDropdownTrigger {
   width: 220px;
-  height: 48px;
+  height: 36px;
   border-radius: 10px;
   border: 1px solid var(--secondary-700);
   background: var(--neutral-white);
@@ -1546,7 +1617,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 48px;
+  height: 36px;
   padding: 0 20px;
   border-radius: var(--radius-sm);
   border: none;
@@ -1567,7 +1638,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 48px;
+  height: 36px;
   padding: 0 20px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--secondary-700);
@@ -1593,6 +1664,10 @@
 }
 
 /* ─── Mobile header helpers ───────────────────────────────────────────────── */
+.mobileDrawer {
+  display: none; /* nur auf Mobile sichtbar */
+}
+
 .headerMobileTitle {
   display: none; /* nur auf Mobile sichtbar */
   font-family: var(--font-family-base);
@@ -1608,7 +1683,22 @@
 
 .deleteBtnMobileWrap {
   display: none; /* nur auf Mobile sichtbar */
-  padding: 0 var(--spacing-16);
+  padding: 16px 0 8px;
+  border-top: 1px solid var(--neutral-grey-200);
+}
+
+.deleteBtnMobile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-300);
+  font-weight: var(--font-weight-400);
+  color: var(--neutral-black);
+  padding: 8px 0;
 }
 
 /* ─── Löschen-Bar (fix am unteren Rand) ──────────────────────────────────── */
@@ -1643,32 +1733,50 @@
   background: rgba(0, 0, 0, 0.05);
 }
 
+/* ── Spielsaison card (desktop: card-style, mobile: label + rechteckiges Input) ── */
+.spielsaisonCalIcon {
+  display: none;
+}
+
+/* ── Mobile Section Nav (scroll-triggered icon bar) ── */
+.mobileSectionNav {
+  display: none;
+}
+
 /* ═══ Mobile — max 743px ══════════════════════════════════════════════════ */
 @media (max-width: 743px) {
   /* Root */
   .root {
     padding-top: 0;
+    background: var(--neutral-white);
   }
 
   /* ── Header ── */
   .header {
-    height: auto !important;
-    padding: env(safe-area-inset-top, var(--spacing-16)) var(--spacing-16) var(--spacing-8);
+    height: 80px !important;
+    padding: 0 var(--spacing-8) 0 var(--spacing-4);
     gap: var(--spacing-8);
     flex-wrap: nowrap;
+    background: var(--neutral-white);
+    box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.2);
+  }
+  .headerWrap {
+    background: var(--neutral-white);
   }
   .headerLogo {
     display: none;
   }
   .headerMobileTitle {
-    display: flex;
-    align-items: center;
-    flex-shrink: 1;
-    min-width: 0;
+    display: none;
   }
   .headerActions {
     padding: 0;
     gap: var(--spacing-8);
+  }
+  .mobileDrawer {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
   }
   .deleteBtnDesktop {
     display: none;
@@ -1678,14 +1786,14 @@
     height: 40px;
     flex-shrink: 0;
   }
+  .closeBtn img {
+    width: 20px !important;
+    height: 20px !important;
+  }
 
-  /* Speichern-Button auf Mobile: kompakter als 62px */
+  /* Speichern-Button: Grösse via globals mobile standard, nur Layout-Props hier */
   .headerActions :global(.btn-primary),
   .headerActions :global(.btn-secondary) {
-    height: 40px;
-    padding: 0 var(--spacing-16);
-    font-size: var(--font-size-200);
-    border-radius: var(--radius-sm);
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -1697,47 +1805,9 @@
     gap: 0;
   }
 
-  /* ── Nav: horizontale Pill-Leiste ── */
+  /* ── Nav: auf Mobile versteckt (ersetzt durch Icon-Bar) ── */
   .nav {
-    width: 100% !important;
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: visible;
-    padding: var(--spacing-8) var(--spacing-16);
-    gap: var(--spacing-4);
-    flex-shrink: 0;
-    scrollbar-width: none;
-    border-bottom: 1px solid var(--secondary-600);
-    /* Letztes Element rechts noch etwas Luft lassen */
-    padding-right: var(--spacing-32);
-  }
-  .nav::-webkit-scrollbar {
     display: none;
-  }
-
-  .navItem {
-    width: auto !important;
-    height: 36px;
-    padding: 0 var(--spacing-16);
-    flex-shrink: 0;
-    border-radius: var(--radius-full);
-    border-bottom: none !important;
-    gap: var(--spacing-8);
-  }
-  .navItemBorder {
-    border-bottom: none;
-  }
-  .navItemIcon {
-    display: none;
-  }
-  .navItemLabel {
-    font-size: var(--font-size-150);
-  }
-  .navItemActive {
-    background: var(--secondary-700);
-  }
-  .navItemActive .navItemLabel {
-    color: var(--neutral-white);
   }
 
   /* ── Content ── */
@@ -1746,35 +1816,41 @@
   }
   .contentScroll {
     padding: var(--spacing-16) var(--spacing-16) 0;
-    gap: var(--spacing-8);
+    gap: 72px;
   }
 
-  /* ── Section cards ── */
+  /* ── Section cards — kein Card-Styling auf Mobile, alles weiss ── */
   .sectionCard {
-    border-radius: var(--radius-lg);
-    /* Desktop hat 85px links (Sidebar-Einzug) — auf Mobile alle Seiten gleich */
-    padding: var(--spacing-24) var(--spacing-24) var(--spacing-32) var(--spacing-24) !important;
+    border-radius: 0;
+    overflow: visible;
+    padding: var(--spacing-16) 0 var(--spacing-8) 0 !important;
     width: 100%;
     box-sizing: border-box;
   }
   .sectionHeading {
     margin-left: 0;
-    margin-bottom: var(--spacing-24);
+    margin-bottom: 36px;
     gap: var(--spacing-8);
   }
   .sectionHeadingTitle {
     font-size: var(--font-size-600);
   }
+  .subHeading {
+    font-size: var(--font-size-350);
+    margin-bottom: var(--spacing-8);
+  }
   .sectionFields {
-    gap: var(--spacing-32);
+    gap: 36px;
     width: 100%;
-    overflow: hidden;
+    overflow: visible;
   }
 
   /* Max-widths auf Mobile aufheben */
   .flatInput {
     max-width: 100%;
     box-sizing: border-box;
+    height: 56px;
+    font-size: var(--font-size-300);
   }
   .simpleInput {
     max-width: 100%;
@@ -1796,22 +1872,83 @@
 
   /* ── Kategorie ── */
   .genderGrid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     display: grid;
+    gap: 8px;
   }
   .genderCard {
     width: 100%;
+    height: 120px;
   }
 
   .auffuehrungGrid {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  /* CreatableSearchCard: nur Pill-Input, kein Label, kein Card-Bg */
+  .auffCardBg {
+    background: transparent !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    flex: unset !important;
+  }
+  .auffCardLabel {
+    display: none !important;
+  }
+  .auffCardInputWrap {
+    background: var(--neutral-white) !important;
+  }
+  /* FreeTextCard (Spielsaison): Label sichtbar, rechteckiges Input, Kalender-Icon */
+  .spielsaisonCard {
+    background: transparent !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    flex: unset !important;
+  }
+  .spielsaisonLabel {
+    font-size: var(--font-size-200) !important;
+    font-weight: var(--font-weight-400) !important;
+    color: var(--neutral-black) !important;
+    margin-bottom: 8px !important;
+  }
+  .spielsaisonInputWrap {
+    background: var(--neutral-white) !important;
+    border-radius: var(--radius-sm) !important;
+  }
+  .spielsaisonCalIcon {
+    display: block;
+    flex-shrink: 0;
+    opacity: 0.6;
   }
 
+  .subtypeSection {
+    margin-top: 36px !important;
+  }
   .clothingGrid {
-    gap: var(--spacing-8);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
   .clothingBtn {
     width: 100%;
+    height: 56px;
+    padding: 0 14px;
+    gap: 12px;
+  }
+  /* Bekleidungsart: Checkbox-Stil (Quadrat) */
+  .clothingBtn .radioCircle {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-xs);
+    flex-shrink: 0;
+  }
+  .clothingBtn .radioCircleDot {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+  }
+  .clothingLabel {
+    font-size: var(--font-size-300);
   }
 
   /* ── Material ── */
@@ -1834,9 +1971,35 @@
   }
   .careGrid {
     grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  /* Kein Rahmen um careCard auf Mobile */
+  .careCard {
+    border: none;
+    border-radius: 0;
+    padding: 0;
+  }
+  /* Waschen/Trocknen/Bügeln Header: schwarz, gleiche Grösse wie subHeading */
+  .careTitle {
+    font-size: var(--font-size-350);
+    color: var(--neutral-black);
+  }
+  .careIcon {
+    background-color: var(--neutral-black);
+  }
+  /* Waschen: 2-Spalten-Grid */
+  .washTileGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
   .washTile {
-    width: calc(50% - 8px);
+    width: 100%;
+    height: 90px;
+  }
+  /* Text in Kacheln kleiner */
+  .washTileLabel {
+    font-size: var(--font-size-200);
   }
 
   /* ── Bilder ── */
@@ -1855,10 +2018,75 @@
   }
 
   /* ── Masse ── */
+  .sizeGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
   .sizeBtn {
-    width: 80px;
+    width: 100%;
+    height: 64px;
+    font-size: var(--font-size-300);
+  }
+
+  /* ── Platzierung ── */
+  .platzierungCard {
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    gap: 16px;
+  }
+  .locationGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .locationFieldLabel {
+    font-size: var(--font-size-300);
+    color: var(--neutral-black);
+    font-weight: var(--font-weight-500);
+    margin-bottom: 8px;
+  }
+  .locationSelectWrap {
+    width: 100%;
+    overflow: hidden;
+  }
+  .locationSelect {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     height: 60px;
-    font-size: var(--font-size-400);
+    font-size: var(--font-size-300);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--neutral-black);
+    background-image: url("data:image/svg+xml,%3Csvg width='16' height='10' viewBox='0 0 16 10' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L8 8L15 1' stroke='%23242727' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+  }
+  .platzierungWrap {
+    min-width: 0;
+    width: 100%;
+  }
+  .sektorLabel {
+    font-size: var(--font-size-300);
+    color: var(--neutral-black);
+    font-weight: var(--font-weight-500);
+    margin-bottom: 10px;
+  }
+  .sektorGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .sektorBtn {
+    height: 80px;
+    font-size: var(--font-size-350);
+    border-color: var(--secondary-700);
+  }
+  @media (max-width: 399px) {
+    .sektorGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .sektorBtn {
+      font-size: var(--font-size-300);
+    }
   }
 
   /* ── Lagerort ── */
@@ -1869,9 +2097,46 @@
   .theaterCardWrap {
     min-width: unset;
   }
+  .sichtbarkeit {
+    margin-top: 36px;
+  }
   .sichtbarkeitRow {
     flex-direction: column;
-    gap: var(--spacing-16);
+    gap: 32px;
+  }
+  .fieldLabel {
+    font-size: var(--font-size-300);
+    color: var(--neutral-black);
+    font-weight: var(--font-weight-500);
+    margin-bottom: 12px;
+  }
+  .radioGroup {
+    gap: 16px;
+  }
+  .radioBtn .radioCircle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1.5px solid var(--secondary-700);
+    background: var(--neutral-white);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .radioBtn .radioCircleActive {
+    background: var(--secondary-700);
+    border-color: var(--secondary-700);
+  }
+  .radioBtn .radioCircleDot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--neutral-white);
+  }
+  .radioLabel {
+    font-size: var(--font-size-300);
+    color: var(--neutral-black);
   }
   .statusDropdownTrigger {
     width: 100%;
@@ -1879,8 +2144,16 @@
 
   /* ── Identifikation ── */
   .identCellLabel {
-    width: 90px;
+    width: 80px;
     font-size: var(--font-size-150);
+    padding: 0 10px;
+    gap: 6px;
+  }
+  .identInput {
+    min-width: 0;
+  }
+  .identMoreBtn {
+    padding: 0 8px;
   }
 
   /* ── ID Section ── */
@@ -1901,13 +2174,62 @@
     display: block;
   }
 
-  /* ── Löschen-Bar Mobile ── */
-  .deleteBarInner {
-    padding-left: var(--spacing-16) !important;
+  /* ── Löschen-Bar auf Mobile ausblenden (inline-Button übernimmt) ── */
+  .deleteBar {
+    display: none;
   }
 
   /* ── Bottom spacer ── */
   .bottomSpacer {
-    height: var(--spacing-24);
+    height: 100px;
+  }
+
+  /* ── Mobile Section Nav (scroll-triggered icon bar) ── */
+  .mobileSectionNav {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    height: 73px;
+    background: var(--page-bg);
+    box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.2);
+    align-items: center;
+    justify-content: space-evenly;
+    transform: translateY(-100%);
+    transition: transform 250ms ease;
+    pointer-events: none;
+  }
+  .mobileSectionNavVisible {
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .mobileSectionNavBtn {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    height: 73px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    opacity: 0.4;
+  }
+  .mobileSectionNavBtnActive {
+    opacity: 1;
+  }
+  .mobileSectionNavBtnActive::after {
+    content: "";
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--secondary-900);
   }
 }

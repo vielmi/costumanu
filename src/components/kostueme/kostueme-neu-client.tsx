@@ -6,8 +6,10 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { AppLogo } from "@/components/layout/app-logo";
+import { CockpitMobileDrawer } from "@/components/cockpit/cockpit-mobile-drawer";
 import { CameraCapture } from "@/components/camera/camera-capture";
 import { BarcodeScanner } from "@/components/barcode/barcode-scanner";
+import { ImageCropModal } from "@/components/ui/image-crop-modal";
 import { getMusterIcon } from "@/lib/constants/icons";
 import { COLOR_SWATCHES } from "@/lib/constants/color-swatches";
 import styles from "./kostueme-neu.module.css";
@@ -56,6 +58,7 @@ interface Props {
   fieldDefinitions: FieldDef[];
   fieldRequirements: import("@/lib/services/field-service").FieldRequirement[];
   editCostume?: import("@/lib/types/costume").Costume;
+  theaterLocations?: import("@/lib/services/theater-location-service").TheaterLocation[];
 }
 
 const NAV_SECTIONS = [
@@ -146,16 +149,19 @@ function CreatableSearchCard({
   value,
   onChange,
   dbColumn,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   dbColumn: ProvenanceColumn;
+  placeholder?: string;
 }) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const supabase = createClient();
+  const justSelectedRef = useRef(false);
+  const supabase = useRef(createClient()).current;
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -169,6 +175,10 @@ function CreatableSearchCard({
 
   useEffect(() => {
     const timer = setTimeout(async () => {
+      if (justSelectedRef.current) {
+        justSelectedRef.current = false;
+        return;
+      }
       if (!value.trim()) {
         setSuggestions([]);
         setOpen(false);
@@ -209,6 +219,7 @@ function CreatableSearchCard({
   const showCreate = value.trim().length > 0 && !exactMatch;
 
   function handleSelect(s: string) {
+    justSelectedRef.current = true;
     onChange(s);
     setOpen(false);
     setSuggestions([]);
@@ -217,6 +228,7 @@ function CreatableSearchCard({
   return (
     <div ref={containerRef} style={{ position: "relative" }}>
       <div
+        className={styles.auffCardBg}
         style={{
           background: "var(--secondary-500)",
           borderRadius: "var(--radius-md)",
@@ -225,6 +237,7 @@ function CreatableSearchCard({
         }}
       >
         <div
+          className={styles.auffCardLabel}
           style={{
             fontFamily: "var(--font-family-base)",
             fontSize: "var(--font-size-350)",
@@ -236,6 +249,7 @@ function CreatableSearchCard({
           {label}
         </div>
         <div
+          className={styles.auffCardInputWrap}
           style={{
             border: "1px solid var(--neutral-black)",
             borderRadius: 47,
@@ -255,7 +269,7 @@ function CreatableSearchCard({
             onFocus={() => {
               if (value.trim()) setOpen(true);
             }}
-            placeholder="durchsuchen"
+            placeholder={placeholder ?? label}
             style={{
               flex: 1,
               border: "none",
@@ -280,7 +294,7 @@ function CreatableSearchCard({
             background: "white",
             borderRadius: "var(--radius-sm)",
             boxShadow: "var(--shadow-300)",
-            zIndex: 100,
+            zIndex: 250,
             overflow: "hidden",
           }}
         >
@@ -373,6 +387,7 @@ function buildFormFromCostume(
     locationFloor: storageParts[0] ?? "",
     locationRack: storageParts[1] ?? "",
     locationSector: storageParts[2] ?? "",
+    theaterLocationId: item?.theater_location_id ?? "",
     currentStatus: item?.current_status ?? "available",
     isPublicForRent: item?.is_public_for_rent ?? false,
     chest: item?.size_data?.chest ? String(item.size_data.chest) : "",
@@ -421,6 +436,7 @@ function emptyForm() {
     locationFloor: "",
     locationRack: "",
     locationSector: "",
+    theaterLocationId: "",
     currentStatus: "available",
     isPublicForRent: false,
     chest: "",
@@ -457,6 +473,7 @@ function FreeTextCard({
 }) {
   return (
     <div
+      className={styles.spielsaisonCard}
       style={{
         background: "var(--secondary-500)",
         borderRadius: "var(--radius-md)",
@@ -465,6 +482,7 @@ function FreeTextCard({
       }}
     >
       <div
+        className={styles.spielsaisonLabel}
         style={{
           fontFamily: "var(--font-family-base)",
           fontSize: "var(--font-size-350)",
@@ -476,6 +494,7 @@ function FreeTextCard({
         {label}
       </div>
       <div
+        className={styles.spielsaisonInputWrap}
         style={{
           border: "1px solid var(--neutral-black)",
           borderRadius: 47,
@@ -503,6 +522,13 @@ function FreeTextCard({
             outline: "none",
           }}
         />
+        <Image
+          src="/icons/icon-calendar-menu.svg"
+          alt=""
+          width={20}
+          height={20}
+          className={styles.spielsaisonCalIcon}
+        />
       </div>
     </div>
   );
@@ -519,6 +545,7 @@ export function KostuemeNeuClient({
   fieldDefinitions,
   fieldRequirements,
   editCostume,
+  theaterLocations = [],
 }: Props) {
   const router = useRouter();
   const supabase = createClient();
@@ -537,9 +564,12 @@ export function KostuemeNeuClient({
 
   const [activeSection, setActiveSection] = useState("kategorie");
   const [headerHidden, setHeaderHidden] = useState(false);
+  const headerHiddenRef = useRef(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [savedSuccess, setSavedSuccess] = useState(false);
   const [showCloseSheet, setShowCloseSheet] = useState(false);
+  const initialFormRef = useRef(editCostume ? buildFormFromCostume(editCostume) : emptyForm());
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
 
@@ -570,6 +600,7 @@ export function KostuemeNeuClient({
   });
   const [deletedMediaIds, setDeletedMediaIds] = useState<string[]>([]);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [cropQueue, setCropQueue] = useState<File[]>([]);
 
   const [form, setForm] = useState(() =>
     editCostume ? buildFormFromCostume(editCostume) : emptyForm()
@@ -626,17 +657,20 @@ export function KostuemeNeuClient({
     const y = el.scrollTop;
     if (y > lastScrollYRef.current && y > 40) {
       setHeaderHidden(true);
+      headerHiddenRef.current = true;
     } else if (y < lastScrollYRef.current) {
       setHeaderHidden(false);
+      headerHiddenRef.current = false;
     }
     lastScrollYRef.current = y;
     const containerTop = el.getBoundingClientRect().top;
+    const threshold = headerHiddenRef.current ? 82 : 60;
     let current = navSections[0].id;
     for (const sec of navSections) {
       const ref = sectionRefs.current[sec.id];
       if (ref) {
         const refTop = ref.getBoundingClientRect().top - containerTop;
-        if (refTop - 60 <= 0) current = sec.id;
+        if (refTop - threshold <= 0) current = sec.id;
       }
     }
     setActiveSection(current);
@@ -654,18 +688,36 @@ export function KostuemeNeuClient({
     if (ref && mainRef.current) {
       const containerTop = mainRef.current.getBoundingClientRect().top;
       const refTop = ref.getBoundingClientRect().top;
-      const offset = mainRef.current.scrollTop + (refTop - containerTop) - 24;
+      const extraOffset = headerHidden ? 81 : 24;
+      const offset = mainRef.current.scrollTop + (refTop - containerTop) - extraOffset;
       mainRef.current.scrollTo({ top: offset, behavior: "smooth" });
     }
   }
 
   function handleImageAdd(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
+    if (files.length > 0) setCropQueue(files);
+    e.target.value = "";
+  }
+
+  function addCroppedImage(file: File) {
     setAllImages((prev) => [
       ...prev,
-      ...files.map((f) => ({ kind: "new" as const, file: f, url: URL.createObjectURL(f) })),
+      { kind: "new" as const, file, url: URL.createObjectURL(file) },
     ]);
-    e.target.value = "";
+    setCropQueue((q) => q.slice(1));
+  }
+
+  function skipCrop(file: File) {
+    setAllImages((prev) => [
+      ...prev,
+      { kind: "new" as const, file, url: URL.createObjectURL(file) },
+    ]);
+    setCropQueue((q) => q.slice(1));
+  }
+
+  function cancelCropQueue() {
+    setCropQueue([]);
   }
 
   function removeImage(idx: number) {
@@ -788,6 +840,7 @@ export function KostuemeNeuClient({
               current_status: form.currentStatus,
               storage_location_path: storagePath,
               is_public_for_rent: form.isPublicForRent,
+              theater_location_id: form.theaterLocationId || null,
             })
             .eq("id", existingItem.id);
         }
@@ -861,7 +914,11 @@ export function KostuemeNeuClient({
           role_name: form.roleName || null,
         });
 
-        router.push(`/costume/${editCostume.id}`);
+        setSaving(false);
+        initialFormRef.current = { ...form };
+        setSavedSuccess(true);
+        setTimeout(() => setSavedSuccess(false), 2000);
+        return;
       } else {
         const { data: costume, error: costumeErr } = await supabase
           .from("costumes")
@@ -897,6 +954,7 @@ export function KostuemeNeuClient({
           current_status: form.currentStatus,
           storage_location_path: storagePath,
           is_public_for_rent: form.isPublicForRent,
+          theater_location_id: form.theaterLocationId || null,
         });
 
         if (form.productionTitle) {
@@ -973,13 +1031,13 @@ export function KostuemeNeuClient({
   const STATUS_OPTIONS = [
     { value: "available", label: "Verfügbar", color: "var(--accent-01)" },
     { value: "cleaning", label: "Reinigung", color: "var(--color-warning)" },
-    { value: "in_progress", label: "In Arbeit", color: "var(--color-error)" },
+    { value: "in_progress", label: "In Arbeit", color: "var(--color-warning)" },
     { value: "rented", label: "Ausgeliehen", color: "var(--color-error)" },
-    { value: "reserved", label: "Reserviert", color: "var(--color-error)" },
-    { value: "stage", label: "Bühne", color: "var(--color-error)" },
-    { value: "rehearsal", label: "Probebühne", color: "var(--color-error)" },
-    { value: "sorted_out", label: "Aussortiert", color: "var(--color-error)" },
-    { value: "sold", label: "Verkauft", color: "var(--color-error)" },
+    { value: "reserved", label: "Reserviert", color: "var(--color-warning)" },
+    { value: "stage", label: "Bühne", color: "var(--color-warning)" },
+    { value: "rehearsal", label: "Probebühne", color: "var(--color-warning)" },
+    { value: "sorted_out", label: "Aussortiert", color: "var(--neutral-grey-400)" },
+    { value: "sold", label: "Verkauft", color: "var(--neutral-grey-400)" },
   ];
   const selectedStatus =
     STATUS_OPTIONS.find((o) => o.value === form.currentStatus) ?? STATUS_OPTIONS[0];
@@ -993,8 +1051,15 @@ export function KostuemeNeuClient({
             <AppLogo />
           </div>
 
-          {/* Mobile-only Titel */}
-          <span className={styles.headerMobileTitle}>Kostüm erfassen</span>
+          {/* Mobile-only Burger */}
+          <div className={styles.mobileDrawer}>
+            <CockpitMobileDrawer
+              navItems={[
+                { label: "Home", href: "/", icon: "icon-home-menu" },
+                { label: "Kostüme", href: "/fundus", icon: "icon-shirt" },
+              ]}
+            />
+          </div>
 
           <div className={styles.headerActions}>
             <div className={styles.spacer} />
@@ -1043,7 +1108,7 @@ export function KostuemeNeuClient({
                 className="btn-primary"
                 style={{ whiteSpace: "nowrap" }}
               >
-                {saving ? "Speichert..." : "Speichern"}
+                {saving ? "Speichert..." : savedSuccess ? "Gespeichert ✓" : "Speichern"}
               </button>
               {saveError && (
                 <span
@@ -1063,7 +1128,11 @@ export function KostuemeNeuClient({
             {/* Close */}
             <button
               type="button"
-              onClick={() => setShowCloseSheet(true)}
+              onClick={() => {
+                const dirty = JSON.stringify(form) !== JSON.stringify(initialFormRef.current);
+                if (dirty) setShowCloseSheet(true);
+                else router.push("/");
+              }}
               className={styles.closeBtn}
             >
               <Image src="/icons/icon-close-small.svg" alt="Schliessen" width={32} height={32} />
@@ -1071,6 +1140,24 @@ export function KostuemeNeuClient({
           </div>
         </div>
       </div>
+
+      {/* ═══ Mobile Section Nav (scroll-triggered icon bar, mobile only) ═══ */}
+      <nav
+        className={`${styles.mobileSectionNav} ${headerHidden ? styles.mobileSectionNavVisible : ""}`}
+        aria-hidden={!headerHidden}
+      >
+        {navSections.map((sec) => (
+          <button
+            key={sec.id}
+            type="button"
+            onClick={() => scrollToSection(sec.id)}
+            className={`${styles.mobileSectionNavBtn} ${activeSection === sec.id ? styles.mobileSectionNavBtnActive : ""}`}
+            title={sec.label}
+          >
+            <Image src={`/icons/${sec.icon}.svg`} alt={sec.label} width={24} height={24} />
+          </button>
+        ))}
+      </nav>
 
       {/* ═══ Body ═══ */}
       <div className={styles.body}>
@@ -1273,7 +1360,7 @@ export function KostuemeNeuClient({
                       : [];
                     if (!selectedType || subtypes.length === 0) return null;
                     return (
-                      <div style={{ marginTop: 24 }}>
+                      <div style={{ marginTop: 24 }} className={styles.subtypeSection}>
                         <div className={styles.subHeading}>Bekleidungstyp</div>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
                           {subtypes.map((t) => (
@@ -1734,18 +1821,55 @@ export function KostuemeNeuClient({
               <div className={styles.lagerortLayout}>
                 <div className={styles.theaterCardWrap}>
                   <div className={styles.subHeading}>{theaterName}</div>
-                  <div className={styles.theaterCard}>
-                    <Image
-                      src="/icons/icon-location.svg"
-                      alt=""
-                      width={20}
-                      height={20}
-                      style={{ filter: "invert(1)", marginTop: 2, flexShrink: 0 }}
-                    />
-                    <div>
-                      <p className={styles.theaterCardName}>{theaterName}</p>
+                  {theaterLocations.length > 0 ? (
+                    <div className={styles.locationCardList}>
+                      {theaterLocations.map((loc) => {
+                        const isSelected = form.theaterLocationId === loc.id;
+                        return (
+                          <button
+                            key={loc.id}
+                            type="button"
+                            onClick={() => setField("theaterLocationId", isSelected ? "" : loc.id)}
+                            className={`${styles.locationCard} ${isSelected ? styles.locationCardActive : ""}`}
+                          >
+                            <Image
+                              src="/icons/icon-location.svg"
+                              alt=""
+                              width={18}
+                              height={18}
+                              className={styles.locationCardIcon}
+                            />
+                            <div className={styles.locationCardText}>
+                              <p className={styles.locationCardName}>{loc.name}</p>
+                              {(loc.street || loc.city) && (
+                                <p className={styles.locationCardAddr}>
+                                  {[
+                                    loc.street,
+                                    loc.zip && loc.city ? `${loc.zip} ${loc.city}` : loc.city,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(", ")}
+                                </p>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
-                  </div>
+                  ) : (
+                    <div className={styles.theaterCard}>
+                      <Image
+                        src="/icons/icon-location.svg"
+                        alt=""
+                        width={20}
+                        height={20}
+                        style={{ filter: "invert(1)", marginTop: 2, flexShrink: 0 }}
+                      />
+                      <div>
+                        <p className={styles.theaterCardName}>{theaterName}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className={styles.platzierungWrap}>
@@ -1772,7 +1896,7 @@ export function KostuemeNeuClient({
                               }}
                             >
                               <option value="">–</option>
-                              {["1", "2", "3", "4", "5"].map((v) => (
+                              {Array.from({ length: 20 }, (_, i) => String(i + 1)).map((v) => (
                                 <option key={v} value={v}>
                                   {v}
                                 </option>
@@ -2119,6 +2243,19 @@ export function KostuemeNeuClient({
               </div>
             </section>
 
+            {editCostume && (
+              <div className={styles.deleteBtnMobileWrap}>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteSheet(true)}
+                  className={styles.deleteBtnMobile}
+                >
+                  <Image src="/icons/icon-delete.svg" alt="" width={22} height={22} />
+                  Kostüm löschen
+                </button>
+              </div>
+            )}
+
             <div className={styles.bottomSpacer} />
           </div>
         </div>
@@ -2140,15 +2277,22 @@ export function KostuemeNeuClient({
         </div>
       )}
 
+      {/* Crop modal — triggered by file picker or camera */}
+      {cropQueue.length > 0 && (
+        <ImageCropModal
+          file={cropQueue[0]}
+          onConfirm={(cropped) => addCroppedImage(cropped)}
+          onSkip={() => skipCrop(cropQueue[0])}
+          onCancel={cancelCropQueue}
+        />
+      )}
+
       {/* Camera overlay — Kostümbilder */}
       {showCamera && (
         <CameraCapture
           onCapture={(file) => {
-            setAllImages((prev) => [
-              ...prev,
-              { kind: "new", file, url: URL.createObjectURL(file) },
-            ]);
             setShowCamera(false);
+            setCropQueue([file]);
           }}
           onClose={() => setShowCamera(false)}
         />

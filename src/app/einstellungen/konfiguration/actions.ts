@@ -108,6 +108,46 @@ export async function deleteTheaterAction(theaterId: string) {
   revalidatePath("/einstellungen/konfiguration");
 }
 
+export async function updateTheaterAddressAction(formData: {
+  theaterId: string;
+  venue: string;
+  street: string;
+  zip: string;
+  city: string;
+}) {
+  const supabase = await createServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Nicht eingeloggt");
+
+  const { data: membership } = await supabase
+    .from("theater_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("theater_id", formData.theaterId)
+    .single();
+
+  if (!membership || !["owner", "admin"].includes(membership.role)) {
+    throw new Error("Keine Berechtigung");
+  }
+
+  const address_info: Record<string, string> = {};
+  if (formData.venue.trim()) address_info.venue = formData.venue.trim();
+  if (formData.street.trim()) address_info.street = formData.street.trim();
+  if (formData.zip.trim()) address_info.zip = formData.zip.trim();
+  if (formData.city.trim()) address_info.city = formData.city.trim();
+
+  const admin = getAdminClient();
+  const { error } = await admin
+    .from("theaters")
+    .update({ address_info })
+    .eq("id", formData.theaterId);
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/einstellungen/konfiguration");
+}
+
 // ─── User actions ─────────────────────────────────────────────────────────────
 
 export async function createUserAction(formData: {
@@ -149,6 +189,7 @@ export async function createUserAction(formData: {
   if (memberErr) throw new Error("Theater-Zuweisung fehlgeschlagen: " + memberErr.message);
 
   revalidatePath("/einstellungen/konfiguration");
+  return { userId: uid };
 }
 
 export async function updateUserAction(formData: {
@@ -279,6 +320,127 @@ export async function removeTheaterFromNetworkAction(formData: {
     .delete()
     .eq("network_id", formData.networkId)
     .eq("theater_id", formData.theaterId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/einstellungen/konfiguration");
+}
+
+// ─── Theater Location actions (theater admin) ─────────────────────────────────
+
+export async function createLocationAction(formData: {
+  theaterId: string;
+  name: string;
+  street: string;
+  zip: string;
+  city: string;
+}) {
+  if (!formData.name.trim()) throw new Error("Name darf nicht leer sein");
+  const supabase = await createServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Nicht eingeloggt");
+
+  const { data: membership } = await supabase
+    .from("theater_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("theater_id", formData.theaterId)
+    .single();
+  if (!membership || !["owner", "admin"].includes(membership.role))
+    throw new Error("Keine Berechtigung");
+
+  const admin = getAdminClient();
+  const { data: existing } = await admin
+    .from("theater_locations")
+    .select("sort_order")
+    .eq("theater_id", formData.theaterId)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const sort_order = existing ? existing.sort_order + 1 : 0;
+
+  const { data, error } = await admin
+    .from("theater_locations")
+    .insert({
+      theater_id: formData.theaterId,
+      name: formData.name.trim(),
+      street: formData.street.trim() || null,
+      zip: formData.zip.trim() || null,
+      city: formData.city.trim() || null,
+      sort_order,
+    })
+    .select("id, theater_id, name, street, zip, city, sort_order")
+    .single();
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/einstellungen/konfiguration");
+  return data;
+}
+
+export async function updateLocationAction(formData: {
+  locationId: string;
+  theaterId: string;
+  name: string;
+  street: string;
+  zip: string;
+  city: string;
+}) {
+  if (!formData.name.trim()) throw new Error("Name darf nicht leer sein");
+  const supabase = await createServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Nicht eingeloggt");
+
+  const { data: membership } = await supabase
+    .from("theater_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("theater_id", formData.theaterId)
+    .single();
+  if (!membership || !["owner", "admin"].includes(membership.role))
+    throw new Error("Keine Berechtigung");
+
+  const admin = getAdminClient();
+  const { error } = await admin
+    .from("theater_locations")
+    .update({
+      name: formData.name.trim(),
+      street: formData.street.trim() || null,
+      zip: formData.zip.trim() || null,
+      city: formData.city.trim() || null,
+    })
+    .eq("id", formData.locationId)
+    .eq("theater_id", formData.theaterId);
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/einstellungen/konfiguration");
+}
+
+export async function deleteLocationAction(locationId: string, theaterId: string) {
+  const supabase = await createServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Nicht eingeloggt");
+
+  const { data: membership } = await supabase
+    .from("theater_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("theater_id", theaterId)
+    .single();
+  if (!membership || !["owner", "admin"].includes(membership.role))
+    throw new Error("Keine Berechtigung");
+
+  const admin = getAdminClient();
+  const { error } = await admin
+    .from("theater_locations")
+    .delete()
+    .eq("id", locationId)
+    .eq("theater_id", theaterId);
+
   if (error) throw new Error(error.message);
   revalidatePath("/einstellungen/konfiguration");
 }

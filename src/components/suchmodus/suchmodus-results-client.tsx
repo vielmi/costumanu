@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { SuchmodusHeader } from "@/components/suchmodus/suchmodus-header";
 import { StandortSheet } from "@/components/suchmodus/standort-sheet";
@@ -100,6 +101,7 @@ export function SuchmodusResultsClient({
   theaters?: NetworkTheater[];
   genderTerms?: GenderTerm[];
 }) {
+  const searchParams = useSearchParams();
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
   const [modalCostumeId, setModalCostumeId] = useState<string | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
@@ -198,7 +200,7 @@ export function SuchmodusResultsClient({
 
       {/* ═══ Filter bar ═══ */}
       <div className={styles.filterBar}>
-        <Link href="/suchmodus/filter" className={styles.filterPill}>
+        <Link href={`/suchmodus/filter?${searchParams.toString()}`} className={styles.filterPill}>
           <Image
             src="/icons/icon-filter.svg"
             alt=""
@@ -213,6 +215,27 @@ export function SuchmodusResultsClient({
             Kostümfilter
           </span>
         </Link>
+        {(() => {
+          const theaterParam = searchParams.get("theater");
+          const activeTheater = theaterParam
+            ? theaters.find((t) => theaterParam.split(",").includes(t.id))
+            : null;
+          return activeTheater ? (
+            <span
+              style={{
+                fontSize: "var(--font-size-150)",
+                color: "var(--secondary-800)",
+                background: "var(--secondary-500)",
+                borderRadius: "var(--radius-full)",
+                padding: "4px 10px",
+                flexShrink: 0,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {activeTheater.name}
+            </span>
+          ) : null;
+        })()}
         <StandortSheet theaters={theaters} />
         <Link href="/suchmodus/search" className={styles.filterCircle}>
           <Image

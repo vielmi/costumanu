@@ -8,6 +8,7 @@ type LogEntry = {
   id: string;
   action_type: "created" | "edited";
   changed_by_name: string | null;
+  changed_by_id: string | null;
   changed_at: string;
   production_title: string | null;
   season: string | null;
@@ -35,17 +36,53 @@ export function CostumeActivityLog({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase
-      .from("costume_activity_log")
-      .select(
-        "id, action_type, changed_by_name, changed_at, production_title, season, role_name, director_name"
-      )
-      .eq("costume_id", costumeId)
-      .order("changed_at", { ascending: false })
-      .then(({ data }) => {
-        setEntries((data ?? []) as LogEntry[]);
-        setLoading(false);
-      });
+    async function load() {
+      const { data: rows } = await supabase
+        .from("costume_activity_log")
+        .select(
+          "id, action_type, changed_by_name, changed_by_id, changed_at, production_title, season, role_name, director_name"
+        )
+        .eq("costume_id", costumeId)
+        .order("changed_at", { ascending: false });
+
+      const entries = (rows ?? []) as LogEntry[];
+
+      // Resolve display names for entries where changed_by_name is missing
+      const missingIds = [
+        ...new Set(
+          entries
+            .filter((e) => !e.changed_by_name && e.changed_by_id)
+            .map((e) => e.changed_by_id as string)
+        ),
+      ];
+
+      if (missingIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, display_name")
+          .in("id", missingIds);
+
+        const nameMap = Object.fromEntries(
+          (profiles ?? []).map((p) => [
+            p.id,
+            (p as { id: string; display_name: string | null }).display_name,
+          ])
+        );
+
+        setEntries(
+          entries.map((e) =>
+            !e.changed_by_name && e.changed_by_id
+              ? { ...e, changed_by_name: nameMap[e.changed_by_id] ?? null }
+              : e
+          )
+        );
+      } else {
+        setEntries(entries);
+      }
+
+      setLoading(false);
+    }
+    load();
   }, [costumeId, supabase]);
 
   return (

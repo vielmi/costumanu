@@ -36,12 +36,15 @@ const IMAGE_CARDS = [
   },
 ] as const;
 
-type CostumeStatus = "available" | "unavailable" | "in-progress";
+type CostumeStatus = "available" | "unavailable" | "in-progress" | "inactive";
+
+const INACTIVE_STATUSES = new Set(["sold", "sorted_out", "lost"]);
 
 function getCostumeStatus(items: RecentCostume["costume_items"]): CostumeStatus {
   if (!items || items.length === 0) return "available";
   const statuses = items.map((i) => i.current_status);
   if (statuses.every((s) => s === "available")) return "available";
+  if (statuses.every((s) => INACTIVE_STATUSES.has(s))) return "inactive";
   if (statuses.some((s) => s === "rented")) return "unavailable";
   return "in-progress";
 }
@@ -60,6 +63,7 @@ function StatusDot({ status }: { status: CostumeStatus }) {
     available: "var(--accent-01)",
     unavailable: "var(--color-error)",
     "in-progress": "var(--color-warning)",
+    inactive: "var(--neutral-grey-400)",
   };
   return (
     <span
@@ -259,7 +263,7 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
               <img
                 src={imageUrl}
                 alt={costume.name}
-                style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                style={{ objectFit: "cover", objectPosition: "top", width: "100%", height: "100%" }}
               />
             ) : (
               <Image

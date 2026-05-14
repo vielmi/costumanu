@@ -41,6 +41,7 @@ export interface CostumeItem {
   current_status: string;
   storage_location_path: string | null;
   is_public_for_rent: boolean;
+  theater_location_id: string | null;
   updated_at: string;
 }
 

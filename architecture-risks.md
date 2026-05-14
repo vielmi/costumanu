@@ -1,4 +1,4 @@
-# kostüm+ — Architektur-Risiken & Mitigationen
+# palcoPiù — Architektur-Risiken & Mitigationen
 
 > **Zweck dieses Dokuments:** Strategische Architektur- und Compliance-Risiken mit Verantwortung und Status. Trackt Vorhaben, die nicht aus reinem Code/Doku-Review hervorgehen — z. B. Verträge, Plattform-Konfiguration, Onboarding-Prozesse.
 >

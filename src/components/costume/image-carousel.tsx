@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -13,6 +13,8 @@ type ImageCarouselProps = {
   height?: string;
   objectFit?: "cover" | "contain";
   className?: string;
+  dotsPosition?: "inside" | "below";
+  radius?: number;
 };
 
 export function ImageCarousel({
@@ -21,6 +23,8 @@ export function ImageCarousel({
   height = "260px",
   objectFit = "cover",
   className = "mx-4",
+  dotsPosition = "inside",
+  radius = 16,
 }: ImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [failedUrls, setFailedUrls] = useState<Set<string>>(new Set());
@@ -43,7 +47,7 @@ export function ImageCarousel({
   const containerStyle: React.CSSProperties = {
     width: "100%",
     height,
-    borderRadius: 16,
+    borderRadius: radius,
     overflow: "hidden",
     position: "relative",
   };
@@ -63,7 +67,7 @@ export function ImageCarousel({
   return (
     <div
       className={className}
-      style={{ position: "relative", height, flexShrink: 0 }}
+      style={{ position: "relative", flexShrink: 0 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -92,7 +96,13 @@ export function ImageCarousel({
             alt=""
             aria-label={`${name} – ${t("costume.image")} ${currentIndex + 1}`}
             onError={() => setFailedUrls((prev) => new Set(prev).add(currentUrl))}
-            style={{ width: "100%", height: "100%", objectFit, display: "block" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit,
+              objectPosition: "top",
+              display: "block",
+            }}
           />
         )}
 
@@ -170,8 +180,8 @@ export function ImageCarousel({
           </>
         )}
 
-        {/* Dot indicators — overlaid at bottom */}
-        {multi && (
+        {/* Dots overlaid inside image */}
+        {dotsPosition === "inside" && multi && (
           <div
             style={{
               position: "absolute",
@@ -207,6 +217,37 @@ export function ImageCarousel({
           </div>
         )}
       </div>
+
+      {/* Dots below image */}
+      {dotsPosition === "below" && multi && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 6,
+            paddingTop: 12,
+          }}
+        >
+          {sorted.map((m, i) => (
+            <button
+              key={m.id}
+              type="button"
+              onClick={() => setCurrentIndex(i)}
+              aria-label={t("costume.showImage", { n: i + 1 })}
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                background: i === currentIndex ? "var(--neutral-black)" : "var(--neutral-grey-300)",
+                transition: "background 150ms ease",
+              }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

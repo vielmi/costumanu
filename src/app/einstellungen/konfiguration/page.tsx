@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { AppShell } from "@/components/layout/app-shell";
 import { KonfigurationClient } from "@/components/einstellungen/konfiguration-client";
+import { getTheaterLocations } from "@/lib/services/theater-location-service";
 
 function getAdmin() {
   return createAdminClient(
@@ -137,6 +138,8 @@ export default async function KonfigurationPage() {
     },
     { data: fieldDefs },
     { data: subscription },
+    { data: theaterData },
+    theaterLocations,
   ] = await Promise.all([
     supabase.from("profiles").select("id, display_name, platform_role").in("id", memberIds),
     admin.auth.admin.listUsers(),
@@ -146,6 +149,8 @@ export default async function KonfigurationPage() {
       .eq("theater_id", theaterId)
       .order("sort_order"),
     supabase.from("subscriptions").select("tier").eq("theater_id", theaterId).maybeSingle(),
+    admin.from("theaters").select("name, address_info").eq("id", theaterId).single(),
+    getTheaterLocations(supabase, theaterId),
   ]);
 
   const theaterUserIds = new Set((members ?? []).map((m) => m.user_id));
@@ -231,6 +236,16 @@ export default async function KonfigurationPage() {
         networks={[]}
         adminNetworks={adminNetworks}
         subscriptionTier={subscription?.tier ?? "free"}
+        theaterName={theaterData?.name ?? ""}
+        theaterAddressInfo={
+          (theaterData?.address_info as {
+            venue?: string;
+            street?: string;
+            zip?: string;
+            city?: string;
+          }) ?? {}
+        }
+        theaterLocations={theaterLocations}
       />
     </AppShell>
   );
