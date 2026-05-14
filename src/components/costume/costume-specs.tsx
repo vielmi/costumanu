@@ -517,33 +517,6 @@ function ProdRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function SpecRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
-      <span
-        style={{
-          fontFamily: "var(--font-family-base)",
-          fontSize: "var(--font-size-300)",
-          fontWeight: 500,
-          color: "var(--neutral-grey-500)",
-          flexShrink: 0,
-        }}
-      >
-        {label}
-      </span>
-      <span
-        style={{
-          fontFamily: "var(--font-family-base)",
-          fontSize: "var(--font-size-300)",
-          color: "var(--neutral-grey-700)",
-          textAlign: "right",
-        }}
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
 
 function InlineRow({ label, value }: { label: string; value: string }) {
   return (

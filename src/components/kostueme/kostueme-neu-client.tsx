@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import type { FieldDef } from "@/lib/services/field-service";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -161,7 +161,7 @@ function CreatableSearchCard({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const justSelectedRef = useRef(false);
-  const supabase = useRef(createClient()).current;
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -553,14 +553,17 @@ export function KostuemeNeuClient({
   const lastScrollYRef = useRef(0);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  const navSections =
-    fieldDefinitions.length > 0
-      ? [
-          ...NAV_SECTIONS.slice(0, -1),
-          { id: "eigene-felder", label: "Eigene Felder", icon: "icon-list" },
-          NAV_SECTIONS[NAV_SECTIONS.length - 1],
-        ]
-      : NAV_SECTIONS;
+  const navSections = useMemo(
+    () =>
+      fieldDefinitions.length > 0
+        ? [
+            ...NAV_SECTIONS.slice(0, -1),
+            { id: "eigene-felder", label: "Eigene Felder", icon: "icon-list" },
+            NAV_SECTIONS[NAV_SECTIONS.length - 1],
+          ]
+        : NAV_SECTIONS,
+    [fieldDefinitions.length]
+  );
 
   const [activeSection, setActiveSection] = useState("kategorie");
   const [headerHidden, setHeaderHidden] = useState(false);
@@ -674,7 +677,7 @@ export function KostuemeNeuClient({
       }
     }
     setActiveSection(current);
-  }, []);
+  }, [navSections]);
 
   useEffect(() => {
     const el = mainRef.current;
