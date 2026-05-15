@@ -517,7 +517,6 @@ function ProdRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-
 function InlineRow({ label, value }: { label: string; value: string }) {
   return (
     <p
