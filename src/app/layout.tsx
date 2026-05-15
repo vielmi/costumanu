@@ -17,12 +17,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: `${APP_NAME} | Die digitale Plattform für Theaternetzwerke`,
-  description: "Die digitale Plattform für Theaternetzwerke. Kostüme suchen, leihen und verwalten.",
+  title: `${APP_NAME} | Die digitale Plattform für Fundusnetzwerke aus Theater, Film und Musical`,
+  description: "Die digitale Plattform für Fundusnetzwerke aus Theater, Film und Musical. Kostüme suchen, leihen und verwalten.",
   openGraph: {
-    title: `${APP_NAME} | Die digitale Plattform für Theaternetzwerke`,
+    title: `${APP_NAME} | Die digitale Plattform für Fundusnetzwerke aus Theater, Film und Musical`,
     description:
-      "Die digitale Plattform für Theaternetzwerke. Kostüme suchen, leihen und verwalten.",
+      "Die digitale Plattform für Fundusnetzwerke aus Theater, Film und Musical. Kostüme suchen, leihen und verwalten.",
     images: [{ url: "/og-image.jpg", width: 1200, height: 630 }],
   },
 };
