@@ -44,7 +44,7 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
   const [voiceState, setVoiceState] = useState<"idle" | "listening" | "processing">("idle");
   const [isVoiceQuery, setIsVoiceQuery] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-
+  const lastTranscriptRef = useRef("");
   const [searchError, setSearchError] = useState<string | null>(null);
 
   const parseAndSearch = useCallback(
@@ -88,22 +88,29 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
     recognition.maxAlternatives = 1;
     recognitionRef.current = recognition;
 
+    lastTranscriptRef.current = "";
     recognition.onstart = () => {
       setVoiceState("listening");
       setIsVoiceQuery(true);
+      setSearchError(null);
       setQuery("");
     };
     recognition.onresult = (e: SpeechRecognitionEvent) => {
       const transcript = Array.from(e.results)
         .map((r) => r[0].transcript)
         .join("");
+      lastTranscriptRef.current = transcript;
       setQuery(transcript);
     };
     recognition.onend = () => {
       setVoiceState("idle");
+      if (!lastTranscriptRef.current.trim()) {
+        setIsVoiceQuery(false);
+      }
     };
     recognition.onerror = () => {
       setVoiceState("idle");
+      setIsVoiceQuery(false);
     };
     recognition.start();
   }
