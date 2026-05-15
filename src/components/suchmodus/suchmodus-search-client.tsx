@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
@@ -35,8 +36,76 @@ function stemGerman(q: string): string {
 
 export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
   const debouncedQuery = useDebounce(query.trim(), 300);
+
+  // ─── Voice input ───────────────────────────────────────────────────────────
+  const [voiceState, setVoiceState] = useState<"idle" | "listening" | "processing">("idle");
+  const [voiceTranscript, setVoiceTranscript] = useState<string | null>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  const parseAndRedirect = useCallback(async (text: string) => {
+    setVoiceState("processing");
+    setVoiceTranscript(text);
+    try {
+      const res = await fetch("/api/parse-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const { params } = await res.json();
+      router.push(`/suchmodus/results${params ? `?${params}` : ""}`);
+    } catch {
+      setVoiceState("idle");
+      setVoiceTranscript(null);
+      setQuery(text);
+    }
+  }, [router]);
+
+  function startListening() {
+    const SR =
+      (window as unknown as { SpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition ??
+      (window as unknown as { webkitSpeechRecognition?: typeof SpeechRecognition })
+        .webkitSpeechRecognition;
+    if (!SR) {
+      alert("Spracherkennung wird von diesem Browser nicht unterstützt.");
+      return;
+    }
+    const recognition = new SR();
+    recognition.lang = "de-CH";
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+    recognitionRef.current = recognition;
+
+    let lastTranscript = "";
+    recognition.onstart = () => setVoiceState("listening");
+    recognition.onresult = (e: SpeechRecognitionEvent) => {
+      const transcript = Array.from(e.results)
+        .map((r) => r[0].transcript)
+        .join("");
+      lastTranscript = transcript;
+      setVoiceTranscript(transcript);
+    };
+    recognition.onend = () => {
+      if (lastTranscript.trim()) {
+        parseAndRedirect(lastTranscript.trim());
+      } else {
+        setVoiceState("idle");
+        setVoiceTranscript(null);
+      }
+    };
+    recognition.onerror = () => {
+      setVoiceState("idle");
+      setVoiceTranscript(null);
+    };
+    recognition.start();
+  }
+
+  function stopListening() {
+    recognitionRef.current?.stop();
+  }
+  // ──────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -149,12 +218,43 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
               <Image src="/icons/icon-close-small.svg" alt="" width={9} height={9} />
             </button>
           )}
+          <button
+            type="button"
+            aria-label="Sprachsuche"
+            className={`${styles.micBtn} ${voiceState === "listening" ? styles.micBtnActive : ""}`}
+            onClick={voiceState === "listening" ? stopListening : startListening}
+            disabled={voiceState === "processing"}
+          >
+            <Image src="/icons/icon-microphone.svg" alt="" width={20} height={20} />
+          </button>
         </div>
 
         <Link href="/suchmodus" className={styles.cancelLink}>
           Abbrechen
         </Link>
       </div>
+
+      {/* ─── Voice overlay ─── */}
+      {voiceState !== "idle" && (
+        <div className={styles.voiceOverlay}>
+          {voiceState === "listening" ? (
+            <>
+              <div className={styles.voicePulse} />
+              <p className={styles.voiceLabel}>Spreche jetzt…</p>
+              {voiceTranscript && <p className={styles.voiceTranscript}>{voiceTranscript}</p>}
+              <button type="button" className={styles.voiceStopBtn} onClick={stopListening}>
+                Fertig
+              </button>
+            </>
+          ) : (
+            <>
+              <div className={styles.voiceSpinner} />
+              <p className={styles.voiceLabel}>Suche wird verarbeitet…</p>
+              {voiceTranscript && <p className={styles.voiceTranscript}>"{voiceTranscript}"</p>}
+            </>
+          )}
+        </div>
+      )}
 
       {/* ─── Suggestions ─── */}
       {showSuggestions && (

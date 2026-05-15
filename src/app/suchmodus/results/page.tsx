@@ -24,6 +24,7 @@ type SearchParams = Promise<{
   director?: string;
   designer?: string;
   assistant?: string;
+  year?: string;
 }>;
 
 export default async function SuchmodusResultsPage({
@@ -197,6 +198,14 @@ export default async function SuchmodusResultsPage({
         p.costume_assistant?.toLowerCase().includes(q)
       )
     );
+  }
+  if (params.year) {
+    const yr = Number(params.year);
+    if (!isNaN(yr)) {
+      filtered = filtered.filter((r) =>
+        (r.costume_provenance as ProvenanceRow[])?.some((p) => (p as { year?: number | null }).year === yr)
+      );
+    }
   }
   if (params.size_int) {
     const sizes = params.size_int.split(",").map((s) => s.toLowerCase());
