@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import { Providers } from "@/components/providers";
 import { APP_NAME } from "@/lib/constants/app";
 import "./globals.css";
@@ -18,7 +19,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: `${APP_NAME} | Die digitale Plattform für Fundusnetzwerke aus Theater, Film und Musical`,
-  description: "Die digitale Plattform für Fundusnetzwerke aus Theater, Film und Musical. Kostüme suchen, leihen und verwalten.",
+  description:
+    "Die digitale Plattform für Fundusnetzwerke aus Theater, Film und Musical. Kostüme suchen, leihen und verwalten.",
   openGraph: {
     title: `${APP_NAME} | Die digitale Plattform für Fundusnetzwerke aus Theater, Film und Musical`,
     description:
@@ -36,6 +38,16 @@ export default function RootLayout({
     <html lang="de" className={`${inter.variable} ${geistMono.variable}`}>
       <body className="antialiased">
         <Providers>{children}</Providers>
+        <Script id="crisp-widget" strategy="afterInteractive">{`
+          window.$crisp=[];
+          window.CRISP_WEBSITE_ID="f0546c6b-a996-4340-8b2f-144a20310746";
+          (function(){
+            var d=document,s=d.createElement("script");
+            s.src="https://client.crisp.chat/l.js";
+            s.async=1;
+            d.getElementsByTagName("head")[0].appendChild(s);
+          })();
+        `}</Script>
       </body>
     </html>
   );
