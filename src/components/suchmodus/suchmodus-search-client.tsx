@@ -23,6 +23,16 @@ function useDebounce(value: string, delay: number): string {
   return debouncedValue;
 }
 
+function stemGerman(q: string): string {
+  const lower = q.toLowerCase();
+  for (const suffix of ["es", "en", "em", "er", "e"]) {
+    if (lower.endsWith(suffix) && lower.length > suffix.length + 1) {
+      return lower.slice(0, -suffix.length);
+    }
+  }
+  return lower;
+}
+
 export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState(initialQuery);
@@ -44,13 +54,19 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
 
       // 1) FTS on name + description
       // 2) Taxonomy term match (colors, materials, epochs, etc.)
+      const stemmed = stemGerman(debouncedQuery);
+      const ilikeFilter =
+        stemmed !== debouncedQuery.toLowerCase()
+          ? `label_de.ilike.%${debouncedQuery}%,label_de.ilike.%${stemmed}%`
+          : `label_de.ilike.%${debouncedQuery}%`;
+
       const [ftsResult, termResult] = await Promise.all([
         supabase
           .from("costumes")
           .select(FIELDS)
           .textSearch("fts_doc", debouncedQuery, { type: "websearch" })
           .limit(8),
-        supabase.from("taxonomy_terms").select("id").ilike("label_de", `%${debouncedQuery}%`),
+        supabase.from("taxonomy_terms").select("id").or(ilikeFilter),
       ]);
 
       if (ftsResult.error) console.error("[SuchmodusSearch] fts error:", ftsResult.error);
