@@ -61,6 +61,21 @@
   opacity: 0.9;
 }
 
+.backBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+}
+.backBtn:hover {
+  opacity: 1;
+}
+
 /* ─── Body ────────────────────────────────────────────────────────────────── */
 .body {
   padding: 24px 16px 48px;

@@ -144,7 +144,6 @@ export function SuchmodusCostumeDetailClient({
   const [imgIndex, setImgIndex] = useState(0);
 
   const isAvailable = firstItem?.current_status === "available";
-  const address = theater?.address_info;
 
   const epochTerms = (taxonomyByVocabulary["epoche"] ?? []).map((t) => t.label_de).join(", ");
   const sparteTerms = (taxonomyByVocabulary["sparte"] ?? []).map((t) => t.label_de).join(", ");

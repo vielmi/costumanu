@@ -506,6 +506,19 @@
     border-radius: var(--radius-sm);
     font-size: var(--font-size-200);
   }
+
+  /* ─── Mobile Buttons ─── */
+  @media (max-width: 743px) {
+    .btn-primary,
+    .btn-secondary,
+    .btn-tertiary,
+    .btn-danger {
+      height: 40px;
+      min-height: 40px;
+      padding: 0 30px;
+      border-radius: var(--radius-sm);
+    }
+  }
 }
 
 /* ─── Dropdown-Pfeil (Standard) ──────────────────────────────────────────── */

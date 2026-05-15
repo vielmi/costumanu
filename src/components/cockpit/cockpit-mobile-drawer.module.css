@@ -59,14 +59,6 @@
   padding: 56px 32px 0;
 }
 
-.sectionLabel {
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-350);
-  font-weight: var(--font-weight-700);
-  color: var(--neutral-grey-400);
-  margin: 0 0 12px;
-}
-
 .navItem {
   display: flex;
   align-items: center;
@@ -93,12 +85,6 @@
   font-size: var(--font-size-400);
   font-weight: var(--font-weight-400);
   color: var(--neutral-white);
-}
-
-.divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.15);
-  margin: 20px 0 16px;
 }
 
 .profileFooter {

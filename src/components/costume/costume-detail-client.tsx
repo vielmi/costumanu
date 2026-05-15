@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -166,16 +166,25 @@ export function CostumeDetailClient({
   return (
     <>
       <div style={{ display: "flex", flexDirection: "column", paddingBottom: 48 }}>
-        {/* Breadcrumb bar */}
+        {/* ── Breadcrumb bar ── */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "20px 32px 16px",
+            padding: isMobile ? "12px 16px" : "20px 32px 16px",
           }}
         >
-          <nav style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <nav
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flex: 1,
+              minWidth: 0,
+              flexWrap: "wrap",
+            }}
+          >
             <button
               type="button"
               onClick={() => router.back()}
@@ -190,14 +199,23 @@ export function CostumeDetailClient({
                 fontFamily: "var(--font-family-base)",
                 fontSize: "var(--font-size-150)",
                 color: "var(--neutral-grey-600)",
+                flexShrink: 0,
               }}
             >
               <Image src="/icons/icon-arrow-left.svg" alt="" width={14} height={14} />
               {t("costume.back")}
             </button>
-            <span style={{ color: "var(--neutral-grey-300)", fontSize: "var(--font-size-300)" }}>
-              |
-            </span>
+            {(costume.gender_term || costume.clothing_type) && (
+              <span
+                style={{
+                  color: "var(--neutral-grey-300)",
+                  fontSize: "var(--font-size-300)",
+                  flexShrink: 0,
+                }}
+              >
+                |
+              </span>
+            )}
             {costume.gender_term && (
               <>
                 <Link
@@ -207,12 +225,17 @@ export function CostumeDetailClient({
                     fontSize: "var(--font-size-150)",
                     color: "var(--neutral-grey-500)",
                     textDecoration: "none",
+                    flexShrink: 0,
                   }}
                 >
                   {costume.gender_term.label_de}
                 </Link>
                 <span
-                  style={{ color: "var(--neutral-grey-400)", fontSize: "var(--font-size-150)" }}
+                  style={{
+                    color: "var(--neutral-grey-400)",
+                    fontSize: "var(--font-size-150)",
+                    flexShrink: 0,
+                  }}
                 >
                   ›
                 </span>
@@ -227,27 +250,41 @@ export function CostumeDetailClient({
                     fontSize: "var(--font-size-150)",
                     color: "var(--neutral-grey-500)",
                     textDecoration: "none",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   {costume.clothing_type.label_de}
                 </Link>
-                <span
-                  style={{ color: "var(--neutral-grey-400)", fontSize: "var(--font-size-150)" }}
-                >
-                  ›
-                </span>
+                {!isMobile && (
+                  <>
+                    <span
+                      style={{
+                        color: "var(--neutral-grey-400)",
+                        fontSize: "var(--font-size-150)",
+                        flexShrink: 0,
+                      }}
+                    >
+                      ›
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-family-base)",
+                        fontSize: "var(--font-size-150)",
+                        color: "var(--neutral-grey-700)",
+                        fontWeight: 500,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {costume.name}
+                    </span>
+                  </>
+                )}
               </>
             )}
-            <span
-              style={{
-                fontFamily: "var(--font-family-base)",
-                fontSize: "var(--font-size-150)",
-                color: "var(--neutral-grey-700)",
-                fontWeight: 500,
-              }}
-            >
-              {costume.name}
-            </span>
           </nav>
 
           <ContextMenu
@@ -258,11 +295,11 @@ export function CostumeDetailClient({
           />
         </div>
 
-        {/* Error banner */}
+        {/* ── Error banner ── */}
         {actionError && (
           <div
             style={{
-              margin: "0 32px 12px",
+              margin: `0 ${isMobile ? 16 : 32}px 12px`,
               padding: "8px 12px",
               background: "var(--color-error-light)",
               borderRadius: "var(--radius-xs)",
@@ -291,85 +328,92 @@ export function CostumeDetailClient({
           </div>
         )}
 
-        {/* Hero: Image left | Info right (desktop) / stacked (mobile) */}
-        <div
-          style={
-            isMobile
-              ? {
+        {isMobile ? (
+          /* ── MOBILE LAYOUT ── */
+          <>
+            {/* Image — full bleed with heart overlay */}
+            <div style={{ position: "relative" }}>
+              <ImageCarousel
+                media={costume.costume_media ?? []}
+                name={costume.name}
+                height="280px"
+                objectFit="cover"
+                className=""
+                radius={0}
+                dotsPosition="below"
+              />
+              {/* Heart overlay */}
+              <button
+                type="button"
+                onClick={handleBookmark}
+                aria-label={isBookmarked ? "Aus Merkliste entfernen" : "Zur Merkliste hinzufügen"}
+                style={{
+                  position: "absolute",
+                  top: 12,
+                  right: 12,
+                  width: 38,
+                  height: 38,
+                  borderRadius: "50%",
+                  background: "var(--neutral-white)",
+                  border: "none",
+                  cursor: "pointer",
                   display: "flex",
-                  flexDirection: "column",
-                  padding: "0 0 32px",
-                }
-              : {
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 10,
-                  padding: "0 32px 131px",
-                  alignItems: "stretch",
-                }
-          }
-        >
-          {/* Image carousel */}
-          <ImageCarousel
-            media={costume.costume_media ?? []}
-            name={costume.name}
-            height={isMobile ? "320px" : "480px"}
-            objectFit="contain"
-            className=""
-          />
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+                  zIndex: 5,
+                }}
+              >
+                <Image
+                  src={isBookmarked ? "/icons/icon-heart-1.svg" : "/icons/icon-heart.svg"}
+                  alt=""
+                  width={18}
+                  height={18}
+                  style={isBookmarked ? {} : { opacity: 0.75 }}
+                />
+              </button>
+            </div>
 
-          {/* Info panel */}
-          <div
-            style={
-              isMobile
-                ? {
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 16,
-                    padding: "16px 16px 0",
-                  }
-                : {
-                    display: "flex",
-                    flexDirection: "column",
-                  }
-            }
-          >
-            {/* Category label + title */}
-            <div style={{ marginBottom: isMobile ? 0 : 16 }}>
+            {/* Info section */}
+            <div
+              style={{
+                padding: "16px 16px 32px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 14,
+              }}
+            >
+              {/* Category label */}
               {costume.clothing_type && (
                 <p
                   style={{
                     fontFamily: "var(--font-family-base)",
                     fontSize: "var(--font-size-150)",
                     color: "var(--neutral-grey-500)",
-                    margin: "0 0 6px",
+                    margin: 0,
                   }}
                 >
                   {costume.clothing_type.label_de}
                 </p>
               )}
+
+              {/* Title */}
               <h1
                 style={{
                   fontFamily: "var(--font-family-base)",
                   fontSize: "var(--font-size-600)",
-                  fontWeight: 400,
-                  color: "var(--neutral-grey-700)",
+                  fontWeight: 700,
+                  color: "var(--neutral-black)",
                   margin: 0,
-                  lineHeight: 1.2,
+                  lineHeight: 1.15,
                 }}
               >
                 {costume.name}
               </h1>
-            </div>
 
-            {/* Spacer — desktop only */}
-            {!isMobile && <div style={{ flex: 1 }} />}
-
-            {/* Bottom section: icons, status, buttons */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              {/* Gender | shirt | size row */}
+              {/* Gender | shirt | size */}
               {(costume.gender_term || firstItem?.size_label) && (
-                <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                   {costume.gender_term && (
                     <>
                       <GoldIcon
@@ -380,7 +424,7 @@ export function CostumeDetailClient({
                     </>
                   )}
                   <GoldIcon src="/icons/icon-shirt.svg" size={20} />
-                  {intlSize(firstItem?.size_label) && (
+                  {firstItem?.size_label && (
                     <>
                       <Divider />
                       <span
@@ -391,7 +435,7 @@ export function CostumeDetailClient({
                           fontWeight: 500,
                         }}
                       >
-                        {intlSize(firstItem?.size_label)}
+                        {firstItem.size_label}
                       </span>
                     </>
                   )}
@@ -436,9 +480,40 @@ export function CostumeDetailClient({
                 </div>
               )}
 
-              {/* Actions: Teilen + Merken */}
+              {/* Anfragen button */}
+              <button
+                type="button"
+                style={{
+                  width: "100%",
+                  height: 62,
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--primary-900)",
+                  color: "var(--neutral-white)",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 10,
+                  fontFamily: "var(--font-family-base)",
+                  fontSize: "var(--font-size-300)",
+                  fontWeight: 500,
+                }}
+              >
+                Anfragen
+                <Image
+                  src="/icons/icon-mail.svg"
+                  alt=""
+                  width={20}
+                  height={20}
+                  style={{ filter: "invert(1)" }}
+                />
+              </button>
+
+              {/* Teilen | Merken */}
               <div style={{ display: "flex", gap: 12 }}>
                 <button
+                  type="button"
                   style={{
                     flex: 1,
                     height: 52,
@@ -494,56 +569,318 @@ export function CostumeDetailClient({
                 </button>
               </div>
             </div>
-            {/* end bottom section */}
-          </div>
-        </div>
 
-        {/* Accordion specs — all closed by default */}
-        <CostumeSpecs
-          costume={costume}
-          taxonomyByVocabulary={taxonomyByVocabulary}
-          firstItem={firstItem ?? null}
-          firstProvenance={firstProvenance ?? null}
-        />
+            {/* Accordions */}
+            <CostumeSpecs
+              costume={costume}
+              taxonomyByVocabulary={taxonomyByVocabulary}
+              firstItem={firstItem ?? null}
+              firstProvenance={firstProvenance ?? null}
+            />
 
-        {/* Ensemble children */}
-        {ensembleChildren.length > 0 && (
-          <section style={{ padding: "0 32px 24px" }}>
-            <h2
-              style={{
-                fontFamily: "var(--font-family-base)",
-                fontSize: "var(--font-size-400)",
-                fontWeight: 700,
-                marginBottom: 12,
-              }}
-            >
-              {t("costume.costumeParts")}
-            </h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {ensembleChildren.map((child) => (
-                <Link
-                  key={child.id}
-                  href={`/costume/${child.id}`}
+            {/* Ensemble children */}
+            {ensembleChildren.length > 0 && (
+              <section style={{ padding: "0 16px 24px" }}>
+                <h2
                   style={{
-                    padding: "10px 14px",
-                    borderRadius: "var(--radius-sm)",
-                    border: "1px solid var(--neutral-grey-200)",
                     fontFamily: "var(--font-family-base)",
-                    fontSize: "var(--font-size-150)",
-                    fontWeight: 500,
-                    color: "var(--neutral-grey-700)",
-                    textDecoration: "none",
+                    fontSize: "var(--font-size-350)",
+                    fontWeight: 700,
+                    marginBottom: 12,
                   }}
                 >
-                  {child.name}
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+                  {t("costume.costumeParts")}
+                </h2>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {ensembleChildren.map((child) => (
+                    <Link
+                      key={child.id}
+                      href={`/costume/${child.id}`}
+                      style={{
+                        padding: "10px 14px",
+                        borderRadius: "var(--radius-sm)",
+                        border: "1px solid var(--neutral-grey-200)",
+                        fontFamily: "var(--font-family-base)",
+                        fontSize: "var(--font-size-150)",
+                        fontWeight: 500,
+                        color: "var(--neutral-grey-700)",
+                        textDecoration: "none",
+                      }}
+                    >
+                      {child.name}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
 
-        {/* Similar costumes */}
-        {similarCostumes.length > 0 && <SimilarCostumes costumes={similarCostumes} />}
+            {/* Similar costumes */}
+            {similarCostumes.length > 0 && <SimilarCostumes costumes={similarCostumes} />}
+          </>
+        ) : (
+          /* ── DESKTOP / TABLET LAYOUT ── */
+          <>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 10,
+                padding: "0 32px 48px",
+                alignItems: "stretch",
+              }}
+            >
+              {/* Image carousel */}
+              <ImageCarousel
+                media={costume.costume_media ?? []}
+                name={costume.name}
+                height="480px"
+                objectFit="contain"
+                className=""
+              />
+
+              {/* Info panel */}
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                {/* Category label + title */}
+                <div style={{ marginBottom: 16 }}>
+                  {costume.clothing_type && (
+                    <p
+                      style={{
+                        fontFamily: "var(--font-family-base)",
+                        fontSize: "var(--font-size-150)",
+                        color: "var(--neutral-grey-500)",
+                        margin: "0 0 6px",
+                      }}
+                    >
+                      {costume.clothing_type.label_de}
+                    </p>
+                  )}
+                  <h1
+                    style={{
+                      fontFamily: "var(--font-family-base)",
+                      fontSize: "var(--font-size-600)",
+                      fontWeight: 400,
+                      color: "var(--neutral-grey-700)",
+                      margin: 0,
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {costume.name}
+                  </h1>
+                </div>
+
+                <div style={{ flex: 1 }} />
+
+                {/* Bottom section */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  {/* Gender | shirt | size row */}
+                  {(costume.gender_term || firstItem?.size_label) && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                      {costume.gender_term && (
+                        <>
+                          <GoldIcon
+                            src={`/icons/icon-${getGenderIcon(costume.gender_term.label_de)}.svg`}
+                            size={20}
+                          />
+                          <Divider />
+                        </>
+                      )}
+                      <GoldIcon src="/icons/icon-shirt.svg" size={20} />
+                      {firstItem?.size_label && (
+                        <>
+                          <Divider />
+                          <span
+                            style={{
+                              fontFamily: "var(--font-family-base)",
+                              fontSize: "var(--font-size-200)",
+                              color: "var(--primary-900)",
+                              fontWeight: 500,
+                            }}
+                          >
+                            {firstItem.size_label}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Availability */}
+                  {firstItem && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span
+                        style={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: "50%",
+                          flexShrink: 0,
+                          background: statusOption?.color ?? "var(--neutral-grey-400)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {isAvailable && (
+                          <Image
+                            src="/icons/icon-check.svg"
+                            alt=""
+                            width={10}
+                            height={10}
+                            style={{ filter: "invert(1)" }}
+                          />
+                        )}
+                      </span>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-family-base)",
+                          fontSize: "var(--font-size-200)",
+                          color: "var(--neutral-grey-700)",
+                        }}
+                      >
+                        {costume.theater ? `${costume.theater.name}, ` : ""}
+                        {statusOption?.label ?? firstItem.current_status}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Anfragen button */}
+                  <button
+                    type="button"
+                    style={{
+                      width: "100%",
+                      height: 62,
+                      borderRadius: "var(--radius-md)",
+                      background: "var(--primary-900)",
+                      color: "var(--neutral-white)",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 10,
+                      fontFamily: "var(--font-family-base)",
+                      fontSize: "var(--font-size-300)",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Anfragen
+                    <Image
+                      src="/icons/icon-mail.svg"
+                      alt=""
+                      width={20}
+                      height={20}
+                      style={{ filter: "invert(1)" }}
+                    />
+                  </button>
+
+                  {/* Teilen | Merken */}
+                  <div style={{ display: "flex", gap: 12 }}>
+                    <button
+                      type="button"
+                      style={{
+                        flex: 1,
+                        height: 52,
+                        borderRadius: "var(--radius-md)",
+                        background: "transparent",
+                        color: "var(--primary-900)",
+                        border: "1.5px solid var(--primary-900)",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        fontFamily: "var(--font-family-base)",
+                        fontSize: "var(--font-size-300)",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {t("costume.share")}
+                      <GoldIcon src="/icons/icon-share.svg" size={18} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleBookmark}
+                      style={{
+                        flex: 1,
+                        height: 52,
+                        borderRadius: "var(--radius-md)",
+                        background: isBookmarked ? "var(--primary-900)" : "transparent",
+                        color: isBookmarked ? "var(--neutral-white)" : "var(--primary-900)",
+                        border: "1.5px solid var(--primary-900)",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        fontFamily: "var(--font-family-base)",
+                        fontSize: "var(--font-size-300)",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {t("costume.bookmark")}
+                      {isBookmarked ? (
+                        <Image
+                          src="/icons/icon-heart-1.svg"
+                          alt=""
+                          width={18}
+                          height={18}
+                          style={{ filter: "invert(1)" }}
+                        />
+                      ) : (
+                        <GoldIcon src="/icons/icon-heart.svg" size={18} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Accordion specs */}
+            <CostumeSpecs
+              costume={costume}
+              taxonomyByVocabulary={taxonomyByVocabulary}
+              firstItem={firstItem ?? null}
+              firstProvenance={firstProvenance ?? null}
+            />
+
+            {/* Ensemble children */}
+            {ensembleChildren.length > 0 && (
+              <section style={{ padding: "0 32px 24px" }}>
+                <h2
+                  style={{
+                    fontFamily: "var(--font-family-base)",
+                    fontSize: "var(--font-size-400)",
+                    fontWeight: 700,
+                    marginBottom: 12,
+                  }}
+                >
+                  {t("costume.costumeParts")}
+                </h2>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {ensembleChildren.map((child) => (
+                    <Link
+                      key={child.id}
+                      href={`/costume/${child.id}`}
+                      style={{
+                        padding: "10px 14px",
+                        borderRadius: "var(--radius-sm)",
+                        border: "1px solid var(--neutral-grey-200)",
+                        fontFamily: "var(--font-family-base)",
+                        fontSize: "var(--font-size-150)",
+                        fontWeight: 500,
+                        color: "var(--neutral-grey-700)",
+                        textDecoration: "none",
+                      }}
+                    >
+                      {child.name}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Similar costumes */}
+            {similarCostumes.length > 0 && <SimilarCostumes costumes={similarCostumes} />}
+          </>
+        )}
       </div>
 
       {showDeleteSheet && (
@@ -634,14 +971,6 @@ export function CostumeDetailClient({
   );
 }
 
-/** Gibt die internationale Grösse zurück (Teil vor "/"). "M / 38" → "M", "XL" → "XL" */
-function intlSize(sizeLabel: string | null | undefined): string | null {
-  if (!sizeLabel) return null;
-  const part = sizeLabel.split("/")[0].trim();
-  return part || null;
-}
-
-/** SVG-Icon eingefärbt in var(--primary-900) via CSS mask-image */
 function GoldIcon({ src, size = 20 }: { src: string; size?: number }) {
   return (
     <span

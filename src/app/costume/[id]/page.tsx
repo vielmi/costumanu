@@ -51,19 +51,31 @@ export default async function CostumeDetailPage({ params }: { params: Params }) 
     ensembleChildren = (data ?? []) as unknown as Costume[];
   }
 
-  // Fetch similar costumes (same clothing type, different costume)
+  // Fetch similar costumes: same clothing type first, fallback to same theater
+  const similarSelect = `
+    id, name, theater_id,
+    clothing_type:taxonomy_terms!clothing_type_id(id, vocabulary, label_de),
+    costume_media(id, storage_path, sort_order),
+    costume_provenance(production_title, year),
+    costume_taxonomy(term_id, taxonomy_term:taxonomy_terms(id, vocabulary, label_de)),
+    theater:theaters!theater_id(id, name)
+  `;
   let similarCostumes: Costume[] = [];
   if (costume.clothing_type_id) {
     const { data } = await supabase
       .from("costumes")
-      .select(
-        `
-        id, name, theater_id,
-        costume_media(id, storage_path, sort_order),
-        costume_provenance(production_title, year)
-      `
-      )
+      .select(similarSelect)
       .eq("clothing_type_id", costume.clothing_type_id)
+      .neq("id", id)
+      .limit(10);
+    similarCostumes = (data ?? []) as unknown as Costume[];
+  }
+  // Fallback: other costumes from the same theater
+  if (similarCostumes.length === 0) {
+    const { data } = await supabase
+      .from("costumes")
+      .select(similarSelect)
+      .eq("theater_id", costume.theater_id)
       .neq("id", id)
       .limit(10);
     similarCostumes = (data ?? []) as unknown as Costume[];

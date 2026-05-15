@@ -1,0 +1,47 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh run:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git branch:*)",
+      "Bash(curl -s -X POST -H 'Authorization: token __CMDSUB_OUTPUT__')",
+      "Bash(npx tsc:*)",
+      "Bash(gh pr create --title 'feat: Kostüm-Detail Layout, Nav-Bereinigung, Cockpit 3-Punkt-Menü' --body ':*)",
+      "Bash(git cherry-pick:*)",
+      "Bash(npx next:*)",
+      "Bash(npx eslint:*)",
+      "Bash(sed -i 's/background: \"rgba\\(0,0,0,0\\\\.4\\)\"/background: \"var\\(--overlay-medium\\)\"/g' \"c:/Users/vielm/Repos/costumanu/src/components/suchmodus/suchmodus-cockpit.tsx\")",
+      "Bash(sed -i 's/background: \"rgba\\(0,0,0,0\\\\.6\\)\"/background: \"var\\(--overlay-heavy\\)\"/g' \"c:/Users/vielm/Repos/costumanu/src/components/suchmodus/suchmodus-cockpit.tsx\")",
+      "Bash(sed -i 's/background: \"rgba\\(0,0,0,0\\\\.3\\)\"/background: \"var\\(--overlay-light\\)\"/g' \"c:/Users/vielm/Repos/costumanu/src/components/suchmodus/suchmodus-cockpit.tsx\")",
+      "Bash(sed -i 's/background: \"rgba\\(0,0,0,0\\\\.4\\)\"/background: \"var\\(--overlay-medium\\)\"/g' \"c:/Users/vielm/Repos/costumanu/src/components/cockpit/cockpit-client.tsx\")",
+      "Bash(sed -i 's/background: \"rgba\\(0,0,0,0\\\\.4\\)\"/background: \"var\\(--overlay-medium\\)\"/g' \"c:/Users/vielm/Repos/costumanu/src/components/einstellungen/konfiguration-client.tsx\")",
+      "Bash(sed -i -e 's/color: \"#000000\"/color: \"var\\(--neutral-black\\)\"/g' -e 's/color: \"#FFFFFF\"/color: \"var\\(--neutral-white\\)\"/g' -e 's/border: \"#FFFFFF\"/border: \"var\\(--neutral-white\\)\"/g' -e 's/border: \"1px solid #FFFFFF\"/border: \"1px solid var\\(--neutral-white\\)\"/g' c:/Users/vielm/Repos/costumanu/src/components/cockpit/cockpit-client.tsx)",
+      "Bash(sed -i -e 's/background: \"#FFFFFF\"/background: \"var\\(--neutral-white\\)\"/g' c:/Users/vielm/Repos/costumanu/src/components/layout/app-shell-client.tsx)",
+      "Bash(sed -i -e 's/background: \"#FFFFFF\"/background: \"var\\(--neutral-white\\)\"/g' c:/Users/vielm/Repos/costumanu/src/app/login/page.tsx c:/Users/vielm/Repos/costumanu/src/app/auth/reset-password/page.tsx)",
+      "Bash(sed -i -e 's/color: \"#fff\"/color: \"var\\(--neutral-white\\)\"/g' c:/Users/vielm/Repos/costumanu/src/components/costume/costume-detail-client.tsx)",
+      "Bash(sed -i -e 's/#D6DFDD/var\\(--secondary-550\\)/g' c:/Users/vielm/Repos/costumanu/src/components/cockpit/cockpit-sidebar.tsx)",
+      "Bash(git pull *)",
+      "Bash(gh pr create --title 'feat: Suchmodus Mobile Cockpit + Kostüm erfassen Mobile + ID-Scan + Taxonomy-Rollen' --body ' *)",
+      "Bash(npx tsx *)",
+      "Bash(grep -E \"\\\\.\\(tsx|css\\)$\")",
+      "Bash(xargs grep *)",
+      "Bash(gh pr *)",
+      "Bash(git fetch *)",
+      "Bash(git rebase *)",
+      "Bash(git stash *)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx|js\\)$\")",
+      "Bash(npx supabase *)",
+      "Bash(grep -E \"\\\\.ts$|\\\\.tsx$\")",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(p.dependencies.next\\)\")",
+      "Bash(node --loader tsx/esm -e ' *)",
+      "Bash(GIT_EDITOR=true git rebase --continue)",
+      "Bash(python3 -c ' *)",
+      "Bash(curl -s 'https://dkzhnzwjthwjwtvlufyz.supabase.co/rest/v1/taxonomy_terms?select=id,label_de,vocabulary\\(name\\)&vocabulary=in.\\(temperature,washing_type,drying,ironing\\)&order=vocabulary_id,sort_order' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRremhuendqdGh3and0dmx1Znl6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTY3Nzk1OSwiZXhwIjoyMDg3MjUzOTU5fQ.l9_ctHGgyNygYrYOwJ_oLL6Icl4hatdGZcK_O60STOg' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRremhuendqdGh3and0dmx1Znl6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTY3Nzk1OSwiZXhwIjoyMDg3MjUzOTU5fQ.l9_ctHGgyNygYrYOwJ_oLL6Icl4hatdGZcK_O60STOg')"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\vielm\\Repos\\costumanu\\src\\app\\suchmodus\\costume",
+      "c:\\Users\\vielm\\Repos\\costumanu\\src\\app\\auffuehrungen"
+    ]
+  }
+}

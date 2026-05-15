@@ -48,7 +48,7 @@ export function CockpitMobileDrawer({ navItems }: CockpitMobileDrawerProps) {
             aria-label="Menü schliessen"
           >
             <Image
-              src="/icons/icon-close-medium.svg"
+              src="/icons/icon-close-small.svg"
               alt=""
               width={20}
               height={20}
@@ -57,7 +57,6 @@ export function CockpitMobileDrawer({ navItems }: CockpitMobileDrawerProps) {
           </button>
 
           <div className={styles.content}>
-            <p className={styles.sectionLabel}>Navigation</p>
             <nav>
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href} onClick={close} className={styles.navItem}>
@@ -88,43 +87,6 @@ export function CockpitMobileDrawer({ navItems }: CockpitMobileDrawerProps) {
                       Beta
                     </span>
                   )}
-                  <Image
-                    src="/icons/icon-arrow-s.svg"
-                    alt=""
-                    width={20}
-                    height={20}
-                    style={{ filter: "invert(1)" }}
-                  />
-                </Link>
-              ))}
-            </nav>
-
-            <div className={styles.divider} />
-
-            <p className={styles.sectionLabel}>Kostüm erfassen</p>
-            <nav>
-              {[
-                { label: "Kostüm erfassen", href: "/kostueme/neu", icon: "icon-shirt" },
-                {
-                  label: "Mehrteiler erfassen",
-                  href: "/kostueme/neu?type=ensemble",
-                  icon: "icon-shirt-1",
-                },
-                {
-                  label: "Kostüm Serie erfassen",
-                  href: "/kostueme/neu?type=serie",
-                  icon: "icon-serie",
-                },
-              ].map((item) => (
-                <Link key={item.href} href={item.href} onClick={close} className={styles.navItem}>
-                  <Image
-                    src={`/icons/${item.icon}.svg`}
-                    alt=""
-                    width={22}
-                    height={22}
-                    style={{ filter: "invert(1)", flexShrink: 0 }}
-                  />
-                  <span className={styles.navLabel}>{item.label}</span>
                   <Image
                     src="/icons/icon-arrow-s.svg"
                     alt=""

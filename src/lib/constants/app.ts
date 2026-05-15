@@ -1,2 +1,2 @@
-export const APP_NAME = "kostüm+";
-export const APP_LOGO_LETTER = "K";
+export const APP_NAME = "palcoPiù";
+export const APP_LOGO_LETTER = "P";

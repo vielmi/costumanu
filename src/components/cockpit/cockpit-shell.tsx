@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { CockpitContent } from "@/components/cockpit/cockpit-client";
@@ -45,13 +46,22 @@ export function CockpitShell({
   pendingRentals,
   userRole,
 }: CockpitShellProps) {
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const navItems = isAdmin(userRole) ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
   const badges = { messages: unreadMessages, rentals: pendingRentals };
 
   return (
     <div className={styles.shell}>
       {/* ── Mobile header ── */}
-      <AppMobileHeader navItems={navItems} />
+      <AppMobileHeader
+        navItems={navItems}
+        rightSlot={<CockpitMobileActions onSearchOpen={() => setMobileSearchOpen(true)} />}
+        topBar={
+          mobileSearchOpen ? (
+            <MobileSearchBar theaterId={theaterId} onClose={() => setMobileSearchOpen(false)} />
+          ) : undefined
+        }
+      />
 
       <div className={styles.shellInner}>
         {/* Sidebar — desktop only */}
@@ -75,6 +85,214 @@ export function CockpitShell({
           </main>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ─── CockpitMobileActions (search + Erfassen, mobile header right slot) ──────
+
+function CockpitMobileActions({ onSearchOpen }: { onSearchOpen: () => void }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+      <button
+        type="button"
+        onClick={onSearchOpen}
+        aria-label="Suche"
+        style={{
+          width: 44,
+          height: 44,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          flexShrink: 0,
+          padding: 0,
+        }}
+      >
+        <Image src="/icons/icon-search.svg" alt="" width={22} height={22} />
+      </button>
+      <Link
+        href="/kostueme/neu"
+        aria-label="Kostüm erfassen"
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: "50%",
+          background: "var(--primary-900)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textDecoration: "none",
+          flexShrink: 0,
+        }}
+      >
+        <Image
+          src="/icons/icon-plus-m.svg"
+          alt=""
+          width={20}
+          height={20}
+          style={{ filter: "invert(1)" }}
+        />
+      </Link>
+    </div>
+  );
+}
+
+// ─── MobileSearchBar (full-width pill, replaces header when open) ─────────────
+
+function MobileSearchBar({
+  theaterId,
+  onClose,
+}: {
+  theaterId: string | null;
+  onClose: () => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const supabase = createClient();
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (!query.trim() || !theaterId) {
+        setResults([]);
+        setIsOpen(false);
+        return;
+      }
+      const { data } = await supabase
+        .from("costumes")
+        .select(
+          "id, name, costume_provenance(production_title, year), costume_media(storage_path, sort_order)"
+        )
+        .eq("theater_id", theaterId)
+        .ilike("name", `%${query}%`)
+        .limit(8);
+      setResults((data ?? []) as SearchResult[]);
+      setIsOpen(true);
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [query, theaterId, supabase]);
+
+  function navigateTo(id: string) {
+    onClose();
+    router.push(`/costume/${id}`);
+  }
+
+  return (
+    <div style={{ flex: 1, position: "relative" }}>
+      <div
+        style={{
+          height: 52,
+          borderRadius: 47,
+          background: "var(--secondary-500)",
+          border: "1px solid var(--neutral-black)",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          padding: "0 16px",
+        }}
+      >
+        <Image
+          src="/icons/icon-search.svg"
+          alt=""
+          width={20}
+          height={20}
+          style={{ flexShrink: 0 }}
+        />
+        <input
+          ref={inputRef}
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="durchsuchen"
+          style={{
+            flex: 1,
+            border: "none",
+            background: "transparent",
+            fontFamily: "var(--font-family-base)",
+            fontSize: "var(--font-size-200)",
+            fontWeight: "var(--font-weight-400)",
+            color: "var(--neutral-grey-700)",
+            letterSpacing: "0.002em",
+            outline: "none",
+          }}
+        />
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: 0,
+            display: "flex",
+            alignItems: "center",
+            opacity: 0.5,
+          }}
+        >
+          <Image src="/icons/icon-close-medium.svg" alt="Suche schließen" width={16} height={16} />
+        </button>
+      </div>
+
+      {isOpen && query.trim() && (
+        <div className={styles.searchDropdown}>
+          {results.length === 0 ? (
+            <p className={styles.searchEmpty}>Keine Kostüme gefunden</p>
+          ) : (
+            results.map((costume) => {
+              const prov = costume.costume_provenance?.[0];
+              const subtitle = prov
+                ? [prov.production_title, prov.year ? String(prov.year) : null]
+                    .filter(Boolean)
+                    .join(" | ")
+                : null;
+              const sortedMedia = [...(costume.costume_media ?? [])].sort(
+                (a, b) => a.sort_order - b.sort_order
+              );
+              const imageUrl = sortedMedia[0]
+                ? supabase.storage.from("costume-images").getPublicUrl(sortedMedia[0].storage_path)
+                    .data.publicUrl
+                : null;
+
+              return (
+                <button
+                  key={costume.id}
+                  type="button"
+                  onClick={() => navigateTo(costume.id)}
+                  className={styles.searchResultBtn}
+                >
+                  <div className={styles.searchResultThumb}>
+                    {imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={imageUrl} alt="" className={styles.searchResultImg} />
+                    ) : (
+                      <Image
+                        src="/icons/icon-shirt.svg"
+                        alt=""
+                        width={20}
+                        height={20}
+                        style={{ opacity: 0.4 }}
+                      />
+                    )}
+                  </div>
+                  <div className={styles.searchResultText}>
+                    <span className={styles.searchResultName}>{costume.name}</span>
+                    {subtitle && <span className={styles.searchResultSub}>{subtitle}</span>}
+                  </div>
+                </button>
+              );
+            })
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -17,28 +17,36 @@ const DEFAULT_NAV_ITEMS: NavItem[] = [
 export function AppMobileHeader({
   navItems = DEFAULT_NAV_ITEMS,
   rightSlot,
+  topBar,
 }: {
   navItems?: NavItem[];
   rightSlot?: React.ReactNode;
+  topBar?: React.ReactNode;
 }) {
   return (
     <header className={styles.header}>
-      <div className={styles.left}>
-        <CockpitMobileDrawer navItems={navItems} />
-        <AppLogo />
-      </div>
-      <div className={styles.right}>
-        {rightSlot ?? (
-          <>
-            <Link href="/wishlist" className={styles.iconBtn} aria-label="Merkliste">
-              <Image src="/icons/icon-heart.svg" alt="" width={22} height={22} />
-            </Link>
-            <Link href="/profile" className={styles.iconBtn} aria-label="Profil">
-              <Image src="/icons/icon-user.svg" alt="" width={22} height={22} />
-            </Link>
-          </>
-        )}
-      </div>
+      {topBar ? (
+        <div className={styles.topBarSlot}>{topBar}</div>
+      ) : (
+        <>
+          <div className={styles.left}>
+            <CockpitMobileDrawer navItems={navItems} />
+            <AppLogo />
+          </div>
+          <div className={styles.right}>
+            {rightSlot ?? (
+              <>
+                <Link href="/wishlist" className={styles.iconBtn} aria-label="Merkliste">
+                  <Image src="/icons/icon-heart.svg" alt="" width={22} height={22} />
+                </Link>
+                <Link href="/profile" className={styles.iconBtn} aria-label="Profil">
+                  <Image src="/icons/icon-user.svg" alt="" width={22} height={22} />
+                </Link>
+              </>
+            )}
+          </div>
+        </>
+      )}
     </header>
   );
 }

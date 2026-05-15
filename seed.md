@@ -1,4 +1,4 @@
-﻿# seed.md — kostüm+ Beispieldaten für Supabase
+﻿# seed.md — palcoPiù Beispieldaten für Supabase
 
 > Dieses File beschreibt das echte Datenbankschema und liefert Beispieldaten
 > als direkte Erweiterung der bestehenden Seed-Skripte.
@@ -1344,4 +1344,4 @@ await supabase.from("events").upsert(
 
 ---
 
-_Projekt: kostüm+ / costumanu — Beispieldaten, keine echten Personendaten_
+_Projekt: palcoPiù / costumanu — Beispieldaten, keine echten Personendaten_

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./standort-sheet.module.css";
 import type { NetworkTheater } from "./suchmodus-cockpit";
 
@@ -13,7 +13,11 @@ interface StandortSheetProps {
 
 export function StandortSheet({ theaters }: StandortSheetProps) {
   const [open, setOpen] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const searchParams = useSearchParams();
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => {
+    const v = searchParams.get("theater");
+    return v ? new Set(v.split(",").filter(Boolean)) : new Set();
+  });
   const [allLocations, setAllLocations] = useState(false);
   const router = useRouter();
 
@@ -31,12 +35,14 @@ export function StandortSheet({ theaters }: StandortSheetProps) {
 
   function handleSave() {
     setOpen(false);
+    const params = new URLSearchParams(searchParams.toString());
     if (allLocations || selectedIds.size === 0) {
-      router.push("/suchmodus/results");
+      params.delete("theater");
     } else {
-      const ids = Array.from(selectedIds).join(",");
-      router.push(`/suchmodus/results?theater=${ids}`);
+      params.set("theater", Array.from(selectedIds).join(","));
     }
+    const qs = params.toString();
+    router.push(`/suchmodus/results${qs ? `?${qs}` : ""}`);
   }
 
   return (

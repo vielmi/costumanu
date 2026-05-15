@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCostume } from "@/lib/services/costume-service";
 import { getFieldDefinitions, getFieldRequirements } from "@/lib/services/field-service";
+import { getTheaterLocations } from "@/lib/services/theater-location-service";
 import { KostuemeNeuClient } from "@/components/kostueme/kostueme-neu-client";
 import type { Costume } from "@/lib/types/costume";
 
@@ -81,12 +82,16 @@ export default async function KostuemeNeuPage({
   ] = results;
 
   const currentUserName =
-    (profile as unknown as { display_name: string } | null)?.display_name ?? "Unbekannt";
+    (profile as unknown as { display_name: string | null } | null)?.display_name ||
+    user.user_metadata?.full_name ||
+    user.email?.split("@")[0] ||
+    "Unbekannt";
 
-  const [editCostume, fieldDefinitions, fieldRequirements] = await Promise.all([
+  const [editCostume, fieldDefinitions, fieldRequirements, theaterLocations] = await Promise.all([
     editId ? getCostume(supabase, editId) : Promise.resolve(null),
     getFieldDefinitions(supabase, theaterId),
     getFieldRequirements(supabase, theaterId),
+    getTheaterLocations(supabase, theaterId),
   ]);
 
   return (
@@ -99,6 +104,7 @@ export default async function KostuemeNeuPage({
       editCostume={(editCostume as Costume) ?? undefined}
       fieldDefinitions={fieldDefinitions}
       fieldRequirements={fieldRequirements}
+      theaterLocations={theaterLocations}
       taxonomy={{
         genders: genders.data ?? [],
         clothingTypes: clothingTypes.data ?? [],

@@ -7,6 +7,7 @@ import {
   createTheaterAction,
   updateTheaterAction,
   deleteTheaterAction,
+  updateTheaterAddressAction,
   createUserAction,
   updateUserAction,
   deleteUserAction,
@@ -15,7 +16,11 @@ import {
   deleteNetworkAction,
   addTheaterToNetworkAction,
   removeTheaterFromNetworkAction,
+  createLocationAction,
+  updateLocationAction,
+  deleteLocationAction,
 } from "@/app/einstellungen/konfiguration/actions";
+import type { TheaterLocation } from "@/lib/services/theater-location-service";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -43,6 +48,13 @@ interface Theater {
   id: string;
   name: string;
   slug: string;
+}
+
+interface AddressInfo {
+  venue?: string;
+  street?: string;
+  zip?: string;
+  city?: string;
 }
 
 export interface FieldDef {
@@ -87,6 +99,9 @@ interface Props {
   networks: NetworkWithMembers[];
   adminNetworks?: AdminNetwork[];
   subscriptionTier: string;
+  theaterName?: string;
+  theaterAddressInfo?: AddressInfo;
+  theaterLocations?: TheaterLocation[];
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -1453,7 +1468,7 @@ function UsersTab({
     setError(null);
     startTransition(async () => {
       try {
-        await createUserAction({
+        const { userId: newUserId } = await createUserAction({
           email: f.email,
           password: f.password,
           firstName: f.firstName,
@@ -1466,7 +1481,7 @@ function UsersTab({
         setMembers((prev) => [
           ...prev,
           {
-            userId: crypto.randomUUID(),
+            userId: newUserId,
             email: f.email,
             firstName: f.firstName,
             lastName: f.lastName,
@@ -3351,6 +3366,424 @@ function ErrorBox({ message }: { message: string }) {
   );
 }
 
+// ─── Theater Locations Section ────────────────────────────────────────────────
+
+function TheaterLocationsSection({
+  theaterId,
+  initialLocations,
+}: {
+  theaterId: string;
+  initialLocations: TheaterLocation[];
+}) {
+  const [locations, setLocations] = useState<TheaterLocation[]>(initialLocations);
+  const [mode, setMode] = useState<"list" | "create" | "edit">("list");
+  const [editTarget, setEditTarget] = useState<TheaterLocation | null>(null);
+  const [name, setName] = useState("");
+  const [street, setStreet] = useState("");
+  const [zip, setZip] = useState("");
+  const [city, setCity] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  function openCreate() {
+    setEditTarget(null);
+    setName("");
+    setStreet("");
+    setZip("");
+    setCity("");
+    setError(null);
+    setMode("create");
+  }
+
+  function openEdit(loc: TheaterLocation) {
+    setEditTarget(loc);
+    setName(loc.name);
+    setStreet(loc.street ?? "");
+    setZip(loc.zip ?? "");
+    setCity(loc.city ?? "");
+    setError(null);
+    setMode("edit");
+  }
+
+  function handleSave() {
+    setError(null);
+    startTransition(async () => {
+      try {
+        if (mode === "create") {
+          const newLoc = await createLocationAction({ theaterId, name, street, zip, city });
+          if (newLoc) setLocations((prev) => [...prev, newLoc as TheaterLocation]);
+        } else if (mode === "edit" && editTarget) {
+          await updateLocationAction({
+            locationId: editTarget.id,
+            theaterId,
+            name,
+            street,
+            zip,
+            city,
+          });
+          setLocations((prev) =>
+            prev.map((l) =>
+              l.id === editTarget.id
+                ? {
+                    ...l,
+                    name: name.trim(),
+                    street: street.trim() || null,
+                    zip: zip.trim() || null,
+                    city: city.trim() || null,
+                  }
+                : l
+            )
+          );
+        }
+        setMode("list");
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Fehler");
+      }
+    });
+  }
+
+  function handleDelete(loc: TheaterLocation) {
+    startTransition(async () => {
+      try {
+        await deleteLocationAction(loc.id, theaterId);
+        setLocations((prev) => prev.filter((l) => l.id !== loc.id));
+        if (mode === "edit" && editTarget?.id === loc.id) setMode("list");
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Fehler beim Löschen");
+      }
+    });
+  }
+
+  const formEl = (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 480 }}>
+      {error && <ErrorBox message={error} />}
+      <div>
+        <label style={labelStyle}>Name / Bezeichnung *</label>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          style={{ ...inputStyle, width: "100%" }}
+          placeholder="z.B. Hauptfundus"
+          autoFocus
+        />
+      </div>
+      <div>
+        <label style={labelStyle}>Strasse</label>
+        <input
+          type="text"
+          value={street}
+          onChange={(e) => setStreet(e.target.value)}
+          style={{ ...inputStyle, width: "100%" }}
+          placeholder="z.B. Marzilistrasse 47"
+        />
+      </div>
+      <div style={{ display: "flex", gap: 10 }}>
+        <div style={{ width: 100 }}>
+          <label style={labelStyle}>PLZ</label>
+          <input
+            type="text"
+            value={zip}
+            onChange={(e) => setZip(e.target.value)}
+            style={{ ...inputStyle, width: "100%" }}
+            placeholder="3005"
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={labelStyle}>Ort</label>
+          <input
+            type="text"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            style={{ ...inputStyle, width: "100%" }}
+            placeholder="z.B. Bern"
+          />
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={isPending || !name.trim()}
+          style={{ ...btnPrimary, opacity: isPending || !name.trim() ? 0.5 : 1 }}
+        >
+          {isPending ? "Speichert…" : "Speichern"}
+        </button>
+        <button type="button" onClick={() => setMode("list")} style={btnSecondary}>
+          Abbrechen
+        </button>
+        {mode === "edit" && editTarget && (
+          <button
+            type="button"
+            onClick={() => handleDelete(editTarget)}
+            disabled={isPending}
+            style={{
+              ...btnSecondary,
+              marginLeft: "auto",
+              color: "#c0392b",
+              borderColor: "#c0392b",
+            }}
+          >
+            Löschen
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ marginTop: 32 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 16,
+        }}
+      >
+        <h3
+          style={{
+            fontFamily: "var(--font-family-base)",
+            fontSize: "var(--font-size-300)",
+            fontWeight: "var(--font-weight-700)",
+            color: "var(--neutral-black)",
+            margin: 0,
+          }}
+        >
+          Standorte / Lagerorte
+        </h3>
+        {mode === "list" && (
+          <button type="button" onClick={openCreate} style={btnPrimary}>
+            + Standort hinzufügen
+          </button>
+        )}
+      </div>
+
+      {mode !== "list" ? (
+        formEl
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 480 }}>
+          {locations.length === 0 && (
+            <p
+              style={{
+                fontFamily: "var(--font-family-base)",
+                fontSize: "var(--font-size-200)",
+                color: "var(--neutral-grey-400)",
+              }}
+            >
+              Noch keine Standorte erfasst.
+            </p>
+          )}
+          {locations.map((loc) => (
+            <div
+              key={loc.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "12px 16px",
+                border: "1px solid var(--neutral-grey-200)",
+                borderRadius: 10,
+                background: "var(--neutral-white)",
+              }}
+            >
+              <div>
+                <p
+                  style={{
+                    fontFamily: "var(--font-family-base)",
+                    fontSize: "var(--font-size-200)",
+                    fontWeight: "var(--font-weight-700)",
+                    color: "var(--neutral-black)",
+                    margin: 0,
+                  }}
+                >
+                  {loc.name}
+                </p>
+                {(loc.street || loc.city) && (
+                  <p
+                    style={{
+                      fontFamily: "var(--font-family-base)",
+                      fontSize: "var(--font-size-100)",
+                      color: "var(--neutral-grey-500)",
+                      margin: "2px 0 0",
+                    }}
+                  >
+                    {[loc.street, loc.zip && loc.city ? `${loc.zip} ${loc.city}` : loc.city]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => openEdit(loc)}
+                style={{ ...btnSecondary, flexShrink: 0 }}
+              >
+                Bearbeiten
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Theater Address Tab (theater owner/admin) ────────────────────────────────
+
+function TheaterAddressTab({
+  theaterId,
+  theaterName,
+  initialAddress,
+  initialLocations,
+}: {
+  theaterId: string;
+  theaterName: string;
+  initialAddress: AddressInfo;
+  initialLocations: TheaterLocation[];
+}) {
+  const [venue, setVenue] = useState(initialAddress.venue ?? "");
+  const [street, setStreet] = useState(initialAddress.street ?? "");
+  const [zip, setZip] = useState(initialAddress.zip ?? "");
+  const [city, setCity] = useState(initialAddress.city ?? "");
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  function handleSave() {
+    setError(null);
+    setSuccess(false);
+    startTransition(async () => {
+      try {
+        await updateTheaterAddressAction({ theaterId, venue, street, zip, city });
+        setSuccess(true);
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Fehler");
+      }
+    });
+  }
+
+  return (
+    <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "24px 48px 40px" }}>
+        <h2
+          style={{
+            fontFamily: "var(--font-family-base)",
+            fontSize: "var(--font-size-600)",
+            fontWeight: "var(--font-weight-700)",
+            color: "var(--neutral-black)",
+            margin: "0 0 4px",
+          }}
+        >
+          {theaterName}
+        </h2>
+        <p
+          style={{
+            fontFamily: "var(--font-family-base)",
+            fontSize: "var(--font-size-200)",
+            color: "var(--neutral-grey-500)",
+            margin: "0 0 32px",
+          }}
+        >
+          Adresse des Theaters
+        </p>
+        {error && <ErrorBox message={error} />}
+        {success && (
+          <div
+            style={{
+              background: "rgba(0,150,80,0.08)",
+              border: "1px solid rgba(0,150,80,0.3)",
+              borderRadius: 10,
+              padding: "12px 16px",
+              marginBottom: 24,
+              fontFamily: "var(--font-family-base)",
+              fontSize: "var(--font-size-200)",
+              color: "var(--accent-01)",
+            }}
+          >
+            Adresse gespeichert.
+          </div>
+        )}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 540 }}>
+          <div>
+            <label style={labelStyle}>Gebäude / Venue</label>
+            <input
+              type="text"
+              value={venue}
+              onChange={(e) => {
+                setVenue(e.target.value);
+                setSuccess(false);
+              }}
+              style={{ ...inputStyle, width: "100%" }}
+              placeholder="z.B. Südpol"
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>Strasse</label>
+            <input
+              type="text"
+              value={street}
+              onChange={(e) => {
+                setStreet(e.target.value);
+                setSuccess(false);
+              }}
+              style={{ ...inputStyle, width: "100%" }}
+              placeholder="z.B. Arsenalstrasse 28"
+            />
+          </div>
+          <div style={{ display: "flex", gap: 12 }}>
+            <div style={{ width: 100 }}>
+              <label style={labelStyle}>PLZ</label>
+              <input
+                type="text"
+                value={zip}
+                onChange={(e) => {
+                  setZip(e.target.value);
+                  setSuccess(false);
+                }}
+                style={{ ...inputStyle, width: "100%" }}
+                placeholder="6010"
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={labelStyle}>Ort</label>
+              <input
+                type="text"
+                value={city}
+                onChange={(e) => {
+                  setCity(e.target.value);
+                  setSuccess(false);
+                }}
+                style={{ ...inputStyle, width: "100%" }}
+                placeholder="z.B. Kriens"
+              />
+            </div>
+          </div>
+          <div style={{ marginTop: 8 }}>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={isPending}
+              style={{ ...btnPrimary, opacity: isPending ? 0.5 : 1 }}
+            >
+              {isPending ? "Speichert…" : "Speichern"}
+            </button>
+          </div>
+        </div>
+
+        <div
+          style={{
+            borderTop: "1px solid var(--neutral-grey-200)",
+            marginTop: 40,
+            paddingTop: 8,
+          }}
+        />
+        <TheaterLocationsSection theaterId={theaterId} initialLocations={initialLocations} />
+      </div>
+    </div>
+  );
+}
+
 // ─── Main shell ───────────────────────────────────────────────────────────────
 
 export function KonfigurationClient({
@@ -3364,6 +3797,9 @@ export function KonfigurationClient({
   networks,
   adminNetworks = [],
   subscriptionTier,
+  theaterName = "",
+  theaterAddressInfo = {},
+  theaterLocations = [],
 }: Props) {
   type TabKey =
     | "theater"
@@ -3398,6 +3834,7 @@ export function KonfigurationClient({
         { key: "merkmale" as TabKey, label: "Kostüm-Merkmale" },
       ]
     : [
+        { key: "theater" as TabKey, label: "Theater" },
         { key: "benutzer" as TabKey, label: "Benutzer" },
         ...(isNetworkAdmin ? [{ key: "netzwerk-admin" as TabKey, label: "Netzwerk" }] : []),
         { key: "eigene-felder" as TabKey, label: "Eigene Felder" },
@@ -3476,6 +3913,14 @@ export function KonfigurationClient({
           <div style={{ flex: 1, overflow: "hidden", display: "flex" }}>
             {activeTab === "theater" && isPlatformAdmin && (
               <TheaterTab initialTheaters={allTheaters} />
+            )}
+            {activeTab === "theater" && !isPlatformAdmin && (
+              <TheaterAddressTab
+                theaterId={theaterId}
+                theaterName={theaterName}
+                initialAddress={theaterAddressInfo}
+                initialLocations={theaterLocations}
+              />
             )}
             {activeTab === "netzwerke" && isPlatformAdmin && (
               <NetworksTab networks={networks} allTheaters={allTheaters} />

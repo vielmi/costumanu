@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import styles from "./suchmodus-filter.module.css";
 import { getGenderIcon, getMusterIcon } from "@/lib/constants/icons";
@@ -50,26 +50,47 @@ export function SuchmodusFilterClient({
   musterTerms,
 }: SuchmodusFilterProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  // Multi-select state
-  const [selectedGenders, setSelectedGenders] = useState<Set<string>>(new Set());
-  const [selectedClothingTypes, setSelectedClothingTypes] = useState<Set<string>>(new Set());
-  const [selectedSegments, setSelectedSegments] = useState<Set<string>>(new Set());
-  const [selectedMaterials, setSelectedMaterials] = useState<Set<string>>(new Set());
-  const [selectedFarben, setSelectedFarben] = useState<Set<string>>(new Set());
-  const [selectedMuster, setSelectedMuster] = useState<Set<string>>(new Set());
-  const [selectedEpochen, setSelectedEpochen] = useState<Set<string>>(new Set());
-  const [selectedIntSizes, setSelectedIntSizes] = useState<Set<string>>(new Set());
-  const [selectedEuSizes, setSelectedEuSizes] = useState<Set<string>>(new Set());
+  function splitParam(key: string): Set<string> {
+    const v = searchParams.get(key);
+    if (!v) return new Set();
+    return new Set(v.split(",").filter(Boolean));
+  }
+
+  // Multi-select state — initialisiert aus URL-Params (damit Auswahl beim erneuten Öffnen erhalten bleibt)
+  const [selectedGenders, setSelectedGenders] = useState<Set<string>>(() => {
+    const single = searchParams.get("gender");
+    const multi = searchParams.get("genders");
+    if (multi) return new Set(multi.split(",").filter(Boolean));
+    if (single) return new Set([single]);
+    return new Set();
+  });
+  const [selectedClothingTypes, setSelectedClothingTypes] = useState<Set<string>>(() =>
+    splitParam("clothing_type")
+  );
+  const [selectedSegments, setSelectedSegments] = useState<Set<string>>(() =>
+    splitParam("segment")
+  );
+  const [selectedMaterials, setSelectedMaterials] = useState<Set<string>>(() =>
+    splitParam("material")
+  );
+  const [selectedFarben, setSelectedFarben] = useState<Set<string>>(() => splitParam("farbe"));
+  const [selectedMuster, setSelectedMuster] = useState<Set<string>>(() => splitParam("muster"));
+  const [selectedEpochen, setSelectedEpochen] = useState<Set<string>>(() => splitParam("epoche"));
+  const [selectedIntSizes, setSelectedIntSizes] = useState<Set<string>>(() =>
+    splitParam("size_int")
+  );
+  const [selectedEuSizes, setSelectedEuSizes] = useState<Set<string>>(() => splitParam("size_eu"));
 
   // Free-text
   const [clothingSearch, setClothingSearch] = useState("");
-  const [titleSearch, setTitleSearch] = useState("");
-  const [actorSearch, setActorSearch] = useState("");
-  const [roleSearch, setRoleSearch] = useState("");
-  const [directorSearch, setDirectorSearch] = useState("");
-  const [designerSearch, setDesignerSearch] = useState("");
-  const [assistantSearch, setAssistantSearch] = useState("");
+  const [titleSearch, setTitleSearch] = useState(() => searchParams.get("title") ?? "");
+  const [actorSearch, setActorSearch] = useState(() => searchParams.get("actor") ?? "");
+  const [roleSearch, setRoleSearch] = useState(() => searchParams.get("role") ?? "");
+  const [directorSearch, setDirectorSearch] = useState(() => searchParams.get("director") ?? "");
+  const [designerSearch, setDesignerSearch] = useState(() => searchParams.get("designer") ?? "");
+  const [assistantSearch, setAssistantSearch] = useState(() => searchParams.get("assistant") ?? "");
   const [materialSearch, setMaterialSearch] = useState("");
 
   function reset() {
@@ -94,6 +115,9 @@ export function SuchmodusFilterClient({
 
   function apply() {
     const params = new URLSearchParams();
+    // Standort-Param aus bisheriger URL durchreichen
+    const theater = searchParams.get("theater");
+    if (theater) params.set("theater", theater);
     if (selectedGenders.size === 1) params.set("gender", [...selectedGenders][0]);
     if (selectedGenders.size > 1) params.set("genders", [...selectedGenders].join(","));
     if (selectedClothingTypes.size > 0)
@@ -133,6 +157,14 @@ export function SuchmodusFilterClient({
         <h1 className={styles.headerTitle}>Kostümfilter</h1>
         <button type="button" className={styles.applyBtn} onClick={apply}>
           Anwenden
+        </button>
+        <button
+          type="button"
+          className={styles.backBtn}
+          onClick={() => router.back()}
+          aria-label="Zurück"
+        >
+          <Image src="/icons/icon-close-medium.svg" alt="" width={24} height={24} />
         </button>
       </header>
 
