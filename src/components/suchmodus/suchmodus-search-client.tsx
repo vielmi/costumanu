@@ -45,19 +45,28 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
   const [isVoiceQuery, setIsVoiceQuery] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
+  const [searchError, setSearchError] = useState<string | null>(null);
+
   const parseAndSearch = useCallback(
     async (text: string) => {
       if (!text.trim()) return;
       setVoiceState("processing");
+      setSearchError(null);
       try {
         const res = await fetch("/api/parse-search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text }),
         });
-        const { params } = await res.json();
-        router.push(`/suchmodus/results${params ? `?${params}` : ""}`);
+        const json = await res.json();
+        if (!res.ok) {
+          setSearchError("Sprachsuche nicht verfügbar. Bitte ANTHROPIC_API_KEY konfigurieren.");
+          setVoiceState("idle");
+          return;
+        }
+        router.push(`/suchmodus/results${json.params ? `?${json.params}` : ""}`);
       } catch {
+        setSearchError("Verbindungsfehler — bitte nochmals versuchen.");
         setVoiceState("idle");
       }
     },
@@ -239,6 +248,7 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
       {/* ─── Voice: Senden-Button ─── */}
       {showSendBtn && (
         <div className={styles.voiceSendBar}>
+          {searchError && <p className={styles.voiceSendError}>{searchError}</p>}
           <p className={styles.voiceSendHint}>Spracheingabe erkannt — prüfen und suchen:</p>
           <button
             type="button"

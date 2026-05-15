@@ -87,6 +87,13 @@
   border-bottom: 1px solid var(--neutral-grey-100);
 }
 
+.voiceSendError {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-200);
+  color: #ef4444;
+  margin: 0;
+}
+
 .voiceSendHint {
   font-family: var(--font-family-base);
   font-size: var(--font-size-200);
