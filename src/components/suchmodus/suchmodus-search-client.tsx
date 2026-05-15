@@ -73,7 +73,7 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
       return;
     }
     const recognition = new SR();
-    recognition.lang = "de-CH";
+    recognition.lang = "de-DE";
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
     recognitionRef.current = recognition;
