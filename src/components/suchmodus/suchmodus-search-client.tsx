@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
@@ -36,88 +35,8 @@ function stemGerman(q: string): string {
 
 export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
   const debouncedQuery = useDebounce(query.trim(), 300);
-
-  // ─── Voice state ───────────────────────────────────────────────────────────
-  const [voiceState, setVoiceState] = useState<"idle" | "listening" | "processing">("idle");
-  const [isVoiceQuery, setIsVoiceQuery] = useState(false);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const lastTranscriptRef = useRef("");
-  const [searchError, setSearchError] = useState<string | null>(null);
-
-  const parseAndSearch = useCallback(
-    async (text: string) => {
-      if (!text.trim()) return;
-      setVoiceState("processing");
-      setSearchError(null);
-      try {
-        const res = await fetch("/api/parse-search", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text }),
-        });
-        const json = await res.json();
-        if (!res.ok) {
-          setSearchError("Sprachsuche nicht verfügbar. Bitte ANTHROPIC_API_KEY konfigurieren.");
-          setVoiceState("idle");
-          return;
-        }
-        router.push(`/suchmodus/results${json.params ? `?${json.params}` : ""}`);
-      } catch {
-        setSearchError("Verbindungsfehler — bitte nochmals versuchen.");
-        setVoiceState("idle");
-      }
-    },
-    [router]
-  );
-
-  function startListening() {
-    const SR =
-      (window as unknown as { SpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition ??
-      (window as unknown as { webkitSpeechRecognition?: typeof SpeechRecognition })
-        .webkitSpeechRecognition;
-    if (!SR) {
-      alert("Spracherkennung wird von diesem Browser nicht unterstützt.");
-      return;
-    }
-    const recognition = new SR();
-    recognition.lang = "de-DE";
-    recognition.interimResults = true;
-    recognition.maxAlternatives = 1;
-    recognitionRef.current = recognition;
-
-    lastTranscriptRef.current = "";
-    recognition.onstart = () => {
-      setVoiceState("listening");
-      setIsVoiceQuery(true);
-      setSearchError(null);
-      setQuery("");
-    };
-    recognition.onresult = (e: SpeechRecognitionEvent) => {
-      const transcript = Array.from(e.results)
-        .map((r) => r[0].transcript)
-        .join("");
-      lastTranscriptRef.current = transcript;
-      setQuery(transcript);
-    };
-    recognition.onend = () => {
-      setVoiceState("idle");
-      if (!lastTranscriptRef.current.trim()) {
-        setIsVoiceQuery(false);
-      }
-    };
-    recognition.onerror = () => {
-      setVoiceState("idle");
-      setIsVoiceQuery(false);
-    };
-    recognition.start();
-  }
-
-  function stopListening() {
-    recognitionRef.current?.stop();
-  }
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -125,7 +44,6 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
 
   const supabase = createClient();
 
-  // Normal keyword suggestions (only shown for non-voice queries)
   const { data: suggestions, isLoading } = useQuery({
     queryKey: ["suchmodus-search", debouncedQuery],
     queryFn: async (): Promise<Suggestion[]> => {
@@ -182,31 +100,22 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
         })
         .slice(0, 8);
     },
-    enabled: debouncedQuery.length > 0 && !isVoiceQuery,
+    enabled: debouncedQuery.length > 0,
     staleTime: 30 * 1000,
   });
 
   function handleClear() {
     setQuery("");
-    setIsVoiceQuery(false);
     inputRef.current?.focus();
   }
 
-  function handleChange(v: string) {
-    setQuery(v);
-    setIsVoiceQuery(false);
-  }
-
-  const showSuggestions = debouncedQuery.length > 0 && !isVoiceQuery;
-  const showSendBtn = query.trim().length > 0 && isVoiceQuery;
+  const showSuggestions = debouncedQuery.length > 0;
 
   return (
     <div className={styles.page}>
       {/* ─── Header ─── */}
       <div className={styles.header}>
-        <div
-          className={`${styles.inputWrap} ${voiceState === "listening" ? styles.inputWrapListening : ""}`}
-        >
+        <div className={styles.inputWrap}>
           <Image
             src="/icons/icon-search.svg"
             alt=""
@@ -217,16 +126,16 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
           <input
             ref={inputRef}
             type="search"
-            placeholder={voiceState === "listening" ? "Spreche jetzt…" : "Suche"}
+            placeholder="Suche"
             value={query}
-            onChange={(e) => handleChange(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
             className={styles.input}
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
             spellCheck={false}
           />
-          {query.length > 0 && voiceState !== "listening" && (
+          {query.length > 0 && (
             <button
               type="button"
               onClick={handleClear}
@@ -236,15 +145,6 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
               <Image src="/icons/icon-close-small.svg" alt="" width={9} height={9} />
             </button>
           )}
-          <button
-            type="button"
-            aria-label={voiceState === "listening" ? "Aufnahme stoppen" : "Sprachsuche starten"}
-            className={`${styles.micBtn} ${voiceState === "listening" ? styles.micBtnActive : ""}`}
-            onClick={voiceState === "listening" ? stopListening : startListening}
-            disabled={voiceState === "processing"}
-          >
-            <Image src="/icons/icon-microphone.svg" alt="" width={20} height={20} />
-          </button>
         </div>
 
         <Link href="/suchmodus" className={styles.cancelLink}>
@@ -252,34 +152,7 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
         </Link>
       </div>
 
-      {/* ─── Voice: Senden-Button ─── */}
-      {showSendBtn && (
-        <div className={styles.voiceSendBar}>
-          {searchError && <p className={styles.voiceSendError}>{searchError}</p>}
-          <p className={styles.voiceSendHint}>Spracheingabe erkannt — prüfen und suchen:</p>
-          <button
-            type="button"
-            className={styles.voiceSendBtn}
-            onClick={() => parseAndSearch(query)}
-            disabled={voiceState === "processing"}
-          >
-            {voiceState === "processing" ? (
-              <span className={styles.voiceSendSpinner} />
-            ) : (
-              <Image
-                src="/icons/icon-search.svg"
-                alt=""
-                width={18}
-                height={18}
-                style={{ filter: "invert(1)" }}
-              />
-            )}
-            {voiceState === "processing" ? "Wird gesucht…" : "Suchen"}
-          </button>
-        </div>
-      )}
-
-      {/* ─── Suggestions (nur bei Tastatursuche) ─── */}
+      {/* ─── Suggestions ─── */}
       {showSuggestions && (
         <div className={styles.suggestions}>
           <p className={styles.suggestionsLabel}>Suchvorschläge</p>
@@ -332,12 +205,9 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
       )}
 
       {/* ─── Empty state hint ─── */}
-      {!showSuggestions && !showSendBtn && (
+      {!showSuggestions && (
         <div className={styles.hint}>
-          <p className={styles.hintText}>
-            Kostüm-, Produktions- oder Rollentitel eingeben{"\n"}oder Mikrofon für Sprachsuche
-            nutzen
-          </p>
+          <p className={styles.hintText}>Kostüm-, Produktions- oder Rollentitel eingeben</p>
         </div>
       )}
     </div>
