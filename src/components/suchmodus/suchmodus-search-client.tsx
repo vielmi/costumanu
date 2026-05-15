@@ -40,28 +40,29 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
   const [query, setQuery] = useState(initialQuery);
   const debouncedQuery = useDebounce(query.trim(), 300);
 
-  // ─── Voice input ───────────────────────────────────────────────────────────
+  // ─── Voice state ───────────────────────────────────────────────────────────
   const [voiceState, setVoiceState] = useState<"idle" | "listening" | "processing">("idle");
-  const [voiceTranscript, setVoiceTranscript] = useState<string | null>(null);
+  const [isVoiceQuery, setIsVoiceQuery] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
-  const parseAndRedirect = useCallback(async (text: string) => {
-    setVoiceState("processing");
-    setVoiceTranscript(text);
-    try {
-      const res = await fetch("/api/parse-search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-      const { params } = await res.json();
-      router.push(`/suchmodus/results${params ? `?${params}` : ""}`);
-    } catch {
-      setVoiceState("idle");
-      setVoiceTranscript(null);
-      setQuery(text);
-    }
-  }, [router]);
+  const parseAndSearch = useCallback(
+    async (text: string) => {
+      if (!text.trim()) return;
+      setVoiceState("processing");
+      try {
+        const res = await fetch("/api/parse-search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        const { params } = await res.json();
+        router.push(`/suchmodus/results${params ? `?${params}` : ""}`);
+      } catch {
+        setVoiceState("idle");
+      }
+    },
+    [router]
+  );
 
   function startListening() {
     const SR =
@@ -78,26 +79,22 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
     recognition.maxAlternatives = 1;
     recognitionRef.current = recognition;
 
-    let lastTranscript = "";
-    recognition.onstart = () => setVoiceState("listening");
+    recognition.onstart = () => {
+      setVoiceState("listening");
+      setIsVoiceQuery(true);
+      setQuery("");
+    };
     recognition.onresult = (e: SpeechRecognitionEvent) => {
       const transcript = Array.from(e.results)
         .map((r) => r[0].transcript)
         .join("");
-      lastTranscript = transcript;
-      setVoiceTranscript(transcript);
+      setQuery(transcript);
     };
     recognition.onend = () => {
-      if (lastTranscript.trim()) {
-        parseAndRedirect(lastTranscript.trim());
-      } else {
-        setVoiceState("idle");
-        setVoiceTranscript(null);
-      }
+      setVoiceState("idle");
     };
     recognition.onerror = () => {
       setVoiceState("idle");
-      setVoiceTranscript(null);
     };
     recognition.start();
   }
@@ -105,7 +102,6 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
   function stopListening() {
     recognitionRef.current?.stop();
   }
-  // ──────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -113,6 +109,7 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
 
   const supabase = createClient();
 
+  // Normal keyword suggestions (only shown for non-voice queries)
   const { data: suggestions, isLoading } = useQuery({
     queryKey: ["suchmodus-search", debouncedQuery],
     queryFn: async (): Promise<Suggestion[]> => {
@@ -121,8 +118,6 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
       const FIELDS =
         "id, name, costume_provenance(production_title, year), costume_media(storage_path, sort_order)";
 
-      // 1) FTS on name + description
-      // 2) Taxonomy term match (colors, materials, epochs, etc.)
       const stemmed = stemGerman(debouncedQuery);
       const ilikeFilter =
         stemmed !== debouncedQuery.toLowerCase()
@@ -142,7 +137,6 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
 
       const ftsData = (ftsResult.data ?? []) as Suggestion[];
 
-      // Fetch costumes matching the taxonomy terms
       let taxonomyData: Suggestion[] = [];
       const termIds = (termResult.data ?? []).map((t) => t.id);
       if (termIds.length > 0) {
@@ -163,7 +157,6 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
         }
       }
 
-      // Merge and deduplicate (FTS results first)
       const seen = new Set<string>();
       return [...ftsData, ...taxonomyData]
         .filter((c) => {
@@ -173,22 +166,31 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
         })
         .slice(0, 8);
     },
-    enabled: debouncedQuery.length > 0,
+    enabled: debouncedQuery.length > 0 && !isVoiceQuery,
     staleTime: 30 * 1000,
   });
 
   function handleClear() {
     setQuery("");
+    setIsVoiceQuery(false);
     inputRef.current?.focus();
   }
 
-  const showSuggestions = debouncedQuery.length > 0;
+  function handleChange(v: string) {
+    setQuery(v);
+    setIsVoiceQuery(false);
+  }
+
+  const showSuggestions = debouncedQuery.length > 0 && !isVoiceQuery;
+  const showSendBtn = query.trim().length > 0 && isVoiceQuery;
 
   return (
     <div className={styles.page}>
       {/* ─── Header ─── */}
       <div className={styles.header}>
-        <div className={styles.inputWrap}>
+        <div
+          className={`${styles.inputWrap} ${voiceState === "listening" ? styles.inputWrapListening : ""}`}
+        >
           <Image
             src="/icons/icon-search.svg"
             alt=""
@@ -199,16 +201,16 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
           <input
             ref={inputRef}
             type="search"
-            placeholder="Suche"
+            placeholder={voiceState === "listening" ? "Spreche jetzt…" : "Suche"}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => handleChange(e.target.value)}
             className={styles.input}
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
             spellCheck={false}
           />
-          {query.length > 0 && (
+          {query.length > 0 && voiceState !== "listening" && (
             <button
               type="button"
               onClick={handleClear}
@@ -220,7 +222,7 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
           )}
           <button
             type="button"
-            aria-label="Sprachsuche"
+            aria-label={voiceState === "listening" ? "Aufnahme stoppen" : "Sprachsuche starten"}
             className={`${styles.micBtn} ${voiceState === "listening" ? styles.micBtnActive : ""}`}
             onClick={voiceState === "listening" ? stopListening : startListening}
             disabled={voiceState === "processing"}
@@ -234,29 +236,33 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
         </Link>
       </div>
 
-      {/* ─── Voice overlay ─── */}
-      {voiceState !== "idle" && (
-        <div className={styles.voiceOverlay}>
-          {voiceState === "listening" ? (
-            <>
-              <div className={styles.voicePulse} />
-              <p className={styles.voiceLabel}>Spreche jetzt…</p>
-              {voiceTranscript && <p className={styles.voiceTranscript}>{voiceTranscript}</p>}
-              <button type="button" className={styles.voiceStopBtn} onClick={stopListening}>
-                Fertig
-              </button>
-            </>
-          ) : (
-            <>
-              <div className={styles.voiceSpinner} />
-              <p className={styles.voiceLabel}>Suche wird verarbeitet…</p>
-              {voiceTranscript && <p className={styles.voiceTranscript}>"{voiceTranscript}"</p>}
-            </>
-          )}
+      {/* ─── Voice: Senden-Button ─── */}
+      {showSendBtn && (
+        <div className={styles.voiceSendBar}>
+          <p className={styles.voiceSendHint}>Spracheingabe erkannt — prüfen und suchen:</p>
+          <button
+            type="button"
+            className={styles.voiceSendBtn}
+            onClick={() => parseAndSearch(query)}
+            disabled={voiceState === "processing"}
+          >
+            {voiceState === "processing" ? (
+              <span className={styles.voiceSendSpinner} />
+            ) : (
+              <Image
+                src="/icons/icon-search.svg"
+                alt=""
+                width={18}
+                height={18}
+                style={{ filter: "invert(1)" }}
+              />
+            )}
+            {voiceState === "processing" ? "Wird gesucht…" : "Suchen"}
+          </button>
         </div>
       )}
 
-      {/* ─── Suggestions ─── */}
+      {/* ─── Suggestions (nur bei Tastatursuche) ─── */}
       {showSuggestions && (
         <div className={styles.suggestions}>
           <p className={styles.suggestionsLabel}>Suchvorschläge</p>
@@ -309,9 +315,12 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
       )}
 
       {/* ─── Empty state hint ─── */}
-      {!showSuggestions && (
+      {!showSuggestions && !showSendBtn && (
         <div className={styles.hint}>
-          <p className={styles.hintText}>Kostüm-, Produktions- oder Rollentitel eingeben</p>
+          <p className={styles.hintText}>
+            Kostüm-, Produktions- oder Rollentitel eingeben{"\n"}oder Mikrofon für Sprachsuche
+            nutzen
+          </p>
         </div>
       )}
     </div>
