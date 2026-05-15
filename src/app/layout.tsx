@@ -17,9 +17,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: `${APP_NAME} | Kostüm-Finder für Film & Theater`,
-  description:
-    "Der Kostüm-Finder für die Film- & Theaterbranche. Kostüme suchen, leihen und verwalten.",
+  title: `${APP_NAME} | Die digitale Plattform für Theaternetzwerke`,
+  description: "Die digitale Plattform für Theaternetzwerke. Kostüme suchen, leihen und verwalten.",
+  openGraph: {
+    title: `${APP_NAME} | Die digitale Plattform für Theaternetzwerke`,
+    description:
+      "Die digitale Plattform für Theaternetzwerke. Kostüme suchen, leihen und verwalten.",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630 }],
+  },
 };
 
 export default function RootLayout({
