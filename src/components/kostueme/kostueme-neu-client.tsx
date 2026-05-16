@@ -1613,7 +1613,12 @@ export function KostuemeNeuClient({
                           <button
                             key={o.id}
                             type="button"
-                            onClick={() => toggleArr("dryingIds", o.id)}
+                            onClick={() =>
+                              setForm((f) => ({
+                                ...f,
+                                dryingIds: isActive ? [] : [o.id],
+                              }))
+                            }
                             className={`${styles.checkboxBtn} ${isActive ? styles.checkboxBtnActive : ""}`}
                           >
                             <div className={styles.checkbox}>
@@ -1644,7 +1649,12 @@ export function KostuemeNeuClient({
                           <button
                             key={o.id}
                             type="button"
-                            onClick={() => toggleArr("ironingIds", o.id)}
+                            onClick={() =>
+                              setForm((f) => ({
+                                ...f,
+                                ironingIds: isActive ? [] : [o.id],
+                              }))
+                            }
                             className={`${styles.checkboxBtn} ${isActive ? styles.checkboxBtnActive : ""}`}
                           >
                             <div className={styles.checkbox}>
