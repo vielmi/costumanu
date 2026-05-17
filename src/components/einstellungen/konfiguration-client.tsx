@@ -8,6 +8,7 @@ import {
   updateTheaterAction,
   deleteTheaterAction,
   updateTheaterAddressAction,
+  updateTheaterContactAction,
   createUserAction,
   updateUserAction,
   deleteUserAction,
@@ -48,6 +49,8 @@ interface Theater {
   id: string;
   name: string;
   slug: string;
+  contact_name?: string | null;
+  contact_email?: string | null;
 }
 
 interface AddressInfo {
@@ -101,6 +104,8 @@ interface Props {
   subscriptionTier: string;
   theaterName?: string;
   theaterAddressInfo?: AddressInfo;
+  theaterContactName?: string;
+  theaterContactEmail?: string;
   theaterLocations?: TheaterLocation[];
 }
 
@@ -219,6 +224,8 @@ function TaxonomyTab({
   const [error, setError] = useState<string | null>(null);
   const dragId = useRef<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [confirmDeleteLabel, setConfirmDeleteLabel] = useState("");
 
   const effectiveTheaterId = isPlatformAdmin ? selectedTheaterId : theaterId;
 
@@ -276,7 +283,11 @@ function TaxonomyTab({
     const { error: err } = await supabase.from("taxonomy_terms").delete().eq("id", id);
     setSaving(false);
     if (err) {
-      setError(err.message);
+      if (err.code === "23503") {
+        setError("Dieser Eintrag kann nicht gelöscht werden, da er noch von anderen Einträgen verwendet wird.");
+      } else {
+        setError("Löschen fehlgeschlagen. Bitte versuche es erneut.");
+      }
       return;
     }
     setTerms((prev) => prev.filter((t) => t.id !== id));
@@ -664,7 +675,7 @@ function TaxonomyTab({
                   )}
 
                   {canEdit && (
-                    <div style={{ display: "flex", gap: 0, alignItems: "center", flexShrink: 0 }}>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
                       {isEditing ? (
                         <>
                           <button
@@ -689,7 +700,8 @@ function TaxonomyTab({
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              deleteTerm(term.id);
+                              setConfirmDeleteId(term.id);
+                              setConfirmDeleteLabel(term.label_de);
                             }}
                             disabled={saving}
                             style={{
@@ -822,6 +834,106 @@ function TaxonomyTab({
           )}
         </div>
       </div>
+
+      {/* ── Delete confirmation sheet ── */}
+      {confirmDeleteId && (
+        <>
+          <div
+            onClick={() => setConfirmDeleteId(null)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 2000,
+              background: "var(--overlay-medium)",
+            }}
+          />
+          <div
+            style={{
+              position: "fixed",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: 2001,
+              background: "var(--neutral-white)",
+              borderRadius: "24px 24px 0 0",
+              padding: "28px 20px 40px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+            }}
+          >
+            <div
+              style={{
+                width: 36,
+                height: 4,
+                borderRadius: 2,
+                background: "var(--neutral-grey-200)",
+                alignSelf: "center",
+                marginBottom: 8,
+              }}
+            />
+            <p
+              style={{
+                fontFamily: "var(--font-family-base)",
+                fontSize: "var(--font-size-325)",
+                fontWeight: "var(--font-weight-700)",
+                color: "var(--neutral-grey-600)",
+                marginBottom: 4,
+              }}
+            >
+              Eintrag löschen?
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--font-family-base)",
+                fontSize: "var(--font-size-200)",
+                color: "var(--neutral-grey-400)",
+                marginBottom: 8,
+              }}
+            >
+              «{confirmDeleteLabel}» wird unwiderruflich gelöscht.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                const id = confirmDeleteId;
+                setConfirmDeleteId(null);
+                deleteTerm(id);
+              }}
+              style={{
+                height: "var(--button-height-md)",
+                borderRadius: "var(--radius-md)",
+                background: "none",
+                border: "1.5px solid var(--primary-900)",
+                color: "var(--primary-900)",
+                fontFamily: "var(--font-family-base)",
+                fontSize: "var(--font-size-250)",
+                fontWeight: "var(--font-weight-500)",
+                cursor: "pointer",
+              }}
+            >
+              Endgültig löschen
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmDeleteId(null)}
+              style={{
+                height: "var(--button-height-md)",
+                borderRadius: "var(--radius-md)",
+                background: "var(--secondary-900)",
+                border: "none",
+                color: "var(--neutral-white)",
+                fontFamily: "var(--font-family-base)",
+                fontSize: "var(--font-size-250)",
+                fontWeight: "var(--font-weight-500)",
+                cursor: "pointer",
+              }}
+            >
+              Abbrechen
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -835,12 +947,16 @@ function TheaterTab({ initialTheaters }: { initialTheaters: Theater[] }) {
   const [deleteTarget, setDeleteTarget] = useState<Theater | null>(null);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function openCreate() {
     setName("");
     setSlug("");
+    setContactName("");
+    setContactEmail("");
     setEditTarget(null);
     setError(null);
     setMode("create");
@@ -849,6 +965,8 @@ function TheaterTab({ initialTheaters }: { initialTheaters: Theater[] }) {
   function openEdit(t: Theater) {
     setName(t.name);
     setSlug(t.slug);
+    setContactName(t.contact_name ?? "");
+    setContactEmail(t.contact_email ?? "");
     setEditTarget(t);
     setError(null);
     setMode("edit");
@@ -876,13 +994,23 @@ function TheaterTab({ initialTheaters }: { initialTheaters: Theater[] }) {
           setTheaters((prev) => [...prev, created]);
         } else if (editTarget) {
           await updateTheaterAction({ theaterId: editTarget.id, name, slug });
+          await updateTheaterContactAction({ theaterId: editTarget.id, contactName, contactEmail });
           setTheaters((prev) =>
-            prev.map((t) => (t.id === editTarget.id ? { ...t, name, slug } : t))
+            prev.map((t) =>
+              t.id === editTarget.id
+                ? { ...t, name, slug, contact_name: contactName || null, contact_email: contactEmail || null }
+                : t
+            )
           );
         }
         setMode("list");
       } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "Fehler");
+        const err = e as { code?: string; message?: string };
+        if (err.code === "23505") {
+          setError("Ein Theater mit diesem Namen existiert bereits.");
+        } else {
+          setError(err.message ?? "Fehler");
+        }
       }
     });
   }
@@ -936,6 +1064,31 @@ function TheaterTab({ initialTheaters }: { initialTheaters: Theater[] }) {
                 placeholder="z.B. luzerner-theater"
               />
             </div>
+            {mode === "edit" && (
+              <>
+                <div style={{ borderTop: "1px solid var(--neutral-grey-200)", marginTop: 8 }} />
+                <div>
+                  <label style={labelStyle}>Kontaktperson – Name</label>
+                  <input
+                    type="text"
+                    value={contactName}
+                    onChange={(e) => setContactName(e.target.value)}
+                    style={{ ...inputStyle, width: "100%" }}
+                    placeholder="z.B. Maria Muster"
+                  />
+                </div>
+                <div>
+                  <label style={labelStyle}>Kontaktperson – E-Mail</label>
+                  <input
+                    type="email"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    style={{ ...inputStyle, width: "100%" }}
+                    placeholder="z.B. kostüm@theater.ch"
+                  />
+                </div>
+              </>
+            )}
             <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
               <button
                 type="button"
@@ -1064,7 +1217,7 @@ function TheaterTab({ initialTheaters }: { initialTheaters: Theater[] }) {
                 <div
                   style={{
                     display: "flex",
-                    gap: 0,
+                    gap: 8,
                     justifyContent: "flex-end",
                     alignItems: "center",
                   }}
@@ -1781,7 +1934,7 @@ function UsersTab({
               <div
                 style={{
                   display: "flex",
-                  gap: 0,
+                  gap: 8,
                   justifyContent: "flex-end",
                   alignItems: "center",
                 }}
@@ -2256,7 +2409,7 @@ function FieldDefinitionsTab({
                       )}
                     </div>
                   )}
-                  <div style={{ display: "flex", gap: 0, alignItems: "center", flexShrink: 0 }}>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
                     {editingId === def.id ? (
                       <>
                         <button
@@ -2784,19 +2937,33 @@ function NetworksTab({
                     disabled={isPending}
                     onClick={() => handleDelete(network.id)}
                     style={{
-                      height: 30,
-                      padding: "0 10px",
-                      borderRadius: 6,
-                      border: "1px solid var(--color-error)",
-                      background: "transparent",
-                      color: "var(--color-error)",
-                      fontFamily: "var(--font-family-base)",
-                      fontSize: "var(--font-size-100)",
+                      background: "none",
+                      border: "none",
                       cursor: "pointer",
+                      width: 32,
+                      height: 32,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 6,
+                      flexShrink: 0,
                       opacity: isPending ? 0.5 : 1,
                     }}
                   >
-                    Löschen
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: 20,
+                        height: 20,
+                        background: "var(--neutral-grey-600)",
+                        WebkitMaskImage: "url(/icons/icon-delete.svg)",
+                        maskImage: "url(/icons/icon-delete.svg)",
+                        WebkitMaskSize: "contain",
+                        maskSize: "contain",
+                        WebkitMaskRepeat: "no-repeat",
+                        maskRepeat: "no-repeat",
+                      }}
+                    />
                   </button>
                 </div>
 
@@ -2860,19 +3027,33 @@ function NetworksTab({
                             disabled={isPending}
                             onClick={() => handleRemoveTheater(network.id, m.theater_id)}
                             style={{
-                              height: 28,
-                              padding: "0 10px",
-                              borderRadius: 6,
-                              border: "1px solid var(--color-error)",
-                              background: "transparent",
-                              color: "var(--color-error)",
-                              fontFamily: "var(--font-family-base)",
-                              fontSize: "var(--font-size-100)",
+                              background: "none",
+                              border: "none",
                               cursor: "pointer",
+                              width: 32,
+                              height: 32,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              borderRadius: 6,
+                              flexShrink: 0,
                               opacity: isPending ? 0.5 : 1,
                             }}
                           >
-                            Entfernen
+                            <span
+                              style={{
+                                display: "inline-block",
+                                width: 20,
+                                height: 20,
+                                background: "var(--neutral-grey-600)",
+                                WebkitMaskImage: "url(/icons/icon-delete.svg)",
+                                maskImage: "url(/icons/icon-delete.svg)",
+                                WebkitMaskSize: "contain",
+                                maskSize: "contain",
+                                WebkitMaskRepeat: "no-repeat",
+                                maskRepeat: "no-repeat",
+                              }}
+                            />
                           </button>
                         </div>
                       </div>
@@ -3635,11 +3816,15 @@ function TheaterAddressTab({
   theaterId,
   theaterName,
   initialAddress,
+  initialContactName,
+  initialContactEmail,
   initialLocations,
 }: {
   theaterId: string;
   theaterName: string;
   initialAddress: AddressInfo;
+  initialContactName: string;
+  initialContactEmail: string;
   initialLocations: TheaterLocation[];
 }) {
   const [venue, setVenue] = useState(initialAddress.venue ?? "");
@@ -3650,6 +3835,12 @@ function TheaterAddressTab({
   const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
 
+  const [contactName, setContactName] = useState(initialContactName);
+  const [contactEmail, setContactEmail] = useState(initialContactEmail);
+  const [contactError, setContactError] = useState<string | null>(null);
+  const [contactSuccess, setContactSuccess] = useState(false);
+  const [isContactPending, startContactTransition] = useTransition();
+
   function handleSave() {
     setError(null);
     setSuccess(false);
@@ -3659,6 +3850,19 @@ function TheaterAddressTab({
         setSuccess(true);
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Fehler");
+      }
+    });
+  }
+
+  function handleContactSave() {
+    setContactError(null);
+    setContactSuccess(false);
+    startContactTransition(async () => {
+      try {
+        await updateTheaterContactAction({ theaterId, contactName, contactEmail });
+        setContactSuccess(true);
+      } catch (e: unknown) {
+        setContactError(e instanceof Error ? e.message : "Fehler");
       }
     });
   }
@@ -3778,6 +3982,75 @@ function TheaterAddressTab({
             paddingTop: 8,
           }}
         />
+
+        {/* ── Kontaktperson ── */}
+        <p
+          style={{
+            fontFamily: "var(--font-family-base)",
+            fontSize: "var(--font-size-200)",
+            color: "var(--neutral-grey-500)",
+            margin: "32px 0 16px",
+          }}
+        >
+          Kontaktperson für Anfragen
+        </p>
+        {contactError && <ErrorBox message={contactError} />}
+        {contactSuccess && (
+          <div
+            style={{
+              background: "rgba(0,150,80,0.08)",
+              border: "1px solid rgba(0,150,80,0.3)",
+              borderRadius: 10,
+              padding: "12px 16px",
+              marginBottom: 24,
+              fontFamily: "var(--font-family-base)",
+              fontSize: "var(--font-size-200)",
+              color: "var(--accent-01)",
+            }}
+          >
+            Kontaktperson gespeichert.
+          </div>
+        )}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 540 }}>
+          <div>
+            <label style={labelStyle}>Name</label>
+            <input
+              type="text"
+              value={contactName}
+              onChange={(e) => { setContactName(e.target.value); setContactSuccess(false); }}
+              style={{ ...inputStyle, width: "100%" }}
+              placeholder="z.B. Maria Muster"
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>E-Mail</label>
+            <input
+              type="email"
+              value={contactEmail}
+              onChange={(e) => { setContactEmail(e.target.value); setContactSuccess(false); }}
+              style={{ ...inputStyle, width: "100%" }}
+              placeholder="z.B. kostüm@theater.ch"
+            />
+          </div>
+          <div style={{ marginTop: 8 }}>
+            <button
+              type="button"
+              onClick={handleContactSave}
+              disabled={isContactPending}
+              style={{ ...btnPrimary, opacity: isContactPending ? 0.5 : 1 }}
+            >
+              {isContactPending ? "Speichert…" : "Speichern"}
+            </button>
+          </div>
+        </div>
+
+        <div
+          style={{
+            borderTop: "1px solid var(--neutral-grey-200)",
+            marginTop: 40,
+            paddingTop: 8,
+          }}
+        />
         <TheaterLocationsSection theaterId={theaterId} initialLocations={initialLocations} />
       </div>
     </div>
@@ -3799,6 +4072,8 @@ export function KonfigurationClient({
   subscriptionTier,
   theaterName = "",
   theaterAddressInfo = {},
+  theaterContactName = "",
+  theaterContactEmail = "",
   theaterLocations = [],
 }: Props) {
   type TabKey =
@@ -3919,6 +4194,8 @@ export function KonfigurationClient({
                 theaterId={theaterId}
                 theaterName={theaterName}
                 initialAddress={theaterAddressInfo}
+                initialContactName={theaterContactName}
+                initialContactEmail={theaterContactEmail}
                 initialLocations={theaterLocations}
               />
             )}

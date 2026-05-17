@@ -1,9 +1,17 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { SuchmodusCostumeDetailClient } from "@/components/suchmodus/suchmodus-costume-detail-client";
 import type { TaxonomyTerm } from "@/lib/types/costume";
 
 type Params = Promise<{ id: string }>;
+
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data } = await supabase.from("costumes").select("name").eq("id", id).single();
+  return { title: data?.name ?? "Kostüm" };
+}
 
 export default async function SuchmodusCostumeDetailPage({ params }: { params: Params }) {
   const { id } = await params;
@@ -21,13 +29,25 @@ export default async function SuchmodusCostumeDetailPage({ params }: { params: P
       costume_provenance(id, costume_id, production_title, year, actor_name, role_name, director_name, costume_designer, costume_assistant, is_original_production),
       costume_items(id, costume_id, theater_id, barcode_id, rfid_id, size_label, size_data, size_notes, condition_grade, current_status, storage_location_path, is_public_for_rent, updated_at),
       costume_taxonomy(term_id, taxonomy_term:taxonomy_terms(id, vocabulary, label_de, parent_id, sort_order)),
-      theater:theaters(id, name, slug, address_info)
+      theater:theaters(id, name, slug, address_info, contact_name, contact_email)
     `
     )
     .eq("id", id)
     .single();
 
   if (error || !costume) notFound();
+
+  // Current user name for mailto body
+  const { data: { user } } = await supabase.auth.getUser();
+  let currentUserName = "";
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", user.id)
+      .single();
+    currentUserName = profile?.display_name || user.email || "";
+  }
 
   // Similar costumes
   let similarCostumes: {
@@ -141,6 +161,7 @@ export default async function SuchmodusCostumeDetailPage({ params }: { params: P
       taxonomyByVocabulary={taxonomyByVocabulary}
       ensembleChildren={ensembleChildren}
       similarCostumes={similarCostumes}
+      currentUserName={currentUserName}
     />
   );
 }

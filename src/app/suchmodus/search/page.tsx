@@ -1,4 +1,7 @@
+import type { Metadata } from "next";
 import { SuchmodusSearchClient } from "@/components/suchmodus/suchmodus-search-client";
+
+export const metadata: Metadata = { title: "Suche" };
 
 type SearchParams = Promise<{ q?: string }>;
 

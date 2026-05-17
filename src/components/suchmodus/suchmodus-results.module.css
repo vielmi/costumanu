@@ -94,7 +94,8 @@
   flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 13px;
+  column-gap: 13px;
+  row-gap: 36px;
   padding: 0 16px 32px;
 }
 
@@ -178,7 +179,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #34c759;
+  background: var(--secondary-800);
   border-radius: var(--radius-full);
   padding: 0 20px 0 8px;
   height: 52px;
@@ -302,14 +303,6 @@
   justify-content: center;
 }
 
-.availDot.available {
-  background: var(--accent-01);
-}
-
-.availDot.onRequest {
-  background: transparent;
-  border: 1.25px solid var(--neutral-grey-400);
-}
 
 .cardTheater {
   font-family: var(--font-family-base);
@@ -361,7 +354,8 @@
 
   .grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    column-gap: 20px;
+    row-gap: 48px;
     padding: 0 32px 40px;
   }
 }

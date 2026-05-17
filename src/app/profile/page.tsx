@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/layout/app-shell";
-import { AppMobileHeader } from "@/components/layout/app-mobile-header";
 import styles from "./profile.module.css";
+
+export const metadata: Metadata = { title: "Profil" };
 
 export default async function ProfilPage() {
   const supabase = await createClient();
@@ -51,8 +53,6 @@ export default async function ProfilPage() {
   return (
     <AppShell>
       <div className={styles.page}>
-        <AppMobileHeader />
-
         {/* Hero */}
         <div className={styles.hero}>
           <div className={styles.avatar}>

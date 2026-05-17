@@ -336,7 +336,7 @@
   }
 
   .recentHeading {
-    font-size: var(--font-size-300) !important;
+    display: none;
   }
 
   /* Show mobile-only elements inside text block */

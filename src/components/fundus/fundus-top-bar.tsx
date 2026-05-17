@@ -124,7 +124,7 @@ function FundusSearch({ theaterId }: { theaterId: string }) {
               opacity: 0.5,
             }}
           >
-            <Image src="/icons/icon-close-medium.svg" alt="Suche löschen" width={16} height={16} />
+            <Image src="/icons/icon-close-small.svg" alt="Suche löschen" width={16} height={16} />
           </button>
         )}
       </div>

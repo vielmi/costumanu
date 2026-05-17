@@ -52,11 +52,16 @@ const sizeDataLabels: Record<string, string> = {
 };
 
 const statusLabel: Record<string, string> = {
-  available: t("costume.statusAvailable"),
-  rented: t("costume.statusRented"),
-  cleaning: t("costume.statusCleaning"),
-  repair: t("costume.statusRepair"),
-  lost: t("costume.statusLost"),
+  available: "Verfügbar",
+  rented: "Ausgeliehen",
+  cleaning: "Reinigung",
+  in_repair: "In Reparatur",
+  reserved: "Reserviert",
+  stage: "Bühne",
+  rehearsal: "Probebühne",
+  sorted_out: "Aussortiert",
+  sold: "Verkauft",
+  lost: "Verloren",
 };
 
 export function CostumeSpecs({
@@ -93,13 +98,8 @@ export function CostumeSpecs({
   );
   const hasMaterial =
     materials.length > 0 || materialoptik.length > 0 || muster.length > 0 || colors.length > 0;
-  const hasLocation = !!(
-    costume.theater ||
-    firstItem?.storage_location_path ||
-    firstItem?.current_status
-  );
+  const hasLocation = !!(firstItem?.storage_location_path || firstItem?.current_status);
 
-  const address = costume.theater?.address_info as Record<string, string> | null | undefined;
   const locationParts = firstItem?.storage_location_path?.split(".") ?? [];
 
   return (
@@ -354,58 +354,6 @@ export function CostumeSpecs({
               <AccordionTrigger>{t("costume.locationAndAvailability")}</AccordionTrigger>
               <AccordionContent>
                 <div className="flex flex-col gap-2">
-                  {costume.theater && (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                      <p
-                        style={{
-                          fontFamily: "var(--font-family-base)",
-                          fontSize: "var(--font-size-300)",
-                          fontWeight: 700,
-                          color: "var(--neutral-grey-700)",
-                          margin: 0,
-                        }}
-                      >
-                        {costume.theater.name}:
-                      </p>
-                      {address?.venue && (
-                        <p
-                          style={{
-                            fontFamily: "var(--font-family-base)",
-                            fontSize: "var(--font-size-300)",
-                            color: "var(--neutral-grey-700)",
-                            margin: 0,
-                          }}
-                        >
-                          {address.venue}
-                        </p>
-                      )}
-                      {address?.street && (
-                        <p
-                          style={{
-                            fontFamily: "var(--font-family-base)",
-                            fontSize: "var(--font-size-300)",
-                            color: "var(--neutral-grey-700)",
-                            margin: 0,
-                          }}
-                        >
-                          {address.street}
-                        </p>
-                      )}
-                      {(address?.zip || address?.city) && (
-                        <p
-                          style={{
-                            fontFamily: "var(--font-family-base)",
-                            fontSize: "var(--font-size-300)",
-                            color: "var(--neutral-grey-700)",
-                            margin: 0,
-                          }}
-                        >
-                          {[address.zip, address.city].filter(Boolean).join(" ")}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
                   {locationParts.length > 0 && (
                     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       <p
@@ -537,13 +485,12 @@ function InlineRow({ label, value }: { label: string; value: string }) {
 
 const STATUS_COLORS: Record<string, string> = {
   available: "var(--accent-01)",
-  cleaning: "var(--color-warning)",
-  repair: "var(--color-warning)",
   rented: "var(--color-error)",
-  in_progress: "var(--color-warning)",
-  reserved: "var(--color-warning)",
-  stage: "var(--color-warning)",
-  rehearsal: "var(--color-warning)",
+  cleaning: "var(--color-warning)",
+  in_repair: "var(--color-error)",
+  reserved: "var(--color-error)",
+  stage: "var(--color-error)",
+  rehearsal: "var(--color-error)",
   sorted_out: "var(--neutral-grey-400)",
   sold: "var(--neutral-grey-400)",
   lost: "var(--neutral-grey-400)",

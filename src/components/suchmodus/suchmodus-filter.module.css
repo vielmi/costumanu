@@ -20,12 +20,16 @@
 
 .headerTitle {
   flex: 1;
+  min-width: 0;
   font-family: var(--font-family-base);
   font-size: var(--font-size-300);
   font-weight: var(--font-weight-500);
   color: var(--neutral-black);
   margin: 0;
   text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .resetBtn {

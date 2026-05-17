@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { APP_NAME, APP_LOGO_LETTER } from "@/lib/constants/app";
 
-export function AppLogo({ showText = true }: { showText?: boolean }) {
+export function AppLogo({ showText = true, href = "/" }: { showText?: boolean; href?: string }) {
   return (
     <Link
-      href="/"
+      href={href}
       style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}
     >
       <div

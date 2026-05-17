@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import {
   SuchmodusResultsClient,
   type ResultCostume,
 } from "@/components/suchmodus/suchmodus-results-client";
 import type { NetworkTheater, GenderTerm } from "@/components/suchmodus/suchmodus-cockpit";
+
+export const metadata: Metadata = { title: "Kostüme entdecken" };
 
 type SearchParams = Promise<{
   gender?: string;
@@ -233,7 +236,7 @@ export default async function SuchmodusResultsPage({
       : null;
 
     const firstItem = row.costume_items?.[0];
-    const isAvailable = firstItem?.current_status === "available";
+    const status = firstItem?.current_status ?? null;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const theater = (row as any).theater;
@@ -250,7 +253,7 @@ export default async function SuchmodusResultsPage({
       imageUrl,
       provenance,
       theaterName,
-      isAvailable,
+      status,
     };
   });
 

@@ -83,7 +83,7 @@ export function StandortSheet({ theaters }: StandortSheetProps) {
                   aria-label="Schliessen"
                 >
                   <Image
-                    src="/icons/icon-close-medium.svg"
+                    src="/icons/icon-close-small.svg"
                     alt="Schliessen"
                     width={20}
                     height={20}
@@ -136,7 +136,11 @@ export function StandortSheet({ theaters }: StandortSheetProps) {
                   type="button"
                   role="switch"
                   aria-checked={allLocations}
-                  onClick={() => setAllLocations((v) => !v)}
+                  onClick={() => {
+                    const next = !allLocations;
+                    setAllLocations(next);
+                    if (next) setSelectedIds(new Set(theaters.map((t) => t.id)));
+                  }}
                   className={`${styles.toggleSwitch} ${allLocations ? styles.on : ""}`}
                 >
                   <span className={`${styles.toggleThumb} ${allLocations ? styles.on : ""}`} />
@@ -149,7 +153,12 @@ export function StandortSheet({ theaters }: StandortSheetProps) {
                 type="button"
                 onClick={handleSave}
                 className="btn-primary"
-                style={{ width: "100%" }}
+                style={{
+                  width: "100%",
+                  height: "var(--button-height-lg)",
+                  minHeight: "var(--button-height-lg)",
+                  borderRadius: "var(--radius-lg)",
+                }}
               >
                 speichern &amp; schliessen
               </button>

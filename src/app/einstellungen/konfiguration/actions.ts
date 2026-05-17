@@ -108,6 +108,30 @@ export async function deleteTheaterAction(theaterId: string) {
   revalidatePath("/einstellungen/konfiguration");
 }
 
+export async function updateTheaterContactAction(formData: {
+  theaterId: string;
+  contactName: string;
+  contactEmail: string;
+}) {
+  const { theaterId: adminTheaterId, isPlatformAdmin } = await assertAdmin();
+
+  if (!isPlatformAdmin && adminTheaterId !== formData.theaterId) {
+    throw new Error("Keine Berechtigung");
+  }
+
+  const admin = getAdminClient();
+  const { error } = await admin
+    .from("theaters")
+    .update({
+      contact_name: formData.contactName.trim() || null,
+      contact_email: formData.contactEmail.trim() || null,
+    })
+    .eq("id", formData.theaterId);
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/einstellungen/konfiguration");
+}
+
 export async function updateTheaterAddressAction(formData: {
   theaterId: string;
   venue: string;

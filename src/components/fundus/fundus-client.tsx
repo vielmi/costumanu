@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -8,7 +8,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { deleteCostume, duplicateCostume } from "@/lib/services/costume-service";
 import { getPublicUrl } from "@/lib/services/storage-service";
-import { getGenderIcon } from "@/lib/constants/icons";
+import { getGenderIcon, getClothingTypeIcon } from "@/lib/constants/icons";
 import { ContextMenu } from "@/components/ui/context-menu";
 import { DeleteConfirmationSheet } from "@/components/ui/delete-confirmation-sheet";
 import type { Costume } from "@/lib/types/costume";
@@ -265,7 +265,7 @@ export function FundusClient({
               onClick={toggleSelectAll}
               aria-label="Alle auswählen"
             >
-              {allSelected && <span className={styles.bulkCheckboxInner} />}
+              {allSelected && <svg width="12" height="9" viewBox="0 0 12 9" fill="none"><path d="M1 4L4.5 7.5L11 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
             </button>
             <h1 className={styles.heading}>Kostüme</h1>
           </div>
@@ -320,16 +320,16 @@ export function FundusClient({
                 </>
               )}
             </div>
-
-            <button
-              type="button"
-              className={styles.bulkClose}
-              onClick={exitEditMode}
-              aria-label="Bearbeiten beenden"
-            >
-              ×
-            </button>
           </div>
+
+          <button
+            type="button"
+            className={styles.bulkClose}
+            onClick={exitEditMode}
+            aria-label="Bearbeiten beenden"
+          >
+            ×
+          </button>
         </div>
       ) : (
         <div className={styles.header}>
@@ -624,6 +624,8 @@ function CostumeCard({
     setCurrentStatus(costume.costume_items?.[0]?.current_status ?? "available");
   }, [costume.costume_items]);
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
+  const [statusMenuUp, setStatusMenuUp] = useState(true);
+  const statusWrapRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDeleteSheet, setShowDeleteSheet] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -636,6 +638,7 @@ function CostumeCard({
 
   const selectedStatus = STATUS_OPTIONS.find((o) => o.value === currentStatus) ?? STATUS_OPTIONS[0];
   const genderIcon = getGenderIcon((costume.gender_term as { label_de?: string } | null)?.label_de);
+  const clothingIcon = getClothingTypeIcon((costume.clothing_type as { label_de?: string } | null)?.label_de);
 
   const firstProvenance = costume.costume_provenance?.[0];
   const subtitle = firstProvenance
@@ -750,7 +753,7 @@ function CostumeCard({
               }}
               aria-label={isSelected ? "Abwählen" : "Auswählen"}
             >
-              {isSelected && <span className={styles.cardCheckboxInner} />}
+              {isSelected && <svg width="12" height="9" viewBox="0 0 12 9" fill="none"><path d="M1 4L4.5 7.5L11 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
             </button>
           </div>
         ) : (
@@ -783,11 +786,15 @@ function CostumeCard({
         {/* Actions row */}
         <div className={styles.cardActions}>
           {/* Status dropdown */}
-          <div className={styles.statusWrap}>
+          <div className={styles.statusWrap} ref={statusWrapRef}>
             <button
               type="button"
               className={styles.statusTrigger}
-              onClick={() => setStatusMenuOpen((v) => !v)}
+              onClick={() => {
+                const rect = statusWrapRef.current?.getBoundingClientRect();
+                setStatusMenuUp(!rect || rect.top > 260);
+                setStatusMenuOpen((v) => !v);
+              }}
             >
               <span className={styles.statusDot} style={{ background: selectedStatus.color }} />
               <span>{selectedStatus.label}</span>
@@ -796,7 +803,7 @@ function CostumeCard({
             {statusMenuOpen && (
               <>
                 <div className={styles.statusBackdrop} onClick={() => setStatusMenuOpen(false)} />
-                <div className={styles.statusMenu}>
+                <div className={statusMenuUp ? styles.statusMenu : styles.statusMenuDown}>
                   {STATUS_OPTIONS.map((o) => (
                     <button
                       key={o.value}
@@ -822,7 +829,7 @@ function CostumeCard({
               height={18}
             />
             <div className={styles.iconDivider} />
-            <Image src="/icons/icon-shirt.svg" alt="" width={18} height={18} />
+            <Image src={`/icons/${clothingIcon}.svg`} alt={costume.clothing_type?.label_de ?? ""} width={18} height={18} />
           </div>
 
           {/* More menu */}
@@ -881,6 +888,7 @@ function CostumeListRow({
 
   const selectedStatus = STATUS_OPTIONS.find((o) => o.value === currentStatus) ?? STATUS_OPTIONS[0];
   const genderIcon = getGenderIcon((costume.gender_term as { label_de?: string } | null)?.label_de);
+  const clothingIcon = getClothingTypeIcon((costume.clothing_type as { label_de?: string } | null)?.label_de);
   const firstProvenance = costume.costume_provenance?.[0];
   const productionLabel = firstProvenance
     ? [firstProvenance.production_title, firstProvenance.year].filter(Boolean).join(" / ")
@@ -1008,11 +1016,11 @@ function CostumeListRow({
           {editMode ? (
             <button
               type="button"
-              className={styles.listCheckbox}
+              className={`${styles.listCheckbox} ${isSelected ? styles.cardCheckboxChecked : ""}`}
               onClick={onToggleSelect}
               aria-label={isSelected ? "Abwählen" : "Auswählen"}
             >
-              {isSelected && <span className={styles.cardCheckboxInner} />}
+              {isSelected && <svg width="12" height="9" viewBox="0 0 12 9" fill="none"><path d="M1 4L4.5 7.5L11 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
             </button>
           ) : (
             <ContextMenu
@@ -1051,7 +1059,7 @@ function CostumeListRow({
             height={16}
           />
           <div style={{ width: "0.8px", height: 20, background: "var(--neutral-grey-300)" }} />
-          <Image src="/icons/icon-shirt.svg" alt="" width={16} height={16} />
+          <Image src={`/icons/${clothingIcon}.svg`} alt={costume.clothing_type?.label_de ?? ""} width={16} height={16} />
         </div>
 
         {/* Status area — on mobile wraps to full-width second row */}
@@ -1065,7 +1073,7 @@ function CostumeListRow({
               height={16}
             />
             <div style={{ width: "0.8px", height: 16, background: "var(--neutral-grey-300)" }} />
-            <Image src="/icons/icon-shirt.svg" alt="" width={16} height={16} />
+            <Image src={`/icons/${clothingIcon}.svg`} alt={costume.clothing_type?.label_de ?? ""} width={16} height={16} />
           </div>
 
           {/* Status dropdown */}

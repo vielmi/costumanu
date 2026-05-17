@@ -3,8 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SuchmodusFooter } from "@/components/suchmodus/suchmodus-footer";
+import { MerklisteAddModal } from "@/components/suchmodus/merkliste-add-modal";
 import styles from "./suchmodus-costume-detail.module.css";
 import { COLOR_SWATCHES } from "@/lib/constants/color-swatches";
 import type { TaxonomyTerm } from "@/lib/types/costume";
@@ -17,6 +18,8 @@ type TheaterInfo = {
   name: string;
   slug: string;
   address_info?: Record<string, unknown> | null;
+  contact_name?: string | null;
+  contact_email?: string | null;
 };
 type ItemInfo = {
   barcode_id: string;
@@ -62,6 +65,7 @@ export type SuchmodusCostumeDetailProps = {
   taxonomyByVocabulary: Record<string, TaxonomyTerm[]>;
   ensembleChildren: { id: string; name: string }[];
   similarCostumes: SimilarCostume[];
+  currentUserName?: string;
 };
 
 // ─── Accordion ────────────────────────────────────────────────────────────────
@@ -80,9 +84,11 @@ function Accordion({
     <div className={styles.accordion}>
       <button type="button" className={styles.accordionHeader} onClick={() => setOpen((v) => !v)}>
         <span className={styles.accordionTitle}>{title}</span>
-        <span className={`${styles.accordionChevron} ${open ? styles.open : ""}`}>
-          <Image src="/icons/icon-arrow-dropdown-down.svg" alt="" width={16} height={16} />
-        </span>
+        {open ? (
+          <span style={{ fontSize: 20, fontWeight: 400, lineHeight: 1, color: "var(--secondary-900)", flexShrink: 0 }}>×</span>
+        ) : (
+          <span style={{ fontSize: 22, fontWeight: 300, lineHeight: 1, color: "var(--secondary-900)", flexShrink: 0 }}>+</span>
+        )}
       </button>
       <div className={styles.accordionLine} />
       {open && <div className={styles.accordionBody}>{children}</div>}
@@ -125,7 +131,7 @@ function CopyRow({ label, value }: { label: string; value: string }) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export function SuchmodusCostumeDetailClient({
-  id: _id,
+  id,
   name,
   description,
   isEnsemble,
@@ -139,9 +145,56 @@ export function SuchmodusCostumeDetailClient({
   taxonomyByVocabulary,
   ensembleChildren,
   similarCostumes,
+  currentUserName = "",
 }: SuchmodusCostumeDetailProps) {
   const router = useRouter();
   const [imgIndex, setImgIndex] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [modalCostumeId, setModalCostumeId] = useState<string | null>(null);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  function handlePrev() {
+    setImgIndex((i) => (i === 0 ? mediaWithUrls.length - 1 : i - 1));
+  }
+  function handleNext() {
+    setImgIndex((i) => (i === mediaWithUrls.length - 1 ? 0 : i + 1));
+  }
+  function handleTouchStart(e: React.TouchEvent) {
+    setTouchStartX(e.touches[0].clientX);
+  }
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 40) dx < 0 ? handleNext() : handlePrev();
+    setTouchStartX(null);
+  }
+
+  useEffect(() => {
+    if (!toastMsg) return;
+    const t = setTimeout(() => setToastMsg(null), 3000);
+    return () => clearTimeout(t);
+  }, [toastMsg]);
+
+  const costumeUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/suchmodus/costume/${id}`
+    : `https://app.palcopiu.com/suchmodus/costume/${id}`;
+  const mailTo = theater?.contact_email ?? "";
+  const mailSubject = `Kostümanfrage: ${name}${theater ? ` – ${theater.name}` : ""}`;
+  const mailBodyLines = [
+    `Guten Tag${theater?.contact_name ? ` ${theater.contact_name}` : ""},`,
+    "",
+    `ich bin auf palcoPiù auf das folgende Kostüm aufmerksam geworden und würde mich über eine Ausleihe freuen:`,
+    "",
+    `Kostüm:  ${name}`,
+    ...(theater ? [`Theater: ${theater.name}`] : []),
+    `Link:    ${costumeUrl}`,
+    "",
+    `Ist das Kostüm verfügbar? Über eine kurze Rückmeldung würde ich mich sehr freuen.`,
+    "",
+    "Freundliche Grüsse",
+    currentUserName,
+  ];
+  const mailtoHref = `mailto:${mailTo}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBodyLines.join("\r\n"))}`;
 
   const isAvailable = firstItem?.current_status === "available";
 
@@ -207,8 +260,8 @@ export function SuchmodusCostumeDetailClient({
       {/* ═══ Image carousel ═══ */}
       <div
         className={styles.imageWrap}
-        onClick={() => setImgIndex((i) => (i === mediaWithUrls.length - 1 ? 0 : i + 1))}
-        style={{ cursor: mediaWithUrls.length > 1 ? "pointer" : "default" }}
+        onTouchStart={mediaWithUrls.length > 1 ? handleTouchStart : undefined}
+        onTouchEnd={mediaWithUrls.length > 1 ? handleTouchEnd : undefined}
       >
         {mediaWithUrls.length > 0 ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -220,10 +273,30 @@ export function SuchmodusCostumeDetailClient({
           type="button"
           className={styles.heartBtn}
           aria-label="Merken"
-          onClick={(e) => e.stopPropagation()}
+          onClick={() => setModalCostumeId(id)}
         >
           <Image src="/icons/icon-heart.svg" alt="" width={18} height={18} />
         </button>
+        {mediaWithUrls.length > 1 && (
+          <>
+            <button
+              type="button"
+              className={styles.carouselPrev}
+              onClick={handlePrev}
+              aria-label="Vorheriges Bild"
+            >
+              <Image src="/icons/icon-arrow-left.svg" alt="" width={16} height={16} />
+            </button>
+            <button
+              type="button"
+              className={styles.carouselNext}
+              onClick={handleNext}
+              aria-label="Nächstes Bild"
+            >
+              <Image src="/icons/icon-arrow-right-2.svg" alt="" width={16} height={16} />
+            </button>
+          </>
+        )}
       </div>
 
       {/* Dots */}
@@ -281,32 +354,54 @@ export function SuchmodusCostumeDetailClient({
         {description && <p className={styles.description}>{description}</p>}
 
         {/* Availability */}
-        <div className={styles.availRow}>
+        <div className={styles.availRow} style={!description ? { marginTop: 28 } : undefined}>
           <span
-            className={`${styles.availDot} ${isAvailable ? styles.available : styles.onRequest}`}
-          >
-            {isAvailable && <Image src="/icons/icon-check.svg" alt="" width={10} height={10} />}
-          </span>
+            className={styles.availDot}
+            style={{
+              background:
+                STATUS_DOT_COLOR[firstItem?.current_status ?? ""] ?? "var(--neutral-grey-400)",
+            }}
+          />
           {theater && <p className={styles.theaterName}>{theater.name}</p>}
         </div>
       </div>
 
       {/* ═══ CTA buttons ═══ */}
       <div className={styles.ctaGroup}>
+        <a href={mailtoHref} className={`btn-primary ${styles.btnPrimary}`}>
+          Anfragen
+          <Image
+            src="/icons/icon-mail.svg"
+            alt=""
+            width={20}
+            height={20}
+            style={{ filter: "invert(1)" }}
+          />
+        </a>
         <div className={styles.btnRow}>
           <button type="button" className={`btn-secondary ${styles.btnSecondary}`}>
+            Teilen
             <Image
               src="/icons/icon-share.svg"
               alt=""
               width={22}
               height={22}
-              style={{ filter: "invert(30%) sepia(80%) saturate(400%) hue-rotate(5deg)" }}
+              style={{ filter: "invert(64%) sepia(31%) saturate(718%) hue-rotate(1deg) brightness(88%) contrast(89%)" }}
             />
-            Teilen
           </button>
-          <button type="button" className={`btn-secondary ${styles.btnSecondary}`}>
-            <Image src="/icons/icon-heart.svg" alt="" width={18} height={18} />
+          <button
+            type="button"
+            className={`btn-secondary ${styles.btnSecondary}`}
+            onClick={() => setModalCostumeId(id)}
+          >
             Merken
+            <Image
+              src="/icons/icon-heart.svg"
+              alt=""
+              width={18}
+              height={18}
+              style={{ filter: "invert(64%) sepia(31%) saturate(718%) hue-rotate(1deg) brightness(88%) contrast(89%)" }}
+            />
           </button>
         </div>
       </div>
@@ -386,7 +481,7 @@ export function SuchmodusCostumeDetailClient({
           </Accordion>
         )}
 
-        {(theater || firstItem?.storage_location_path || firstItem?.current_status) && (
+        {(theater || firstItem?.storage_location_path || firstItem) && (
           <Accordion title="Standort & Verfügbarkeit">
             {theater && (
               <div className={styles.locationBlock}>
@@ -419,25 +514,26 @@ export function SuchmodusCostumeDetailClient({
                   </div>
                 );
               })()}
-            {firstItem?.current_status && (
-              <div className={styles.locationBlock}>
-                <p className={styles.locationHeading}>Verfügbarkeit:</p>
-                <div className={styles.availRow2}>
-                  <span
-                    className={`${styles.availDot} ${firstItem.current_status === "available" ? styles.available : styles.onRequest}`}
-                  >
-                    {firstItem.current_status === "available" && (
-                      <Image src="/icons/icon-check.svg" alt="" width={10} height={10} />
-                    )}
-                  </span>
-                  <span className={styles.availLabel}>
-                    {firstItem.current_status === "available"
-                      ? "verfügbar"
-                      : (STATUS_LABELS[firstItem.current_status] ?? firstItem.current_status)}
-                  </span>
-                </div>
+            <div className={styles.locationBlock}>
+              <p className={styles.locationHeading}>Verfügbarkeit:</p>
+              <div className={styles.availRow2}>
+                <span
+                  className={styles.availDot}
+                  style={{
+                    background:
+                      STATUS_DOT_COLOR[firstItem?.current_status ?? ""] ??
+                      "var(--neutral-grey-400)",
+                  }}
+                >
+                  {firstItem?.current_status === "available" && (
+                    <Image src="/icons/icon-check.svg" alt="" width={10} height={10} />
+                  )}
+                </span>
+                <span className={styles.availLabel}>
+                  {STATUS_LABELS[firstItem?.current_status ?? ""] ?? "Unbekannt"}
+                </span>
               </div>
-            )}
+            </div>
           </Accordion>
         )}
 
@@ -533,6 +629,7 @@ export function SuchmodusCostumeDetailClient({
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
+                      setModalCostumeId(c.id);
                     }}
                   >
                     <Image src="/icons/icon-heart.svg" alt="" width={18} height={18} />
@@ -579,6 +676,25 @@ export function SuchmodusCostumeDetailClient({
 
       {/* ═══ Footer ═══ */}
       <SuchmodusFooter />
+
+      {/* ═══ Merkliste Modal ═══ */}
+      {modalCostumeId && (
+        <MerklisteAddModal
+          costumeId={modalCostumeId}
+          onClose={() => setModalCostumeId(null)}
+          onSuccess={(wishlistName) => {
+            setModalCostumeId(null);
+            setToastMsg(`Zu „${wishlistName}" hinzugefügt`);
+          }}
+        />
+      )}
+
+      {/* ═══ Toast ═══ */}
+      {toastMsg && (
+        <div className={styles.toast}>
+          <span>{toastMsg}</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -587,6 +703,23 @@ const STATUS_LABELS: Record<string, string> = {
   available: "Verfügbar",
   rented: "Ausgeliehen",
   cleaning: "Reinigung",
-  repair: "Reparatur",
-  lost: "Verloren",
+  in_repair: "In Reparatur",
+  reserved: "Reserviert",
+  stage: "Bühne",
+  rehearsal: "Probebühne",
+  sorted_out: "Aussortiert",
+  sold: "Verkauft",
+};
+
+const STATUS_DOT_COLOR: Record<string, string> = {
+  available: "var(--accent-01)",
+  rented: "var(--color-error)",
+  cleaning: "var(--color-warning)",
+  in_repair: "var(--color-error)",
+  reserved: "var(--color-error)",
+  stage: "var(--color-error)",
+  rehearsal: "var(--color-warning)",
+  sorted_out: "var(--neutral-grey-400)",
+  sold: "var(--neutral-grey-400)",
+  lost: "var(--neutral-grey-400)",
 };

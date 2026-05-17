@@ -1,8 +1,11 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/layout/app-shell";
 import { ThreadList } from "@/components/messages/thread-list";
 import { t } from "@/lib/i18n";
+
+export const metadata: Metadata = { title: "Nachrichten" };
 
 export default async function NachrichtenPage() {
   const supabase = await createClient();

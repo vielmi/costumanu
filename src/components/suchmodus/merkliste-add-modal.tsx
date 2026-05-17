@@ -61,7 +61,7 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
           if (Array.isArray(media) && media.length > 0) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const sorted = [...media].sort((a: any, b: any) => a.sort_order - b.sort_order);
-            coverUrl = `${supabaseUrl}/storage/v1/object/public/costume-media/${sorted[0].storage_path}`;
+            coverUrl = `${supabaseUrl}/storage/v1/object/public/costume-images/${sorted[0].storage_path}`;
             break;
           }
         }
@@ -198,7 +198,7 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
               onClick={onClose}
               aria-label="Schliessen"
             >
-              <Image src="/icons/icon-close-medium.svg" alt="" width={20} height={20} />
+              <Image src="/icons/icon-close-small.svg" alt="" width={20} height={20} />
             </button>
           </div>
 
@@ -312,7 +312,7 @@ export function MerklisteAddModal({ costumeId, moveFromWishlistId, onClose, onSu
             onClick={onClose}
             aria-label="Schliessen"
           >
-            <Image src="/icons/icon-close-medium.svg" alt="" width={24} height={24} />
+            <Image src="/icons/icon-close-small.svg" alt="" width={24} height={24} />
           </button>
         </div>
 

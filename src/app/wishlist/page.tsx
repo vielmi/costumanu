@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { WishlistPageClient } from "@/components/wishlist/wishlist-page-client";
+
+export const metadata: Metadata = { title: "Merklisten" };
 
 export default async function MerklistePage() {
   const supabase = await createClient();
@@ -75,7 +78,7 @@ export default async function MerklistePage() {
         const media = item.costumes?.costume_media;
         if (Array.isArray(media) && media.length > 0) {
           const sorted = [...media].sort((a, b) => a.sort_order - b.sort_order);
-          coverUrl = `${supabaseUrl}/storage/v1/object/public/costume-media/${sorted[0].storage_path}`;
+          coverUrl = `${supabaseUrl}/storage/v1/object/public/costume-images/${sorted[0].storage_path}`;
           break;
         }
       }

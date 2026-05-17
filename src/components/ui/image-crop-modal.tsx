@@ -186,23 +186,6 @@ export function ImageCropModal({ file, onConfirm, onSkip, onCancel }: ImageCropM
         </button>
         <button
           type="button"
-          onClick={handleSkip}
-          style={{
-            flex: 1,
-            height: 48,
-            borderRadius: "var(--radius-md)",
-            border: "1.5px solid rgba(255,255,255,0.3)",
-            background: "transparent",
-            color: "rgba(255,255,255,0.7)",
-            fontFamily: "var(--font-family-base)",
-            fontSize: "var(--font-size-200)",
-            cursor: "pointer",
-          }}
-        >
-          Überspringen
-        </button>
-        <button
-          type="button"
           onClick={handleConfirm}
           disabled={working}
           style={{
@@ -219,7 +202,7 @@ export function ImageCropModal({ file, onConfirm, onSkip, onCancel }: ImageCropM
             opacity: working ? 0.7 : 1,
           }}
         >
-          {working ? "…" : "Zuschneiden"}
+          {working ? "…" : "OK"}
         </button>
       </div>
     </div>

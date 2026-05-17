@@ -52,11 +52,25 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
       const FIELDS =
         "id, name, costume_provenance(production_title, year), costume_media(storage_path, sort_order)";
 
+      // For very short queries use a simple name prefix match — FTS and
+      // taxonomy searches produce too many false positives (e.g. "ba" matches
+      // the material "Baumwolle" and returns every cotton costume).
+      if (debouncedQuery.length < 3) {
+        const { data } = await supabase
+          .from("costumes")
+          .select(FIELDS)
+          .ilike("name", `${debouncedQuery}%`)
+          .limit(8);
+        return (data ?? []) as Suggestion[];
+      }
+
       const stemmed = stemGerman(debouncedQuery);
+      // Prefix match (not contains) keeps taxonomy results intentional:
+      // "bal" → "Ballkleid" but not "Baumwolle" or accidental mid-word hits.
       const ilikeFilter =
         stemmed !== debouncedQuery.toLowerCase()
-          ? `label_de.ilike.%${debouncedQuery}%,label_de.ilike.%${stemmed}%`
-          : `label_de.ilike.%${debouncedQuery}%`;
+          ? `label_de.ilike.${debouncedQuery}%,label_de.ilike.${stemmed}%`
+          : `label_de.ilike.${debouncedQuery}%`;
 
       const [ftsResult, termResult] = await Promise.all([
         supabase
@@ -147,8 +161,8 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
           )}
         </div>
 
-        <Link href="/suchmodus" className={styles.cancelLink}>
-          Abbrechen
+        <Link href="/suchmodus" className={styles.closeBtn} aria-label="Schließen">
+          <Image src="/icons/icon-close-small.svg" alt="" width={16} height={16} />
         </Link>
       </div>
 

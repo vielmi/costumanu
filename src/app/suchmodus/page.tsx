@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import {
   SuchmodusCockpit,
   type NetworkTheater,
   type GenderTerm,
 } from "@/components/suchmodus/suchmodus-cockpit";
+
+export const metadata: Metadata = { title: "Suche" };
 
 export default async function SuchmodusPage() {
   const supabase = await createClient();

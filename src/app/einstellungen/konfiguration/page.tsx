@@ -1,9 +1,12 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { AppShell } from "@/components/layout/app-shell";
 import { KonfigurationClient } from "@/components/einstellungen/konfiguration-client";
 import { getTheaterLocations } from "@/lib/services/theater-location-service";
+
+export const metadata: Metadata = { title: "Einstellungen" };
 
 function getAdmin() {
   return createAdminClient(
@@ -50,7 +53,7 @@ export default async function KonfigurationPage() {
       { data: allNetworkMembers },
       { data: allNetworks },
     ] = await Promise.all([
-      admin.from("theaters").select("id, name, slug").order("name"),
+      admin.from("theaters").select("id, name, slug, contact_name, contact_email").order("name"),
       admin.from("theater_members").select("user_id, theater_id, role"),
       admin.from("profiles").select("id, display_name, platform_role"),
       admin.auth.admin.listUsers(),
@@ -149,7 +152,7 @@ export default async function KonfigurationPage() {
       .eq("theater_id", theaterId)
       .order("sort_order"),
     supabase.from("subscriptions").select("tier").eq("theater_id", theaterId).maybeSingle(),
-    admin.from("theaters").select("name, address_info").eq("id", theaterId).single(),
+    admin.from("theaters").select("name, address_info, contact_name, contact_email").eq("id", theaterId).single(),
     getTheaterLocations(supabase, theaterId),
   ]);
 
@@ -245,6 +248,8 @@ export default async function KonfigurationPage() {
             city?: string;
           }) ?? {}
         }
+        theaterContactName={theaterData?.contact_name ?? ""}
+        theaterContactEmail={theaterData?.contact_email ?? ""}
         theaterLocations={theaterLocations}
       />
     </AppShell>

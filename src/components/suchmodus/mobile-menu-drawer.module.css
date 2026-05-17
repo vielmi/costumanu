@@ -1,6 +1,6 @@
-/* ─── Burger trigger (mobile only) ──────────────────────────────────────── */
+/* ─── Burger trigger ────────────────────────────────────────────────────── */
 .burgerButton {
-  display: none;
+  display: flex;
   background: none;
   border: none;
   cursor: pointer;
@@ -213,9 +213,3 @@
   color: var(--neutral-white);
 }
 
-/* ─── Mobile only ────────────────────────────────────────────────────────── */
-@media (max-width: 743px) {
-  .burgerButton {
-    display: flex;
-  }
-}

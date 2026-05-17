@@ -204,7 +204,7 @@
   justify-content: space-between;
   gap: 10px;
   height: 40px;
-  padding: 0 14px 0 4px;
+  padding: 0 14px 0 12px;
   min-width: 160px;
   border-radius: 12px;
   border: 1px solid var(--neutral-grey-300);
@@ -309,7 +309,6 @@
 .bulkHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--spacing-8);
   flex-wrap: wrap;
 }
@@ -324,15 +323,22 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+  min-width: 0;
+}
+.bulkHeaderRight::-webkit-scrollbar {
+  display: none;
 }
 
 /* Select-all checkbox in bulk header */
 .bulkCheckbox {
-  width: 30px;
-  height: 30px;
-  border-radius: var(--radius-sm);
-  border: 2px solid var(--secondary-700);
-  background: transparent;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-xs);
+  border: 2px solid var(--secondary-800);
+  background: var(--neutral-white);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -340,18 +346,11 @@
   flex-shrink: 0;
   padding: 0;
   line-height: 0;
+  transition: background 120ms ease;
 }
 
 .bulkCheckboxChecked {
-  /* border stays the same — only inner dot appears */
-}
-
-.bulkCheckboxInner {
-  display: block;
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  background: var(--secondary-700);
+  background: var(--secondary-800);
 }
 
 /* Bulk action buttons */
@@ -404,6 +403,7 @@
 .bulkClose {
   width: 34px;
   height: 34px;
+  flex-shrink: 0;
   border-radius: 50%;
   border: 1px solid var(--secondary-700);
   background: var(--neutral-white);
@@ -429,10 +429,10 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  width: 30px;
-  height: 30px;
-  border-radius: var(--radius-sm);
-  border: 2px solid var(--secondary-700);
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-xs);
+  border: 2px solid var(--secondary-800);
   background: var(--neutral-white);
   cursor: pointer;
   display: flex;
@@ -441,18 +441,11 @@
   flex-shrink: 0;
   padding: 0;
   line-height: 0;
+  transition: background 120ms ease;
 }
 
 .cardCheckboxChecked {
-  /* border stays the same — only inner dot appears */
-}
-
-.cardCheckboxInner {
-  display: block;
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  background: var(--secondary-700);
+  background: var(--secondary-800);
 }
 
 /* ─── Error banner ────────────────────────────────────────────────────────── */
@@ -620,10 +613,10 @@
 }
 
 .listCheckbox {
-  width: 30px;
-  height: 30px;
-  border-radius: var(--radius-sm);
-  border: 2px solid var(--secondary-700);
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-xs);
+  border: 2px solid var(--secondary-800);
   background: var(--neutral-white);
   cursor: pointer;
   display: flex;
@@ -632,6 +625,7 @@
   flex-shrink: 0;
   padding: 0;
   line-height: 0;
+  transition: background 120ms ease;
 }
 
 .listProductionLabel {
