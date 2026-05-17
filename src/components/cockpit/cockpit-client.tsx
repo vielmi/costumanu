@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { deleteCostume, duplicateCostume } from "@/lib/services/costume-service";
 import { getPublicUrl } from "@/lib/services/storage-service";
-import { getGenderIcon } from "@/lib/constants/icons";
+import { getGenderIcon, getClothingTypeIcon } from "@/lib/constants/icons";
 import { COCKPIT } from "@/lib/constants/layout";
 import { ContextMenu } from "@/components/ui/context-menu";
 import { DeleteConfirmationSheet } from "@/components/ui/delete-confirmation-sheet";
@@ -133,6 +133,7 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
   const status = getCostumeStatus(costume.costume_items);
   const productionLabel = formatProduction(costume.costume_provenance?.[0]);
   const genderIcon = getGenderIcon(costume.gender_term?.label_de);
+  const clothingIcon = getClothingTypeIcon(costume.clothing_type?.label_de);
 
   const menuItems = [
     {
@@ -314,7 +315,12 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
                 height={14}
               />
               <div style={{ width: "0.8px", height: 12, background: "var(--neutral-grey-300)" }} />
-              <Image src="/icons/icon-shirt.svg" alt="" width={14} height={14} />
+              <Image
+                src={`/icons/${clothingIcon}.svg`}
+                alt={costume.clothing_type?.label_de ?? ""}
+                width={14}
+                height={14}
+              />
             </div>
           </div>
 
@@ -326,11 +332,11 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
               color: "var(--neutral-grey-600)",
               fontFamily: "var(--font-family-base)",
               flexShrink: 0,
-              minWidth: 120,
-              maxWidth: 160,
+              width: 160,
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
+              textAlign: "right",
             }}
           >
             {productionLabel}
@@ -356,7 +362,12 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
               height={16}
             />
             <div style={{ width: "0.8px", height: 20, background: "var(--neutral-grey-300)" }} />
-            <Image src="/icons/icon-shirt.svg" alt="" width={16} height={16} />
+            <Image
+              src={`/icons/${clothingIcon}.svg`}
+              alt={costume.clothing_type?.label_de ?? ""}
+              width={16}
+              height={16}
+            />
           </div>
 
           <StatusDot status={status} />
@@ -543,9 +554,16 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
           }}
         >
           Zuletzt bearbeitete{" "}
-          <span style={{ fontWeight: "var(--font-weight-700)", textDecoration: "underline" }}>
+          <Link
+            href="/fundus"
+            style={{
+              fontWeight: "var(--font-weight-700)",
+              textDecoration: "underline",
+              color: "inherit",
+            }}
+          >
             Kostüme
-          </span>
+          </Link>
         </h2>
 
         <div className={styles.recentRow}>

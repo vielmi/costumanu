@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/layout/app-shell";
+
+export const metadata: Metadata = { title: "Termine" };
 
 export default async function TerminePage() {
   const supabase = await createClient();

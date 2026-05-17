@@ -1,9 +1,12 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/layout/app-shell";
 import { FundusClient } from "@/components/fundus/fundus-client";
 import { FundusTopBar } from "@/components/fundus/fundus-top-bar";
 import type { Costume } from "@/lib/types/costume";
+
+export const metadata: Metadata = { title: "Kostüme" };
 
 export default async function FundusPage() {
   const supabase = await createClient();

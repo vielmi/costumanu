@@ -314,7 +314,7 @@ function SeasonSection({ season }: { season: Season }) {
         >
           {open ? (
             <Image
-              src="/icons/icon-close-medium.svg"
+              src="/icons/icon-close-small.svg"
               alt="Schliessen"
               width={18}
               height={18}

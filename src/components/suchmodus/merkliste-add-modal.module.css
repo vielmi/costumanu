@@ -41,7 +41,7 @@
 
 .closeBtn {
   position: absolute;
-  right: 0;
+  right: 24px;
   top: 50%;
   transform: translateY(-50%);
   background: none;

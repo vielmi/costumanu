@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import type { FieldDef } from "@/lib/services/field-service";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { AppLogo } from "@/components/layout/app-logo";
@@ -77,6 +77,7 @@ const GENDER_CARDS = [
   { id: "kinder", label: "Kinder", icon: "icon-children" },
   { id: "tier", label: "Tier", icon: "icon-animal" },
   { id: "fantasy", label: "Fantasy", icon: "icon-fantasy" },
+  { id: "anderes", label: "Anderes", icon: "icon-unisex" },
 ];
 
 const KONFEKTIONS_SIZES_INT = ["XS", "S", "M", "L", "XL", "XXL"];
@@ -575,6 +576,10 @@ export function KostuemeNeuClient({
   const initialFormRef = useRef(editCostume ? buildFormFromCostume(editCostume) : emptyForm());
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get("camera") === "true") setShowCamera(true);
+  }, [searchParams]);
 
   const [showDeleteSheet, setShowDeleteSheet] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
@@ -846,6 +851,20 @@ export function KostuemeNeuClient({
               theater_location_id: form.theaterLocationId || null,
             })
             .eq("id", existingItem.id);
+        } else {
+          await supabase.from("costume_items").insert({
+            costume_id: editCostume.id,
+            theater_id: theaterId,
+            barcode_id: form.barcodeId || null,
+            size_label: form.sizeLabel || null,
+            size_data: sizeData,
+            size_notes: form.sizeNotes || null,
+            condition_grade: form.conditionGrade ? Number(form.conditionGrade) : null,
+            current_status: form.currentStatus,
+            storage_location_path: storagePath,
+            is_public_for_rent: form.isPublicForRent,
+            theater_location_id: form.theaterLocationId || null,
+          });
         }
 
         await supabase.from("costume_provenance").delete().eq("costume_id", editCostume.id);
@@ -1111,7 +1130,22 @@ export function KostuemeNeuClient({
                 className="btn-primary"
                 style={{ whiteSpace: "nowrap" }}
               >
-                {saving ? "Speichert..." : savedSuccess ? "Gespeichert ✓" : "Speichern"}
+                {saving ? (
+                  "Speichert..."
+                ) : savedSuccess ? (
+                  <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    Gespeichert
+                    <Image
+                      src="/icons/icon-checkmark.svg"
+                      alt=""
+                      width={14}
+                      height={14}
+                      style={{ filter: "invert(1)" }}
+                    />
+                  </span>
+                ) : (
+                  "Speichern"
+                )}
               </button>
               {saveError && (
                 <span
@@ -1340,9 +1374,19 @@ export function KostuemeNeuClient({
                           className={`${styles.clothingBtn} ${isActive ? styles.clothingBtnActive : ""}`}
                         >
                           <div
-                            className={`${styles.radioCircle} ${isActive ? styles.radioCircleActive : ""}`}
+                            className={`${styles.clothingCheckbox} ${isActive ? styles.clothingCheckboxActive : ""}`}
                           >
-                            {isActive && <div className={styles.radioCircleDot} />}
+                            {isActive && (
+                              <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
+                                <path
+                                  d="M1 4L4.5 7.5L11 1"
+                                  stroke="white"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            )}
                           </div>
                           <span className={styles.clothingLabel}>{label}</span>
                         </button>
@@ -1613,10 +1657,17 @@ export function KostuemeNeuClient({
                           <button
                             key={o.id}
                             type="button"
-                            onClick={() => toggleArr("dryingIds", o.id)}
+                            onClick={() =>
+                              setForm((f) => ({
+                                ...f,
+                                dryingIds: isActive ? [] : [o.id],
+                              }))
+                            }
                             className={`${styles.checkboxBtn} ${isActive ? styles.checkboxBtnActive : ""}`}
                           >
-                            <div className={styles.checkbox}>
+                            <div
+                              className={`${styles.checkbox} ${isActive ? styles.checkboxActive : ""}`}
+                            >
                               {isActive && <div className={styles.checkboxDot} />}
                             </div>
                             <span className={styles.checkboxLabel}>{o.label}</span>
@@ -1644,10 +1695,17 @@ export function KostuemeNeuClient({
                           <button
                             key={o.id}
                             type="button"
-                            onClick={() => toggleArr("ironingIds", o.id)}
+                            onClick={() =>
+                              setForm((f) => ({
+                                ...f,
+                                ironingIds: isActive ? [] : [o.id],
+                              }))
+                            }
                             className={`${styles.checkboxBtn} ${isActive ? styles.checkboxBtnActive : ""}`}
                           >
-                            <div className={styles.checkbox}>
+                            <div
+                              className={`${styles.checkbox} ${isActive ? styles.checkboxActive : ""}`}
+                            >
                               {isActive && <div className={styles.checkboxDot} />}
                             </div>
                             <span className={styles.checkboxLabel}>{o.label}</span>
@@ -2332,7 +2390,7 @@ export function KostuemeNeuClient({
             onClick={() => setLightboxIndex(null)}
           >
             <Image
-              src="/icons/icon-close-medium.svg"
+              src="/icons/icon-close-small.svg"
               alt="Schliessen"
               width={22}
               height={22}

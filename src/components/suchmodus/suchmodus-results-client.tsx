@@ -12,6 +12,21 @@ import { MerklisteAddModal } from "@/components/suchmodus/merkliste-add-modal";
 import type { NetworkTheater, GenderTerm } from "@/components/suchmodus/suchmodus-cockpit";
 import styles from "./suchmodus-results.module.css";
 
+// ─── Status colours ───────────────────────────────────────────────────────────
+
+const STATUS_DOT_COLOR: Record<string, string> = {
+  available: "var(--accent-01)",
+  rented: "var(--color-error)",
+  cleaning: "var(--color-warning)",
+  in_repair: "var(--color-error)",
+  reserved: "var(--color-error)",
+  stage: "var(--color-error)",
+  rehearsal: "var(--color-warning)",
+  sorted_out: "var(--neutral-grey-400)",
+  sold: "var(--neutral-grey-400)",
+  lost: "var(--neutral-grey-400)",
+};
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type ResultCostume = {
@@ -21,7 +36,7 @@ export type ResultCostume = {
   imageUrl: string | null;
   provenance: string | null;
   theaterName: string | null;
-  isAvailable: boolean;
+  status: string | null;
 };
 
 // ─── Card ────────────────────────────────────────────────────────────────────
@@ -73,9 +88,12 @@ function CostumeCard({
         </div>
         <div className={styles.cardAvailability}>
           <span
-            className={`${styles.availDot} ${costume.isAvailable ? styles.available : styles.onRequest}`}
+            className={styles.availDot}
+            style={{
+              background: STATUS_DOT_COLOR[costume.status ?? ""] ?? "var(--neutral-grey-400)",
+            }}
           >
-            {costume.isAvailable && (
+            {costume.status === "available" && (
               <Image src="/icons/icon-check.svg" alt="" width={10} height={10} />
             )}
           </span>
@@ -215,27 +233,6 @@ export function SuchmodusResultsClient({
             Kostümfilter
           </span>
         </Link>
-        {(() => {
-          const theaterParam = searchParams.get("theater");
-          const activeTheater = theaterParam
-            ? theaters.find((t) => theaterParam.split(",").includes(t.id))
-            : null;
-          return activeTheater ? (
-            <span
-              style={{
-                fontSize: "var(--font-size-150)",
-                color: "var(--secondary-800)",
-                background: "var(--secondary-500)",
-                borderRadius: "var(--radius-full)",
-                padding: "4px 10px",
-                flexShrink: 0,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {activeTheater.name}
-            </span>
-          ) : null;
-        })()}
         <StandortSheet theaters={theaters} />
         <Link href="/suchmodus/search" className={styles.filterCircle}>
           <Image

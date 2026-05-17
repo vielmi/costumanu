@@ -1,11 +1,18 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { AppMobileHeader } from "@/components/layout/app-mobile-header";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { NavItem } from "@/components/layout/sidebar";
+
+const ERFASSEN_ITEMS = [
+  { label: "Etikett scannen", href: "/kostueme/scan", icon: "icon-barcode-scan" },
+  { label: "Kostüm erfassen", href: "/kostueme/neu", icon: "icon-shirt" },
+] as const;
 
 const BASE_NAV_ITEMS: NavItem[] = [{ label: "Home", href: "/", icon: "icon-home-menu" }];
 
@@ -37,6 +44,20 @@ interface Props {
 }
 
 function DefaultMobileActions({ viewer }: { viewer: boolean }) {
+  const [addOpen, setAddOpen] = useState(false);
+  const addRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (addRef.current && !addRef.current.contains(e.target as Node)) {
+        setAddOpen(false);
+      }
+    }
+    if (addOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [addOpen]);
+
   if (viewer) return null;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -54,29 +75,81 @@ function DefaultMobileActions({ viewer }: { viewer: boolean }) {
       >
         <Image src="/icons/icon-search.svg" alt="" width={22} height={22} />
       </Link>
-      <Link
-        href="/kostueme/neu"
-        aria-label="Kostüm erfassen"
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: "50%",
-          background: "var(--primary-900)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          textDecoration: "none",
-          flexShrink: 0,
-        }}
-      >
-        <Image
-          src="/icons/icon-plus-m.svg"
-          alt=""
-          width={20}
-          height={20}
-          style={{ filter: "invert(1)" }}
-        />
-      </Link>
+      <div ref={addRef} style={{ position: "relative", flexShrink: 0 }}>
+        <button
+          type="button"
+          onClick={() => setAddOpen((o) => !o)}
+          aria-label="Kostüm erfassen"
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: "50%",
+            background: "var(--primary-900)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "none",
+            cursor: "pointer",
+            flexShrink: 0,
+            padding: 0,
+          }}
+        >
+          <Image
+            src="/icons/icon-plus-m.svg"
+            alt=""
+            width={20}
+            height={20}
+            style={{ filter: "invert(1)" }}
+          />
+        </button>
+        {addOpen && (
+          <div
+            style={{
+              position: "absolute",
+              top: "calc(100% + 8px)",
+              right: 0,
+              background: "var(--neutral-white)",
+              border: "1px solid var(--neutral-grey-300)",
+              borderRadius: "var(--radius-sm)",
+              boxShadow: "var(--shadow-300)",
+              minWidth: 200,
+              zIndex: 100,
+              overflow: "hidden",
+            }}
+          >
+            {ERFASSEN_ITEMS.map((item, i) => (
+              <button
+                key={item.href}
+                type="button"
+                onClick={() => {
+                  setAddOpen(false);
+                  router.push(item.href);
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  height: 48,
+                  padding: "0 16px",
+                  borderTop: i > 0 ? "1px solid var(--neutral-grey-200)" : "none",
+                  fontFamily: "var(--font-family-base)",
+                  fontSize: "var(--font-size-200)",
+                  fontWeight: "var(--font-weight-500)",
+                  color: "var(--neutral-grey-700)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  width: "100%",
+                  textAlign: "left",
+                }}
+              >
+                <Image src={`/icons/${item.icon}.svg`} alt="" width={18} height={18} />
+                {item.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

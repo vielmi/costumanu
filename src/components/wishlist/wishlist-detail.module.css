@@ -197,12 +197,12 @@
   flex-shrink: 0;
 }
 
-/* ─── Checkbox (same pattern as fundus) ─────────────────────────────────── */
+/* ─── Checkbox ───────────────────────────────────────────────────────────── */
 .itemCheckbox {
-  width: 30px;
-  height: 30px;
-  border-radius: var(--radius-sm);
-  border: 2px solid var(--secondary-700);
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-xs);
+  border: 2px solid var(--secondary-800);
   background: var(--neutral-white);
   cursor: pointer;
   display: flex;
@@ -211,18 +211,11 @@
   flex-shrink: 0;
   padding: 0;
   line-height: 0;
+  transition: background 120ms ease;
 }
 
 .itemCheckboxChecked {
-  /* border stays the same — only inner square appears */
-}
-
-.itemCheckboxInner {
-  display: block;
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  background: var(--secondary-700);
+  background: var(--secondary-800);
 }
 
 /* ─── List padding in edit mode (clears fixed bottom bar) ───────────────── */

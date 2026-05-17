@@ -92,9 +92,9 @@ function GenderCard({ label, icon, href }: { label: string; icon: string; href: 
       <Image
         src={`/icons/${icon}.svg`}
         alt={label}
-        width={44}
-        height={44}
-        className={styles.genderCardIcon}
+        width={32}
+        height={32}
+        style={{ opacity: 0.7 }}
       />
       <span className={styles.genderCardLabel}>{label}</span>
     </Link>
@@ -212,13 +212,13 @@ export function SuchmodusCockpit({
           <h1
             className="text-h1--medium"
             style={{
-              fontSize: "clamp(28px, 5.3vw, 60px)",
+              fontSize: "clamp(32px, 6vw, 72px)",
               color: "var(--neutral-white)",
               lineHeight: "var(--line-height-120)",
               margin: 0,
             }}
           >
-            Der Kostüm-Finder für die Film- & Theaterbranche
+            Die digitale Plattform zum Suchen und Leihen von Kostümen
           </h1>
         </div>
       </div>
@@ -292,12 +292,12 @@ export function SuchmodusCockpit({
                   className="text-h1 text-h1--regular"
                   style={{ color: "var(--neutral-white)", marginBottom: 8 }}
                 >
-                  Rampenverkauf Fundus
+                  Kostümbörse
                   <br />
-                  Südpol Luzern
+                  Theaterhaus Zürich
                 </p>
                 <p className="text-h1 text-h1--regular" style={{ color: "var(--primary-900)" }}>
-                  05.05.2024
+                  14.06.2026
                 </p>
               </div>
               <Image

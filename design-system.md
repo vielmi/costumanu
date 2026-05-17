@@ -809,6 +809,8 @@ padding-right: 30px;
 gap: 10px;
 ```
 
+**Icon-Position:** Icon steht immer **rechts vom Text** (Text zuerst, dann Icon). Icon-Farbe folgt der Textfarbe des jeweiligen Button-Typs.
+
 ---
 
 #### action-primary

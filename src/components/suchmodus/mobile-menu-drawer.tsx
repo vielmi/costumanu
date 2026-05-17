@@ -16,9 +16,7 @@ type Level = "main" | "gender";
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const NETZWERK_ITEMS = [
-  { label: "Nachrichten", href: "/messages", icon: "icon-chat" },
   { label: "Kostümanfragen", href: "/rental", icon: "icon-shopping-bag" },
-  { label: "Netzwerk", href: "/netzwerk", icon: "icon-production-menu" },
   { label: "Support", href: "/support", icon: "icon-contact-menu" },
 ] as const;
 
@@ -103,7 +101,7 @@ export function MobileMenuDrawer({ genderTerms = [] }: { genderTerms?: GenderTer
             aria-label="Menü schliessen"
           >
             <Image
-              src="/icons/icon-close-medium.svg"
+              src="/icons/icon-close-small.svg"
               alt=""
               width={20}
               height={20}

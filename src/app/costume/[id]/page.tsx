@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/layout/app-shell";
 import { FundusTopBar } from "@/components/fundus/fundus-top-bar";
@@ -6,6 +7,13 @@ import { CostumeDetailClient } from "@/components/costume/costume-detail-client"
 import type { Costume, TaxonomyTerm } from "@/lib/types/costume";
 
 type Params = Promise<{ id: string }>;
+
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data } = await supabase.from("costumes").select("name").eq("id", id).single();
+  return { title: data?.name ?? "Kostüm" };
+}
 
 export default async function CostumeDetailPage({ params }: { params: Params }) {
   const { id } = await params;
@@ -24,7 +32,7 @@ export default async function CostumeDetailPage({ params }: { params: Params }) 
       costume_provenance(id, costume_id, production_title, year, actor_name, role_name, director_name, costume_designer, costume_assistant, is_original_production),
       costume_items(id, costume_id, theater_id, barcode_id, rfid_id, size_label, size_data, size_notes, condition_grade, current_status, storage_location_path, is_public_for_rent, updated_at),
       costume_taxonomy(term_id, taxonomy_term:taxonomy_terms(id, vocabulary, label_de, parent_id, sort_order)),
-      theater:theaters!theater_id(id, name, slug, address_info)
+      theater:theaters!theater_id(id, name, slug, address_info, contact_name, contact_email)
     `
     )
     .eq("id", id)
@@ -33,6 +41,17 @@ export default async function CostumeDetailPage({ params }: { params: Params }) 
   if (error || !costume) {
     notFound();
   }
+
+  // Current user info for mailto body
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("display_name")
+    .eq("id", user!.id)
+    .single();
+  const currentUserName = profile?.display_name || user?.email || "";
 
   // Fetch ensemble children if this is an ensemble
   let ensembleChildren: Costume[] = [];
@@ -65,6 +84,7 @@ export default async function CostumeDetailPage({ params }: { params: Params }) 
     const { data } = await supabase
       .from("costumes")
       .select(similarSelect)
+      .eq("theater_id", costume.theater_id)
       .eq("clothing_type_id", costume.clothing_type_id)
       .neq("id", id)
       .limit(10);
@@ -102,6 +122,7 @@ export default async function CostumeDetailPage({ params }: { params: Params }) 
         taxonomyByVocabulary={taxonomyByVocabulary}
         ensembleChildren={ensembleChildren}
         similarCostumes={similarCostumes}
+        currentUserName={currentUserName}
       />
     </AppShell>
   );

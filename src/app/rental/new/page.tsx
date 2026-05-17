@@ -1,8 +1,11 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { RentalWizard } from "@/components/rental/rental-wizard";
+
+export const metadata: Metadata = { title: "Neue Ausleihe" };
 
 export default async function AusleiheNeuPage() {
   const supabase = await createClient();

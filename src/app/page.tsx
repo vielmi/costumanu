@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { CockpitShell } from "@/components/cockpit/cockpit-shell";
 import { resolveUserContext } from "@/lib/services/profile-service";
@@ -7,6 +8,8 @@ import {
   getPendingRentalsCount,
   getUnreadMessagesCount,
 } from "@/lib/services/notification-service";
+
+export const metadata: Metadata = { title: "Cockpit" };
 
 export default async function Home() {
   const supabase = await createClient();

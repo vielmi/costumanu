@@ -1,10 +1,13 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getCostume } from "@/lib/services/costume-service";
 import { getFieldDefinitions, getFieldRequirements } from "@/lib/services/field-service";
 import { getTheaterLocations } from "@/lib/services/theater-location-service";
 import { KostuemeNeuClient } from "@/components/kostueme/kostueme-neu-client";
 import type { Costume } from "@/lib/types/costume";
+
+export const metadata: Metadata = { title: "Kostüm erfassen" };
 
 const VALID_COSTUME_TYPES = ["single", "ensemble", "serie"] as const;
 type CostumeType = (typeof VALID_COSTUME_TYPES)[number];

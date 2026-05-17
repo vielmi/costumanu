@@ -164,7 +164,7 @@ export function SuchmodusFilterClient({
           onClick={() => router.back()}
           aria-label="Zurück"
         >
-          <Image src="/icons/icon-close-medium.svg" alt="" width={24} height={24} />
+          <Image src="/icons/icon-close-small.svg" alt="" width={24} height={24} />
         </button>
       </header>
 

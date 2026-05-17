@@ -23,6 +23,16 @@ function useDebounce(value: string, delay: number): string {
   return debouncedValue;
 }
 
+function stemGerman(q: string): string {
+  const lower = q.toLowerCase();
+  for (const suffix of ["es", "en", "em", "er", "e"]) {
+    if (lower.endsWith(suffix) && lower.length > suffix.length + 1) {
+      return lower.slice(0, -suffix.length);
+    }
+  }
+  return lower;
+}
+
 export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState(initialQuery);
@@ -42,22 +52,39 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
       const FIELDS =
         "id, name, costume_provenance(production_title, year), costume_media(storage_path, sort_order)";
 
-      // 1) FTS on name + description
-      // 2) Taxonomy term match (colors, materials, epochs, etc.)
+      // For very short queries use a simple name prefix match — FTS and
+      // taxonomy searches produce too many false positives (e.g. "ba" matches
+      // the material "Baumwolle" and returns every cotton costume).
+      if (debouncedQuery.length < 3) {
+        const { data } = await supabase
+          .from("costumes")
+          .select(FIELDS)
+          .ilike("name", `${debouncedQuery}%`)
+          .limit(8);
+        return (data ?? []) as Suggestion[];
+      }
+
+      const stemmed = stemGerman(debouncedQuery);
+      // Prefix match (not contains) keeps taxonomy results intentional:
+      // "bal" → "Ballkleid" but not "Baumwolle" or accidental mid-word hits.
+      const ilikeFilter =
+        stemmed !== debouncedQuery.toLowerCase()
+          ? `label_de.ilike.${debouncedQuery}%,label_de.ilike.${stemmed}%`
+          : `label_de.ilike.${debouncedQuery}%`;
+
       const [ftsResult, termResult] = await Promise.all([
         supabase
           .from("costumes")
           .select(FIELDS)
           .textSearch("fts_doc", debouncedQuery, { type: "websearch" })
           .limit(8),
-        supabase.from("taxonomy_terms").select("id").ilike("label_de", `%${debouncedQuery}%`),
+        supabase.from("taxonomy_terms").select("id").or(ilikeFilter),
       ]);
 
       if (ftsResult.error) console.error("[SuchmodusSearch] fts error:", ftsResult.error);
 
       const ftsData = (ftsResult.data ?? []) as Suggestion[];
 
-      // Fetch costumes matching the taxonomy terms
       let taxonomyData: Suggestion[] = [];
       const termIds = (termResult.data ?? []).map((t) => t.id);
       if (termIds.length > 0) {
@@ -78,7 +105,6 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
         }
       }
 
-      // Merge and deduplicate (FTS results first)
       const seen = new Set<string>();
       return [...ftsData, ...taxonomyData]
         .filter((c) => {
@@ -135,8 +161,8 @@ export function SuchmodusSearchClient({ initialQuery }: { initialQuery: string }
           )}
         </div>
 
-        <Link href="/suchmodus" className={styles.cancelLink}>
-          Abbrechen
+        <Link href="/suchmodus" className={styles.closeBtn} aria-label="Schließen">
+          <Image src="/icons/icon-close-small.svg" alt="" width={16} height={16} />
         </Link>
       </div>
 

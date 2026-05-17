@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { SuchmodusFilterClient } from "@/components/suchmodus/suchmodus-filter-client";
+
+export const metadata: Metadata = { title: "Filter" };
 
 export default async function SuchmodusFilterPage() {
   const supabase = await createClient();

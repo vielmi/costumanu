@@ -17,6 +17,7 @@
 /* ─── Pill input ────────────────────────────────────────────────────────── */
 .inputWrap {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   height: 60px;
@@ -72,15 +73,19 @@
   padding: 0;
 }
 
-/* ─── Cancel link ───────────────────────────────────────────────────────── */
-.cancelLink {
+/* ─── Close button ──────────────────────────────────────────────────────── */
+.closeBtn {
   flex-shrink: 0;
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-200);
-  font-weight: var(--font-weight-400);
-  color: var(--neutral-black);
-  text-decoration: underline;
-  white-space: nowrap;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: opacity 120ms ease;
+}
+.closeBtn:hover {
+  opacity: 1;
 }
 
 /* ─── Suggestions section ───────────────────────────────────────────────── */

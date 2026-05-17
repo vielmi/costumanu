@@ -353,7 +353,17 @@ export function WishlistDetailClient({
                       onClick={() => toggleSelect(c.itemId)}
                       aria-label={selectedIds.has(c.itemId) ? "Abwählen" : "Auswählen"}
                     >
-                      {selectedIds.has(c.itemId) && <span className={styles.itemCheckboxInner} />}
+                      {selectedIds.has(c.itemId) && (
+                        <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
+                          <path
+                            d="M1 4L4.5 7.5L11 1"
+                            stroke="white"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      )}
                     </button>
                   </div>
                 ) : (
@@ -500,7 +510,7 @@ export function WishlistDetailClient({
                 onClick={() => setShowRename(false)}
                 aria-label="Schliessen"
               >
-                <Image src="/icons/icon-close-medium.svg" alt="" width={24} height={24} />
+                <Image src="/icons/icon-close-small.svg" alt="" width={24} height={24} />
               </button>
             </div>
             <div className={styles.renameInputWrap}>

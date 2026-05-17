@@ -1,4 +1,5 @@
 import { redirect, notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { WishlistDetailClient } from "@/components/wishlist/wishlist-detail-client";
 
@@ -13,6 +14,17 @@ export type WishlistCostume = {
   status: string | null;
   theaterName: string | null;
 };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data } = await supabase.from("wishlists").select("name").eq("id", id).single();
+  return { title: data?.name ?? "Merkliste" };
+}
 
 export default async function WishlistDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -71,7 +83,7 @@ export default async function WishlistDetailPage({ params }: { params: Promise<{
         : [];
       const sorted = [...media].sort((a, b) => a.sort_order - b.sort_order);
       const imageUrl = sorted[0]
-        ? `${supabaseUrl}/storage/v1/object/public/costume-media/${sorted[0].storage_path}`
+        ? `${supabaseUrl}/storage/v1/object/public/costume-images/${sorted[0].storage_path}`
         : null;
 
       const items: { current_status: string | null; storage_location_path: string | null }[] =

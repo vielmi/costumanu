@@ -14,15 +14,16 @@ import { MerklisteAddModal } from "@/components/suchmodus/merkliste-add-modal";
 import { CostumeActivityLog } from "@/components/costume/costume-activity-log";
 import { createClient } from "@/lib/supabase/client";
 import { deleteCostume } from "@/lib/services/costume-service";
-import { getGenderIcon } from "@/lib/constants/icons";
+import { getGenderIcon, getClothingTypeIcon } from "@/lib/constants/icons";
 import { t } from "@/lib/i18n";
 import type { Costume, TaxonomyTerm } from "@/lib/types/costume";
+import styles from "./costume-detail-client.module.css";
 
 const STATUS_OPTIONS: { value: string; label: string; color: string }[] = [
   { value: "available", label: "Verfügbar", color: "var(--accent-01)" },
-  { value: "cleaning", label: "Reinigung", color: "var(--color-warning)" },
-  { value: "in_progress", label: "In Arbeit", color: "var(--color-error)" },
   { value: "rented", label: "Ausgeliehen", color: "var(--color-error)" },
+  { value: "cleaning", label: "Reinigung", color: "var(--color-warning)" },
+  { value: "in_repair", label: "In Reparatur", color: "var(--color-error)" },
   { value: "reserved", label: "Reserviert", color: "var(--color-error)" },
   { value: "stage", label: "Bühne", color: "var(--color-error)" },
   { value: "rehearsal", label: "Probebühne", color: "var(--color-error)" },
@@ -35,6 +36,7 @@ type CostumeDetailClientProps = {
   taxonomyByVocabulary: Record<string, TaxonomyTerm[]>;
   ensembleChildren: Costume[];
   similarCostumes: Costume[];
+  currentUserName?: string;
 };
 
 export function CostumeDetailClient({
@@ -42,6 +44,7 @@ export function CostumeDetailClient({
   taxonomyByVocabulary,
   ensembleChildren,
   similarCostumes,
+  currentUserName = "",
 }: CostumeDetailClientProps) {
   const router = useRouter();
   const supabase = createClient();
@@ -55,6 +58,12 @@ export function CostumeDetailClient({
   const [actionError, setActionError] = useState<string | null>(null);
   const isMobile = useIsMobile();
 
+  const itemId = firstItem?.id ?? null;
+  const [currentStatus, setCurrentStatus] = useState(firstItem?.current_status ?? "available");
+  const [statusMenuOpen, setStatusMenuOpen] = useState(false);
+  const statusWrapRef = useRef<HTMLDivElement>(null);
+
+  const [showShareModal, setShowShareModal] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [showBookmarkModal, setShowBookmarkModal] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
@@ -72,8 +81,38 @@ export function CostumeDetailClient({
     return () => clearTimeout(timer);
   }, [toastMsg]);
 
-  const isAvailable = firstItem?.current_status === "available";
-  const statusOption = STATUS_OPTIONS.find((o) => o.value === firstItem?.current_status);
+  const statusOption = STATUS_OPTIONS.find((o) => o.value === currentStatus) ?? STATUS_OPTIONS[0];
+
+  const theater = costume.theater;
+  const mailTo = theater?.contact_email ?? "";
+  const costumeUrl = `${typeof window !== "undefined" ? window.location.origin : "https://app.palcopiu.com"}/costume/${costume.id}`;
+  const mailSubject = `Kostümanfrage: ${costume.name}${theater ? ` – ${theater.name}` : ""}`;
+  const mailBodyLines: string[] = [
+    `Guten Tag${theater?.contact_name ? ` ${theater.contact_name}` : ""},`,
+    "",
+    `ich bin auf palcoPiù auf das folgende Kostüm aufmerksam geworden und würde mich über eine Ausleihe freuen:`,
+    "",
+    `Kostüm:  ${costume.name}`,
+  ];
+  if (theater) mailBodyLines.push(`Theater: ${theater.name}`);
+  mailBodyLines.push(
+    `Link:    ${costumeUrl}`,
+    "",
+    `Ist das Kostüm verfügbar? Über eine kurze Rückmeldung würde ich mich sehr freuen.`,
+    "",
+    "Freundliche Grüsse",
+    currentUserName
+  );
+  const mailBody = mailBodyLines.join("\r\n");
+  const mailtoHref = `mailto:${mailTo}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`;
+
+  async function handleStatusChange(value: string) {
+    setCurrentStatus(value);
+    setStatusMenuOpen(false);
+    if (itemId) {
+      await supabase.from("costume_items").update({ current_status: value }).eq("id", itemId);
+    }
+  }
 
   async function handleDelete() {
     setDeleting(true);
@@ -398,125 +437,83 @@ export function CostumeDetailClient({
               )}
 
               {/* Title */}
-              <h1
-                style={{
-                  fontFamily: "var(--font-family-base)",
-                  fontSize: "var(--font-size-600)",
-                  fontWeight: 700,
-                  color: "var(--neutral-black)",
-                  margin: 0,
-                  lineHeight: 1.15,
-                }}
-              >
+              <h1 className={styles.costumeTitle} style={{ marginBottom: 8 }}>
                 {costume.name}
               </h1>
 
-              {/* Gender | shirt | size */}
-              {(costume.gender_term || firstItem?.size_label) && (
-                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                  {costume.gender_term && (
-                    <>
-                      <GoldIcon
-                        src={`/icons/icon-${getGenderIcon(costume.gender_term.label_de)}.svg`}
-                        size={20}
-                      />
-                      <Divider />
-                    </>
-                  )}
-                  <GoldIcon src="/icons/icon-shirt.svg" size={20} />
-                  {firstItem?.size_label && (
-                    <>
-                      <Divider />
-                      <span
-                        style={{
-                          fontFamily: "var(--font-family-base)",
-                          fontSize: "var(--font-size-200)",
-                          color: "var(--primary-900)",
-                          fontWeight: 500,
-                        }}
-                      >
-                        {firstItem.size_label}
-                      </span>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {/* Availability */}
-              {firstItem && (
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span
-                    style={{
-                      width: 22,
-                      height: 22,
-                      borderRadius: "50%",
-                      flexShrink: 0,
-                      background: statusOption?.color ?? "var(--neutral-grey-400)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {isAvailable && (
-                      <Image
-                        src="/icons/icon-check.svg"
-                        alt=""
-                        width={10}
-                        height={10}
-                        style={{ filter: "invert(1)" }}
-                      />
-                    )}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-family-base)",
-                      fontSize: "var(--font-size-200)",
-                      color: "var(--neutral-grey-700)",
-                    }}
-                  >
-                    {costume.theater ? `${costume.theater.name}, ` : ""}
-                    {statusOption?.label ?? firstItem.current_status}
-                  </span>
-                </div>
-              )}
-
-              {/* Anfragen button */}
-              <button
-                type="button"
-                style={{
-                  width: "100%",
-                  height: 62,
-                  borderRadius: "var(--radius-md)",
-                  background: "var(--primary-900)",
-                  color: "var(--neutral-white)",
-                  border: "none",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 10,
-                  fontFamily: "var(--font-family-base)",
-                  fontSize: "var(--font-size-300)",
-                  fontWeight: 500,
-                }}
-              >
-                Anfragen
-                <Image
-                  src="/icons/icon-mail.svg"
-                  alt=""
-                  width={20}
-                  height={20}
-                  style={{ filter: "invert(1)" }}
+              {/* Gender | shirt | size + Status dropdown */}
+              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                {costume.gender_term && (
+                  <>
+                    <GoldIcon
+                      src={`/icons/icon-${getGenderIcon(costume.gender_term.label_de)}.svg`}
+                      size={20}
+                    />
+                    <Divider />
+                  </>
+                )}
+                <GoldIcon
+                  src={`/icons/${getClothingTypeIcon(costume.clothing_type?.label_de)}.svg`}
+                  size={20}
                 />
-              </button>
+                {firstItem?.size_label && (
+                  <>
+                    <Divider />
+                    <span
+                      style={{
+                        fontFamily: "var(--font-family-base)",
+                        fontSize: "var(--font-size-200)",
+                        color: "var(--primary-900)",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {firstItem.size_label}
+                    </span>
+                  </>
+                )}
+                <Divider />
+                <div className={styles.statusWrap} ref={statusWrapRef}>
+                  <button
+                    type="button"
+                    className={styles.statusTrigger}
+                    onClick={() => setStatusMenuOpen((v) => !v)}
+                  >
+                    <span className={styles.statusDot} style={{ background: statusOption.color }} />
+                    <span>{statusOption.label}</span>
+                    <span className={styles.statusArrow} />
+                  </button>
+                  {statusMenuOpen && (
+                    <>
+                      <div
+                        className={styles.statusBackdrop}
+                        onClick={() => setStatusMenuOpen(false)}
+                      />
+                      <div className={styles.statusMenuDown}>
+                        {STATUS_OPTIONS.map((o) => (
+                          <button
+                            key={o.value}
+                            type="button"
+                            onClick={() => handleStatusChange(o.value)}
+                            className={`${styles.statusOption} ${o.value === currentStatus ? styles.statusOptionActive : ""}`}
+                          >
+                            <span className={styles.statusDot} style={{ background: o.color }} />
+                            {o.label}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
 
               {/* Teilen | Merken */}
               <div style={{ display: "flex", gap: 12 }}>
                 <button
                   type="button"
+                  onClick={() => setShowShareModal(true)}
                   style={{
                     flex: 1,
-                    height: 52,
+                    height: 62,
                     borderRadius: "var(--radius-md)",
                     background: "transparent",
                     color: "var(--primary-900)",
@@ -539,7 +536,7 @@ export function CostumeDetailClient({
                   onClick={handleBookmark}
                   style={{
                     flex: 1,
-                    height: 52,
+                    height: 62,
                     borderRadius: "var(--radius-md)",
                     background: isBookmarked ? "var(--primary-900)" : "transparent",
                     color: isBookmarked ? "var(--neutral-white)" : "var(--primary-900)",
@@ -624,160 +621,129 @@ export function CostumeDetailClient({
               style={{
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
-                gap: 10,
+                gap: 40,
                 padding: "0 32px 48px",
-                alignItems: "stretch",
+                alignItems: "start",
               }}
             >
-              {/* Image carousel */}
-              <ImageCarousel
-                media={costume.costume_media ?? []}
-                name={costume.name}
-                height="480px"
-                objectFit="contain"
-                className=""
-              />
+              {/* Image carousel — square, cover */}
+              <div
+                style={{
+                  aspectRatio: "1 / 1",
+                  width: "100%",
+                  borderRadius: "var(--radius-md)",
+                  overflow: "hidden",
+                }}
+              >
+                <ImageCarousel
+                  media={costume.costume_media ?? []}
+                  name={costume.name}
+                  height="100%"
+                  objectFit="cover"
+                  className=""
+                />
+              </div>
 
               {/* Info panel */}
-              <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
                 {/* Category label + title */}
-                <div style={{ marginBottom: 16 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {costume.clothing_type && (
                     <p
                       style={{
                         fontFamily: "var(--font-family-base)",
-                        fontSize: "var(--font-size-150)",
+                        fontSize: "var(--font-size-200)",
                         color: "var(--neutral-grey-500)",
-                        margin: "0 0 6px",
+                        margin: 0,
                       }}
                     >
                       {costume.clothing_type.label_de}
                     </p>
                   )}
-                  <h1
-                    style={{
-                      fontFamily: "var(--font-family-base)",
-                      fontSize: "var(--font-size-600)",
-                      fontWeight: 400,
-                      color: "var(--neutral-grey-700)",
-                      margin: 0,
-                      lineHeight: 1.2,
-                    }}
-                  >
-                    {costume.name}
-                  </h1>
+                  <h1 className={styles.costumeTitle}>{costume.name}</h1>
                 </div>
-
-                <div style={{ flex: 1 }} />
 
                 {/* Bottom section */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  {/* Gender | shirt | size row */}
-                  {(costume.gender_term || firstItem?.size_label) && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-                      {costume.gender_term && (
-                        <>
-                          <GoldIcon
-                            src={`/icons/icon-${getGenderIcon(costume.gender_term.label_de)}.svg`}
-                            size={20}
-                          />
-                          <Divider />
-                        </>
-                      )}
-                      <GoldIcon src="/icons/icon-shirt.svg" size={20} />
-                      {firstItem?.size_label && (
-                        <>
-                          <Divider />
-                          <span
-                            style={{
-                              fontFamily: "var(--font-family-base)",
-                              fontSize: "var(--font-size-200)",
-                              color: "var(--primary-900)",
-                              fontWeight: 500,
-                            }}
-                          >
-                            {firstItem.size_label}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Availability */}
-                  {firstItem && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span
-                        style={{
-                          width: 22,
-                          height: 22,
-                          borderRadius: "50%",
-                          flexShrink: 0,
-                          background: statusOption?.color ?? "var(--neutral-grey-400)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        {isAvailable && (
-                          <Image
-                            src="/icons/icon-check.svg"
-                            alt=""
-                            width={10}
-                            height={10}
-                            style={{ filter: "invert(1)" }}
-                          />
-                        )}
-                      </span>
-                      <span
-                        style={{
-                          fontFamily: "var(--font-family-base)",
-                          fontSize: "var(--font-size-200)",
-                          color: "var(--neutral-grey-700)",
-                        }}
-                      >
-                        {costume.theater ? `${costume.theater.name}, ` : ""}
-                        {statusOption?.label ?? firstItem.current_status}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Anfragen button */}
-                  <button
-                    type="button"
-                    style={{
-                      width: "100%",
-                      height: 62,
-                      borderRadius: "var(--radius-md)",
-                      background: "var(--primary-900)",
-                      color: "var(--neutral-white)",
-                      border: "none",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 10,
-                      fontFamily: "var(--font-family-base)",
-                      fontSize: "var(--font-size-300)",
-                      fontWeight: 500,
-                    }}
-                  >
-                    Anfragen
-                    <Image
-                      src="/icons/icon-mail.svg"
-                      alt=""
-                      width={20}
-                      height={20}
-                      style={{ filter: "invert(1)" }}
+                  {/* Gender | shirt | size + Status dropdown */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                    {costume.gender_term && (
+                      <>
+                        <GoldIcon
+                          src={`/icons/icon-${getGenderIcon(costume.gender_term.label_de)}.svg`}
+                          size={20}
+                        />
+                        <Divider />
+                      </>
+                    )}
+                    <GoldIcon
+                      src={`/icons/${getClothingTypeIcon(costume.clothing_type?.label_de)}.svg`}
+                      size={20}
                     />
-                  </button>
+                    {firstItem?.size_label && (
+                      <>
+                        <Divider />
+                        <span
+                          style={{
+                            fontFamily: "var(--font-family-base)",
+                            fontSize: "var(--font-size-200)",
+                            color: "var(--primary-900)",
+                            fontWeight: 500,
+                          }}
+                        >
+                          {firstItem.size_label}
+                        </span>
+                      </>
+                    )}
+                    <Divider />
+                    <div className={styles.statusWrap}>
+                      <button
+                        type="button"
+                        className={styles.statusTrigger}
+                        onClick={() => setStatusMenuOpen((v) => !v)}
+                      >
+                        <span
+                          className={styles.statusDot}
+                          style={{ background: statusOption.color }}
+                        />
+                        <span>{statusOption.label}</span>
+                        <span className={styles.statusArrow} />
+                      </button>
+                      {statusMenuOpen && (
+                        <>
+                          <div
+                            className={styles.statusBackdrop}
+                            onClick={() => setStatusMenuOpen(false)}
+                          />
+                          <div className={styles.statusMenuDown}>
+                            {STATUS_OPTIONS.map((o) => (
+                              <button
+                                key={o.value}
+                                type="button"
+                                onClick={() => handleStatusChange(o.value)}
+                                className={`${styles.statusOption} ${o.value === currentStatus ? styles.statusOptionActive : ""}`}
+                              >
+                                <span
+                                  className={styles.statusDot}
+                                  style={{ background: o.color }}
+                                />
+                                {o.label}
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
 
                   {/* Teilen | Merken */}
-                  <div style={{ display: "flex", gap: 12 }}>
+                  <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
                     <button
                       type="button"
+                      onClick={() => setShowShareModal(true)}
                       style={{
                         flex: 1,
-                        height: 52,
+                        height: 62,
                         borderRadius: "var(--radius-md)",
                         background: "transparent",
                         color: "var(--primary-900)",
@@ -800,7 +766,7 @@ export function CostumeDetailClient({
                       onClick={handleBookmark}
                       style={{
                         flex: 1,
-                        height: 52,
+                        height: 62,
                         borderRadius: "var(--radius-md)",
                         background: isBookmarked ? "var(--primary-900)" : "transparent",
                         color: isBookmarked ? "var(--neutral-white)" : "var(--primary-900)",
@@ -913,6 +879,15 @@ export function CostumeDetailClient({
         <CostumeActivityLog costumeId={costume.id} onClose={() => setShowHistory(false)} />
       )}
 
+      {showShareModal && (
+        <ShareModal
+          costumeUrl={costumeUrl}
+          costumeName={costume.name}
+          mailtoHref={mailtoHref}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
+
       {toastMsg && (
         <div
           style={{
@@ -968,6 +943,150 @@ export function CostumeDetailClient({
         </div>
       )}
     </>
+  );
+}
+
+function ShareModal({
+  costumeUrl,
+  costumeName,
+  mailtoHref,
+  onClose,
+}: {
+  costumeUrl: string;
+  costumeName: string;
+  mailtoHref: string;
+  onClose: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    await navigator.clipboard.writeText(costumeUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  const whatsappHref = `https://wa.me/?text=${encodeURIComponent(`${costumeName} – ${costumeUrl}`)}`;
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,0.4)",
+          zIndex: 200,
+          backdropFilter: "blur(2px)",
+        }}
+      />
+      {/* Sheet */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: "var(--neutral-white)",
+          borderRadius: "var(--radius-lg) var(--radius-lg) 0 0",
+          padding: "24px 24px 40px",
+          zIndex: 201,
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+          maxWidth: 540,
+          margin: "0 auto",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 8,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "var(--font-family-base)",
+              fontSize: "var(--font-size-300)",
+              fontWeight: 500,
+            }}
+          >
+            Teilen
+          </span>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
+          >
+            <Image src="/icons/icon-close-small.svg" alt="Schliessen" width={20} height={20} />
+          </button>
+        </div>
+
+        {/* Copy link */}
+        <ShareRow
+          icon="/icons/icon-share.svg"
+          label={copied ? "Link kopiert!" : "Link kopieren"}
+          onClick={handleCopy}
+        />
+
+        {/* WhatsApp */}
+        <a
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: "none" }}
+        >
+          <ShareRow icon="/icons/icon-whatsapp.svg" label="WhatsApp" />
+        </a>
+
+        {/* E-Mail */}
+        <a href={mailtoHref} style={{ textDecoration: "none" }}>
+          <ShareRow icon="/icons/icon-mail.svg" label="E-Mail" />
+        </a>
+      </div>
+    </>
+  );
+}
+
+function ShareRow({ icon, label, onClick }: { icon: string; label: string; onClick?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 16,
+        width: "100%",
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        padding: "12px 0",
+        borderBottom: "1px solid var(--neutral-grey-100)",
+        fontFamily: "var(--font-family-base)",
+        fontSize: "var(--font-size-300)",
+        color: "var(--neutral-grey-700)",
+        textAlign: "left",
+      }}
+    >
+      <span
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: "50%",
+          background: "var(--neutral-grey-100)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        <Image src={icon} alt="" width={20} height={20} />
+      </span>
+      {label}
+    </button>
   );
 }
 

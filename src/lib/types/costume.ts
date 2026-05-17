@@ -67,6 +67,8 @@ export interface Costume {
     name: string;
     slug: string;
     address_info?: Record<string, unknown> | null;
+    contact_name?: string | null;
+    contact_email?: string | null;
   } | null;
   custom_fields?: Record<string, unknown> | null;
   // For ensemble children
