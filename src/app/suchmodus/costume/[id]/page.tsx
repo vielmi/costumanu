@@ -38,7 +38,9 @@ export default async function SuchmodusCostumeDetailPage({ params }: { params: P
   if (error || !costume) notFound();
 
   // Current user name for mailto body
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   let currentUserName = "";
   if (user) {
     const { data: profile } = await supabase

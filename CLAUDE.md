@@ -20,6 +20,7 @@
 ## Brand
 
 **Slogan (vollständig):**
+
 > Die digitale Plattform für Fundusnetzwerke aus Theater, Film und Musical. Kostüme suchen, leihen und verwalten.
 
 Verwendet als Meta-Description in `src/app/layout.tsx`. Nicht kürzen oder umformulieren ohne Absprache.

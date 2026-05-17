@@ -101,7 +101,7 @@ export function CostumeDetailClient({
     `Ist das Kostüm verfügbar? Über eine kurze Rückmeldung würde ich mich sehr freuen.`,
     "",
     "Freundliche Grüsse",
-    currentUserName,
+    currentUserName
   );
   const mailBody = mailBodyLines.join("\r\n");
   const mailtoHref = `mailto:${mailTo}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`;
@@ -452,7 +452,10 @@ export function CostumeDetailClient({
                     <Divider />
                   </>
                 )}
-                <GoldIcon src={`/icons/${getClothingTypeIcon(costume.clothing_type?.label_de)}.svg`} size={20} />
+                <GoldIcon
+                  src={`/icons/${getClothingTypeIcon(costume.clothing_type?.label_de)}.svg`}
+                  size={20}
+                />
                 {firstItem?.size_label && (
                   <>
                     <Divider />
@@ -481,7 +484,10 @@ export function CostumeDetailClient({
                   </button>
                   {statusMenuOpen && (
                     <>
-                      <div className={styles.statusBackdrop} onClick={() => setStatusMenuOpen(false)} />
+                      <div
+                        className={styles.statusBackdrop}
+                        onClick={() => setStatusMenuOpen(false)}
+                      />
                       <div className={styles.statusMenuDown}>
                         {STATUS_OPTIONS.map((o) => (
                           <button
@@ -621,7 +627,14 @@ export function CostumeDetailClient({
               }}
             >
               {/* Image carousel — square, cover */}
-              <div style={{ aspectRatio: "1 / 1", width: "100%", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
+              <div
+                style={{
+                  aspectRatio: "1 / 1",
+                  width: "100%",
+                  borderRadius: "var(--radius-md)",
+                  overflow: "hidden",
+                }}
+              >
                 <ImageCarousel
                   media={costume.costume_media ?? []}
                   name={costume.name}
@@ -647,9 +660,7 @@ export function CostumeDetailClient({
                       {costume.clothing_type.label_de}
                     </p>
                   )}
-                  <h1 className={styles.costumeTitle}>
-                    {costume.name}
-                  </h1>
+                  <h1 className={styles.costumeTitle}>{costume.name}</h1>
                 </div>
 
                 {/* Bottom section */}
@@ -665,7 +676,10 @@ export function CostumeDetailClient({
                         <Divider />
                       </>
                     )}
-                    <GoldIcon src={`/icons/${getClothingTypeIcon(costume.clothing_type?.label_de)}.svg`} size={20} />
+                    <GoldIcon
+                      src={`/icons/${getClothingTypeIcon(costume.clothing_type?.label_de)}.svg`}
+                      size={20}
+                    />
                     {firstItem?.size_label && (
                       <>
                         <Divider />
@@ -688,13 +702,19 @@ export function CostumeDetailClient({
                         className={styles.statusTrigger}
                         onClick={() => setStatusMenuOpen((v) => !v)}
                       >
-                        <span className={styles.statusDot} style={{ background: statusOption.color }} />
+                        <span
+                          className={styles.statusDot}
+                          style={{ background: statusOption.color }}
+                        />
                         <span>{statusOption.label}</span>
                         <span className={styles.statusArrow} />
                       </button>
                       {statusMenuOpen && (
                         <>
-                          <div className={styles.statusBackdrop} onClick={() => setStatusMenuOpen(false)} />
+                          <div
+                            className={styles.statusBackdrop}
+                            onClick={() => setStatusMenuOpen(false)}
+                          />
                           <div className={styles.statusMenuDown}>
                             {STATUS_OPTIONS.map((o) => (
                               <button
@@ -703,7 +723,10 @@ export function CostumeDetailClient({
                                 onClick={() => handleStatusChange(o.value)}
                                 className={`${styles.statusOption} ${o.value === currentStatus ? styles.statusOptionActive : ""}`}
                               >
-                                <span className={styles.statusDot} style={{ background: o.color }} />
+                                <span
+                                  className={styles.statusDot}
+                                  style={{ background: o.color }}
+                                />
                                 {o.label}
                               </button>
                             ))}
@@ -950,24 +973,46 @@ function ShareModal({
       <div
         onClick={onClose}
         style={{
-          position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)",
-          zIndex: 200, backdropFilter: "blur(2px)",
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,0.4)",
+          zIndex: 200,
+          backdropFilter: "blur(2px)",
         }}
       />
       {/* Sheet */}
       <div
         style={{
-          position: "fixed", bottom: 0, left: 0, right: 0,
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
           background: "var(--neutral-white)",
           borderRadius: "var(--radius-lg) var(--radius-lg) 0 0",
           padding: "24px 24px 40px",
           zIndex: 201,
-          display: "flex", flexDirection: "column", gap: 12,
-          maxWidth: 540, margin: "0 auto",
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+          maxWidth: 540,
+          margin: "0 auto",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-          <span style={{ fontFamily: "var(--font-family-base)", fontSize: "var(--font-size-300)", fontWeight: 500 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 8,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "var(--font-family-base)",
+              fontSize: "var(--font-size-300)",
+              fontWeight: 500,
+            }}
+          >
             Teilen
           </span>
           <button
@@ -987,7 +1032,12 @@ function ShareModal({
         />
 
         {/* WhatsApp */}
-        <a href={whatsappHref} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+        <a
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: "none" }}
+        >
           <ShareRow icon="/icons/icon-whatsapp.svg" label="WhatsApp" />
         </a>
 
@@ -1006,9 +1056,14 @@ function ShareRow({ icon, label, onClick }: { icon: string; label: string; onCli
       type="button"
       onClick={onClick}
       style={{
-        display: "flex", alignItems: "center", gap: 16,
-        width: "100%", background: "none", border: "none",
-        cursor: "pointer", padding: "12px 0",
+        display: "flex",
+        alignItems: "center",
+        gap: 16,
+        width: "100%",
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        padding: "12px 0",
         borderBottom: "1px solid var(--neutral-grey-100)",
         fontFamily: "var(--font-family-base)",
         fontSize: "var(--font-size-300)",
@@ -1016,11 +1071,18 @@ function ShareRow({ icon, label, onClick }: { icon: string; label: string; onCli
         textAlign: "left",
       }}
     >
-      <span style={{
-        width: 40, height: 40, borderRadius: "50%",
-        background: "var(--neutral-grey-100)",
-        display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-      }}>
+      <span
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: "50%",
+          background: "var(--neutral-grey-100)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
         <Image src={icon} alt="" width={20} height={20} />
       </span>
       {label}

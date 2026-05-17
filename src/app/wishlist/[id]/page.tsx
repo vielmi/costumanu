@@ -15,7 +15,11 @@ export type WishlistCostume = {
   theaterName: string | null;
 };
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
   const { id } = await params;
   const supabase = await createClient();
   const { data } = await supabase.from("wishlists").select("name").eq("id", id).single();

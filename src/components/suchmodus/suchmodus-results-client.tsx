@@ -89,7 +89,9 @@ function CostumeCard({
         <div className={styles.cardAvailability}>
           <span
             className={styles.availDot}
-            style={{ background: STATUS_DOT_COLOR[costume.status ?? ""] ?? "var(--neutral-grey-400)" }}
+            style={{
+              background: STATUS_DOT_COLOR[costume.status ?? ""] ?? "var(--neutral-grey-400)",
+            }}
           >
             {costume.status === "available" && (
               <Image src="/icons/icon-check.svg" alt="" width={10} height={10} />
@@ -231,7 +233,7 @@ export function SuchmodusResultsClient({
             Kostümfilter
           </span>
         </Link>
-<StandortSheet theaters={theaters} />
+        <StandortSheet theaters={theaters} />
         <Link href="/suchmodus/search" className={styles.filterCircle}>
           <Image
             src="/icons/icon-search.svg"

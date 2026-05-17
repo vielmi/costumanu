@@ -315,7 +315,12 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
                 height={14}
               />
               <div style={{ width: "0.8px", height: 12, background: "var(--neutral-grey-300)" }} />
-              <Image src={`/icons/${clothingIcon}.svg`} alt={costume.clothing_type?.label_de ?? ""} width={14} height={14} />
+              <Image
+                src={`/icons/${clothingIcon}.svg`}
+                alt={costume.clothing_type?.label_de ?? ""}
+                width={14}
+                height={14}
+              />
             </div>
           </div>
 
@@ -357,7 +362,12 @@ function CostumeRow({ costume, isActive }: { costume: RecentCostume; isActive: b
               height={16}
             />
             <div style={{ width: "0.8px", height: 20, background: "var(--neutral-grey-300)" }} />
-            <Image src={`/icons/${clothingIcon}.svg`} alt={costume.clothing_type?.label_de ?? ""} width={16} height={16} />
+            <Image
+              src={`/icons/${clothingIcon}.svg`}
+              alt={costume.clothing_type?.label_de ?? ""}
+              width={16}
+              height={16}
+            />
           </div>
 
           <StatusDot status={status} />
@@ -546,7 +556,11 @@ export function CockpitContent({ recentCostumes }: CockpitContentProps) {
           Zuletzt bearbeitete{" "}
           <Link
             href="/fundus"
-            style={{ fontWeight: "var(--font-weight-700)", textDecoration: "underline", color: "inherit" }}
+            style={{
+              fontWeight: "var(--font-weight-700)",
+              textDecoration: "underline",
+              color: "inherit",
+            }}
           >
             Kostüme
           </Link>

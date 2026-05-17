@@ -284,7 +284,9 @@ function TaxonomyTab({
     setSaving(false);
     if (err) {
       if (err.code === "23503") {
-        setError("Dieser Eintrag kann nicht gelöscht werden, da er noch von anderen Einträgen verwendet wird.");
+        setError(
+          "Dieser Eintrag kann nicht gelöscht werden, da er noch von anderen Einträgen verwendet wird."
+        );
       } else {
         setError("Löschen fehlgeschlagen. Bitte versuche es erneut.");
       }
@@ -998,7 +1000,13 @@ function TheaterTab({ initialTheaters }: { initialTheaters: Theater[] }) {
           setTheaters((prev) =>
             prev.map((t) =>
               t.id === editTarget.id
-                ? { ...t, name, slug, contact_name: contactName || null, contact_email: contactEmail || null }
+                ? {
+                    ...t,
+                    name,
+                    slug,
+                    contact_name: contactName || null,
+                    contact_email: contactEmail || null,
+                  }
                 : t
             )
           );
@@ -4017,7 +4025,10 @@ function TheaterAddressTab({
             <input
               type="text"
               value={contactName}
-              onChange={(e) => { setContactName(e.target.value); setContactSuccess(false); }}
+              onChange={(e) => {
+                setContactName(e.target.value);
+                setContactSuccess(false);
+              }}
               style={{ ...inputStyle, width: "100%" }}
               placeholder="z.B. Maria Muster"
             />
@@ -4027,7 +4038,10 @@ function TheaterAddressTab({
             <input
               type="email"
               value={contactEmail}
-              onChange={(e) => { setContactEmail(e.target.value); setContactSuccess(false); }}
+              onChange={(e) => {
+                setContactEmail(e.target.value);
+                setContactSuccess(false);
+              }}
               style={{ ...inputStyle, width: "100%" }}
               placeholder="z.B. kostüm@theater.ch"
             />

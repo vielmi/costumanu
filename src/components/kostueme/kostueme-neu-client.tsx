@@ -1130,12 +1130,22 @@ export function KostuemeNeuClient({
                 className="btn-primary"
                 style={{ whiteSpace: "nowrap" }}
               >
-                {saving ? "Speichert..." : savedSuccess ? (
+                {saving ? (
+                  "Speichert..."
+                ) : savedSuccess ? (
                   <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     Gespeichert
-                    <Image src="/icons/icon-checkmark.svg" alt="" width={14} height={14} style={{ filter: "invert(1)" }} />
+                    <Image
+                      src="/icons/icon-checkmark.svg"
+                      alt=""
+                      width={14}
+                      height={14}
+                      style={{ filter: "invert(1)" }}
+                    />
                   </span>
-                ) : "Speichern"}
+                ) : (
+                  "Speichern"
+                )}
               </button>
               {saveError && (
                 <span
@@ -1366,7 +1376,17 @@ export function KostuemeNeuClient({
                           <div
                             className={`${styles.clothingCheckbox} ${isActive ? styles.clothingCheckboxActive : ""}`}
                           >
-                            {isActive && <svg width="12" height="9" viewBox="0 0 12 9" fill="none"><path d="M1 4L4.5 7.5L11 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                            {isActive && (
+                              <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
+                                <path
+                                  d="M1 4L4.5 7.5L11 1"
+                                  stroke="white"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            )}
                           </div>
                           <span className={styles.clothingLabel}>{label}</span>
                         </button>
@@ -1645,7 +1665,9 @@ export function KostuemeNeuClient({
                             }
                             className={`${styles.checkboxBtn} ${isActive ? styles.checkboxBtnActive : ""}`}
                           >
-                            <div className={`${styles.checkbox} ${isActive ? styles.checkboxActive : ""}`}>
+                            <div
+                              className={`${styles.checkbox} ${isActive ? styles.checkboxActive : ""}`}
+                            >
                               {isActive && <div className={styles.checkboxDot} />}
                             </div>
                             <span className={styles.checkboxLabel}>{o.label}</span>
@@ -1681,7 +1703,9 @@ export function KostuemeNeuClient({
                             }
                             className={`${styles.checkboxBtn} ${isActive ? styles.checkboxBtnActive : ""}`}
                           >
-                            <div className={`${styles.checkbox} ${isActive ? styles.checkboxActive : ""}`}>
+                            <div
+                              className={`${styles.checkbox} ${isActive ? styles.checkboxActive : ""}`}
+                            >
                               {isActive && <div className={styles.checkboxDot} />}
                             </div>
                             <span className={styles.checkboxLabel}>{o.label}</span>

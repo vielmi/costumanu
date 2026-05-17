@@ -206,7 +206,9 @@ export default async function SuchmodusResultsPage({
     const yr = Number(params.year);
     if (!isNaN(yr)) {
       filtered = filtered.filter((r) =>
-        (r.costume_provenance as ProvenanceRow[])?.some((p) => (p as { year?: number | null }).year === yr)
+        (r.costume_provenance as ProvenanceRow[])?.some(
+          (p) => (p as { year?: number | null }).year === yr
+        )
       );
     }
   }

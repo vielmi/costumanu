@@ -265,7 +265,17 @@ export function FundusClient({
               onClick={toggleSelectAll}
               aria-label="Alle auswählen"
             >
-              {allSelected && <svg width="12" height="9" viewBox="0 0 12 9" fill="none"><path d="M1 4L4.5 7.5L11 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+              {allSelected && (
+                <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
+                  <path
+                    d="M1 4L4.5 7.5L11 1"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
             </button>
             <h1 className={styles.heading}>Kostüme</h1>
           </div>
@@ -638,7 +648,9 @@ function CostumeCard({
 
   const selectedStatus = STATUS_OPTIONS.find((o) => o.value === currentStatus) ?? STATUS_OPTIONS[0];
   const genderIcon = getGenderIcon((costume.gender_term as { label_de?: string } | null)?.label_de);
-  const clothingIcon = getClothingTypeIcon((costume.clothing_type as { label_de?: string } | null)?.label_de);
+  const clothingIcon = getClothingTypeIcon(
+    (costume.clothing_type as { label_de?: string } | null)?.label_de
+  );
 
   const firstProvenance = costume.costume_provenance?.[0];
   const subtitle = firstProvenance
@@ -753,7 +765,17 @@ function CostumeCard({
               }}
               aria-label={isSelected ? "Abwählen" : "Auswählen"}
             >
-              {isSelected && <svg width="12" height="9" viewBox="0 0 12 9" fill="none"><path d="M1 4L4.5 7.5L11 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+              {isSelected && (
+                <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
+                  <path
+                    d="M1 4L4.5 7.5L11 1"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
             </button>
           </div>
         ) : (
@@ -829,7 +851,12 @@ function CostumeCard({
               height={18}
             />
             <div className={styles.iconDivider} />
-            <Image src={`/icons/${clothingIcon}.svg`} alt={costume.clothing_type?.label_de ?? ""} width={18} height={18} />
+            <Image
+              src={`/icons/${clothingIcon}.svg`}
+              alt={costume.clothing_type?.label_de ?? ""}
+              width={18}
+              height={18}
+            />
           </div>
 
           {/* More menu */}
@@ -888,7 +915,9 @@ function CostumeListRow({
 
   const selectedStatus = STATUS_OPTIONS.find((o) => o.value === currentStatus) ?? STATUS_OPTIONS[0];
   const genderIcon = getGenderIcon((costume.gender_term as { label_de?: string } | null)?.label_de);
-  const clothingIcon = getClothingTypeIcon((costume.clothing_type as { label_de?: string } | null)?.label_de);
+  const clothingIcon = getClothingTypeIcon(
+    (costume.clothing_type as { label_de?: string } | null)?.label_de
+  );
   const firstProvenance = costume.costume_provenance?.[0];
   const productionLabel = firstProvenance
     ? [firstProvenance.production_title, firstProvenance.year].filter(Boolean).join(" / ")
@@ -1020,7 +1049,17 @@ function CostumeListRow({
               onClick={onToggleSelect}
               aria-label={isSelected ? "Abwählen" : "Auswählen"}
             >
-              {isSelected && <svg width="12" height="9" viewBox="0 0 12 9" fill="none"><path d="M1 4L4.5 7.5L11 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+              {isSelected && (
+                <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
+                  <path
+                    d="M1 4L4.5 7.5L11 1"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
             </button>
           ) : (
             <ContextMenu
@@ -1059,7 +1098,12 @@ function CostumeListRow({
             height={16}
           />
           <div style={{ width: "0.8px", height: 20, background: "var(--neutral-grey-300)" }} />
-          <Image src={`/icons/${clothingIcon}.svg`} alt={costume.clothing_type?.label_de ?? ""} width={16} height={16} />
+          <Image
+            src={`/icons/${clothingIcon}.svg`}
+            alt={costume.clothing_type?.label_de ?? ""}
+            width={16}
+            height={16}
+          />
         </div>
 
         {/* Status area — on mobile wraps to full-width second row */}
@@ -1073,7 +1117,12 @@ function CostumeListRow({
               height={16}
             />
             <div style={{ width: "0.8px", height: 16, background: "var(--neutral-grey-300)" }} />
-            <Image src={`/icons/${clothingIcon}.svg`} alt={costume.clothing_type?.label_de ?? ""} width={16} height={16} />
+            <Image
+              src={`/icons/${clothingIcon}.svg`}
+              alt={costume.clothing_type?.label_de ?? ""}
+              width={16}
+              height={16}
+            />
           </div>
 
           {/* Status dropdown */}

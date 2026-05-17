@@ -147,8 +147,12 @@
   z-index: 2;
 }
 
-.carouselPrev { left: 12px; }
-.carouselNext { right: 12px; }
+.carouselPrev {
+  left: 12px;
+}
+.carouselNext {
+  right: 12px;
+}
 
 .imageDots {
   display: flex;
@@ -515,7 +519,6 @@
   flex-direction: column;
   gap: 10px;
 }
-
 
 .specInlinePillLabel {
   font-family: var(--font-family-base);

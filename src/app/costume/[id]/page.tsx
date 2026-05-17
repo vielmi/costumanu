@@ -43,7 +43,9 @@ export default async function CostumeDetailPage({ params }: { params: Params }) 
   }
 
   // Current user info for mailto body
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const { data: profile } = await supabase
     .from("profiles")
     .select("display_name")

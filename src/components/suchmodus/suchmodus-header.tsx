@@ -19,7 +19,11 @@ export function SuchmodusHeader({ genderTerms = [] }: { genderTerms?: GenderTerm
         <AppLogo href={logoHref} />
       </div>
       <div className={styles.headerIcons}>
-        <Link href="/kostueme/neu?camera=true" className={styles.headerIcon} aria-label="Kostüm erfassen">
+        <Link
+          href="/kostueme/neu?camera=true"
+          className={styles.headerIcon}
+          aria-label="Kostüm erfassen"
+        >
           <Image src="/icons/icon-camera.svg" alt="" width={24} height={24} />
         </Link>
         <Link href="/wishlist" className={styles.headerIcon} aria-label="Merkliste">

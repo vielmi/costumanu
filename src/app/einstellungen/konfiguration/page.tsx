@@ -152,7 +152,11 @@ export default async function KonfigurationPage() {
       .eq("theater_id", theaterId)
       .order("sort_order"),
     supabase.from("subscriptions").select("tier").eq("theater_id", theaterId).maybeSingle(),
-    admin.from("theaters").select("name, address_info, contact_name, contact_email").eq("id", theaterId).single(),
+    admin
+      .from("theaters")
+      .select("name, address_info, contact_name, contact_email")
+      .eq("id", theaterId)
+      .single(),
     getTheaterLocations(supabase, theaterId),
   ]);
 

@@ -85,9 +85,29 @@ function Accordion({
       <button type="button" className={styles.accordionHeader} onClick={() => setOpen((v) => !v)}>
         <span className={styles.accordionTitle}>{title}</span>
         {open ? (
-          <span style={{ fontSize: 20, fontWeight: 400, lineHeight: 1, color: "var(--secondary-900)", flexShrink: 0 }}>×</span>
+          <span
+            style={{
+              fontSize: 20,
+              fontWeight: 400,
+              lineHeight: 1,
+              color: "var(--secondary-900)",
+              flexShrink: 0,
+            }}
+          >
+            ×
+          </span>
         ) : (
-          <span style={{ fontSize: 22, fontWeight: 300, lineHeight: 1, color: "var(--secondary-900)", flexShrink: 0 }}>+</span>
+          <span
+            style={{
+              fontSize: 22,
+              fontWeight: 300,
+              lineHeight: 1,
+              color: "var(--secondary-900)",
+              flexShrink: 0,
+            }}
+          >
+            +
+          </span>
         )}
       </button>
       <div className={styles.accordionLine} />
@@ -175,9 +195,10 @@ export function SuchmodusCostumeDetailClient({
     return () => clearTimeout(t);
   }, [toastMsg]);
 
-  const costumeUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/suchmodus/costume/${id}`
-    : `https://app.palcopiu.com/suchmodus/costume/${id}`;
+  const costumeUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/suchmodus/costume/${id}`
+      : `https://app.palcopiu.com/suchmodus/costume/${id}`;
   const mailTo = theater?.contact_email ?? "";
   const mailSubject = `Kostümanfrage: ${name}${theater ? ` – ${theater.name}` : ""}`;
   const mailBodyLines = [
@@ -386,7 +407,10 @@ export function SuchmodusCostumeDetailClient({
               alt=""
               width={22}
               height={22}
-              style={{ filter: "invert(64%) sepia(31%) saturate(718%) hue-rotate(1deg) brightness(88%) contrast(89%)" }}
+              style={{
+                filter:
+                  "invert(64%) sepia(31%) saturate(718%) hue-rotate(1deg) brightness(88%) contrast(89%)",
+              }}
             />
           </button>
           <button
@@ -400,7 +424,10 @@ export function SuchmodusCostumeDetailClient({
               alt=""
               width={18}
               height={18}
-              style={{ filter: "invert(64%) sepia(31%) saturate(718%) hue-rotate(1deg) brightness(88%) contrast(89%)" }}
+              style={{
+                filter:
+                  "invert(64%) sepia(31%) saturate(718%) hue-rotate(1deg) brightness(88%) contrast(89%)",
+              }}
             />
           </button>
         </div>
